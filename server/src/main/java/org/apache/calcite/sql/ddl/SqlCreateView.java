@@ -51,9 +51,9 @@ import static org.apache.calcite.util.Static.RESOURCE;
  */
 public class SqlCreateView extends SqlCreate
     implements SqlExecutableStatement {
-  private final SqlIdentifier name;
-  private final SqlNodeList columnList;
-  private final SqlNode query;
+  public final SqlIdentifier name;
+  public final SqlNodeList columnList;
+  public final SqlNode query;
 
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("CREATE VIEW", SqlKind.CREATE_VIEW);

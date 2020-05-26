@@ -39,7 +39,7 @@ import static org.apache.calcite.util.Static.RESOURCE;
  */
 abstract class SqlDropObject extends SqlDrop
     implements SqlExecutableStatement {
-  protected final SqlIdentifier name;
+  public final SqlIdentifier name;
 
   /** Creates a SqlDropObject. */
   SqlDropObject(SqlOperator operator, SqlParserPos pos, boolean ifExists,
