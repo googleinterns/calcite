@@ -94,6 +94,10 @@ public class BigQuerySqlDialect extends SqlDialect {
     super(context);
   }
 
+  @Override public boolean canOmitDuplicateAlias() {
+    return true;
+  }
+
   @Override protected boolean identifierNeedsQuote(String val) {
     return !IDENTIFIER_REGEX.matcher(val).matches()
         || RESERVED_KEYWORDS.contains(val.toUpperCase(Locale.ROOT));
