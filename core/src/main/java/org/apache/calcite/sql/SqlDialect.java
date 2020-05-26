@@ -632,6 +632,12 @@ public class SqlDialect {
     return false;
   }
 
+  /** Whether an alias that is identical to the identifier it is representing can be omitted.
+   */
+  public boolean canOmitDuplicateAlias() {
+    return false;
+  }
+
   /** Returns whether a qualified table in the FROM clause has an implicit alias
    * which consists of just the table name.
    *
