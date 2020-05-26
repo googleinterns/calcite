@@ -73,14 +73,26 @@ public class SqlAsOperator extends SqlSpecialOperator {
     final SqlWriter.Frame frame =
         writer.startList(
             SqlWriter.FrameTypeEnum.AS);
-    call.operand(0).unparse(writer, leftPrec, getLeftPrec());
+    SqlNode node = call.operand(0);
+    SqlNode alias = call.operand(1);
+    node.unparse(writer, leftPrec, getLeftPrec());
+    // If the alias is identical to the identifier, consider eliding it.
+    if (!writer.getDialect().canOmitDuplicateAlias()
+        || !(alias instanceof SqlIdentifier)
+        || !node.toString().equals(alias.toString())) {
+      unparseAlias(writer, alias, call, rightPrec);
+    }
+    writer.endList(frame);
+  }
+
+  private void unparseAlias(SqlWriter writer, SqlNode alias, SqlCall call, int rightPrec) {
     final boolean needsSpace = true;
     writer.setNeedWhitespace(needsSpace);
     if (writer.getDialect().allowsAs()) {
       writer.sep("AS");
       writer.setNeedWhitespace(needsSpace);
     }
-    call.operand(1).unparse(writer, getRightPrec(), rightPrec);
+    alias.unparse(writer, getRightPrec(), rightPrec);
     if (call.operandCount() > 2) {
       final SqlWriter.Frame frame1 =
           writer.startList(SqlWriter.FrameTypeEnum.SIMPLE, "(", ")");
@@ -90,7 +102,6 @@ public class SqlAsOperator extends SqlSpecialOperator {
       }
       writer.endList(frame1);
     }
-    writer.endList(frame);
   }
 
   public void validateCall(
