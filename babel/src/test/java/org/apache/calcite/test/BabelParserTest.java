@@ -281,4 +281,19 @@ class BabelParserTest extends SqlParserTest {
         + "(`BAR` INTEGER NOT NULL, `BAZ` VARCHAR(30))";
     sql(sql).ok(expected);
   }
+
+  @Test public void testInsertWithoutValuesKeywordSingleRow() {
+    final String sql = "insert into foo (1,'hi')";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(1, 'hi'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInsertWithoutValuesKeywordMultipleRows() {
+    final String sql = "insert into foo (1,'hi'), (2,'there')";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(1, 'hi')),\n"
+        + "(ROW(2, 'there'))";
+    sql(sql).ok(expected);
+  }
 }

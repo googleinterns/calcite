@@ -400,6 +400,10 @@ data: {
     dropStatementParserMethods: [
     ]
 
+    # List of methods for parsing extensions to "INSERT" calls.
+    insertStatementParserMethods: [
+    ]
+
     # Binary operators tokens
     binaryOperatorsTokens: [
     ]
