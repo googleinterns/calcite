@@ -875,6 +875,11 @@ data: {
     dropStatementParserMethods: [
     ]
 
+    # List of methods for parsing extensions to "INSERT" calls.
+    insertStatementParserMethods: [
+      "SqlInsertWithOptionalValuesKeyword"
+    ]
+
     # Binary operators tokens
     binaryOperatorsTokens: [
       "< INFIX_CAST: \"::\" >"
