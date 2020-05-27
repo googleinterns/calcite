@@ -160,6 +160,20 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     }
 }
 
+SqlNode SqlInsertWithOptionalValuesKeyword() :
+{
+    SqlNodeList rowConstructorList;
+    final Span s;
+}
+{
+    [<VALUES>] { s = span(); }
+    rowConstructorList = RowConstructorList(s)
+    {
+        return SqlStdOperatorTable.VALUES.createCall(
+            s.end(this), rowConstructorList.toArray());
+    }
+}
+
 /* Extra operators */
 
 <DEFAULT, DQID, BTID> TOKEN :

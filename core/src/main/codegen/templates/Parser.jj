@@ -1571,7 +1571,15 @@ SqlNode SqlInsert() :
             }
         }
     ]
-    source = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY) {
+    (
+<#-- additional literal parser methods are included here -->
+<#list parser.insertStatementParserMethods as method>
+        source = ${method}()
+    |
+</#list>
+        source = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+    )
+    {
         return new SqlInsert(s.end(source), keywordList, table, source,
             columnList);
     }
