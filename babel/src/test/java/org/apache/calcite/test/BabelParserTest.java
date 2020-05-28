@@ -282,6 +282,13 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testInsertWithSelectInParens() {
+    final String sql = "insert into foo (SELECT * FROM bar)";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "(SELECT *\nFROM `BAR`)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testInsertWithoutValuesKeywordSingleRow() {
     final String sql = "insert into foo (1,'hi')";
     final String expected = "INSERT INTO `FOO`\n"
