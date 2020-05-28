@@ -160,6 +160,20 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     }
 }
 
+/** 
+	Reason for having this is to be able to return the SqlExecMacro class since Parser.jj does not have it as a reference. 
+	This can also likely be extended to accomodate optional parameters later if need be.
+*/
+SqlNode SqlExecMacro(Span s, SqlNode macro) : 
+{
+
+}
+{
+	{
+		return new SqlExecMacro(s.end(this), macro);
+	}
+}
+
 SqlNode SqlInsertWithOptionalValuesKeyword() :
 {
     SqlNodeList rowConstructorList;

@@ -404,6 +404,10 @@ data: {
     insertStatementParserMethods: [
     ]
 
+    # List of methods for parsing expressions to "EXEC" calls.
+    execStatementParserMethods: [
+    ]
+
     # Binary operators tokens
     binaryOperatorsTokens: [
     ]

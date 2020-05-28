@@ -1015,6 +1015,10 @@ SqlNode SqlStmt() :
         stmt = SqlCreate()
     |
 </#if>
+<#if parser.execStatementParserMethods?size != 0>
+		stmt = SqlExec()
+	|
+</#if>
 <#if parser.dropStatementParserMethods?size != 0>
         stmt = SqlDrop()
     |
@@ -3955,7 +3959,32 @@ SqlCreate SqlCreate() :
     }
 }
 </#if>
-
+<#if parser.execStatementParserMethods?size != 0>
+/**
+ * Parses an EXEC statement
+ */
+SqlNode SqlExec() :
+{
+    final Span s;
+	SqlNode macro;
+	SqlNode source;
+}
+{
+	/** Macro has the same domain as Table so TableRef() works */
+	<EXEC> macro = TableRef() { s = span(); }	
+	(
+<#-- additional literal parser methods are included here -->
+<#list parser.execStatementParserMethods as method>
+		source = ${method}(s, macro)
+	|
+</#list>
+        source = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+	)
+	{
+		return source;
+	}
+}
+</#if>
 <#if parser.dropStatementParserMethods?size != 0>
 /**
  * Parses a DROP statement.

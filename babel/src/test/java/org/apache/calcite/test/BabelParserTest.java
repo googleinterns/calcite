@@ -303,4 +303,11 @@ class BabelParserTest extends SqlParserTest {
         + "(ROW(2, 'there'))";
     sql(sql).ok(expected);
   }
+
+  @Test public void testExecMacro() {
+    final String sql = "exec foo";
+    final String expected = "EXEC `FOO`";
+    sql(sql).ok(expected);
+  }
+
 }
