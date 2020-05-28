@@ -1015,6 +1015,10 @@ SqlNode SqlStmt() :
         stmt = SqlCreate()
     |
 </#if>
+<#if parser.execStatementParserMethods?size != 0>
+        stmt = SqlExec()
+    |
+</#if>
 <#if parser.dropStatementParserMethods?size != 0>
         stmt = SqlDrop()
     |
@@ -3955,7 +3959,32 @@ SqlCreate SqlCreate() :
     }
 }
 </#if>
-
+<#if parser.execStatementParserMethods?size != 0>
+/**
+ * Parses an EXEC statement
+ */
+SqlNode SqlExec() :
+{
+    SqlNode source;
+}
+{
+    (
+        <EXEC> 
+    | 
+        <EXECUTE>
+    )
+    (
+<#-- additional literal parser methods are included here -->
+<#list parser.execStatementParserMethods as method>
+        source =  ${method}()
+        <#sep>|</#sep>
+</#list>
+    )
+    {
+        return source;
+    }
+}
+</#if>
 <#if parser.dropStatementParserMethods?size != 0>
 /**
  * Parses a DROP statement.
