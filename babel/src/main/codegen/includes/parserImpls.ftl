@@ -166,11 +166,49 @@ SqlNode SqlInsertWithOptionalValuesKeyword() :
     final Span s;
 }
 {
-    [<VALUES>] { s = span(); }
-    rowConstructorList = RowConstructorList(s)
+    { s = span(); }
+    rowConstructorList = LiteralRowConstructorList(s)
     {
-        return SqlStdOperatorTable.VALUES.createCall(
-            s.end(this), rowConstructorList.toArray());
+        return SqlStdOperatorTable.VALUES.createCall(s.end(this),
+            rowConstructorList.toArray());
+    }
+}
+
+SqlNodeList LiteralRowConstructorList(Span s) :
+{
+    List<SqlNode> rowList = new ArrayList<SqlNode>();
+    SqlNode rowConstructor;
+}
+{
+    rowConstructor = LiteralRowConstructor()
+    { rowList.add(rowConstructor); }
+    (
+        LOOKAHEAD(2)
+        <COMMA> rowConstructor = LiteralRowConstructor()
+        { rowList.add(rowConstructor); }
+    )*
+    {
+        return new SqlNodeList(rowList, s.end(this));
+    }
+}
+
+SqlNode LiteralRowConstructor() :
+{
+    final Span s = Span.of();
+    SqlNodeList valueList = new SqlNodeList(getPos());
+    SqlNode e;
+}
+{
+    <LPAREN>
+    e = AtomicRowExpression() { valueList.add(e); }
+    (
+        LOOKAHEAD(2)
+        <COMMA> e = AtomicRowExpression() { valueList.add(e); }
+    )*
+    <RPAREN>
+    {
+        return SqlStdOperatorTable.ROW.createCall(s.end(valueList),
+            valueList.toArray());
     }
 }
 
