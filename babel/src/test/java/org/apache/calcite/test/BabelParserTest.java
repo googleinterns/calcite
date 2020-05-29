@@ -282,6 +282,25 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableAsWithData() {
+    final String sql = "create table foo as ( select * from bar ) with data";
+    final String expected = "CREATE TABLE `FOO` AS\n"
+        + "SELECT *\nFROM `BAR` WITH DATA";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableOnCommitPreserveRows() {
+    final String sql = "create table foo (bar int) on commit preserve rows";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) ON COMMIT PRESERVE ROWS";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableOnCommitReleaseRows() {
+    final String sql = "create table foo (bar int) on commit release rows";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) ON COMMIT RELEASE ROWS";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testInsertWithSelectInParens() {
     final String sql = "insert into foo (SELECT * FROM bar)";
     final String expected = "INSERT INTO `FOO`\n"

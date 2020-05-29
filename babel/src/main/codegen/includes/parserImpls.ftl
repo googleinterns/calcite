@@ -98,6 +98,25 @@ boolean IsVolatileOpt() :
     { return false; }
 }
 
+OnCommitType OnCommitTypeOpt() :
+{
+    OnCommitType onCommitType;
+}
+{
+    (
+        <ON> <COMMIT>
+        (
+            <PRESERVE> { onCommitType = OnCommitType.PRESERVE; }
+        |
+            <RELEASE> { onCommitType = OnCommitType.RELEASE; }
+        )
+        <ROWS>
+    |
+        { onCommitType = OnCommitType.UNSPECIFIED; }
+    )
+    { return onCommitType; }
+}
+
 SqlNodeList ExtendColumnList() :
 {
     final Span s;
@@ -142,6 +161,8 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     final SqlIdentifier id;
     final SqlNodeList columnList;
     final SqlNode query;
+    boolean withData = false;
+    final OnCommitType onCommitType;
 }
 {
     setType = SetTypeOpt() isVolatile = IsVolatileOpt() <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
@@ -152,11 +173,18 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     )
     (
         <AS> query = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+        [
+            <WITH> <DATA> {
+                withData = true;
+            }
+        ]
     |
         { query = null; }
     )
+    onCommitType = OnCommitTypeOpt()
     {
-        return new SqlCreateTable(s.end(this), replace, setType, isVolatile, ifNotExists, id, columnList, query);
+        return new SqlCreateTable(s.end(this), replace, setType, isVolatile, ifNotExists, id,
+            columnList, query, withData, onCommitType);
     }
 }
 

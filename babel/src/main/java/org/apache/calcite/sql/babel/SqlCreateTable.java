@@ -42,6 +42,8 @@ public class SqlCreateTable extends SqlCreate
   public final boolean isVolatile;
   public final SqlNodeList columnList;
   public final SqlNode query;
+  public final boolean withData;
+  public final OnCommitType onCommitType;
 
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("CREATE TABLE", SqlKind.CREATE_TABLE);
@@ -49,12 +51,21 @@ public class SqlCreateTable extends SqlCreate
   /** Creates a SqlCreateTable. */
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, boolean isVolatile,
       boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
+    this(pos, replace, setType, isVolatile, ifNotExists, name, columnList, query,
+        /*withData=*/false, /*onCommitType=*/OnCommitType.UNSPECIFIED);
+  }
+
+  public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, boolean isVolatile,
+      boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query,
+      boolean withData, OnCommitType onCommitType) {
     super(OPERATOR, pos, replace, ifNotExists);
     this.name = Objects.requireNonNull(name);
     this.setType = setType;
     this.isVolatile = isVolatile;
     this.columnList = columnList; // may be null
     this.query = query; // for "CREATE TABLE ... AS query"; may be null
+    this.withData = withData;
+    this.onCommitType = onCommitType;
   }
 
   @Override public List<SqlNode> getOperandList() {
@@ -93,6 +104,19 @@ public class SqlCreateTable extends SqlCreate
       writer.keyword("AS");
       writer.newlineAndIndent();
       query.unparse(writer, 0, 0);
+    }
+    if (withData) {
+      writer.keyword("WITH DATA");
+    }
+    switch (onCommitType) {
+    case PRESERVE:
+      writer.keyword("ON COMMIT PRESERVE ROWS");
+      break;
+    case RELEASE:
+      writer.keyword("ON COMMIT RELEASE ROWS");
+      break;
+    default:
+      break;
     }
   }
 

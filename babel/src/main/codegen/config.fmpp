@@ -22,6 +22,7 @@ data: {
     # List of import statements.
     imports: [
       "org.apache.calcite.sql.SqlCreate",
+      "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
