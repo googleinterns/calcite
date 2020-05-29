@@ -1259,8 +1259,10 @@ SqlSelect SqlSelect() :
 {
     (
         <SELECT>
+    <#if parser.includeSelKeyword>
     |
         <SEL>
+    </#if>
     )
     {
         s = span();
@@ -7242,7 +7244,6 @@ SqlPostfixOperator PostfixRowOperator() :
 |   < SECTION: "SECTION" >
 |   < SECURITY: "SECURITY" >
 |   < SEEK: "SEEK" >
-|   < SEL: "SEL" >
 |   < SELECT: "SELECT" >
 |   < SELF: "SELF" >
 |   < SENSITIVE: "SENSITIVE" >
