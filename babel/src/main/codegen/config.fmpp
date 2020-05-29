@@ -30,7 +30,6 @@ data: {
     # List of keywords.
     keywords: [
       "IF"
-      "SEL"
       "SEMI"
       "VOLATILE"
     ]
@@ -241,6 +240,7 @@ data: {
       "SECONDS"
       "SECTION"
       "SECURITY"
+      "SEL"
       "SELF"
       "SEQUENCE"
       "SERIALIZABLE"
