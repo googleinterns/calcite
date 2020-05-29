@@ -1257,7 +1257,11 @@ SqlSelect SqlSelect() :
     final Span s;
 }
 {
-    <SELECT>
+    (
+        <SELECT>
+    |
+        <SEL>
+    )
     {
         s = span();
     }
@@ -7230,6 +7234,7 @@ SqlPostfixOperator PostfixRowOperator() :
 |   < SECTION: "SECTION" >
 |   < SECURITY: "SECURITY" >
 |   < SEEK: "SEEK" >
+|   < SEL: "SEL" >
 |   < SELECT: "SELECT" >
 |   < SELF: "SELF" >
 |   < SENSITIVE: "SENSITIVE" >
