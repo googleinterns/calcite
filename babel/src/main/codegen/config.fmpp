@@ -30,6 +30,7 @@ data: {
     # List of keywords.
     keywords: [
       "IF"
+      "SEL"
       "SEMI"
       "VOLATILE"
     ]
@@ -240,7 +241,6 @@ data: {
       "SECONDS"
       "SECTION"
       "SECURITY"
-      "SEL"
       "SELF"
       "SEQUENCE"
       "SERIALIZABLE"
@@ -352,6 +352,7 @@ data: {
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
       # not in core, added in babel
+      "SEL"
       "SEMI"
 
       # The following keywords are reserved in core Calcite,
