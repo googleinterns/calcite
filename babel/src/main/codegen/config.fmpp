@@ -30,9 +30,9 @@ data: {
     # List of keywords.
     keywords: [
       "IF"
+      "SEL"
       "SEMI"
       "VOLATILE"
-      "SEL"
     ]
 
     # List of keywords from "keywords" section that are not reserved.
