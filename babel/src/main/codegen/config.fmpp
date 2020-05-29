@@ -32,6 +32,7 @@ data: {
       "IF"
       "SEMI"
       "VOLATILE"
+      "SEL"
     ]
 
     # List of keywords from "keywords" section that are not reserved.
@@ -902,6 +903,7 @@ data: {
     includeCompoundIdentifier: true
     includeBraces: true
     includeAdditionalDeclarations: false
+    includeSelKeyword: true
   }
 }
 

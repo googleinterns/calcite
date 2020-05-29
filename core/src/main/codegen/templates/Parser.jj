@@ -1257,7 +1257,13 @@ SqlSelect SqlSelect() :
     final Span s;
 }
 {
-    <SELECT>
+    (
+        <SELECT>
+<#if parser.includeSelKeyword>
+    |
+        <SEL>
+</#if>
+    )
     {
         s = span();
     }
