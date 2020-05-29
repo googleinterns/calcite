@@ -69,6 +69,149 @@ SqlNode DateaddFunctionCall() :
     }
 }
 
+boolean IfNotExistsOpt() :
+{
+}
+{
+    <IF> <NOT> <EXISTS> { return true; }
+|
+    { return false; }
+}
+
+SetType SetTypeOpt() :
+{
+}
+{
+    <MULTISET> { return SetType.MULTISET; }
+|
+    <SET> { return SetType.SET; }
+|
+    { return SetType.UNSPECIFIED; }
+}
+
+boolean IsVolatileOpt() :
+{
+}
+{
+    <VOLATILE> { return true; }
+|
+    { return false; }
+}
+
+SqlNodeList ExtendColumnList() :
+{
+    final Span s;
+    List<SqlNode> list = new ArrayList<SqlNode>();
+}
+{
+    <LPAREN> { s = span(); }
+    ColumnWithType(list)
+    (
+        <COMMA> ColumnWithType(list)
+    )*
+    <RPAREN> {
+        return new SqlNodeList(list, s.end(this));
+    }
+}
+
+void ColumnWithType(List<SqlNode> list) :
+{
+    SqlIdentifier id;
+    SqlDataTypeSpec type;
+    boolean nullable = true;
+    final Span s = Span.of();
+}
+{
+    id = CompoundIdentifier()
+    type = DataType()
+    [
+        <NOT> <NULL> {
+            nullable = false;
+        }
+    ]
+    {
+        list.add(SqlDdlNodes.column(s.add(id).end(this), id, type.withNullable(nullable), null, null));
+    }
+}
+
+SqlCreate SqlCreateTable(Span s, boolean replace) :
+{
+    final SetType setType;
+    final boolean isVolatile;
+    final boolean ifNotExists;
+    final SqlIdentifier id;
+    final SqlNodeList columnList;
+    final SqlNode query;
+}
+{
+    setType = SetTypeOpt() isVolatile = IsVolatileOpt() <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
+    (
+        columnList = ExtendColumnList()
+    |
+        { columnList = null; }
+    )
+    (
+        <AS> query = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+    |
+        { query = null; }
+    )
+    {
+        return new SqlCreateTable(s.end(this), replace, setType, isVolatile, ifNotExists, id, columnList, query);
+    }
+}
+
+SqlNode SqlInsertWithOptionalValuesKeyword() :
+{
+    SqlNodeList rowConstructorList;
+    final Span s;
+}
+{
+    { s = span(); }
+    rowConstructorList = LiteralRowConstructorList(s)
+    {
+        return SqlStdOperatorTable.VALUES.createCall(s.end(this),
+            rowConstructorList.toArray());
+    }
+}
+
+SqlNodeList LiteralRowConstructorList(Span s) :
+{
+    List<SqlNode> rowList = new ArrayList<SqlNode>();
+    SqlNode rowConstructor;
+}
+{
+    rowConstructor = LiteralRowConstructor()
+    { rowList.add(rowConstructor); }
+    (
+        LOOKAHEAD(2)
+        <COMMA> rowConstructor = LiteralRowConstructor()
+        { rowList.add(rowConstructor); }
+    )*
+    {
+        return new SqlNodeList(rowList, s.end(this));
+    }
+}
+
+SqlNode LiteralRowConstructor() :
+{
+    final Span s = Span.of();
+    SqlNodeList valueList = new SqlNodeList(getPos());
+    SqlNode e;
+}
+{
+    <LPAREN>
+    e = AtomicRowExpression() { valueList.add(e); }
+    (
+        LOOKAHEAD(2)
+        <COMMA> e = AtomicRowExpression() { valueList.add(e); }
+    )*
+    <RPAREN>
+    {
+        return SqlStdOperatorTable.ROW.createCall(s.end(valueList),
+            valueList.toArray());
+    }
+}
+
 /* Extra operators */
 
 <DEFAULT, DQID, BTID> TOKEN :

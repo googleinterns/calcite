@@ -262,4 +262,52 @@ class BabelParserTest extends SqlParserTest {
         + "FROM (VALUES (ROW(1, 2))) AS `TBL` (`X`, `Y`)";
     sql(sql).ok(expected);
   }
+
+  @Test public void testCreateTableWithNoSetTypeSpecified() {
+    final String sql = "create table foo (bar integer not null, baz varchar(30))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER NOT NULL, `BAZ` VARCHAR(30))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateSetTable() {
+    final String sql = "create set table foo (bar int not null, baz varchar(30))";
+    final String expected = "CREATE SET TABLE `FOO` (`BAR` INTEGER NOT NULL, `BAZ` VARCHAR(30))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateMultisetTable() {
+    final String sql = "create multiset table foo (bar int not null, baz varchar(30))";
+    final String expected = "CREATE MULTISET TABLE `FOO` "
+        + "(`BAR` INTEGER NOT NULL, `BAZ` VARCHAR(30))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateVolatileTable() {
+    final String sql = "create volatile table foo (bar int not null, baz varchar(30))";
+    final String expected = "CREATE VOLATILE TABLE `FOO` "
+        + "(`BAR` INTEGER NOT NULL, `BAZ` VARCHAR(30))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInsertWithSelectInParens() {
+    final String sql = "insert into foo (SELECT * FROM bar)";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "(SELECT *\nFROM `BAR`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInsertWithoutValuesKeywordSingleRow() {
+    final String sql = "insert into foo (1,'hi')";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(1, 'hi'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInsertWithoutValuesKeywordMultipleRows() {
+    final String sql = "insert into foo (1,'hi'), (2,'there')";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(1, 'hi')),\n"
+        + "(ROW(2, 'there'))";
+    sql(sql).ok(expected);
+  }
 }
