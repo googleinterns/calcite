@@ -303,4 +303,30 @@ class BabelParserTest extends SqlParserTest {
         + "(ROW(2, 'there'))";
     sql(sql).ok(expected);
   }
+
+  @Test public void testUpdateFromTable() {
+    final String sql = "update foo from bar set foo.x = bar.y, foo.z = bar.k";
+    final String expected = "UPDATE `FOO` FROM `BAR` SET `FOO`.`X` = `BAR`.`Y`, "
+        + "`FOO`.`Z` = `BAR`.`K`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testUpdateFromTableWithAlias() {
+    final String sql = "update foo from bar as b set foo.x = b.y, foo.z = b.k";
+    final String expected = "UPDATE `FOO` FROM `BAR` AS `B` SET `FOO`.`X` = `B`.`Y`, "
+        + "`FOO`.`Z` = `B`.`K`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testExecMacro() {
+    final String sql = "exec foo";
+    final String expected = "EXECUTE `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testExecuteMacro() {
+    final String sql = "execute foo";
+    final String expected = "EXECUTE `FOO`";
+    sql(sql).ok(expected);
+  }
 }

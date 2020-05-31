@@ -1015,6 +1015,10 @@ SqlNode SqlStmt() :
         stmt = SqlCreate()
     |
 </#if>
+<#if parser.execStatementParserMethods?size != 0>
+        stmt = SqlExec()
+    |
+</#if>
 <#if parser.dropStatementParserMethods?size != 0>
         stmt = SqlDrop()
     |
@@ -1629,6 +1633,8 @@ SqlNode SqlDelete() :
 SqlNode SqlUpdate() :
 {
     SqlNode table;
+    SqlNode secondTable = null;
+    SqlIdentifier secondAlias = null;
     SqlNodeList extendList = null;
     SqlIdentifier alias = null;
     SqlNode condition;
@@ -1651,7 +1657,12 @@ SqlNode SqlUpdate() :
         }
     ]
     [ [ <AS> ] alias = SimpleIdentifier() ]
-    <SET> id = SimpleIdentifier() {
+    (
+        <FROM> secondTable = TableRef()
+        [ [ <AS> ] secondAlias = SimpleIdentifier() ]
+    )?
+    /** CompoundIdentifier() can read statements like FOO.X, SimpleIdentifier() is unable to do this */
+    <SET> id = CompoundIdentifier() {
         targetColumnList.add(id);
     }
     <EQ> exp = Expression(ExprContext.ACCEPT_SUB_QUERY) {
@@ -1660,7 +1671,7 @@ SqlNode SqlUpdate() :
     }
     (
         <COMMA>
-        id = SimpleIdentifier()
+        id = CompoundIdentifier()
         {
             targetColumnList.add(id);
         }
@@ -1673,7 +1684,7 @@ SqlNode SqlUpdate() :
     {
         return new SqlUpdate(s.addAll(targetColumnList)
             .addAll(sourceExpressionList).addIf(condition).pos(), table,
-            targetColumnList, sourceExpressionList, condition, null, alias);
+            targetColumnList, sourceExpressionList, condition, null, alias, secondTable, secondAlias);
     }
 }
 
@@ -1742,7 +1753,7 @@ SqlUpdate WhenMatchedClause(SqlNode table, SqlIdentifier alias) :
     )*
     {
         return new SqlUpdate(s.addAll(updateExprList).pos(), table,
-            updateColumnList, updateExprList, null, null, alias);
+            updateColumnList, updateExprList, null, null, alias, /*secondTable=*/ null, /*secondAlias=*/ null);
     }
 }
 
@@ -3955,7 +3966,32 @@ SqlCreate SqlCreate() :
     }
 }
 </#if>
-
+<#if parser.execStatementParserMethods?size != 0>
+/**
+ * Parses an EXEC statement
+ */
+SqlNode SqlExec() :
+{
+    SqlNode source;
+}
+{
+    (
+        <EXEC> 
+    | 
+        <EXECUTE>
+    )
+    (
+<#-- additional literal parser methods are included here -->
+<#list parser.execStatementParserMethods as method>
+        source =  ${method}()
+        <#sep>|</#sep>
+</#list>
+    )
+    {
+        return source;
+    }
+}
+</#if>
 <#if parser.dropStatementParserMethods?size != 0>
 /**
  * Parses a DROP statement.
