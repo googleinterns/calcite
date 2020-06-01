@@ -3969,8 +3969,8 @@ SqlNode SqlExec() :
 }
 {
     (
-        <EXEC> 
-    | 
+        <EXEC>
+    |
         <EXECUTE>
     )
     (
