@@ -312,9 +312,9 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testUpdateFromTableWithAlias() {
-    final String sql = "update foo from bar as b set foo.x = b.y, foo.z = b.k";
-    final String expected = "UPDATE `FOO` FROM `BAR` AS `B` SET `FOO`.`X` = `B`.`Y`, "
-        + "`FOO`.`Z` = `B`.`K`";
+    final String sql = "update foo as f from bar as b set f.x = b.y, f.z = b.k";
+    final String expected = "UPDATE `FOO` AS `F` FROM `BAR` AS `B` SET `F`.`X` "
+        + "= `B`.`Y`, `F`.`Z` = `B`.`K`";
     sql(sql).ok(expected);
   }
 

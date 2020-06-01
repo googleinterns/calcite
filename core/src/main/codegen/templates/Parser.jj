@@ -1657,11 +1657,15 @@ SqlNode SqlUpdate() :
         }
     ]
     [ [ <AS> ] alias = SimpleIdentifier() ]
+<#if parser.allowUpdateFromTable>
     (
         <FROM> secondTable = TableRef()
         [ [ <AS> ] secondAlias = SimpleIdentifier() ]
     )?
-    /** CompoundIdentifier() can read statements like FOO.X, SimpleIdentifier() is unable to do this */
+</#if>
+    /* CompoundIdentifier() can read statements like FOO.X, SimpleIdentifier()
+        is unable to do this
+    */
     <SET> id = CompoundIdentifier() {
         targetColumnList.add(id);
     }
@@ -1684,7 +1688,8 @@ SqlNode SqlUpdate() :
     {
         return new SqlUpdate(s.addAll(targetColumnList)
             .addAll(sourceExpressionList).addIf(condition).pos(), table,
-            targetColumnList, sourceExpressionList, condition, null, alias, secondTable, secondAlias);
+            targetColumnList, sourceExpressionList, condition, null, alias,
+            secondTable, secondAlias);
     }
 }
 
@@ -1753,7 +1758,8 @@ SqlUpdate WhenMatchedClause(SqlNode table, SqlIdentifier alias) :
     )*
     {
         return new SqlUpdate(s.addAll(updateExprList).pos(), table,
-            updateColumnList, updateExprList, null, null, alias, /*secondTable=*/ null, /*secondAlias=*/ null);
+            updateColumnList, updateExprList, null, null, alias,
+            /*secondTable=*/ null, /*secondAlias=*/ null);
     }
 }
 
@@ -3976,8 +3982,8 @@ SqlNode SqlExec() :
 }
 {
     (
-        <EXEC> 
-    | 
+        <EXEC>
+    |
         <EXECUTE>
     )
     (

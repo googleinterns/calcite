@@ -424,6 +424,7 @@ data: {
       "parserImpls.ftl"
     ]
 
+    allowUpdateFromTable: false
     includePosixOperators: false
     includeCompoundIdentifier: true
     includeBraces: true
