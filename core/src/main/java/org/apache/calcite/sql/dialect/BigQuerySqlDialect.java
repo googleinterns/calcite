@@ -33,6 +33,7 @@ import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlOperator;
+import org.apache.calcite.sql.SqlOrderBy;
 import org.apache.calcite.sql.SqlSetOperator;
 import org.apache.calcite.sql.SqlSyntax;
 import org.apache.calcite.sql.SqlWriter;
@@ -161,6 +162,10 @@ public class BigQuerySqlDialect extends SqlDialect {
       break;
     case TRIM:
       unparseTrim(writer, call, leftPrec, rightPrec);
+      break;
+    case ORDER_BY:
+      SqlOrderBy orderBy = (SqlOrderBy) call;
+      orderBy.unparseWithParens(writer, call, leftPrec, rightPrec);
       break;
     default:
       super.unparseCall(writer, call, leftPrec, rightPrec);
