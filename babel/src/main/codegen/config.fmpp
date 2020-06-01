@@ -354,7 +354,6 @@ data: {
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
       # not in core, added in babel
-      "SEL"
       "SEMI"
 
       # The following keywords are reserved in core Calcite,
