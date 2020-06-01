@@ -308,6 +308,23 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTablePermutedColumnLevelAttributes() {
+    final String sql = "create table foo (bar int uppercase null casespecific, "
+        + "baz varchar(30) casespecific uppercase null)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER UPPERCASE "
+        + "CASESPECIFIC, `BAZ` VARCHAR(30) UPPERCASE CASESPECIFIC)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableNegatedColumnLevelAttributes() {
+    final String sql = "create table foo (bar int not null not uppercase not "
+        + "casespecific, baz varchar(30) not casespecific not uppercase not null)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER NOT NULL NOT "
+        + "UPPERCASE NOT CASESPECIFIC, `BAZ` VARCHAR(30) NOT NULL "
+        + "NOT UPPERCASE NOT CASESPECIFIC)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testInsertWithSelectInParens() {
     final String sql = "insert into foo (SELECT * FROM bar)";
     final String expected = "INSERT INTO `FOO`\n"
