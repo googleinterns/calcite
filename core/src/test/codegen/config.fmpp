@@ -395,6 +395,10 @@ data: {
       "SqlCreateTable"
     ]
 
+    # list of methods for parsing extensions to "SET" calls
+    setStatementParserMethods: [
+    ]
+
     # List of methods for parsing extensions to "DROP" calls.
     # Each must accept arguments "(SqlParserPos pos)".
     dropStatementParserMethods: [

@@ -3861,6 +3861,7 @@ SqlCall SequenceExpression() :
 SqlSetOption SqlSetOption(Span s, String scope) :
 {
     SqlIdentifier name;
+    SqlSetOption sqlSetOption;
     final SqlNode val;
 }
 {
@@ -3868,7 +3869,14 @@ SqlSetOption SqlSetOption(Span s, String scope) :
         <SET> {
             s.add(this);
         }
-        name = CompoundIdentifier()
+<#list parser.setStatementParserMethods as method>
+        sqlSetOption = ${method}(s, scope) {
+            return sqlSetOption;
+        }
+        <#sep>|</#sep>
+    |
+</#list>
+    name = CompoundIdentifier()
         <EQ>
         (
             val = Literal()
