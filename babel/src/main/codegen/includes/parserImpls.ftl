@@ -287,7 +287,7 @@ void InfixCast(List<Object> list, ExprContext exprContext, Span s) :
     }
 }
 
-// Parses inline MOD expression of form "x MOD y"
+// Parses inline MOD expression of form "x MOD y" where x, y must be numeric
 SqlNode InlineModOperator() :
 {
     final List<SqlNode> args = new ArrayList<SqlNode>();
