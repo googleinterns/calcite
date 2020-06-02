@@ -332,7 +332,7 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testCreateTableCaseSpecificColumnLevelAttribute() {
-    final String sql = "create table foo (bar int caseSpecific)";
+    final String sql = "create table foo (bar int casespecific)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CASESPECIFIC)";
     sql(sql).ok(expected);
   }
