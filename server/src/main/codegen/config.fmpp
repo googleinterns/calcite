@@ -442,6 +442,9 @@ data: {
     extraBinaryExpressions: [
     ]
 
+    preAtomicRowMethods: [
+    ]
+
     # List of files in @includes directory that have parser method
     # implementations for parsing custom SQL statements, literals or types
     # given as part of "statementParserMethods", "literalParserMethods" or

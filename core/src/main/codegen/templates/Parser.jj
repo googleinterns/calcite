@@ -3578,6 +3578,10 @@ SqlNode Expression3(ExprContext exprContext) :
 }
 {
     LOOKAHEAD(2)
+<#list parser.preAtomicRowMethods as method>
+    e = ${method} { return e; }
+|
+</#list>
     e = AtomicRowExpression()
     {
         checkNonQueryExpression(exprContext);
