@@ -297,7 +297,7 @@ SqlNode InlineModOperator() :
     SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;
     SqlLiteral quantifier = null;
 }
-{   
+{
     (
         e = NumericLiteral()
     |
