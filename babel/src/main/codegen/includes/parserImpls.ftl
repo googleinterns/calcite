@@ -133,23 +133,83 @@ SqlNodeList ExtendColumnList() :
     }
 }
 
+boolean ProcessNull() :
+{
+
+}
+{
+    (
+        <NOT> <NULL> {
+            return false;
+        }
+    |
+        <NULL> {
+            return true;
+        }
+    )
+}
+
+boolean ProcessCaseSpecific() :
+{
+
+}
+{
+    (
+        <NOT> <CASESPECIFIC> {
+            return false;
+        }
+    |
+        <CASESPECIFIC> {
+            return true;
+        }
+    )
+}
+
+boolean ProcessUpperCase() :
+{
+
+}
+{
+    (
+        <NOT> <UPPERCASE> {
+            return false;
+        }
+    |
+        <UPPERCASE> {
+            return true;
+        }
+    )
+}
+
 void ColumnWithType(List<SqlNode> list) :
 {
     SqlIdentifier id;
     SqlDataTypeSpec type;
     boolean nullable = true;
+    Boolean uppercase = null;
+    Boolean caseSpecific = null;
     final Span s = Span.of();
 }
 {
     id = CompoundIdentifier()
     type = DataType()
-    [
-        <NOT> <NULL> {
-            nullable = false;
+    //This acts as a loop to check which optional parameters have been specified
+    (
+        nullable = ProcessNull() {
+            type = type.withNullable(nullable);
         }
-    ]
+    |
+        uppercase = ProcessUpperCase() {
+            type = type.withUppercase(uppercase);
+        }
+    |
+        caseSpecific = ProcessCaseSpecific() {
+            type = type.withCaseSpecific(caseSpecific);
+        }
+    )*
+
     {
-        list.add(SqlDdlNodes.column(s.add(id).end(this), id, type.withNullable(nullable), null, null));
+        list.add(SqlDdlNodes.column(s.add(id).end(this), id, type, null, null));
     }
 }
 
