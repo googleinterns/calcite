@@ -133,7 +133,7 @@ SqlNodeList ExtendColumnList() :
     }
 }
 
-boolean ProcessNull() :
+boolean IsNullable() :
 {
 
 }
@@ -149,7 +149,7 @@ boolean ProcessNull() :
     )
 }
 
-boolean ProcessCaseSpecific() :
+boolean IsCaseSpecific() :
 {
 
 }
@@ -165,7 +165,7 @@ boolean ProcessCaseSpecific() :
     )
 }
 
-boolean ProcessUpperCase() :
+boolean IsUpperCase() :
 {
 
 }
@@ -193,17 +193,18 @@ void ColumnWithType(List<SqlNode> list) :
 {
     id = CompoundIdentifier()
     type = DataType()
-    //This acts as a loop to check which optional parameters have been specified
+    // This acts as a loop to check which optional parameters have been specified.
     (
-        nullable = ProcessNull() {
+        nullable = IsNullable
+       () {
             type = type.withNullable(nullable);
         }
     |
-        uppercase = ProcessUpperCase() {
+        uppercase = IsUpperCase() {
             type = type.withUppercase(uppercase);
         }
     |
-        caseSpecific = ProcessCaseSpecific() {
+        caseSpecific = IsCaseSpecific() {
             type = type.withCaseSpecific(caseSpecific);
         }
     )*

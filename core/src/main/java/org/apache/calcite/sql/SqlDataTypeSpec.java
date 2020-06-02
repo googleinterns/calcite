@@ -110,14 +110,15 @@ public class SqlDataTypeSpec extends SqlNode {
 
   /**
    * Creates a type specification representing a type, with time zone,
-   * nullability, uppercase status, caseSpecific status, and base type name specified.
+   * nullability, uppercase status, caseSpecific status, and base type name
+   * specified.
    *
    * @param typeNameSpec The type name can be basic sql type, row type,
    *                     collections type and user defined type
    * @param timeZone     Specified time zone
-   * @param nullable     The nullability
-   * @param uppercase    The uppercase status
-   * @param caseSpecific The caseSpecific status
+   * @param nullable     The nullability of the data type
+   * @param uppercase    Whether or not the data type is uppercase
+   * @param caseSpecific Whether or not the data type is case specific
    */
   public SqlDataTypeSpec(
       SqlTypeNameSpec typeNameSpec,
@@ -176,7 +177,7 @@ public class SqlDataTypeSpec extends SqlNode {
   }
 
   /** Returns a copy of this data type specification with a given
-   * nullability. */
+    * nullability. */
   public SqlDataTypeSpec withNullable(Boolean nullable) {
     if (Objects.equals(nullable, this.nullable)) {
       return this;
@@ -186,7 +187,7 @@ public class SqlDataTypeSpec extends SqlNode {
   }
 
   /** Returns a copy of this data type specification with a given
-   * uppercase status. */
+    * uppercase status. */
   public SqlDataTypeSpec withUppercase(Boolean uppercase) {
     if (Objects.equals(uppercase, this.uppercase)) {
       return this;
@@ -196,7 +197,7 @@ public class SqlDataTypeSpec extends SqlNode {
   }
 
   /** Returns a copy of this data type specification with a given
-   * nullability. */
+    * caseSpecific status. */
   public SqlDataTypeSpec withCaseSpecific(Boolean caseSpecific) {
     if (Objects.equals(caseSpecific, this.caseSpecific)) {
       return this;
