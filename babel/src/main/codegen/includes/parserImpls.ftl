@@ -213,6 +213,9 @@ SqlSetOption SqlSetTimeZone(Span s, String scope) :
     SqlIdentifier name;
 }
 {
+    <SET> {
+        s.add(this);
+    }
     <TIME> <ZONE> {
         name = new SqlIdentifier("TIME ZONE", s.end(this));
     }

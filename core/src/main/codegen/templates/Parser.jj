@@ -3866,9 +3866,6 @@ SqlSetOption SqlSetOption(Span s, String scope) :
 }
 {
     (
-        <SET> {
-            s.add(this);
-        }
 <#list parser.setStatementParserMethods as method>
         sqlSetOption = ${method}(s, scope) {
             return sqlSetOption;
@@ -3876,6 +3873,9 @@ SqlSetOption SqlSetOption(Span s, String scope) :
         <#sep>|</#sep>
     |
 </#list>
+    <SET> {
+        s.add(this);
+    }
     name = CompoundIdentifier()
         <EQ>
         (
