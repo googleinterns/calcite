@@ -174,6 +174,20 @@ public class SqlUpdate extends SqlCall {
     this.sourceSelect = sourceSelect;
   }
 
+  /**
+   * @return the source table name
+   */
+  public SqlNode getSourceTable() {
+    return sourceTable;
+  }
+
+  /**
+   * @return the source table alias
+   */
+  public SqlIdentifier getSourceAlias() {
+    return sourceAlias;
+  }
+
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     final SqlWriter.Frame frame =
         writer.startList(SqlWriter.FrameTypeEnum.SELECT, "UPDATE", "");
