@@ -196,7 +196,7 @@ void ColumnWithType(List<SqlNode> list) :
     // This acts as a loop to check which optional parameters have been specified.
     (
         nullable = IsNullable()
-       () {
+        {
             type = type.withNullable(nullable);
         }
     |
