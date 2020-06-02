@@ -1670,7 +1670,7 @@ SqlNode SqlUpdate() :
     )?
 </#if>
     /* CompoundIdentifier() can read statements like FOO.X, SimpleIdentifier()
-        is unable to do this
+       is unable to do this
     */
     <SET> id = CompoundIdentifier() {
         targetColumnList.add(id);
