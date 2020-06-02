@@ -1639,6 +1639,8 @@ SqlNode SqlDelete() :
 SqlNode SqlUpdate() :
 {
     SqlNode table;
+    SqlNode secondTable = null;
+    SqlIdentifier secondAlias = null;
     SqlNodeList extendList = null;
     SqlIdentifier alias = null;
     SqlNode condition;
@@ -1661,7 +1663,16 @@ SqlNode SqlUpdate() :
         }
     ]
     [ [ <AS> ] alias = SimpleIdentifier() ]
-    <SET> id = SimpleIdentifier() {
+<#if parser.allowUpdateFromTable>
+    (
+        <FROM> secondTable = TableRef()
+        [ [ <AS> ] secondAlias = SimpleIdentifier() ]
+    )?
+</#if>
+    /* CompoundIdentifier() can read statements like FOO.X, SimpleIdentifier()
+       is unable to do this
+    */
+    <SET> id = CompoundIdentifier() {
         targetColumnList.add(id);
     }
     <EQ> exp = Expression(ExprContext.ACCEPT_SUB_QUERY) {
@@ -1670,7 +1681,7 @@ SqlNode SqlUpdate() :
     }
     (
         <COMMA>
-        id = SimpleIdentifier()
+        id = CompoundIdentifier()
         {
             targetColumnList.add(id);
         }
@@ -1683,7 +1694,8 @@ SqlNode SqlUpdate() :
     {
         return new SqlUpdate(s.addAll(targetColumnList)
             .addAll(sourceExpressionList).addIf(condition).pos(), table,
-            targetColumnList, sourceExpressionList, condition, null, alias);
+            targetColumnList, sourceExpressionList, condition, null, alias,
+            secondTable, secondAlias);
     }
 }
 
@@ -1752,7 +1764,8 @@ SqlUpdate WhenMatchedClause(SqlNode table, SqlIdentifier alias) :
     )*
     {
         return new SqlUpdate(s.addAll(updateExprList).pos(), table,
-            updateColumnList, updateExprList, null, null, alias);
+            updateColumnList, updateExprList, null, null, alias,
+            /*secondTable=*/ null, /*secondAlias=*/ null);
     }
 }
 
@@ -3565,6 +3578,10 @@ SqlNode Expression3(ExprContext exprContext) :
 }
 {
     LOOKAHEAD(2)
+<#list parser.preAtomicRowMethods as method>
+    e = ${method} { return e; }
+|
+</#list>
     e = AtomicRowExpression()
     {
         checkNonQueryExpression(exprContext);
@@ -5334,6 +5351,9 @@ SqlNode BuiltinFunctionCall() :
         |
             <INTERVAL> e = IntervalQualifier() { args.add(e); }
         )
+<#if parser.includeCastFormat>
+        [ <FORMAT> e = StringLiteral() { args.add(e); } ]
+</#if>
         <RPAREN> {
             return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
         }

@@ -305,3 +305,27 @@ void InfixCast(List<Object> list, ExprContext exprContext, Span s) :
         list.add(dt);
     }
 }
+
+// Parses inline MOD expression of form "x MOD y" where x, y must be numeric
+SqlNode InlineModOperator() :
+{
+    final List<SqlNode> args = new ArrayList<SqlNode>();
+    final SqlIdentifier qualifiedName;
+    final Span s;
+    SqlLiteral e;
+    SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;
+    SqlLiteral quantifier = null;
+}
+{
+    e = NumericLiteral() {
+        s = span();
+        args.add(e);
+    }
+    <MOD> {
+        qualifiedName = new SqlIdentifier(unquotedIdentifier(), s.pos());
+    }
+    e = NumericLiteral() {
+        args.add(e);
+        return createCall(qualifiedName, s.end(this), funcType, quantifier, args);
+    }
+}
