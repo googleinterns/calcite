@@ -123,9 +123,10 @@ public class SqlCastFunction extends SqlFunction {
       return "{0}({1} AS {2})";
     case 3:
       return "{0}({1} AS {2} FORMAT {3})";
+    default:
+      assert false;
+      return null;
     }
-    assert false;
-    return null;
   }
 
   public SqlOperandCountRange getOperandCountRange() {
