@@ -5341,6 +5341,9 @@ SqlNode BuiltinFunctionCall() :
         |
             <INTERVAL> e = IntervalQualifier() { args.add(e); }
         )
+<#if parser.includeCastFormat>
+        [ <FORMAT> e = StringLiteral() { args.add(e); } ]
+</#if>
         <RPAREN> {
             return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
         }
