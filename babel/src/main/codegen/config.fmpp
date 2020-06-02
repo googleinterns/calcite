@@ -910,6 +910,7 @@ data: {
       "parserImpls.ftl"
     ]
 
+    allowUpdateFromTable: true
     includePosixOperators: true
     includeCompoundIdentifier: true
     includeBraces: true

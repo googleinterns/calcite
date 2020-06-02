@@ -330,6 +330,20 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testUpdateFromTable() {
+    final String sql = "update foo from bar set foo.x = bar.y, foo.z = bar.k";
+    final String expected = "UPDATE `FOO` FROM `BAR` SET `FOO`.`X` = `BAR`.`Y`, "
+        + "`FOO`.`Z` = `BAR`.`K`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testUpdateFromTableWithAlias() {
+    final String sql = "update foo as f from bar as b set f.x = b.y, f.z = b.k";
+    final String expected = "UPDATE `FOO` AS `F` FROM `BAR` AS `B` SET `F`.`X` "
+        + "= `B`.`Y`, `F`.`Z` = `B`.`K`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testExecMacro() {
     final String sql = "exec foo";
     final String expected = "EXECUTE `FOO`";
@@ -353,4 +367,5 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "SELECT MOD(27.123, 4.12)";
     sql(sql).ok(expected);
   }
+
 }
