@@ -445,7 +445,9 @@ data: {
       "parserImpls.ftl"
     ]
 
+    allowUpdateFromTable: false
     includePosixOperators: false
+    includeCastFormat: false
     includeCompoundIdentifier: true
     includeBraces: true
     includeAdditionalDeclarations: false

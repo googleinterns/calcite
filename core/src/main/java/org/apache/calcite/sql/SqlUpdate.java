@@ -39,6 +39,8 @@ public class SqlUpdate extends SqlCall {
   SqlNode condition;
   SqlSelect sourceSelect;
   SqlIdentifier alias;
+  SqlNode sourceTable;
+  SqlIdentifier sourceAlias;
 
   //~ Constructors -----------------------------------------------------------
 
@@ -49,6 +51,19 @@ public class SqlUpdate extends SqlCall {
       SqlNode condition,
       SqlSelect sourceSelect,
       SqlIdentifier alias) {
+    this(pos, targetTable, targetColumnList, sourceExpressionList, condition, sourceSelect, alias,
+        /*sourceTable=*/null, /*sourceAlias=*/null);
+  }
+
+  public SqlUpdate(SqlParserPos pos,
+      SqlNode targetTable,
+      SqlNodeList targetColumnList,
+      SqlNodeList sourceExpressionList,
+      SqlNode condition,
+      SqlSelect sourceSelect,
+      SqlIdentifier alias,
+      SqlNode sourceTable,
+      SqlIdentifier sourceAlias) {
     super(pos);
     this.targetTable = targetTable;
     this.targetColumnList = targetColumnList;
@@ -57,6 +72,8 @@ public class SqlUpdate extends SqlCall {
     this.sourceSelect = sourceSelect;
     assert sourceExpressionList.size() == targetColumnList.size();
     this.alias = alias;
+    this.sourceTable = sourceTable;
+    this.sourceAlias = sourceAlias;
   }
 
   //~ Methods ----------------------------------------------------------------
@@ -71,7 +88,7 @@ public class SqlUpdate extends SqlCall {
 
   public List<SqlNode> getOperandList() {
     return ImmutableNullableList.of(targetTable, targetColumnList,
-        sourceExpressionList, condition, alias);
+        sourceExpressionList, condition, alias, sourceTable, sourceAlias);
   }
 
   @Override public void setOperand(int i, SqlNode operand) {
@@ -157,6 +174,20 @@ public class SqlUpdate extends SqlCall {
     this.sourceSelect = sourceSelect;
   }
 
+  /**
+   * @return the source table name
+   */
+  public SqlNode getSourceTable() {
+    return sourceTable;
+  }
+
+  /**
+   * @return the source table alias
+   */
+  public SqlIdentifier getSourceAlias() {
+    return sourceAlias;
+  }
+
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     final SqlWriter.Frame frame =
         writer.startList(SqlWriter.FrameTypeEnum.SELECT, "UPDATE", "");
@@ -166,6 +197,14 @@ public class SqlUpdate extends SqlCall {
     if (alias != null) {
       writer.keyword("AS");
       alias.unparse(writer, opLeft, opRight);
+    }
+    if (sourceTable != null) {
+      writer.keyword("FROM");
+      sourceTable.unparse(writer, opLeft, opRight);
+      if (sourceAlias != null) {
+        writer.keyword("AS");
+        sourceAlias.unparse(writer, opLeft, opRight);
+      }
     }
     final SqlWriter.Frame setFrame =
         writer.startList(SqlWriter.FrameTypeEnum.UPDATE_SET_LIST, "SET", "");
