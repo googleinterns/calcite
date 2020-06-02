@@ -293,19 +293,29 @@ SqlNode InlineModOperator() :
     final List<SqlNode> args = new ArrayList<SqlNode>();
     final SqlIdentifier qualifiedName;
     final Span s;
-    SqlLiteral e;
+    SqlNode e;
     SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;
     SqlLiteral quantifier = null;
 }
-{
-    e = NumericLiteral() {
+{   
+    (
+        e = NumericLiteral()
+    |
+        e = SimpleIdentifier()
+    )
+    {
         s = span();
         args.add(e);
     }
     <MOD> {
         qualifiedName = new SqlIdentifier(unquotedIdentifier(), s.pos());
     }
-    e = NumericLiteral() {
+    (
+        e = NumericLiteral()
+    |
+        e = SimpleIdentifier()
+    )
+    {
         args.add(e);
         return createCall(qualifiedName, s.end(this), funcType, quantifier, args);
     }

@@ -380,4 +380,9 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testInlineModSyntaxIdentifier() {
+    final String sql = "select foo mod bar";
+    final String expected = "SELECT MOD(`FOO`, `BAR`)";
+    sql(sql).ok(expected);
+  }
 }
