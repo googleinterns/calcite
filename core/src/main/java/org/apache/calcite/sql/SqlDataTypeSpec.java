@@ -72,12 +72,6 @@ public class SqlDataTypeSpec extends SqlNode {
    */
   private Boolean nullable;
 
-  //Whether data type is uppercase
-  private Boolean uppercase;
-
-  //Whether data type is case specific
-  private Boolean caseSpecific;
-
   //~ Constructors -----------------------------------------------------------
 
   /**
@@ -89,8 +83,7 @@ public class SqlDataTypeSpec extends SqlNode {
   public SqlDataTypeSpec(
       final SqlTypeNameSpec typeNameSpec,
       SqlParserPos pos) {
-    this(typeNameSpec, /*timeZone=*/ null, /*nullable=*/ null, /*uppercase=*/ null,
-        /*caseSpecific=*/ null, pos);
+    this(typeNameSpec, null, null, pos);
   }
 
   /**
@@ -104,34 +97,27 @@ public class SqlDataTypeSpec extends SqlNode {
       final SqlTypeNameSpec typeNameSpec,
       TimeZone timeZone,
       SqlParserPos pos) {
-    this(typeNameSpec, timeZone, /*nullable=*/ null, /*uppercase=*/ null,
-        /*caseSpecific=*/ null, pos);
+    this(typeNameSpec, timeZone, null, pos);
   }
 
   /**
    * Creates a type specification representing a type, with time zone,
-   * nullability, uppercase status, caseSpecific status, and base type name specified.
+   * nullability and base type name specified.
    *
    * @param typeNameSpec The type name can be basic sql type, row type,
    *                     collections type and user defined type
    * @param timeZone     Specified time zone
    * @param nullable     The nullability
-   * @param uppercase    The uppercase status
-   * @param caseSpecific The caseSpecific status
    */
   public SqlDataTypeSpec(
       SqlTypeNameSpec typeNameSpec,
       TimeZone timeZone,
       Boolean nullable,
-      Boolean uppercase,
-      Boolean caseSpecific,
       SqlParserPos pos) {
     super(pos);
     this.typeNameSpec = typeNameSpec;
     this.timeZone = timeZone;
     this.nullable = nullable;
-    this.uppercase = uppercase;
-    this.caseSpecific = caseSpecific;
   }
 
   //~ Methods ----------------------------------------------------------------
@@ -167,42 +153,13 @@ public class SqlDataTypeSpec extends SqlNode {
     return nullable;
   }
 
-  public Boolean getUppercase() {
-    return uppercase;
-  }
-
-  public Boolean getCaseSpecific() {
-    return caseSpecific;
-  }
-
   /** Returns a copy of this data type specification with a given
    * nullability. */
   public SqlDataTypeSpec withNullable(Boolean nullable) {
     if (Objects.equals(nullable, this.nullable)) {
       return this;
     }
-    return new SqlDataTypeSpec(typeNameSpec, timeZone, nullable, uppercase,
-        caseSpecific, getParserPosition());
-  }
-
-  /** Returns a copy of this data type specification with a given
-   * uppercase status. */
-  public SqlDataTypeSpec withUppercase(Boolean uppercase) {
-    if (Objects.equals(uppercase, this.uppercase)) {
-      return this;
-    }
-    return new SqlDataTypeSpec(typeNameSpec, timeZone, nullable, uppercase,
-        caseSpecific, getParserPosition());
-  }
-
-  /** Returns a copy of this data type specification with a given
-   * nullability. */
-  public SqlDataTypeSpec withCaseSpecific(Boolean caseSpecific) {
-    if (Objects.equals(caseSpecific, this.caseSpecific)) {
-      return this;
-    }
-    return new SqlDataTypeSpec(typeNameSpec, timeZone, nullable, uppercase,
-        caseSpecific, getParserPosition());
+    return new SqlDataTypeSpec(typeNameSpec, timeZone, nullable, getParserPosition());
   }
 
   /**

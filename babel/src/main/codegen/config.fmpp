@@ -31,11 +31,9 @@ data: {
 
     # List of keywords.
     keywords: [
-      "CASESPECIFIC"
       "IF"
       "SEL"
       "SEMI"
-      "UPPERCASE"
       "VOLATILE"
     ]
 

@@ -70,18 +70,6 @@ public class SqlColumnDeclaration extends SqlCall {
     if (dataType.getNullable() != null && !dataType.getNullable()) {
       writer.keyword("NOT NULL");
     }
-    if (dataType.getUppercase() != null) {
-      String keyword = dataType.getUppercase()
-          ? "UPPERCASE"
-          : "NOT UPPERCASE";
-      writer.keyword(keyword);
-    }
-    if (dataType.getCaseSpecific() != null) {
-      String keyword = dataType.getCaseSpecific()
-          ? "CASESPECIFIC"
-          : "NOT CASESPECIFIC";
-      writer.keyword(keyword);
-    }
     if (expression != null) {
       switch (strategy) {
       case VIRTUAL:
