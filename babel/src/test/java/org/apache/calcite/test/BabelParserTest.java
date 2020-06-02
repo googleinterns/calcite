@@ -353,4 +353,16 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "SELECT CAST('2020-06-02' AS DATE FORMAT 'yyyy-mm-dd')";
     sql(sql).ok(expected);
   }
+
+  @Test public void testInlineModSyntaxInteger() {
+    final String sql = "select 27 mod -3";
+    final String expected = "SELECT MOD(27, -3)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInlineModSyntaxFloatingPoint() {
+    final String sql = "select 27.123 mod 4.12";
+    final String expected = "SELECT MOD(27.123, 4.12)";
+    sql(sql).ok(expected);
+  }
 }
