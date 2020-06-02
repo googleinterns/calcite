@@ -451,6 +451,7 @@ data: {
     ]
 
     includePosixOperators: false
+    includeCastFormat: false
     includeCompoundIdentifier: true
     includeBraces: true
     includeAdditionalDeclarations: false

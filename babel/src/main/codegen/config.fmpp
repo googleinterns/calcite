@@ -907,6 +907,7 @@ data: {
     ]
 
     includePosixOperators: true
+    includeCastFormat: true
     includeCompoundIdentifier: true
     includeBraces: true
     includeAdditionalDeclarations: false
