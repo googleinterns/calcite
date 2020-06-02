@@ -208,7 +208,6 @@ void ColumnWithType(List<SqlNode> list) :
             type = type.withCaseSpecific(caseSpecific);
         }
     )*
-
     {
         list.add(SqlDdlNodes.column(s.add(id).end(this), id, type, null, null));
     }
