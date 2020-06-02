@@ -342,9 +342,15 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testInlineModSyntax() {
-    final String sql = "select 27 mod -3.27";
-    final String expected = "SELECT MOD(27, -3.27)";
+  @Test public void testInlineModSyntaxInteger() {
+    final String sql = "select 27 mod -3";
+    final String expected = "SELECT MOD(27, -3)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInlineModSyntaxFloatingPoint() {
+    final String sql = "select 27.123 mod 4.12";
+    final String expected = "SELECT MOD(27.123, 4.12)";
     sql(sql).ok(expected);
   }
 }
