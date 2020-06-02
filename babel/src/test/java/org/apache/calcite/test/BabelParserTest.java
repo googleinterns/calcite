@@ -95,6 +95,13 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testSel() {
+    final String sql = "sel 1 from t";
+    final String expected = "SELECT 1\n"
+        + "FROM `T`";
+    sql(sql).ok(expected);
+  }
+
   @Test void testYearIsNotReserved() {
     final String sql = "select 1 as year from t";
     final String expected = "SELECT 1 AS `YEAR`\n"
@@ -279,6 +286,25 @@ class BabelParserTest extends SqlParserTest {
     final String sql = "create volatile table foo (bar int not null, baz varchar(30))";
     final String expected = "CREATE VOLATILE TABLE `FOO` "
         + "(`BAR` INTEGER NOT NULL, `BAZ` VARCHAR(30))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableAsWithData() {
+    final String sql = "create table foo as ( select * from bar ) with data";
+    final String expected = "CREATE TABLE `FOO` AS\n"
+        + "SELECT *\nFROM `BAR` WITH DATA";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableOnCommitPreserveRows() {
+    final String sql = "create table foo (bar int) on commit preserve rows";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) ON COMMIT PRESERVE ROWS";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableOnCommitReleaseRows() {
+    final String sql = "create table foo (bar int) on commit release rows";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) ON COMMIT RELEASE ROWS";
     sql(sql).ok(expected);
   }
 
