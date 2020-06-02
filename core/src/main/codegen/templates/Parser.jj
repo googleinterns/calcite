@@ -3890,7 +3890,8 @@ SqlSetOption SqlSetOption(Span s, String scope) :
             }
         )
         {
-            return new SqlSetOption(s.end(val), scope, name, val);
+            return new SqlSetOption(s.end(val), scope, name, val,
+                /*hasEquals=*/ true);
         }
     |
         <RESET> {
@@ -3905,7 +3906,8 @@ SqlSetOption SqlSetOption(Span s, String scope) :
             }
         )
         {
-            return new SqlSetOption(s.end(name), scope, name, null);
+            return new SqlSetOption(s.end(name), scope, name, null,
+                /*hasEquals=*/ true);
         }
     )
 }
