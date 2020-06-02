@@ -39,8 +39,8 @@ public class SqlUpdate extends SqlCall {
   SqlNode condition;
   SqlSelect sourceSelect;
   SqlIdentifier alias;
-  SqlNode secondTable;
-  SqlIdentifier secondAlias;
+  SqlNode sourceTable;
+  SqlIdentifier sourceAlias;
 
   //~ Constructors -----------------------------------------------------------
 
@@ -50,9 +50,20 @@ public class SqlUpdate extends SqlCall {
       SqlNodeList sourceExpressionList,
       SqlNode condition,
       SqlSelect sourceSelect,
+      SqlIdentifier alias) {
+    this(pos, targetTable, targetColumnList, sourceExpressionList, condition, sourceSelect, alias,
+        /*sourceTable=*/null, /*sourceAlias=*/null);
+  }
+
+  public SqlUpdate(SqlParserPos pos,
+      SqlNode targetTable,
+      SqlNodeList targetColumnList,
+      SqlNodeList sourceExpressionList,
+      SqlNode condition,
+      SqlSelect sourceSelect,
       SqlIdentifier alias,
-      SqlNode secondTable,
-      SqlIdentifier secondAlias) {
+      SqlNode sourceTable,
+      SqlIdentifier sourceAlias) {
     super(pos);
     this.targetTable = targetTable;
     this.targetColumnList = targetColumnList;
@@ -61,8 +72,8 @@ public class SqlUpdate extends SqlCall {
     this.sourceSelect = sourceSelect;
     assert sourceExpressionList.size() == targetColumnList.size();
     this.alias = alias;
-    this.secondTable = secondTable;
-    this.secondAlias = secondAlias;
+    this.sourceTable = sourceTable;
+    this.sourceAlias = sourceAlias;
   }
 
   //~ Methods ----------------------------------------------------------------
@@ -77,7 +88,7 @@ public class SqlUpdate extends SqlCall {
 
   public List<SqlNode> getOperandList() {
     return ImmutableNullableList.of(targetTable, targetColumnList,
-        sourceExpressionList, condition, alias, secondTable, secondAlias);
+        sourceExpressionList, condition, alias, sourceTable, sourceAlias);
   }
 
   @Override public void setOperand(int i, SqlNode operand) {
@@ -173,12 +184,12 @@ public class SqlUpdate extends SqlCall {
       writer.keyword("AS");
       alias.unparse(writer, opLeft, opRight);
     }
-    if (secondTable != null) {
+    if (sourceTable != null) {
       writer.keyword("FROM");
-      secondTable.unparse(writer, opLeft, opRight);
-      if (secondAlias != null) {
+      sourceTable.unparse(writer, opLeft, opRight);
+      if (sourceAlias != null) {
         writer.keyword("AS");
-        secondAlias.unparse(writer, opLeft, opRight);
+        sourceAlias.unparse(writer, opLeft, opRight);
       }
     }
     final SqlWriter.Frame setFrame =
