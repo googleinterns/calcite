@@ -356,6 +356,18 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testUsingRequestModifierSinglar() {
+    final String sql = "using (foo a)";
+    final String expected = "USING (`FOO` `A`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testUsingRequestModifierMultiple() {
+    final String sql = "using (foo a, bar b, baz c)";
+    final String expected = "USING (`FOO` `A`, `BAR` `B`, `BAZ` `C`)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCastFormatTime() {
     final String sql = "select cast('15h33m' as time(0) format 'HHhMIm')";
     final String expected = "SELECT CAST('15h33m' AS TIME(0) FORMAT 'HHhMIm')";

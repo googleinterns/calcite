@@ -207,6 +207,17 @@ SqlNode SqlExecMacro() :
     }
 }
 
+SqlNode SqlUsingRequestModifier(Span s) :
+{
+    final SqlNodeList columnList;
+}
+{
+    columnList = ExtendColumnList()
+    {
+        return new SqlUsingRequestModifier(s.end(this), columnList);
+    }
+}
+
 SqlNode SqlInsertWithOptionalValuesKeyword() :
 {
     SqlNodeList rowConstructorList;
