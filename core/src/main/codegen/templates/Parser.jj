@@ -3878,14 +3878,22 @@ SqlCall SequenceExpression() :
 SqlSetOption SqlSetOption(Span s, String scope) :
 {
     SqlIdentifier name;
+    SqlSetOption sqlSetOption;
     final SqlNode val;
 }
 {
     (
-        <SET> {
-            s.add(this);
+<#list parser.setStatementParserMethods as method>
+        sqlSetOption = ${method}(s, scope) {
+            return sqlSetOption;
         }
-        name = CompoundIdentifier()
+        <#sep>|</#sep>
+    |
+</#list>
+    <SET> {
+        s.add(this);
+    }
+    name = CompoundIdentifier()
         <EQ>
         (
             val = Literal()
@@ -3899,7 +3907,8 @@ SqlSetOption SqlSetOption(Span s, String scope) :
             }
         )
         {
-            return new SqlSetOption(s.end(val), scope, name, val);
+            return new SqlSetOption(s.end(val), scope, name, val,
+                /*hasEquals=*/ true);
         }
     |
         <RESET> {
@@ -3914,7 +3923,8 @@ SqlSetOption SqlSetOption(Span s, String scope) :
             }
         )
         {
-            return new SqlSetOption(s.end(name), scope, name, null);
+            return new SqlSetOption(s.end(name), scope, name, null,
+                /*hasEquals=*/ true);
         }
     )
 }

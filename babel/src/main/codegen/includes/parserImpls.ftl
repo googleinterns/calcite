@@ -207,6 +207,25 @@ SqlNode SqlExecMacro() :
     }
 }
 
+SqlSetOption SqlSetTimeZone(Span s, String scope) :
+{
+    SqlIdentifier timeZoneValue;
+    SqlIdentifier name;
+}
+{
+    <SET> {
+        s.add(this);
+    }
+    <TIME> <ZONE> {
+        name = new SqlIdentifier("TIME ZONE", s.end(this));
+    }
+    timeZoneValue = SimpleIdentifier()
+    {
+        return new SqlSetOption(s.end(timeZoneValue), scope, name,
+        timeZoneValue, /*hasEquals=*/ false);
+    }
+}
+
 SqlNode SqlInsertWithOptionalValuesKeyword() :
 {
     SqlNodeList rowConstructorList;

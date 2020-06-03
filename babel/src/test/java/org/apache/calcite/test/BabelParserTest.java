@@ -371,6 +371,18 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testSetTimeZoneGMT() {
+    final String sql = "set time zone \"GMT+10\"";
+    final String expected = "SET `TIME ZONE` `GMT+10`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSetTimeZoneColloquial() {
+    final String sql = "set time zone \"Europe Moscow\"";
+    final String expected = "SET `TIME ZONE` `Europe Moscow`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCastFormatTime() {
     final String sql = "select cast('15h33m' as time(0) format 'HHhMIm')";
     final String expected = "SELECT CAST('15h33m' AS TIME(0) FORMAT 'HHhMIm')";
