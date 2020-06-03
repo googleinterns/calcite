@@ -89,13 +89,15 @@ SetType SetTypeOpt() :
     { return SetType.UNSPECIFIED; }
 }
 
-boolean IsVolatileOpt() :
+Volatility VolatilityOpt() :
 {
 }
 {
-    <VOLATILE> { return true; }
+    <VOLATILE> { return Volatility.VOLATILE; }
 |
-    { return false; }
+    <TEMP> { return Volatility.TEMP; }
+|
+    { return Volatility.UNSPECIFIED; }
 }
 
 OnCommitType OnCommitTypeOpt() :
@@ -156,7 +158,7 @@ void ColumnWithType(List<SqlNode> list) :
 SqlCreate SqlCreateTable(Span s, boolean replace) :
 {
     final SetType setType;
-    final boolean isVolatile;
+    final Volatility volatility;
     final boolean ifNotExists;
     final SqlIdentifier id;
     final SqlNodeList columnList;
@@ -165,7 +167,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     final OnCommitType onCommitType;
 }
 {
-    setType = SetTypeOpt() isVolatile = IsVolatileOpt() <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
+    setType = SetTypeOpt() volatility = VolatilityOpt() <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
     (
         columnList = ExtendColumnList()
     |
@@ -183,7 +185,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     )
     onCommitType = OnCommitTypeOpt()
     {
-        return new SqlCreateTable(s.end(this), replace, setType, isVolatile, ifNotExists, id,
+        return new SqlCreateTable(s.end(this), replace, setType, volatility, ifNotExists, id,
             columnList, query, withData, onCommitType);
     }
 }

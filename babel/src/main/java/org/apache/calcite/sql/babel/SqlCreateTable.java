@@ -39,7 +39,7 @@ public class SqlCreateTable extends SqlCreate
     implements SqlExecutableStatement {
   public final SqlIdentifier name;
   public final SetType setType;
-  public final boolean isVolatile;
+  public final Volatility volatility;
   public final SqlNodeList columnList;
   public final SqlNode query;
   public final boolean withData;
@@ -49,19 +49,19 @@ public class SqlCreateTable extends SqlCreate
       new SqlSpecialOperator("CREATE TABLE", SqlKind.CREATE_TABLE);
 
   /** Creates a SqlCreateTable. */
-  public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, boolean isVolatile,
+  public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
       boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
-    this(pos, replace, setType, isVolatile, ifNotExists, name, columnList, query,
+    this(pos, replace, setType, volatility, ifNotExists, name, columnList, query,
         /*withData=*/false, /*onCommitType=*/OnCommitType.UNSPECIFIED);
   }
 
-  public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, boolean isVolatile,
+  public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
       boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query,
       boolean withData, OnCommitType onCommitType) {
     super(OPERATOR, pos, replace, ifNotExists);
     this.name = Objects.requireNonNull(name);
     this.setType = setType;
-    this.isVolatile = isVolatile;
+    this.volatility = volatility;
     this.columnList = columnList; // may be null
     this.query = query; // for "CREATE TABLE ... AS query"; may be null
     this.withData = withData;
@@ -84,8 +84,15 @@ public class SqlCreateTable extends SqlCreate
     default:
       break;
     }
-    if (isVolatile) {
+    switch (volatility) {
+    case VOLATILE:
       writer.keyword("VOLATILE");
+      break;
+    case TEMP:
+      writer.keyword("TEMP");
+      break;
+    default:
+      break;
     }
     writer.keyword("TABLE");
     if (ifNotExists) {
