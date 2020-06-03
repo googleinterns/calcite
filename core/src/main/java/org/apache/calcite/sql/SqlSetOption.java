@@ -80,7 +80,7 @@ public class SqlSetOption extends SqlAlter {
   SqlNode value;
 
   /** Controls whether the unparsed string contains an equals sign
-   * between the name and value */
+    * between the name and value */
   boolean hasEquals;
 
   /**
