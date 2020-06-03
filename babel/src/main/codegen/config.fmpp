@@ -904,6 +904,10 @@ data: {
       "InfixCast"
     ]
 
+    preAtomicRowMethods: [
+      "InlineModOperator()"
+    ]
+
     # List of files in @includes directory that have parser method
     # implementations for parsing custom SQL statements, literals or types
     # given as part of "statementParserMethods", "literalParserMethods" or
@@ -912,7 +916,9 @@ data: {
       "parserImpls.ftl"
     ]
 
+    allowUpdateFromTable: true
     includePosixOperators: true
+    includeCastFormat: true
     includeCompoundIdentifier: true
     includeBraces: true
     includeAdditionalDeclarations: false

@@ -330,6 +330,20 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testUpdateFromTable() {
+    final String sql = "update foo from bar set foo.x = bar.y, foo.z = bar.k";
+    final String expected = "UPDATE `FOO` FROM `BAR` SET `FOO`.`X` = `BAR`.`Y`, "
+        + "`FOO`.`Z` = `BAR`.`K`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testUpdateFromTableWithAlias() {
+    final String sql = "update foo as f from bar as b set f.x = b.y, f.z = b.k";
+    final String expected = "UPDATE `FOO` AS `F` FROM `BAR` AS `B` SET `F`.`X` "
+        + "= `B`.`Y`, `F`.`Z` = `B`.`K`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testExecMacro() {
     final String sql = "exec foo";
     final String expected = "EXECUTE `FOO`";
@@ -353,4 +367,29 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "SET `TIME ZONE` `Europe Moscow`";
     sql(sql).ok(expected);
   }
+
+  @Test public void testCastFormatTime() {
+    final String sql = "select cast('15h33m' as time(0) format 'HHhMIm')";
+    final String expected = "SELECT CAST('15h33m' AS TIME(0) FORMAT 'HHhMIm')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCastFormatDate() {
+    final String sql = "select cast('2020-06-02' as date format 'yyyy-mm-dd')";
+    final String expected = "SELECT CAST('2020-06-02' AS DATE FORMAT 'yyyy-mm-dd')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInlineModSyntaxInteger() {
+    final String sql = "select 27 mod -3";
+    final String expected = "SELECT MOD(27, -3)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInlineModSyntaxFloatingPoint() {
+    final String sql = "select 27.123 mod 4.12";
+    final String expected = "SELECT MOD(27.123, 4.12)";
+    sql(sql).ok(expected);
+  }
+
 }

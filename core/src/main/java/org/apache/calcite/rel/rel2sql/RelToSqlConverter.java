@@ -827,7 +827,7 @@ public class RelToSqlConverter extends SqlImplementor
               identifierList(modify.getUpdateColumnList()),
               exprList(context, modify.getSourceExpressionList()),
               ((SqlSelect) input.node).getWhere(), input.asSelect(),
-              null);
+              null, /*secondTable=*/null, /*secondAlias=*/null);
 
       return result(sqlUpdate, input.clauses, modify, null);
     }
