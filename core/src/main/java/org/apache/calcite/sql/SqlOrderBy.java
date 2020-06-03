@@ -68,6 +68,11 @@ public class SqlOrderBy extends SqlCall {
     return ImmutableNullableList.of(query, orderList, offset, fetch);
   }
 
+  public void unparseWithParens(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+    ((Operator) OPERATOR).unparseWithParens(
+        writer, call, leftPrec, rightPrec, /* useParens= */ true);
+  }
+
   /** Definition of {@code ORDER BY} operator. */
   private static class Operator extends SqlSpecialOperator {
     private Operator() {
@@ -84,35 +89,28 @@ public class SqlOrderBy extends SqlCall {
         SqlCall call,
         int leftPrec,
         int rightPrec) {
+      unparseWithParens(writer, call, leftPrec, rightPrec, /* useParens= */ false);
+    }
+
+    public void unparseWithParens(
+        SqlWriter writer, SqlCall call, int leftPrec, int rightPrec, boolean useParens) {
       SqlOrderBy orderBy = (SqlOrderBy) call;
       final SqlWriter.Frame frame =
           writer.startList(SqlWriter.FrameTypeEnum.ORDER_BY);
-      orderBy.query.unparse(writer, getLeftPrec(), getRightPrec());
+      if (useParens) {
+        final SqlWriter.Frame queryFrame =
+            writer.startList(SqlWriter.FrameTypeEnum.ORDER_BY, "(", ")");
+        orderBy.query.unparse(writer, getLeftPrec(), getRightPrec());
+        writer.endList(queryFrame);
+      } else {
+        orderBy.query.unparse(writer, getLeftPrec(), getRightPrec());
+      }
       if (orderBy.orderList != SqlNodeList.EMPTY) {
         writer.sep(getName());
         writer.list(SqlWriter.FrameTypeEnum.ORDER_BY_LIST, SqlWriter.COMMA,
             orderBy.orderList);
       }
-      if (orderBy.offset != null) {
-        final SqlWriter.Frame frame2 =
-            writer.startList(SqlWriter.FrameTypeEnum.OFFSET);
-        writer.newlineAndIndent();
-        writer.keyword("OFFSET");
-        orderBy.offset.unparse(writer, -1, -1);
-        writer.keyword("ROWS");
-        writer.endList(frame2);
-      }
-      if (orderBy.fetch != null) {
-        final SqlWriter.Frame frame3 =
-            writer.startList(SqlWriter.FrameTypeEnum.FETCH);
-        writer.newlineAndIndent();
-        writer.keyword("FETCH");
-        writer.keyword("NEXT");
-        orderBy.fetch.unparse(writer, -1, -1);
-        writer.keyword("ROWS");
-        writer.keyword("ONLY");
-        writer.endList(frame3);
-      }
+      writer.fetchOffset(orderBy.fetch, orderBy.offset);
       writer.endList(frame);
     }
   }

@@ -330,6 +330,21 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testOrderByUnparsing() {
+    final String sql =
+        "(select 1 union all select Salary from Employee) order by Salary limit 1 offset 1";
+
+    final String expected =
+        "(SELECT 1\n"
+            + "UNION ALL\n"
+            + "SELECT `SALARY`\n"
+            + "FROM `EMPLOYEE`)\n"
+            + "ORDER BY `SALARY`\n"
+            + "OFFSET 1 ROWS\n"
+            + "FETCH NEXT 1 ROWS ONLY";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testUpdateFromTable() {
     final String sql = "update foo from bar set foo.x = bar.y, foo.z = bar.k";
     final String expected = "UPDATE `FOO` FROM `BAR` SET `FOO`.`X` = `BAR`.`Y`, "
