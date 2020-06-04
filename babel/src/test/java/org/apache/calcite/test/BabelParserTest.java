@@ -308,6 +308,18 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeFallback() {
+    final String sql = "create table foo, fallback (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FALLBACK (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFallbackOptionalParams() {
+    final String sql = "create table foo, no fallback protection (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, NO FALLBACK PROTECTION (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testInsertWithSelectInParens() {
     final String sql = "insert into foo (SELECT * FROM bar)";
     final String expected = "INSERT INTO `FOO`\n"

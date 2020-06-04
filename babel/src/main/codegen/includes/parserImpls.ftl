@@ -153,21 +153,21 @@ void ColumnWithType(List<SqlNode> list) :
     }
 }
 
-SqlNode CreateTableAttributeFallback() :
+SqlCreateAttribute CreateTableAttributeFallback() :
 {
     boolean no = false;
     boolean protection = false;
 }
 {
     (
-        [ <NO> ] { no = true; }
+        [ <NO>  { no = true; } ]
         <FALLBACK>
-        [ <PROTECTION> ] { protection = true; }
-        { return SqlCreateAttributeFallback(no, protection, getPos()) }
+        [ <PROTECTION> { protection = true; } ]
+        { return new SqlCreateAttributeFallback(no, protection, getPos()); }
     )
 }
 
-List<SqlCreateAttribute> CreateTableOptions() :
+List<SqlCreateAttribute> CreateTableAttributes() :
 {
     final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
     SqlCreateAttribute e;
@@ -178,8 +178,8 @@ List<SqlCreateAttribute> CreateTableOptions() :
         <COMMA>
         (
             e = CreateTableAttributeFallback()
-        ) { list.add(e) }
-    )*
+        ) { list.add(e); }
+    )+
     { return list; }
 }
 
@@ -189,7 +189,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     final boolean isVolatile;
     final boolean ifNotExists;
     final SqlIdentifier id;
-    final List<SqlCreateAttribute> tableOptions;
+    final List<SqlCreateAttribute> tableAttributes;
     final SqlNodeList columnList;
     final SqlNode query;
     boolean withData = false;
@@ -198,9 +198,9 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
 {
     setType = SetTypeOpt() isVolatile = IsVolatileOpt() <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
     (
-        tableOptions = CreateTableOptions()
+        tableAttributes = CreateTableAttributes()
     |
-        { tableOptions = null; }
+        { tableAttributes = null; }
     )
     (
         columnList = ExtendColumnList()
@@ -220,7 +220,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     onCommitType = OnCommitTypeOpt()
     {
         return new SqlCreateTable(s.end(this), replace, setType, isVolatile, ifNotExists, id,
-            tableOptions, columnList, query, withData, onCommitType);
+            tableAttributes, columnList, query, withData, onCommitType);
     }
 }
 

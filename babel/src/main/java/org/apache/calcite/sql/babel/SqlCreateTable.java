@@ -51,13 +51,15 @@ public class SqlCreateTable extends SqlCreate
 
   /** Creates a SqlCreateTable. */
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, boolean isVolatile,
-      boolean ifNotExists, SqlIdentifier name, List<SqlCreateAttribute> tableAttributes, SqlNodeList columnList, SqlNode query) {
+      boolean ifNotExists, SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
+      SqlNodeList columnList, SqlNode query) {
     this(pos, replace, setType, isVolatile, ifNotExists, name, tableAttributes, columnList, query,
         /*withData=*/false, /*onCommitType=*/OnCommitType.UNSPECIFIED);
   }
 
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, boolean isVolatile,
-      boolean ifNotExists, SqlIdentifier name, List<SqlCreateAttribute> tableAttributes, SqlNodeList columnList, SqlNode query,
+      boolean ifNotExists, SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
+      SqlNodeList columnList, SqlNode query,
       boolean withData, OnCommitType onCommitType) {
     super(OPERATOR, pos, replace, ifNotExists);
     this.name = Objects.requireNonNull(name);
@@ -95,10 +97,12 @@ public class SqlCreateTable extends SqlCreate
     }
     name.unparse(writer, leftPrec, rightPrec);
     if (tableAttributes != null) {
+      SqlWriter.Frame frame = writer.startList("", "");
       for (SqlCreateAttribute a : tableAttributes) {
-        writer.sep(",");
+        writer.sep(",", true);
         a.unparse(writer, 0, 0);
       }
+      writer.endList(frame);
     }
     if (columnList != null) {
       SqlWriter.Frame frame = writer.startList("(", ")");
