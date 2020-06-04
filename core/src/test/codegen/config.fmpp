@@ -395,6 +395,10 @@ data: {
       "SqlCreateTable"
     ]
 
+    # list of methods for parsing extensions to "SET" calls
+    setTimeZoneStatementParserMethods: [
+    ]
+
     # List of methods for parsing extensions to "DROP" calls.
     # Each must accept arguments "(SqlParserPos pos)".
     dropStatementParserMethods: [
@@ -416,6 +420,9 @@ data: {
     extraBinaryExpressions: [
     ]
 
+    preAtomicRowMethods: [
+    ]
+
     # List of files in @includes directory that have parser method
     # implementations for parsing custom SQL statements, literals or types
     # given as part of "statementParserMethods", "literalParserMethods" or
@@ -424,7 +431,9 @@ data: {
       "parserImpls.ftl"
     ]
 
+    allowUpdateFromTable: false
     includePosixOperators: false
+    includeCastFormat: false
     includeCompoundIdentifier: true
     includeBraces: true
     includeAdditionalDeclarations: false

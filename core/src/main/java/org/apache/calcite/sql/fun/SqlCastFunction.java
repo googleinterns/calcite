@@ -93,7 +93,7 @@ public class SqlCastFunction extends SqlFunction {
 
   public RelDataType inferReturnType(
       SqlOperatorBinding opBinding) {
-    assert opBinding.getOperandCount() == 2;
+    assert opBinding.getOperandCount() == 2 || opBinding.getOperandCount() == 3;
     RelDataType ret = opBinding.getOperandType(1);
     RelDataType firstType = opBinding.getOperandType(0);
     ret =
@@ -118,12 +118,19 @@ public class SqlCastFunction extends SqlFunction {
   }
 
   public String getSignatureTemplate(final int operandsCount) {
-    assert operandsCount == 2;
-    return "{0}({1} AS {2})";
+    switch (operandsCount) {
+    case 2:
+      return "{0}({1} AS {2})";
+    case 3:
+      return "{0}({1} AS {2} FORMAT {3})";
+    default:
+      assert false;
+      return null;
+    }
   }
 
   public SqlOperandCountRange getOperandCountRange() {
-    return SqlOperandCountRanges.of(2);
+    return SqlOperandCountRanges.between(2, 3);
   }
 
   /**
@@ -176,7 +183,7 @@ public class SqlCastFunction extends SqlFunction {
       SqlCall call,
       int leftPrec,
       int rightPrec) {
-    assert call.operandCount() == 2;
+    assert call.operandCount() == 2 || call.operandCount() == 3;
     final SqlWriter.Frame frame = writer.startFunCall(getName());
     call.operand(0).unparse(writer, 0, 0);
     writer.sep("AS");
@@ -184,6 +191,10 @@ public class SqlCastFunction extends SqlFunction {
       writer.sep("INTERVAL");
     }
     call.operand(1).unparse(writer, 0, 0);
+    if (call.operandCount() == 3) {
+      writer.sep("FORMAT");
+      call.operand(2).unparse(writer, 0, 0);
+    }
     writer.endFunCall(frame);
   }
 

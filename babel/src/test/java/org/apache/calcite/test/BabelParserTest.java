@@ -289,6 +289,13 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTempTable() {
+    final String sql = "create temp table foo (bar int not null, baz varchar(30))";
+    final String expected = "CREATE TEMP TABLE `FOO` "
+        + "(`BAR` INTEGER NOT NULL, `BAZ` VARCHAR(30))";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTableAsWithData() {
     final String sql = "create table foo as ( select * from bar ) with data";
     final String expected = "CREATE TABLE `FOO` AS\n"
@@ -371,6 +378,35 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testOrderByUnparsing() {
+    final String sql =
+        "(select 1 union all select Salary from Employee) order by Salary limit 1 offset 1";
+
+    final String expected =
+        "(SELECT 1\n"
+            + "UNION ALL\n"
+            + "SELECT `SALARY`\n"
+            + "FROM `EMPLOYEE`)\n"
+            + "ORDER BY `SALARY`\n"
+            + "OFFSET 1 ROWS\n"
+            + "FETCH NEXT 1 ROWS ONLY";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testUpdateFromTable() {
+    final String sql = "update foo from bar set foo.x = bar.y, foo.z = bar.k";
+    final String expected = "UPDATE `FOO` FROM `BAR` SET `FOO`.`X` = `BAR`.`Y`, "
+        + "`FOO`.`Z` = `BAR`.`K`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testUpdateFromTableWithAlias() {
+    final String sql = "update foo as f from bar as b set f.x = b.y, f.z = b.k";
+    final String expected = "UPDATE `FOO` AS `F` FROM `BAR` AS `B` SET `F`.`X` "
+        + "= `B`.`Y`, `F`.`Z` = `B`.`K`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testExecMacro() {
     final String sql = "exec foo";
     final String expected = "EXECUTE `FOO`";
@@ -383,4 +419,45 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testSetTimeZoneGMT() {
+    final String sql = "set time zone \"GMT+10\"";
+    final String expected = "SET TIME ZONE `GMT+10`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSetTimeZoneColloquial() {
+    final String sql = "set time zone \"Europe Moscow\"";
+    final String expected = "SET TIME ZONE `Europe Moscow`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCastFormatTime() {
+    final String sql = "select cast('15h33m' as time(0) format 'HHhMIm')";
+    final String expected = "SELECT CAST('15h33m' AS TIME(0) FORMAT 'HHhMIm')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCastFormatDate() {
+    final String sql = "select cast('2020-06-02' as date format 'yyyy-mm-dd')";
+    final String expected = "SELECT CAST('2020-06-02' AS DATE FORMAT 'yyyy-mm-dd')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInlineModSyntaxInteger() {
+    final String sql = "select 27 mod -3";
+    final String expected = "SELECT MOD(27, -3)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInlineModSyntaxFloatingPoint() {
+    final String sql = "select 27.123 mod 4.12";
+    final String expected = "SELECT MOD(27.123, 4.12)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInlineModSyntaxIdentifier() {
+    final String sql = "select foo mod bar";
+    final String expected = "SELECT MOD(`FOO`, `BAR`)";
+    sql(sql).ok(expected);
+  }
 }

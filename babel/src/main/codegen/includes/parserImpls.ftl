@@ -89,13 +89,15 @@ SetType SetTypeOpt() :
     { return SetType.UNSPECIFIED; }
 }
 
-boolean IsVolatileOpt() :
+Volatility VolatilityOpt() :
 {
 }
 {
-    <VOLATILE> { return true; }
+    <VOLATILE> { return Volatility.VOLATILE; }
 |
-    { return false; }
+    <TEMP> { return Volatility.TEMP; }
+|
+    { return Volatility.UNSPECIFIED; }
 }
 
 OnCommitType OnCommitTypeOpt() :
@@ -216,7 +218,7 @@ void ColumnWithType(List<SqlNode> list) :
 SqlCreate SqlCreateTable(Span s, boolean replace) :
 {
     final SetType setType;
-    final boolean isVolatile;
+    final Volatility volatility;
     final boolean ifNotExists;
     final SqlIdentifier id;
     final SqlNodeList columnList;
@@ -225,7 +227,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     final OnCommitType onCommitType;
 }
 {
-    setType = SetTypeOpt() isVolatile = IsVolatileOpt() <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
+    setType = SetTypeOpt() volatility = VolatilityOpt() <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
     (
         columnList = ExtendColumnList()
     |
@@ -243,7 +245,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     )
     onCommitType = OnCommitTypeOpt()
     {
-        return new SqlCreateTable(s.end(this), replace, setType, isVolatile, ifNotExists, id,
+        return new SqlCreateTable(s.end(this), replace, setType, volatility, ifNotExists, id,
             columnList, query, withData, onCommitType);
     }
 }
@@ -264,6 +266,20 @@ SqlNode SqlExecMacro() :
     macro = CompoundIdentifier() { s = span(); }
     {
         return new SqlExecMacro(s.end(this), macro);
+    }
+}
+
+SqlNode SqlSetTimeZoneValue() :
+{
+    SqlIdentifier timeZoneValue;
+    SqlIdentifier name;
+    Span s;
+}
+{
+    <SET> { s = span(); }
+    <TIME> <ZONE> timeZoneValue = SimpleIdentifier()
+    {
+        return new SqlSetTimeZone(s.end(timeZoneValue), timeZoneValue);
     }
 }
 
@@ -344,5 +360,39 @@ void InfixCast(List<Object> list, ExprContext exprContext, Span s) :
             new SqlParserUtil.ToTreeListItem(SqlLibraryOperators.INFIX_CAST,
                 s.pos()));
         list.add(dt);
+    }
+}
+
+// Parses inline MOD expression of form "x MOD y" where x, y must be numeric
+SqlNode InlineModOperator() :
+{
+    final List<SqlNode> args = new ArrayList<SqlNode>();
+    final SqlIdentifier qualifiedName;
+    final Span s;
+    SqlNode e;
+    SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;
+    SqlLiteral quantifier = null;
+}
+{
+    (
+        e = NumericLiteral()
+    |
+        e = SimpleIdentifier()
+    )
+    {
+        s = span();
+        args.add(e);
+    }
+    <MOD> {
+        qualifiedName = new SqlIdentifier(unquotedIdentifier(), s.pos());
+    }
+    (
+        e = NumericLiteral()
+    |
+        e = SimpleIdentifier()
+    )
+    {
+        args.add(e);
+        return createCall(qualifiedName, s.end(this), funcType, quantifier, args);
     }
 }

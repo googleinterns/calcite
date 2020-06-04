@@ -1019,6 +1019,10 @@ SqlNode SqlStmt() :
         stmt = SqlExec()
     |
 </#if>
+<#if parser.setTimeZoneStatementParserMethods?size != 0>
+        stmt = SqlSetTimeZone()
+    |
+</#if>
 <#if parser.dropStatementParserMethods?size != 0>
         stmt = SqlDrop()
     |
@@ -1639,6 +1643,8 @@ SqlNode SqlDelete() :
 SqlNode SqlUpdate() :
 {
     SqlNode table;
+    SqlNode secondTable = null;
+    SqlIdentifier secondAlias = null;
     SqlNodeList extendList = null;
     SqlIdentifier alias = null;
     SqlNode condition;
@@ -1661,7 +1667,16 @@ SqlNode SqlUpdate() :
         }
     ]
     [ [ <AS> ] alias = SimpleIdentifier() ]
-    <SET> id = SimpleIdentifier() {
+<#if parser.allowUpdateFromTable>
+    (
+        <FROM> secondTable = TableRef()
+        [ [ <AS> ] secondAlias = SimpleIdentifier() ]
+    )?
+</#if>
+    /* CompoundIdentifier() can read statements like FOO.X, SimpleIdentifier()
+       is unable to do this
+    */
+    <SET> id = CompoundIdentifier() {
         targetColumnList.add(id);
     }
     <EQ> exp = Expression(ExprContext.ACCEPT_SUB_QUERY) {
@@ -1670,7 +1685,7 @@ SqlNode SqlUpdate() :
     }
     (
         <COMMA>
-        id = SimpleIdentifier()
+        id = CompoundIdentifier()
         {
             targetColumnList.add(id);
         }
@@ -1683,7 +1698,8 @@ SqlNode SqlUpdate() :
     {
         return new SqlUpdate(s.addAll(targetColumnList)
             .addAll(sourceExpressionList).addIf(condition).pos(), table,
-            targetColumnList, sourceExpressionList, condition, null, alias);
+            targetColumnList, sourceExpressionList, condition, null, alias,
+            secondTable, secondAlias);
     }
 }
 
@@ -1752,7 +1768,8 @@ SqlUpdate WhenMatchedClause(SqlNode table, SqlIdentifier alias) :
     )*
     {
         return new SqlUpdate(s.addAll(updateExprList).pos(), table,
-            updateColumnList, updateExprList, null, null, alias);
+            updateColumnList, updateExprList, null, null, alias,
+            /*secondTable=*/ null, /*secondAlias=*/ null);
     }
 }
 
@@ -3565,6 +3582,10 @@ SqlNode Expression3(ExprContext exprContext) :
 }
 {
     LOOKAHEAD(2)
+<#list parser.preAtomicRowMethods as method>
+    e = ${method} { return e; }
+|
+</#list>
     e = AtomicRowExpression()
     {
         checkNonQueryExpression(exprContext);
@@ -3962,6 +3983,27 @@ SqlCreate SqlCreate() :
     )
     {
         return create;
+    }
+}
+</#if>
+<#if parser.setTimeZoneStatementParserMethods?size != 0>
+/**
+ * Parses a SET TIME ZONE statement
+ */
+SqlNode SqlSetTimeZone() :
+{
+    SqlNode source;
+}
+{
+    (
+<#-- additional literal parser methods are included here -->
+<#list parser.setTimeZoneStatementParserMethods as method>
+        source = ${method}()
+        <#sep>|</#sep>
+</#list>
+    )
+    {
+        return source;
     }
 }
 </#if>
@@ -5324,6 +5366,9 @@ SqlNode BuiltinFunctionCall() :
         |
             <INTERVAL> e = IntervalQualifier() { args.add(e); }
         )
+<#if parser.includeCastFormat>
+        [ <FORMAT> e = StringLiteral() { args.add(e); } ]
+</#if>
         <RPAREN> {
             return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
         }
