@@ -65,7 +65,7 @@ public class SqlSetOption extends SqlAlter {
           final SqlNode scopeNode = operands[0];
           return new SqlSetOption(pos,
               scopeNode == null ? null : scopeNode.toString(),
-              (SqlIdentifier) operands[1], operands[2], /*hasEquals=*/ true);
+              (SqlIdentifier) operands[1], operands[2]);
         }
       };
 
@@ -79,10 +79,6 @@ public class SqlSetOption extends SqlAlter {
    * identifiers by the parser. */
   SqlNode value;
 
-  /** Controls whether the unparsed string contains an equals sign
-    * between the name and value */
-  boolean hasEquals;
-
   /**
    * Creates a node.
    *
@@ -91,16 +87,13 @@ public class SqlSetOption extends SqlAlter {
    * @param name Name of option, as an identifier, must not be null.
    * @param value Value of option, as an identifier or literal, may be null.
    *              If null, assume RESET command, else assume SET command.
-   * @param hasEquals Whether or not query contains an equals sign between
-   *                  name and value
    */
   public SqlSetOption(SqlParserPos pos, String scope, SqlIdentifier name,
-      SqlNode value, boolean hasEquals) {
+      SqlNode value) {
     super(pos, scope);
     this.scope = scope;
     this.name = name;
     this.value = value;
-    this.hasEquals = hasEquals;
     assert name != null;
   }
 
@@ -154,9 +147,7 @@ public class SqlSetOption extends SqlAlter {
         writer.startList(SqlWriter.FrameTypeEnum.SIMPLE);
     name.unparse(writer, leftPrec, rightPrec);
     if (value != null) {
-      if (hasEquals) {
-        writer.sep("=");
-      }
+      writer.sep("=");
       value.unparse(writer, leftPrec, rightPrec);
     }
     writer.endList(frame);
