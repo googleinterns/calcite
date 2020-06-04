@@ -35,12 +35,14 @@ data: {
 
     # List of keywords.
     keywords: [
+      "CASESPECIFIC"
       "FALLBACK"
       "IF"
       "PROTECTION"
       "SEL"
       "SEMI"
       "TEMP"
+      "UPPERCASE"
       "VOLATILE"
     ]
 
