@@ -289,6 +289,13 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTempTable() {
+    final String sql = "create temp table foo (bar int not null, baz varchar(30))";
+    final String expected = "CREATE TEMP TABLE `FOO` "
+        + "(`BAR` INTEGER NOT NULL, `BAZ` VARCHAR(30))";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTableAsWithData() {
     final String sql = "create table foo as ( select * from bar ) with data";
     final String expected = "CREATE TABLE `FOO` AS\n"
@@ -384,13 +391,13 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testSetTimeZoneGMT() {
     final String sql = "set time zone \"GMT+10\"";
-    final String expected = "SET `TIME ZONE` `GMT+10`";
+    final String expected = "SET TIME ZONE `GMT+10`";
     sql(sql).ok(expected);
   }
 
   @Test public void testSetTimeZoneColloquial() {
     final String sql = "set time zone \"Europe Moscow\"";
-    final String expected = "SET `TIME ZONE` `Europe Moscow`";
+    final String expected = "SET TIME ZONE `Europe Moscow`";
     sql(sql).ok(expected);
   }
 

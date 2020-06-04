@@ -22,13 +22,14 @@ data: {
     # List of import statements.
     imports: [
       "org.apache.calcite.sql.SqlCreate",
-      "org.apache.calcite.sql.SqlSetOption",
+      "org.apache.calcite.sql.babel.SqlSetTimeZone",
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
       "org.apache.calcite.sql.babel.SqlExecMacro",
       "org.apache.calcite.sql.babel.SqlUsingRequestModifier",
+      "org.apache.calcite.sql.babel.Volatility",
     ]
 
     # List of keywords.
@@ -36,6 +37,7 @@ data: {
       "IF"
       "SEL"
       "SEMI"
+      "TEMP"
       "VOLATILE"
     ]
 
@@ -876,8 +878,8 @@ data: {
     ]
 
     # list of methods for parsing extensions to "SET" calls
-    setStatementParserMethods: [
-        "SqlSetTimeZone"
+    setTimeZoneStatementParserMethods: [
+        "SqlSetTimeZoneValue"
     ]
 
     # List of methods for parsing extensions to "DROP" calls.

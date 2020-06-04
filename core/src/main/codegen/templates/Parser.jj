@@ -1022,6 +1022,9 @@ SqlNode SqlStmt() :
 <#if  parser.usingStatementParserMethods?size != 0>
         stmt = SqlUsing()
     |
+<#if parser.setTimeZoneStatementParserMethods?size != 0>
+        stmt = SqlSetTimeZone()
+    |
 </#if>
 <#if parser.dropStatementParserMethods?size != 0>
         stmt = SqlDrop()
@@ -3882,22 +3885,14 @@ SqlCall SequenceExpression() :
 SqlSetOption SqlSetOption(Span s, String scope) :
 {
     SqlIdentifier name;
-    SqlSetOption sqlSetOption;
     final SqlNode val;
 }
 {
     (
-<#list parser.setStatementParserMethods as method>
-        sqlSetOption = ${method}(s, scope) {
-            return sqlSetOption;
+        <SET> {
+            s.add(this);
         }
-        <#sep>|</#sep>
-    |
-</#list>
-    <SET> {
-        s.add(this);
-    }
-    name = CompoundIdentifier()
+        name = CompoundIdentifier()
         <EQ>
         (
             val = Literal()
@@ -3911,8 +3906,7 @@ SqlSetOption SqlSetOption(Span s, String scope) :
             }
         )
         {
-            return new SqlSetOption(s.end(val), scope, name, val,
-                /*hasEquals=*/ true);
+            return new SqlSetOption(s.end(val), scope, name, val);
         }
     |
         <RESET> {
@@ -3927,8 +3921,7 @@ SqlSetOption SqlSetOption(Span s, String scope) :
             }
         )
         {
-            return new SqlSetOption(s.end(name), scope, name, null,
-                /*hasEquals=*/ true);
+            return new SqlSetOption(s.end(name), scope, name, null);
         }
     )
 }
@@ -3993,6 +3986,27 @@ SqlCreate SqlCreate() :
     )
     {
         return create;
+    }
+}
+</#if>
+<#if parser.setTimeZoneStatementParserMethods?size != 0>
+/**
+ * Parses a SET TIME ZONE statement
+ */
+SqlNode SqlSetTimeZone() :
+{
+    SqlNode source;
+}
+{
+    (
+<#-- additional literal parser methods are included here -->
+<#list parser.setTimeZoneStatementParserMethods as method>
+        source = ${method}()
+        <#sep>|</#sep>
+</#list>
+    )
+    {
+        return source;
     }
 }
 </#if>

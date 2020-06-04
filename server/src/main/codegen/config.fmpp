@@ -416,7 +416,7 @@ data: {
     ]
 
     # list of methods for parsing extensions to "SET" calls
-    setStatementParserMethods: [
+    setTimeZoneStatementParserMethods: [
     ]
 
     # List of methods for parsing extensions to "DROP" calls.
