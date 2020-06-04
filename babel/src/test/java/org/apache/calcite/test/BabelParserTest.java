@@ -315,6 +315,18 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeFallback() {
+    final String sql = "create table foo, fallback (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FALLBACK (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFallbackOptionalParams() {
+    final String sql = "create table foo, no fallback protection (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, NO FALLBACK PROTECTION (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTablePermutedColumnLevelAttributes() {
     final String sql = "create table foo (bar int uppercase null casespecific, "
         + "baz varchar(30) casespecific uppercase null)";
