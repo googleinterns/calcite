@@ -159,12 +159,10 @@ SqlCreateAttribute CreateTableAttributeFallback() :
     boolean protection = false;
 }
 {
-    (
-        [ <NO>  { no = true; } ]
-        <FALLBACK>
-        [ <PROTECTION> { protection = true; } ]
-        { return new SqlCreateAttributeFallback(no, protection, getPos()); }
-    )
+    [ <NO>  { no = true; } ]
+    <FALLBACK>
+    [ <PROTECTION> { protection = true; } ]
+    { return new SqlCreateAttributeFallback(no, protection, getPos()); }
 }
 
 List<SqlCreateAttribute> CreateTableAttributes() :
