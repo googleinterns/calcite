@@ -27,11 +27,13 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
       "org.apache.calcite.sql.babel.SqlExecMacro",
+      "org.apache.calcite.sql.babel.SqlNamedExpression",
     ]
 
     # List of keywords.
     keywords: [
       "IF"
+      "NAMED"
       "SEL"
       "SEMI"
       "VOLATILE"
@@ -867,6 +869,11 @@ data: {
     alterStatementParserMethods: [
     ]
 
+    # List of methods for parsing extensions to <expression> calls
+    postExpressionStatementParserMethods: [
+      "SqlNamedExpression"
+    ]
+
     # List of methods for parsing extensions to "CREATE [OR REPLACE]" calls.
     # Each must accept arguments "(SqlParserPos pos, boolean replace)".
     createStatementParserMethods: [
@@ -899,6 +906,7 @@ data: {
     ]
 
     preAtomicRowMethods: [
+      "SqlNamedExpression()"
       "InlineModOperator()"
     ]
 
@@ -910,6 +918,7 @@ data: {
       "parserImpls.ftl"
     ]
 
+    allowNamedExpression: true
     allowUpdateFromTable: true
     includePosixOperators: true
     includeCastFormat: true

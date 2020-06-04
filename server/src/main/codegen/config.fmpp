@@ -430,6 +430,10 @@ data: {
     insertStatementParserMethods: [
     ]
 
+    # List of methods for parsing extensions to <expression> calls
+    postExpressionStatementParserMethods: [
+    ]
+
     # List of methods for parsing expressions to "EXEC" calls.
     execStatementParserMethods: [
     ]
@@ -453,6 +457,7 @@ data: {
       "parserImpls.ftl"
     ]
 
+    allowNamedExpression: false
     allowUpdateFromTable: false
     includePosixOperators: false
     includeCastFormat: false

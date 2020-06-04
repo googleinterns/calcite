@@ -368,6 +368,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testNamedExpression() {
+    final String sql = "select a + b (named x) from foo where x > 0";
+    final String expected = "SELECT `A` + `B` (NAMED `X`) FROM `FOO` WHERE `X` > 0";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testInlineModSyntaxInteger() {
     final String sql = "select 27 mod -3";
     final String expected = "SELECT MOD(27, -3)";

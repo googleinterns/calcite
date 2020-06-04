@@ -3310,11 +3310,14 @@ SqlNode Expression(ExprContext exprContext) :
 {
     List<Object> list;
     SqlNode e;
+    SqlIdentifier name;
 }
 {
     list = Expression2(exprContext)
     {
         e = SqlParserUtil.toTree(list);
+    }
+    {
         return e;
     }
 }
@@ -3569,6 +3572,7 @@ SqlKind comp() :
 SqlNode Expression3(ExprContext exprContext) :
 {
     final SqlNode e;
+    final SqlIdentifier name;
     final SqlNodeList list;
     final SqlNodeList list1;
     final SqlNodeList list2;

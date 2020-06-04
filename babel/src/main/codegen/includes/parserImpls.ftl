@@ -221,16 +221,16 @@ SqlNode SqlInsertWithOptionalValuesKeyword() :
     }
 }
 
-SqlNode NamedExpression(SqlNode expression) :
+SqlNode SqlNamedExpression() :
 {
-    SqlIdentifier name;
-    Span s;
+    final Span s;
+    final SqlIdentifier name;
 }
 {
     <LPAREN> { s = span(); }
     <NAMED> name = SimpleIdentifier() <RPAREN>
     {
-        return NamedExpression(s.end(this), name, expression);
+        return new SqlNamedExpression(s.end(this), name);
     }
 }
 
