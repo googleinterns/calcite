@@ -21,7 +21,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
  * A <code>SqlCreateAttributeFallback</code> is a CREATE TABLE option
- * for the FALLBACK keyword
+ * for the FALLBACK keyword.
  */
 public class SqlCreateAttributeFallback extends SqlCreateAttribute {
 
@@ -49,13 +49,5 @@ public class SqlCreateAttributeFallback extends SqlCreateAttribute {
     if (protection) {
       writer.keyword("PROTECTION");
     }
-  }
-
-  public boolean hasNoKeyword() {
-    return no;
-  }
-
-  public boolean hasProtectionKeyword() {
-    return protection;
   }
 }

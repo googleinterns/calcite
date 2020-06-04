@@ -21,7 +21,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
  * A <code>SqlCreateAttribute</code> is a base class that can be used
- * to create custom options for the SQL CREATE TABLE function
+ * to create custom options for the SQL CREATE TABLE function.
  *
  * <p>To customize table option unparsing, override the method
  * {@link #unparse(SqlWriter, int, int)}.

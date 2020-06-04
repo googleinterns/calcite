@@ -51,10 +51,9 @@ public class SqlCreateTable extends SqlCreate
 
   /** Creates a SqlCreateTable. */
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
-      boolean ifNotExists, SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
-      SqlNodeList columnList, SqlNode query) {
-    this(pos, replace, setType, volatility, ifNotExists, name, tableAttributes, columnList, query,
-        /*withData=*/false, /*onCommitType=*/OnCommitType.UNSPECIFIED);
+      boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
+    this(pos, replace, setType, volatility, ifNotExists, name, /*tableAttributes=*/null,
+        columnList, query, /*withData=*/false, /*onCommitType=*/OnCommitType.UNSPECIFIED);
   }
 
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
