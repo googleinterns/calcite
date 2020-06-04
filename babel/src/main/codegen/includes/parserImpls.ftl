@@ -159,25 +159,11 @@ SqlCreateAttribute CreateTableAttributeFallback() :
     boolean protection = false;
 }
 {
-      [ <NO>  { no = true; } ]
-      <FALLBACK>
-      [ <PROTECTION> { protection = true; } ]
-      { return new SqlCreateAttributeFallback(no, protection, getPos()); }
-}
-
-SqlCreateAttribute CreateTableAttributeJournalTable() :
-{
-    final SqlIdentifier id1;
-    final SqlIdentifier id2;
-}
-{
-    <WITH> <JOURNAL> <TABLE> <EQ> id1 = SimpleIdentifier()
     (
-        <DOT> id2 = CompoundIdentifier() {
-            return new SqlCreateAttributeJournalTable(id1, id2, getPos());
-        }
-    |
-        { return new SqlCreateAttributeJournalTable(null, id1, getPos()); }
+        [ <NO>  { no = true; } ]
+        <FALLBACK>
+        [ <PROTECTION> { protection = true; } ]
+        { return new SqlCreateAttributeFallback(no, protection, getPos()); }
     )
 }
 
@@ -192,8 +178,6 @@ List<SqlCreateAttribute> CreateTableAttributes() :
         <COMMA>
         (
             e = CreateTableAttributeFallback()
-        |
-            e = CreateTableAttributeJournalTable()
         ) { list.add(e); }
     )+
     { return list; }

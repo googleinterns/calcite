@@ -320,26 +320,6 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testTableAttributeJournalTable() {
-    final String sql = "create table foo, with journal table = baz (bar integer)";
-    final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ` (`BAR` INTEGER)";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testTableAttributeJournalTableWithSource() {
-    final String sql = "create table foo, with journal table = baz.tbl (bar integer)";
-    final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ`.`TBL` (`BAR` INTEGER)";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testTableAttributeMultipleAttrs() {
-    final String sql = "create table foo, with journal table = baz.tbl, "
-        + "fallback protection (bar integer)";
-    final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ`.`TBL`, "
-        + "FALLBACK PROTECTION (`BAR` INTEGER)";
-    sql(sql).ok(expected);
-  }
-
   @Test public void testInsertWithSelectInParens() {
     final String sql = "insert into foo (SELECT * FROM bar)";
     final String expected = "INSERT INTO `FOO`\n"
