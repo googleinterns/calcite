@@ -153,12 +153,43 @@ void ColumnWithType(List<SqlNode> list) :
     }
 }
 
+SqlNode CreateTableAttributeFallback() :
+{
+    boolean no = false;
+    boolean protection = false;
+}
+{
+    (
+        [ <NO> ] { no = true; }
+        <FALLBACK>
+        [ <PROTECTION> ] { protection = true; }
+        { return SqlCreateAttributeFallback(no, protection, getPos()) }
+    )
+}
+
+List<SqlCreateAttribute> CreateTableOptions() :
+{
+    final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
+    SqlCreateAttribute e;
+    Span s;
+}
+{
+    (
+        <COMMA>
+        (
+            e = CreateTableAttributeFallback()
+        ) { list.add(e) }
+    )*
+    { return list; }
+}
+
 SqlCreate SqlCreateTable(Span s, boolean replace) :
 {
     final SetType setType;
     final boolean isVolatile;
     final boolean ifNotExists;
     final SqlIdentifier id;
+    final List<SqlCreateAttribute> tableOptions;
     final SqlNodeList columnList;
     final SqlNode query;
     boolean withData = false;
@@ -166,6 +197,11 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
 }
 {
     setType = SetTypeOpt() isVolatile = IsVolatileOpt() <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
+    (
+        tableOptions = CreateTableOptions()
+    |
+        { tableOptions = null; }
+    )
     (
         columnList = ExtendColumnList()
     |
@@ -184,7 +220,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     onCommitType = OnCommitTypeOpt()
     {
         return new SqlCreateTable(s.end(this), replace, setType, isVolatile, ifNotExists, id,
-            columnList, query, withData, onCommitType);
+            tableOptions, columnList, query, withData, onCommitType);
     }
 }
 

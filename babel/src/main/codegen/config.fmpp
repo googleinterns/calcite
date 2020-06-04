@@ -31,7 +31,10 @@ data: {
 
     # List of keywords.
     keywords: [
+      "FALLBACK"
       "IF"
+      "JOURNAL"
+      "PROTECTION"
       "SEL"
       "SEMI"
       "VOLATILE"
