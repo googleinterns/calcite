@@ -35,7 +35,6 @@ data: {
     keywords: [
       "FALLBACK"
       "IF"
-      "JOURNAL"
       "PROTECTION"
       "SEL"
       "SEMI"
