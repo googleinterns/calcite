@@ -65,7 +65,8 @@ public class SqlSetOption extends SqlAlter {
           final SqlNode scopeNode = operands[0];
           return new SqlSetOption(pos,
               scopeNode == null ? null : scopeNode.toString(),
-              (SqlIdentifier) operands[1], operands[2], /*hasEquals=*/ true);
+              (SqlIdentifier) operands[1], operands[2], /*hasEquals=*/ true,
+              /*nameHasBackTicks=*/ true);
         }
       };
 
@@ -80,8 +81,11 @@ public class SqlSetOption extends SqlAlter {
   SqlNode value;
 
   /** Controls whether the unparsed string contains an equals sign
-    * between the name and value */
+    * between the name and value. */
   boolean hasEquals;
+
+  /** Controls whether the unparsed name has backticks surrounding it or not. */
+  boolean nameHasBackTicks;
 
   /**
    * Creates a node.
@@ -93,14 +97,17 @@ public class SqlSetOption extends SqlAlter {
    *              If null, assume RESET command, else assume SET command.
    * @param hasEquals Whether or not query contains an equals sign between
    *                  name and value
+   * @param nameHasBackTicks Whether the unparsed name has backticks surrounding
+   *                         it or not.
    */
   public SqlSetOption(SqlParserPos pos, String scope, SqlIdentifier name,
-      SqlNode value, boolean hasEquals) {
+      SqlNode value, boolean hasEquals, boolean nameHasBackTicks) {
     super(pos, scope);
     this.scope = scope;
     this.name = name;
     this.value = value;
     this.hasEquals = hasEquals;
+    this.nameHasBackTicks = nameHasBackTicks;
     assert name != null;
   }
 
@@ -152,7 +159,11 @@ public class SqlSetOption extends SqlAlter {
     }
     final SqlWriter.Frame frame =
         writer.startList(SqlWriter.FrameTypeEnum.SIMPLE);
-    name.unparse(writer, leftPrec, rightPrec);
+    if (nameHasBackTicks) {
+      name.unparse(writer, leftPrec, rightPrec);
+    } else {
+      writer.keyword(name.toString());
+    }
     if (value != null) {
       if (hasEquals) {
         writer.sep("=");

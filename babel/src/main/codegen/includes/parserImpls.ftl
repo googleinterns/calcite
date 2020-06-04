@@ -222,7 +222,7 @@ SqlSetOption SqlSetTimeZone(Span s, String scope) :
     timeZoneValue = SimpleIdentifier()
     {
         return new SqlSetOption(s.end(timeZoneValue), scope, name,
-        timeZoneValue, /*hasEquals=*/ false);
+        timeZoneValue, /*hasEquals=*/ false, /*nameHasBackTicks=*/ false);
     }
 }
 

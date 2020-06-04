@@ -3908,7 +3908,7 @@ SqlSetOption SqlSetOption(Span s, String scope) :
         )
         {
             return new SqlSetOption(s.end(val), scope, name, val,
-                /*hasEquals=*/ true);
+                /*hasEquals=*/ true, /*nameHasBackTicks=*/ true);
         }
     |
         <RESET> {
@@ -3924,7 +3924,7 @@ SqlSetOption SqlSetOption(Span s, String scope) :
         )
         {
             return new SqlSetOption(s.end(name), scope, name, null,
-                /*hasEquals=*/ true);
+                /*hasEquals=*/ true, /*nameHasBackTicks=*/ true);
         }
     )
 }
