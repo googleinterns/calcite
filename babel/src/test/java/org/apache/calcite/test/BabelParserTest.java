@@ -419,6 +419,17 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testUsingRequestModifierSingular() {
+    final String sql = "using (foo int)";
+    final String expected = "USING (`FOO` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testUsingRequestModifierMultiple() {
+    final String sql = "using (foo int, bar varchar(30), baz int)";
+    final String expected = "USING (`FOO` INTEGER, `BAR` VARCHAR(30), `BAZ` INTEGER)";
+  }
+
   @Test public void testSetTimeZoneGMT() {
     final String sql = "set time zone \"GMT+10\"";
     final String expected = "SET TIME ZONE `GMT+10`";

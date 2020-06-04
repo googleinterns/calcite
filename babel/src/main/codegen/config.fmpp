@@ -28,6 +28,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
       "org.apache.calcite.sql.babel.SqlExecMacro",
+      "org.apache.calcite.sql.babel.SqlUsingRequestModifier",
       "org.apache.calcite.sql.babel.Volatility",
     ]
 
@@ -896,6 +897,11 @@ data: {
     # List of methods for parsing expressions to "EXEC" calls.
     execStatementParserMethods: [
       "SqlExecMacro"
+    ]
+
+    # List of methods for parsing experssions to "USING" calls
+    usingStatementParserMethods: [
+        "SqlUsingRequestModifier"
     ]
 
     # Binary operators tokens

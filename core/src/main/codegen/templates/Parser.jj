@@ -1019,6 +1019,10 @@ SqlNode SqlStmt() :
         stmt = SqlExec()
     |
 </#if>
+<#if  parser.usingStatementParserMethods?size != 0>
+        stmt = SqlUsing()
+    |
+</#if>
 <#if parser.setTimeZoneStatementParserMethods?size != 0>
         stmt = SqlSetTimeZone()
     |
@@ -4025,6 +4029,29 @@ SqlNode SqlExec() :
 <#-- additional literal parser methods are included here -->
 <#list parser.execStatementParserMethods as method>
         source =  ${method}()
+        <#sep>|</#sep>
+</#list>
+    )
+    {
+        return source;
+    }
+}
+</#if>
+<#if parser.usingStatementParserMethods?size != 0>
+/**
+ * Parses a Using statement.
+ */
+SqlNode SqlUsing() :
+{
+    final Span s;
+    SqlNode source;
+}
+{
+    <USING> { s = span(); }
+    (
+<#-- additional literal parser methods are included here -->
+<#list parser.usingStatementParserMethods as method>
+        source =  ${method}(s)
         <#sep>|</#sep>
 </#list>
     )
