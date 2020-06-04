@@ -4014,7 +4014,7 @@ SqlNode SqlExec() :
 </#if>
 <#if parser.usingStatementParserMethods?size != 0>
 /**
- * Parses a Using statement
+ * Parses a Using statement.
  */
 SqlNode SqlUsing() :
 {
