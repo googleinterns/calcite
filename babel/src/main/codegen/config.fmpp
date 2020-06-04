@@ -22,6 +22,7 @@ data: {
     # List of import statements.
     imports: [
       "org.apache.calcite.sql.SqlCreate",
+      "org.apache.calcite.sql.SqlSetOption",
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
       "org.apache.calcite.sql.babel.SqlCreateTable",
@@ -872,6 +873,11 @@ data: {
     # Each must accept arguments "(SqlParserPos pos, boolean replace)".
     createStatementParserMethods: [
       "SqlCreateTable"
+    ]
+
+    # list of methods for parsing extensions to "SET" calls
+    setStatementParserMethods: [
+        "SqlSetTimeZone"
     ]
 
     # List of methods for parsing extensions to "DROP" calls.

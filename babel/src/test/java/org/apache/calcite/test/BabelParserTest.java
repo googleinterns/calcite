@@ -330,6 +330,21 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testOrderByUnparsing() {
+    final String sql =
+        "(select 1 union all select Salary from Employee) order by Salary limit 1 offset 1";
+
+    final String expected =
+        "(SELECT 1\n"
+            + "UNION ALL\n"
+            + "SELECT `SALARY`\n"
+            + "FROM `EMPLOYEE`)\n"
+            + "ORDER BY `SALARY`\n"
+            + "OFFSET 1 ROWS\n"
+            + "FETCH NEXT 1 ROWS ONLY";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testUpdateFromTable() {
     final String sql = "update foo from bar set foo.x = bar.y, foo.z = bar.k";
     final String expected = "UPDATE `FOO` FROM `BAR` SET `FOO`.`X` = `BAR`.`Y`, "
@@ -365,6 +380,17 @@ class BabelParserTest extends SqlParserTest {
   @Test public void testUsingRequestModifierMultiple() {
     final String sql = "using (foo int, bar varchar(30), baz int)";
     final String expected = "USING (`FOO` INTEGER, `BAR` VARCHAR(30), `BAZ` INTEGER)";
+}
+
+  @Test public void testSetTimeZoneGMT() {
+    final String sql = "set time zone \"GMT+10\"";
+    final String expected = "SET `TIME ZONE` `GMT+10`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSetTimeZoneColloquial() {
+    final String sql = "set time zone \"Europe Moscow\"";
+    final String expected = "SET `TIME ZONE` `Europe Moscow`";
     sql(sql).ok(expected);
   }
 
