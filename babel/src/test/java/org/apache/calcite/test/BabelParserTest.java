@@ -380,7 +380,7 @@ class BabelParserTest extends SqlParserTest {
   @Test public void testUsingRequestModifierMultiple() {
     final String sql = "using (foo int, bar varchar(30), baz int)";
     final String expected = "USING (`FOO` INTEGER, `BAR` VARCHAR(30), `BAZ` INTEGER)";
-}
+  }
 
   @Test public void testSetTimeZoneGMT() {
     final String sql = "set time zone \"GMT+10\"";
