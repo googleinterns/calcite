@@ -25,8 +25,8 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public class SqlCreateAttributeFallback extends SqlCreateAttribute {
 
-  private boolean no;
-  private boolean protection;
+  private final boolean no;
+  private final boolean protection;
 
   /**
    * Creates a {@code SqlCreateAttributeFallback}.
