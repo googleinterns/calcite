@@ -3886,10 +3886,10 @@ SqlSetOption SqlSetOption(Span s, String scope) :
 }
 {
     (
-    <SET> {
-        s.add(this);
-    }
-    name = CompoundIdentifier()
+        <SET> {
+            s.add(this);
+        }
+        name = CompoundIdentifier()
         <EQ>
         (
             val = Literal()
