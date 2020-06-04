@@ -89,13 +89,15 @@ SetType SetTypeOpt() :
     { return SetType.UNSPECIFIED; }
 }
 
-boolean IsVolatileOpt() :
+Volatility VolatilityOpt() :
 {
 }
 {
-    <VOLATILE> { return true; }
+    <VOLATILE> { return Volatility.VOLATILE; }
 |
-    { return false; }
+    <TEMP> { return Volatility.TEMP; }
+|
+    { return Volatility.UNSPECIFIED; }
 }
 
 OnCommitType OnCommitTypeOpt() :
@@ -184,7 +186,7 @@ List<SqlCreateAttribute> CreateTableAttributes() :
 SqlCreate SqlCreateTable(Span s, boolean replace) :
 {
     final SetType setType;
-    final boolean isVolatile;
+    final Volatility volatility;
     final boolean ifNotExists;
     final SqlIdentifier id;
     final List<SqlCreateAttribute> tableAttributes;
@@ -194,7 +196,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     final OnCommitType onCommitType;
 }
 {
-    setType = SetTypeOpt() isVolatile = IsVolatileOpt() <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
+    setType = SetTypeOpt() volatility = VolatilityOpt() <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
     (
         tableAttributes = CreateTableAttributes()
     |
@@ -217,7 +219,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     )
     onCommitType = OnCommitTypeOpt()
     {
-        return new SqlCreateTable(s.end(this), replace, setType, isVolatile, ifNotExists, id,
+        return new SqlCreateTable(s.end(this), replace, setType, volatility, ifNotExists, id,
             tableAttributes, columnList, query, withData, onCommitType);
     }
 }
@@ -238,6 +240,20 @@ SqlNode SqlExecMacro() :
     macro = CompoundIdentifier() { s = span(); }
     {
         return new SqlExecMacro(s.end(this), macro);
+    }
+}
+
+SqlNode SqlSetTimeZoneValue() :
+{
+    SqlIdentifier timeZoneValue;
+    SqlIdentifier name;
+    Span s;
+}
+{
+    <SET> { s = span(); }
+    <TIME> <ZONE> timeZoneValue = SimpleIdentifier()
+    {
+        return new SqlSetTimeZone(s.end(timeZoneValue), timeZoneValue);
     }
 }
 

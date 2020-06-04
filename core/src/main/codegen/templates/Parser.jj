@@ -1019,6 +1019,10 @@ SqlNode SqlStmt() :
         stmt = SqlExec()
     |
 </#if>
+<#if parser.setTimeZoneStatementParserMethods?size != 0>
+        stmt = SqlSetTimeZone()
+    |
+</#if>
 <#if parser.dropStatementParserMethods?size != 0>
         stmt = SqlDrop()
     |
@@ -3979,6 +3983,27 @@ SqlCreate SqlCreate() :
     )
     {
         return create;
+    }
+}
+</#if>
+<#if parser.setTimeZoneStatementParserMethods?size != 0>
+/**
+ * Parses a SET TIME ZONE statement
+ */
+SqlNode SqlSetTimeZone() :
+{
+    SqlNode source;
+}
+{
+    (
+<#-- additional literal parser methods are included here -->
+<#list parser.setTimeZoneStatementParserMethods as method>
+        source = ${method}()
+        <#sep>|</#sep>
+</#list>
+    )
+    {
+        return source;
     }
 }
 </#if>
