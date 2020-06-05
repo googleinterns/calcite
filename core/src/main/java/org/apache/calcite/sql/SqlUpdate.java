@@ -21,7 +21,6 @@ import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorImpl;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
-import org.apache.calcite.util.Pair;
 
 import java.util.List;
 
@@ -189,55 +188,10 @@ public class SqlUpdate extends SqlCall {
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    final SqlDialect.DatabaseProduct databaseProduct = writer.getDialect() != null
-        ? writer.getDialect().getDatabaseProduct()
-        : SqlDialect.DatabaseProduct.UNKNOWN;
-    final SqlWriter.Frame frame =
-        writer.startList(SqlWriter.FrameTypeEnum.SELECT, "UPDATE", "");
-    final int opLeft = getOperator().getLeftPrec();
-    final int opRight = getOperator().getRightPrec();
-    targetTable.unparse(writer, opLeft, opRight);
-    if (alias != null) {
-      writer.keyword("AS");
-      alias.unparse(writer, opLeft, opRight);
-    }
-    if (databaseProduct !=  SqlDialect.DatabaseProduct.BIG_QUERY) {
-      unparseSourceTable(writer, opRight, opLeft);
-    }
-    final SqlWriter.Frame setFrame =
-        writer.startList(SqlWriter.FrameTypeEnum.UPDATE_SET_LIST, "SET", "");
-    for (Pair<SqlNode, SqlNode> pair
-        : Pair.zip(getTargetColumnList(), getSourceExpressionList())) {
-      writer.sep(",");
-      SqlIdentifier id = (SqlIdentifier) pair.left;
-      id.unparse(writer, opLeft, opRight);
-      writer.keyword("=");
-      SqlNode sourceExp = pair.right;
-      sourceExp.unparse(writer, opLeft, opRight);
-    }
-    writer.endList(setFrame);
-    if (databaseProduct == SqlDialect.DatabaseProduct.BIG_QUERY) {
-      unparseSourceTable(writer, opRight, opLeft);
-    }
-    if (condition != null) {
-      writer.sep("WHERE");
-      condition.unparse(writer, opLeft, opRight);
-    }
-    writer.endList(frame);
+    writer.getDialect().unparseSqlUpdateCall(writer, this, leftPrec, rightPrec);
   }
 
   public void validate(SqlValidator validator, SqlValidatorScope scope) {
     validator.validateUpdate(this);
-  }
-
-  private void unparseSourceTable(SqlWriter writer, int opLeft, int opRight) {
-    if (sourceTable != null) {
-      writer.keyword("FROM");
-      sourceTable.unparse(writer, opLeft, opRight);
-      if (sourceAlias != null) {
-        writer.keyword("AS");
-        sourceAlias.unparse(writer, opLeft, opRight);
-      }
-    }
   }
 }

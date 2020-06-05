@@ -38,6 +38,7 @@ import org.apache.calcite.sql.type.BasicSqlType;
 import org.apache.calcite.sql.type.SqlTypeUtil;
 import org.apache.calcite.sql.validate.SqlConformance;
 import org.apache.calcite.sql.validate.SqlConformanceEnum;
+import org.apache.calcite.util.Pair;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Suppliers;
@@ -480,6 +481,43 @@ public class SqlDialect {
     if (call.getOperandList().size() > 2) {
       call.operand(2).unparse(writer, leftPrec, rightPrec);
     }
+  }
+
+  public void unparseSqlUpdateCall(SqlWriter writer, SqlUpdate updateCall, int leftPrec, int rightPrec) {
+    final SqlWriter.Frame frame =
+        writer.startList(SqlWriter.FrameTypeEnum.SELECT, "UPDATE", "");
+    final int opLeft = updateCall.getOperator().getLeftPrec();
+    final int opRight = updateCall.getOperator().getRightPrec();
+    updateCall.getTargetTable().unparse(writer, opLeft, opRight);
+    if (updateCall.getAlias() != null) {
+      writer.keyword("AS");
+      updateCall.getAlias().unparse(writer, opLeft, opRight);
+    }
+    if (updateCall.getSourceTable() != null) {
+      writer.keyword("FROM");
+      updateCall.getSourceTable().unparse(writer, opLeft, opRight);
+      if (updateCall.getSourceAlias() != null) {
+        writer.keyword("AS");
+        updateCall.getSourceAlias().unparse(writer, opLeft, opRight);
+      }
+    }
+    final SqlWriter.Frame setFrame =
+        writer.startList(SqlWriter.FrameTypeEnum.UPDATE_SET_LIST, "SET", "");
+    for (Pair<SqlNode, SqlNode> pair
+        : Pair.zip(updateCall.getTargetColumnList(), updateCall.getSourceExpressionList())) {
+      writer.sep(",");
+      SqlIdentifier id = (SqlIdentifier) pair.left;
+      id.unparse(writer, opLeft, opRight);
+      writer.keyword("=");
+      SqlNode sourceExp = pair.right;
+      sourceExp.unparse(writer, opLeft, opRight);
+    }
+    writer.endList(setFrame);
+    if (updateCall.getCondition() != null) {
+      writer.sep("WHERE");
+      updateCall.getCondition().unparse(writer, opLeft, opRight);
+    }
+    writer.endList(frame);
   }
 
   /** Converts an interval qualifier to a SQL string. The default implementation
