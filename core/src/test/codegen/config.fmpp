@@ -412,6 +412,10 @@ data: {
     execStatementParserMethods: [
     ]
 
+    # List of methods for parsing experssions to "USING" calls
+    usingStatementParserMethods: [
+    ]
+
     # Binary operators tokens
     binaryOperatorsTokens: [
     ]

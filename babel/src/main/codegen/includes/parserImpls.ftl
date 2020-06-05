@@ -135,23 +135,83 @@ SqlNodeList ExtendColumnList() :
     }
 }
 
+boolean IsNullable() :
+{
+
+}
+{
+    (
+        <NOT> <NULL> {
+            return false;
+        }
+    |
+        <NULL> {
+            return true;
+        }
+    )
+}
+
+boolean IsCaseSpecific() :
+{
+
+}
+{
+    (
+        <NOT> <CASESPECIFIC> {
+            return false;
+        }
+    |
+        <CASESPECIFIC> {
+            return true;
+        }
+    )
+}
+
+boolean IsUpperCase() :
+{
+
+}
+{
+    (
+        <NOT> <UPPERCASE> {
+            return false;
+        }
+    |
+        <UPPERCASE> {
+            return true;
+        }
+    )
+}
+
 void ColumnWithType(List<SqlNode> list) :
 {
     SqlIdentifier id;
     SqlDataTypeSpec type;
     boolean nullable = true;
+    Boolean uppercase = null;
+    Boolean caseSpecific = null;
     final Span s = Span.of();
 }
 {
     id = CompoundIdentifier()
     type = DataType()
-    [
-        <NOT> <NULL> {
-            nullable = false;
+    // This acts as a loop to check which optional parameters have been specified.
+    (
+        nullable = IsNullable()
+        {
+            type = type.withNullable(nullable);
         }
-    ]
+    |
+        uppercase = IsUpperCase() {
+            type = type.withUppercase(uppercase);
+        }
+    |
+        caseSpecific = IsCaseSpecific() {
+            type = type.withCaseSpecific(caseSpecific);
+        }
+    )*
     {
-        list.add(SqlDdlNodes.column(s.add(id).end(this), id, type.withNullable(nullable), null, null));
+        list.add(SqlDdlNodes.column(s.add(id).end(this), id, type, null, null));
     }
 }
 
@@ -258,6 +318,17 @@ SqlNode SqlExecMacro() :
     macro = CompoundIdentifier() { s = span(); }
     {
         return new SqlExecMacro(s.end(this), macro);
+    }
+}
+
+SqlNode SqlUsingRequestModifier(Span s) :
+{
+    final SqlNodeList columnList;
+}
+{
+    columnList = ExtendColumnList()
+    {
+        return new SqlUsingRequestModifier(s.end(this), columnList);
     }
 }
 
