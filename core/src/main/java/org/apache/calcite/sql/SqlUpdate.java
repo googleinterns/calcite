@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.sql;
 
+import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorImpl;
@@ -189,6 +190,9 @@ public class SqlUpdate extends SqlCall {
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    final SqlDialect.DatabaseProduct databaseProduct = writer.getDialect() != null
+        ? writer.getDialect().getDatabaseProduct()
+        : SqlDialect.DatabaseProduct.UNKNOWN;
     final SqlWriter.Frame frame =
         writer.startList(SqlWriter.FrameTypeEnum.SELECT, "UPDATE", "");
     final int opLeft = getOperator().getLeftPrec();
@@ -198,13 +202,8 @@ public class SqlUpdate extends SqlCall {
       writer.keyword("AS");
       alias.unparse(writer, opLeft, opRight);
     }
-    if (sourceTable != null) {
-      writer.keyword("FROM");
-      sourceTable.unparse(writer, opLeft, opRight);
-      if (sourceAlias != null) {
-        writer.keyword("AS");
-        sourceAlias.unparse(writer, opLeft, opRight);
-      }
+    if (databaseProduct !=  SqlDialect.DatabaseProduct.BIG_QUERY) {
+      unparseSourceTable(writer, opRight, opLeft);
     }
     final SqlWriter.Frame setFrame =
         writer.startList(SqlWriter.FrameTypeEnum.UPDATE_SET_LIST, "SET", "");
@@ -218,6 +217,9 @@ public class SqlUpdate extends SqlCall {
       sourceExp.unparse(writer, opLeft, opRight);
     }
     writer.endList(setFrame);
+    if (databaseProduct == SqlDialect.DatabaseProduct.BIG_QUERY) {
+      unparseSourceTable(writer, opRight, opLeft);
+    }
     if (condition != null) {
       writer.sep("WHERE");
       condition.unparse(writer, opLeft, opRight);
@@ -227,5 +229,16 @@ public class SqlUpdate extends SqlCall {
 
   public void validate(SqlValidator validator, SqlValidatorScope scope) {
     validator.validateUpdate(this);
+  }
+
+  private void unparseSourceTable(SqlWriter writer, int opLeft, int opRight) {
+    if (sourceTable != null) {
+      writer.keyword("FROM");
+      sourceTable.unparse(writer, opLeft, opRight);
+      if (sourceAlias != null) {
+        writer.keyword("AS");
+        sourceAlias.unparse(writer, opLeft, opRight);
+      }
+    }
   }
 }
