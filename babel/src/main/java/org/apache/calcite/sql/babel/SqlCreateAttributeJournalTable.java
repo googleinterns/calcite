@@ -26,21 +26,16 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public class SqlCreateAttributeJournalTable extends SqlCreateAttribute {
 
-  private final SqlIdentifier sourceName; // Can be null
   private final SqlIdentifier tableName;
 
   /**
    * Creates a {@code SqlCreateAttributeJournalTable}.
    *
-   * @param sourceName Optional name of database or user name, may be null
    * @param tableName  Name of the permanent journal table to be used, must not be null
    * @param pos  Parser position, must not be null
    */
-  public SqlCreateAttributeJournalTable(SqlIdentifier sourceName,
-      SqlIdentifier tableName,
-      SqlParserPos pos) {
+  public SqlCreateAttributeJournalTable(SqlIdentifier tableName, SqlParserPos pos) {
     super(pos);
-    this.sourceName = sourceName;
     this.tableName = tableName;
   }
 
@@ -49,20 +44,6 @@ public class SqlCreateAttributeJournalTable extends SqlCreateAttribute {
     writer.keyword("JOURNAL");
     writer.keyword("TABLE");
     writer.sep("=");
-    final SqlWriter.Frame frame = writer.startList(SqlWriter.FrameTypeEnum.IDENTIFIER);
-    if (sourceName != null) {
-      sourceName.unparse(writer, 0, 0);
-      writer.sep(".");
-    }
     tableName.unparse(writer, 0, 0);
-    writer.endList(frame);
-  }
-
-  public SqlIdentifier getSourceName() {
-    return sourceName;
-  }
-
-  public SqlIdentifier getTableName() {
-    return tableName;
   }
 }

@@ -229,18 +229,11 @@ SqlCreateAttribute CreateTableAttributeFallback() :
 
 SqlCreateAttribute CreateTableAttributeJournalTable() :
 {
-    final SqlIdentifier id1;
-    final SqlIdentifier id2;
+    final SqlIdentifier id;
 }
 {
-    <WITH> <JOURNAL> <TABLE> <EQ> id1 = SimpleIdentifier()
-    (
-        <DOT> id2 = CompoundIdentifier() {
-            return new SqlCreateAttributeJournalTable(id1, id2, getPos());
-        }
-    |
-        { return new SqlCreateAttributeJournalTable(null, id1, getPos()); }
-    )
+    <WITH> <JOURNAL> <TABLE> <EQ> id = CompoundIdentifier()
+    { return new SqlCreateAttributeJournalTable(id, getPos()); }
 }
 
 List<SqlCreateAttribute> CreateTableAttributes() :

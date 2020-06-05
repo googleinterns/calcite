@@ -346,7 +346,7 @@ class BabelParserTest extends SqlParserTest {
         + "FALLBACK PROTECTION (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
-  
+
   @Test public void testCreateTablePermutedColumnLevelAttributes() {
     final String sql = "create table foo (bar int uppercase null casespecific, "
         + "baz varchar(30) casespecific uppercase null)";
