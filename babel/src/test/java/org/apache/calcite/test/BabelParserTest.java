@@ -327,6 +327,62 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeJournal() {
+    final String sql = "create table foo, journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalBefore() {
+    final String sql = "create table foo, before journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BEFORE JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalAfter() {
+    final String sql = "create table foo, after journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, AFTER JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalNoModifier() {
+    sql("create table foo, no journal (bar integer)")
+        .ok("CREATE TABLE `FOO`, NO JOURNAL (`BAR` INTEGER)");
+    // before journal
+    sql("create table foo, no before journal (bar integer)")
+        .ok("CREATE TABLE `FOO`, NO BEFORE JOURNAL (`BAR` INTEGER)");
+    // after journal
+    sql("create table foo, no after journal (bar integer)")
+        .ok("CREATE TABLE `FOO`, NO AFTER JOURNAL (`BAR` INTEGER)");
+  }
+
+  @Test public void testTableAttributeJournalDualModifier() {
+    sql("create table foo, dual journal (bar integer)")
+        .ok("CREATE TABLE `FOO`, DUAL JOURNAL (`BAR` INTEGER)");
+    // before journal
+    sql("create table foo, dual before journal (bar integer)")
+        .ok("CREATE TABLE `FOO`, DUAL BEFORE JOURNAL (`BAR` INTEGER)");
+    // after journal
+    sql("create table foo, dual after journal (bar integer)")
+        .ok("CREATE TABLE `FOO`, DUAL AFTER JOURNAL (`BAR` INTEGER)");
+  }
+
+  @Test public void testTableAttributeJournalLocalModifier() {
+    sql("create table foo, local after journal (bar integer)")
+        .ok("CREATE TABLE `FOO`, LOCAL AFTER JOURNAL (`BAR` INTEGER)");
+    // cannot be used with before journal
+    sql("create table foo, ^local^ before journal (bar integer)")
+        .fails("(?s).*Encountered \"local before\" at .*");
+  }
+
+  @Test public void testTableAttributeJournalNotLocalModifier() {
+    sql("create table foo, not local after journal (bar integer)")
+        .ok("CREATE TABLE `FOO`, NOT LOCAL AFTER JOURNAL (`BAR` INTEGER)");
+    // cannot be used with before journal
+    sql("create table foo, not local ^before^ journal (bar integer)")
+        .fails("(?s).*Encountered \"before\" at .*");
+  }
+
   @Test public void testCreateTablePermutedColumnLevelAttributes() {
     final String sql = "create table foo (bar int uppercase null casespecific, "
         + "baz varchar(30) casespecific uppercase null)";
