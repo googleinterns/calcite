@@ -227,6 +227,15 @@ SqlCreateAttribute CreateTableAttributeFallback() :
     { return new SqlCreateAttributeFallback(no, protection, getPos()); }
 }
 
+SqlCreateAttribute CreateTableAttributeJournalTable() :
+{
+    final SqlIdentifier id;
+}
+{
+    <WITH> <JOURNAL> <TABLE> <EQ> id = CompoundIdentifier()
+    { return new SqlCreateAttributeJournalTable(id, getPos()); }
+}
+
 List<SqlCreateAttribute> CreateTableAttributes() :
 {
     final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
@@ -238,6 +247,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
         <COMMA>
         (
             e = CreateTableAttributeFallback()
+        |
+            e = CreateTableAttributeJournalTable()
         ) { list.add(e); }
     )+
     { return list; }
