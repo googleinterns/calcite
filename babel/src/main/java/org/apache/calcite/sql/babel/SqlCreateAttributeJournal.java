@@ -81,12 +81,12 @@ public class SqlCreateAttributeJournal extends SqlCreateAttribute {
     UNSPECIFIED,
 
     /**
-     * Maintains a before change image
+     * Maintains a before change image.
      */
     BEFORE,
 
     /**
-     * Maintains an after change image
+     * Maintains an after change image.
      */
     AFTER,
   }
