@@ -39,7 +39,7 @@ public class SqlCreateAttributeJournalTable extends SqlCreateAttribute {
     this.tableName = tableName;
   }
 
-  public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
+  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
     writer.keyword("WITH");
     writer.keyword("JOURNAL");
     writer.keyword("TABLE");

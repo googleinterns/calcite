@@ -327,13 +327,13 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testTableAttributeJournalTable() {
+  @Test public void testTableAttributeJournalTableWithSimpleIdentifier() {
     final String sql = "create table foo, with journal table = baz (bar integer)";
     final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ` (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 
-  @Test public void testTableAttributeJournalTableWithSource() {
+  @Test public void testTableAttributeJournalTableWithCompoundIdentifier() {
     final String sql = "create table foo, with journal table = baz.tbl (bar integer)";
     final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ`.`TBL` (`BAR` INTEGER)";
     sql(sql).ok(expected);
