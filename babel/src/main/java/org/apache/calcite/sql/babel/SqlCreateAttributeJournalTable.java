@@ -22,7 +22,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
  * A <code>SqlCreateAttributeJournalTable</code> is a CREATE TABLE option
- * for the WITH JOURNAL TABLE attribute
+ * for the WITH JOURNAL TABLE attribute.
  */
 public class SqlCreateAttributeJournalTable extends SqlCreateAttribute {
 
@@ -31,7 +31,7 @@ public class SqlCreateAttributeJournalTable extends SqlCreateAttribute {
   /**
    * Creates a {@code SqlCreateAttributeJournalTable}.
    *
-   * @param tableName  Name of the permanent journal table to be used, must not be null
+   * @param tableName  Name of the permanent journal table to be used
    * @param pos  Parser position, must not be null
    */
   public SqlCreateAttributeJournalTable(SqlIdentifier tableName, SqlParserPos pos) {
