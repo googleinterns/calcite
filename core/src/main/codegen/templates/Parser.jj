@@ -1833,6 +1833,7 @@ SqlNode SelectItem() :
 {
     SqlNode e;
     final SqlIdentifier id;
+    final SqlIdentifier name;
 }
 {
     e = SelectExpression()
@@ -1842,6 +1843,15 @@ SqlNode SelectItem() :
             e = SqlStdOperatorTable.AS.createCall(span().end(e), e, id);
         }
     ]
+<#if parser.allowNamedExpression>
+    [
+        <LPAREN>
+        <NAMED> name = SimpleIdentifier() <RPAREN>
+        {
+            return new SqlNamedExpression(span().end(this), name);
+        }
+    ]
+</#if>
     {
         return e;
     }
