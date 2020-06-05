@@ -347,6 +347,14 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeMultipleAttrsOrder() {
+    final String sql = "create table foo, fallback protection, "
+        + "with journal table = baz.tbl (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FALLBACK PROTECTION, "
+        + "WITH JOURNAL TABLE = `BAZ`.`TBL` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTablePermutedColumnLevelAttributes() {
     final String sql = "create table foo (bar int uppercase null casespecific, "
         + "baz varchar(30) casespecific uppercase null)";
