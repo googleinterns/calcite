@@ -28,6 +28,7 @@ import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlSetOption;
 import org.apache.calcite.sql.SqlWriterConfig;
 import org.apache.calcite.sql.dialect.AnsiSqlDialect;
+import org.apache.calcite.sql.dialect.BigQuerySqlDialect;
 import org.apache.calcite.sql.parser.impl.SqlParserImpl;
 import org.apache.calcite.sql.pretty.SqlPrettyWriter;
 import org.apache.calcite.sql.test.SqlTests;
@@ -588,6 +589,11 @@ public class SqlParserTest {
   protected Sql sql(String sql) {
     return new Sql(sql, false, null, parser -> { });
   }
+
+  protected Sql bigQuerySql(String sql) {
+    return new Sql(sql, false, new SqlDialect(BigQuerySqlDialect.DEFAULT_CONTEXT), parser -> { });
+  }
+
 
   protected Sql expr(String sql) {
     return new Sql(sql, true, null, parser -> { });
