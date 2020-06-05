@@ -483,7 +483,8 @@ public class SqlDialect {
     }
   }
 
-  public void unparseSqlUpdateCall(SqlWriter writer, SqlUpdate updateCall, int leftPrec, int rightPrec) {
+  public void unparseSqlUpdateCall(SqlWriter writer, SqlUpdate updateCall,
+       int leftPrec, int rightPrec) {
     final SqlWriter.Frame frame =
         writer.startList(SqlWriter.FrameTypeEnum.SELECT, "UPDATE", "");
     final int opLeft = updateCall.getOperator().getLeftPrec();

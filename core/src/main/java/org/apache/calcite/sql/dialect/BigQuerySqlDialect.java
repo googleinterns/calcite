@@ -127,7 +127,8 @@ public class BigQuerySqlDialect extends SqlDialect {
     unparseFetchUsingLimit(writer, offset, fetch);
   }
 
-  @Override public void unparseSqlUpdateCall(SqlWriter writer, SqlUpdate updateCall, int leftPrec, int rightPrec) {
+  @Override public void unparseSqlUpdateCall(SqlWriter writer, SqlUpdate updateCall,
+      int leftPrec, int rightPrec) {
     final SqlWriter.Frame frame =
         writer.startList(SqlWriter.FrameTypeEnum.SELECT, "UPDATE", "");
     final int opLeft = updateCall.getOperator().getLeftPrec();
