@@ -432,6 +432,7 @@ class BabelParserTest extends SqlParserTest {
         + "= `b`.`y`, `f`.`z` = `b`.`k` FROM `bar` AS `b`";
     bigQuerySql(sql).ok(expected);
   }
+
   @Test public void testExecMacro() {
     final String sql = "exec foo";
     final String expected = "EXECUTE `FOO`";

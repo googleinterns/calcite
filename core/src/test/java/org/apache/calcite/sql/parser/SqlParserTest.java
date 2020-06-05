@@ -594,7 +594,6 @@ public class SqlParserTest {
     return new Sql(sql, false, new SqlDialect(BigQuerySqlDialect.DEFAULT_CONTEXT), parser -> { });
   }
 
-
   protected Sql expr(String sql) {
     return new Sql(sql, true, null, parser -> { });
   }
