@@ -16,7 +16,6 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorImpl;

@@ -427,8 +427,8 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testUpdateFromTableWithAliasBigQuery() {
-    final String sql = "update foo as f set f.x = b.y, f.z = b.k";
-    final String expected = "UPDATE `foo` AS `f` FROM `bar` AS `b` SET `f`.`x` "
+    final String sql = "update foo as f from bar as b set f.x = b.y, f.z = b.k";
+    final String expected = "UPDATE `foo` AS `f` SET `f`.`x` "
         + "= `b`.`y`, `f`.`z` = `b`.`k` FROM `bar` AS `b`";
     bigQuerySql(sql).ok(expected);
   }
