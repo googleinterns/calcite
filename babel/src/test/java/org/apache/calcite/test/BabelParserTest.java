@@ -419,6 +419,15 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+
+  @Test void testBigQueryUnicodeUnparsing() {
+    final String sql = "SELECT '¶ÑÍ·'";
+    final String expected = "SELECT '\\u00b6\\u00d1\\u00cd\\u00b7'";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
   @Test public void testOrderByUnparsing() {
     final String sql =
         "(select 1 union all select Salary from Employee) order by Salary limit 1 offset 1";

@@ -107,6 +107,27 @@ public class BigQuerySqlDialect extends SqlDialect {
         || RESERVED_KEYWORDS.contains(val.toUpperCase(Locale.ROOT));
   }
 
+  @Override public void quoteStringLiteralUnicode(StringBuilder buf, String val) {
+    buf.append("'");
+    for (int i = 0; i < val.length(); i++) {
+      char c = val.charAt(i);
+      if (c < 32 || c >= 128) {
+        buf.append("\\u");
+        buf.append(HEXITS[(c >> 12) & 0xf]);
+        buf.append(HEXITS[(c >> 8) & 0xf]);
+        buf.append(HEXITS[(c >> 4) & 0xf]);
+        buf.append(HEXITS[c & 0xf]);
+      } else if (c == '\'' || c == '\\') {
+        buf.append(c);
+        buf.append(c);
+      } else {
+        buf.append(c);
+      }
+    }
+    buf.append("'");
+  }
+
+
   @Override public SqlNode emulateNullDirection(SqlNode node,
       boolean nullsFirst, boolean desc) {
     return emulateNullDirectionWithIsNull(node, nullsFirst, desc);
