@@ -227,6 +227,15 @@ SqlCreateAttribute CreateTableAttributeFallback() :
     { return new SqlCreateAttributeFallback(no, protection, getPos()); }
 }
 
+SqlCreateAttribute CreateTableAttributeJournalTable() :
+{
+    final SqlIdentifier id;
+}
+{
+    <WITH> <JOURNAL> <TABLE> <EQ> id = CompoundIdentifier()
+    { return new SqlCreateAttributeJournalTable(id, getPos()); }
+}
+
 SqlCreateAttribute CreateTableAttributeJournal() :
 {
   JournalType journalType = JournalType.UNSPECIFIED;
@@ -273,6 +282,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
         <COMMA>
         (
             e = CreateTableAttributeFallback()
+        |
+            e = CreateTableAttributeJournalTable()
         |
             e = CreateTableAttributeJournal()
         ) { list.add(e); }

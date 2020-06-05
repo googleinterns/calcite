@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.test;
 
+import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.parser.SqlAbstractParserImpl;
 import org.apache.calcite.sql.parser.SqlParserImplFactory;
 import org.apache.calcite.sql.parser.SqlParserTest;
@@ -375,6 +376,34 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).fails(expected);
   }
 
+  @Test public void testTableAttributeJournalTableWithSimpleIdentifier() {
+    final String sql = "create table foo, with journal table = baz (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalTableWithCompoundIdentifier() {
+    final String sql = "create table foo, with journal table = baz.tbl (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ`.`TBL` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMultipleAttrs() {
+    final String sql = "create table foo, with journal table = baz.tbl, "
+        + "fallback protection (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ`.`TBL`, "
+        + "FALLBACK PROTECTION (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMultipleAttrsOrder() {
+    final String sql = "create table foo, fallback protection, "
+        + "with journal table = baz.tbl (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FALLBACK PROTECTION, "
+        + "WITH JOURNAL TABLE = `BAZ`.`TBL` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTablePermutedColumnLevelAttributes() {
     final String sql = "create table foo (bar int uppercase null casespecific, "
         + "baz varchar(30) casespecific uppercase null)";
@@ -465,6 +494,24 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "UPDATE `FOO` AS `F` FROM `BAR` AS `B` SET `F`.`X` "
         + "= `B`.`Y`, `F`.`Z` = `B`.`K`";
     sql(sql).ok(expected);
+  }
+
+  @Test public void testUpdateFromTableBigQuery() {
+    final String sql = "update foo from bar set foo.x = bar.y, foo.z = bar.k";
+    final String expected = "UPDATE foo SET foo.x = bar.y, "
+        + "foo.z = bar.k FROM bar";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testUpdateFromTableWithAliasBigQuery() {
+    final String sql = "update foo as f from bar as b set f.x = b.y, f.z = b.k";
+    final String expected = "UPDATE foo AS f SET f.x "
+        + "= b.y, f.z = b.k FROM bar AS b";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
   }
 
   @Test public void testExecMacro() {
