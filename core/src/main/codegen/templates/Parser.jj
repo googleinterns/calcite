@@ -3821,6 +3821,33 @@ SqlNode AtomicRowExpression() :
     { return e; }
 }
 
+void DateTimeTerm():
+{
+    final SqlNode e;
+    final SqlIdentifier timeZoneValue;
+}
+{
+    (
+            e = DateTimeLiteral()
+        |
+            e = SimpleIdentifier()
+        |
+            <CURRENT_DATE>
+        |
+            <CURRENT_TIME>
+        |
+            <CURRENT_TIMESTAMP>
+    )
+    [
+        <AT>
+        [
+                <LOCAL>
+            |
+                <TIME> <ZONE> timeZoneValue = SimpleIdentifier()
+        ]
+    ]
+}
+
 SqlNode CaseExpression() :
 {
     final Span whenSpan = Span.of();
