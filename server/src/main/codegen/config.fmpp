@@ -438,7 +438,7 @@ data: {
     execStatementParserMethods: [
     ]
 
-    # List of methods for parsing experssions to "USING" calls
+    # List of methods for parsing expressions to "USING" calls.
     usingStatementParserMethods: [
     ]
 

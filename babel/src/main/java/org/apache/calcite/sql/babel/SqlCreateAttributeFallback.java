@@ -41,7 +41,7 @@ public class SqlCreateAttributeFallback extends SqlCreateAttribute {
     this.protection = protection;
   }
 
-  public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     if (no) {
       writer.keyword("NO");
     }
