@@ -266,7 +266,7 @@ SqlCreateAttribute CreateTableAttributeJournal() :
         ]
         <JOURNAL>
     )
-    return new SqlCreateAttributeJournal(journalType, journalModifier, getPos());
+    { return new SqlCreateAttributeJournal(journalType, journalModifier, getPos()); }
 }
 
 List<SqlCreateAttribute> CreateTableAttributes() :
