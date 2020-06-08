@@ -346,7 +346,7 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testTableAttributeJournalNoModifierBeforeType) {
+  @Test public void testTableAttributeJournalNoModifierBeforeType() {
     final String sql = "create table foo, no before journal (bar integer)";
     final String expected = "CREATE TABLE `FOO`, NO BEFORE JOURNAL (`BAR` INTEGER)";
     sql(sql).ok(expected);
