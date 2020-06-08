@@ -179,7 +179,8 @@ public class BigQuerySqlDialect extends SqlDialect {
               "");
 
       for (Pair<SqlNode, SqlNode> pair : Pair.zip(
-          mergeCall.getUpdateCall().getTargetColumnList(), mergeCall.getUpdateCall().getSourceExpressionList())) {
+          mergeCall.getUpdateCall().getTargetColumnList(),
+          mergeCall.getUpdateCall().getSourceExpressionList())) {
         writer.sep(",");
         SqlIdentifier id = (SqlIdentifier) pair.left;
         id.unparse(writer, opLeft, opRight);

@@ -482,6 +482,7 @@ public class SqlDialect {
       call.operand(2).unparse(writer, leftPrec, rightPrec);
     }
   }
+
   public void unparseSqlMergeCall(SqlWriter writer, SqlMerge mergeCall,
       int leftPrec, int rightPrec) {
     final SqlWriter.Frame frame =
@@ -512,7 +513,8 @@ public class SqlDialect {
               "");
 
       for (Pair<SqlNode, SqlNode> pair : Pair.zip(
-          mergeCall.getUpdateCall().targetColumnList, mergeCall.getUpdateCall().sourceExpressionList)) {
+          mergeCall.getUpdateCall().targetColumnList,
+          mergeCall.getUpdateCall().sourceExpressionList)) {
         writer.sep(",");
         SqlIdentifier id = (SqlIdentifier) pair.left;
         id.unparse(writer, opLeft, opRight);
@@ -527,10 +529,10 @@ public class SqlDialect {
       writer.newlineAndIndent();
       writer.keyword("WHEN NOT MATCHED THEN INSERT");
       if (mergeCall.getInsertCall().getTargetColumnList() != null) {
-        mergeCall.getInsertCall().getTargetColumnList().unparse(writer, opLeft, opRight);
+        mergeCall.getInsertCall().getTargetColumnList().unparse(writer, opLeft,
+            opRight);
       }
       mergeCall.getInsertCall().getSource().unparse(writer, opLeft, opRight);
-
       writer.endList(frame);
     }
   }
