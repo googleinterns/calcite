@@ -340,6 +340,42 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeIsolatedLoadingDefault() {
+    final String sql = "create table foo, with isolated loading (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH ISOLATED LOADING (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingNo() {
+    final String sql = "create table foo, with no isolated loading (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH NO ISOLATED LOADING (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingNoConcurrent() {
+    final String sql = "create table foo, with no concurrent isolated loading (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH NO CONCURRENT ISOLATED LOADING (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingForAll() {
+    final String sql = "create table foo, with isolated loading for all (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH ISOLATED LOADING FOR ALL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingForInsert() {
+    final String sql = "create table foo, with isolated loading for insert (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH ISOLATED LOADING FOR INSERT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingForNone() {
+    final String sql = "create table foo, with isolated loading for none (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH ISOLATED LOADING FOR NONE (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testTableAttributeMultipleAttrs() {
     final String sql = "create table foo, with journal table = baz.tbl, "
         + "fallback protection (bar integer)";
