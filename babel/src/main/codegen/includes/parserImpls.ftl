@@ -236,6 +236,35 @@ SqlCreateAttribute CreateTableAttributeJournalTable() :
     { return new SqlCreateAttributeJournalTable(id, getPos()); }
 }
 
+SqlCreateAttribute CreateTableAttributeDataBlockSize() :
+{
+    DataBlockModifier modifier = null;
+    DataBlockUnitSize unitSize = DataBlockUnitSize.UNSPECIFIED;
+    SqlLiteral dataBlockSize = null;
+}
+{
+    (
+        (
+            ( <MINIMUM> | <MIN> ) { modifier = DataBlockModifier.MINIMUM; }
+        |
+            ( <MAXIMUM> | <MAX> ) { modifier = DataBlockModifier.MAXIMUM; }
+        |
+            <DEFAULT_> { modifier = DataBlockModifier.DEFAULT; }
+        )
+        <DATABLOCKSIZE>
+    |
+        <DATABLOCKSIZE> <EQ> dataBlockSize = UnsignedNumericLiteral()
+        [
+            (
+                <BYTES> { unitSize = DataBlockUnitSize.BYTES; }
+            |
+                ( <KILOBYTES> | <KBYTES> ) { unitSize = DataBlockUnitSize.KILOBYTES; }
+            )
+        ]
+    )
+    { return new SqlCreateAttributeDataBlockSize(modifier, unitSize, dataBlockSize, getPos()); }
+}
+
 List<SqlCreateAttribute> CreateTableAttributes() :
 {
     final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
@@ -249,6 +278,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
             e = CreateTableAttributeFallback()
         |
             e = CreateTableAttributeJournalTable()
+        |
+            e = CreateTableAttributeDataBlockSize()
         ) { list.add(e); }
     )+
     { return list; }

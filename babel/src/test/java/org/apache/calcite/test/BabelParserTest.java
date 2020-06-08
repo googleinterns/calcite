@@ -340,6 +340,54 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeDataBlockSizeMinimum() {
+    final String sql = "create table foo, minimum datablocksize (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MINIMUM DATABLOCKSIZE (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeDataBlockSizeMin() {
+    final String sql = "create table foo, min datablocksize (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MINIMUM DATABLOCKSIZE (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeDataBlockSizeMaximum() {
+    final String sql = "create table foo, maximum datablocksize (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MAXIMUM DATABLOCKSIZE (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeDataBlockSizeMax() {
+    final String sql = "create table foo, max datablocksize (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MAXIMUM DATABLOCKSIZE (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeDataBlockSizeDefault() {
+    final String sql = "create table foo, default datablocksize (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, DEFAULT DATABLOCKSIZE (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeDataBlockSizeBytes() {
+    final String sql = "create table foo, datablocksize = 12123 bytes (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, DATABLOCKSIZE = 12123 BYTES (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeDataBlockSizeKbytes() {
+    final String sql = "create table foo, datablocksize = 42.123 kbytes (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, DATABLOCKSIZE = 42.123 KILOBYTES (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeDataBlockSizeKilobytes() {
+    final String sql = "create table foo, datablocksize = 2e4 kilobytes (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, DATABLOCKSIZE = 2E4 KILOBYTES (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testTableAttributeMultipleAttrs() {
     final String sql = "create table foo, with journal table = baz.tbl, "
         + "fallback protection (bar integer)";

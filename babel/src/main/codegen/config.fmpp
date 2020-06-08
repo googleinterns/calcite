@@ -26,6 +26,9 @@ data: {
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
       "org.apache.calcite.sql.babel.SqlCreateAttribute",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockModifier",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockUnitSize",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournalTable",
       "org.apache.calcite.sql.babel.SqlCreateTable",
@@ -37,10 +40,16 @@ data: {
 
     # List of keywords.
     keywords: [
+      "BYTES"
       "CASESPECIFIC"
+      "DATABLOCKSIZE"
       "FALLBACK"
       "IF"
       "JOURNAL"
+      "KBYTES"
+      "KILOBYTES"
+      "MAXIMUM"
+      "MINIMUM"
       "PROTECTION"
       "SEL"
       "SEMI"
@@ -366,6 +375,12 @@ data: {
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
       # not in core, added in babel
+      "BYTES"
+      "DATABLOCKSIZE"
+      "KBYTES"
+      "KILOBYTES"
+      "MAXIMUM"
+      "MINIMUM"
       "SEMI"
 
       # The following keywords are reserved in core Calcite,
