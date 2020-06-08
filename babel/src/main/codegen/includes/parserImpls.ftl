@@ -236,6 +236,22 @@ SqlCreateAttribute CreateTableAttributeJournalTable() :
     { return new SqlCreateAttributeJournalTable(id, getPos()); }
 }
 
+SqlCreateAttribute CreateTableAttributeChecksum() :
+{
+    ChecksumLevel checksumLevel;
+}
+{
+    <CHECKSUM> <EQ>
+    (
+        <DEFAULT_> { checksumLevel = ChecksumLevel.DEFAULT; }
+    |
+        <ON> { checksumLevel = ChecksumLevel.ON; }
+    |
+        <OFF> { checksumLevel = ChecksumLevel.OFF; }
+    )
+    { return new SqlCreateAttributeChecksum(checksumLevel, getPos()); }
+}
+
 List<SqlCreateAttribute> CreateTableAttributes() :
 {
     final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
@@ -249,6 +265,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
             e = CreateTableAttributeFallback()
         |
             e = CreateTableAttributeJournalTable()
+        |
+            e = CreateTableAttributeChecksum()
         ) { list.add(e); }
     )+
     { return list; }

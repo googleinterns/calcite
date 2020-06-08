@@ -26,6 +26,8 @@ data: {
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
       "org.apache.calcite.sql.babel.SqlCreateAttribute",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum.ChecksumLevel",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournalTable",
       "org.apache.calcite.sql.babel.SqlCreateTable",
@@ -38,9 +40,11 @@ data: {
     # List of keywords.
     keywords: [
       "CASESPECIFIC"
+      "CHECKSUM"
       "FALLBACK"
       "IF"
       "JOURNAL"
+      "OFF"
       "PROTECTION"
       "SEL"
       "SEMI"
@@ -366,6 +370,8 @@ data: {
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
       # not in core, added in babel
+      "CHECKSUM"
+      "OFF"
       "SEMI"
 
       # The following keywords are reserved in core Calcite,
