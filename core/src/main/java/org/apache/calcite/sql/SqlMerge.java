@@ -21,7 +21,6 @@ import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorImpl;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
-import org.apache.calcite.util.Pair;
 
 import java.util.List;
 
@@ -167,55 +166,7 @@ public class SqlMerge extends SqlCall {
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    final SqlWriter.Frame frame =
-        writer.startList(SqlWriter.FrameTypeEnum.SELECT, "MERGE INTO", "");
-    final int opLeft = getOperator().getLeftPrec();
-    final int opRight = getOperator().getRightPrec();
-    targetTable.unparse(writer, opLeft, opRight);
-    if (alias != null) {
-      writer.keyword("AS");
-      alias.unparse(writer, opLeft, opRight);
-    }
-
-    writer.newlineAndIndent();
-    writer.keyword("USING");
-    source.unparse(writer, opLeft, opRight);
-
-    writer.newlineAndIndent();
-    writer.keyword("ON");
-    condition.unparse(writer, opLeft, opRight);
-
-    if (updateCall != null) {
-      writer.newlineAndIndent();
-      writer.keyword("WHEN MATCHED THEN UPDATE");
-      final SqlWriter.Frame setFrame =
-          writer.startList(
-              SqlWriter.FrameTypeEnum.UPDATE_SET_LIST,
-              "SET",
-              "");
-
-      for (Pair<SqlNode, SqlNode> pair : Pair.zip(
-          updateCall.targetColumnList, updateCall.sourceExpressionList)) {
-        writer.sep(",");
-        SqlIdentifier id = (SqlIdentifier) pair.left;
-        id.unparse(writer, opLeft, opRight);
-        writer.keyword("=");
-        SqlNode sourceExp = pair.right;
-        sourceExp.unparse(writer, opLeft, opRight);
-      }
-      writer.endList(setFrame);
-    }
-
-    if (insertCall != null) {
-      writer.newlineAndIndent();
-      writer.keyword("WHEN NOT MATCHED THEN INSERT");
-      if (insertCall.getTargetColumnList() != null) {
-        insertCall.getTargetColumnList().unparse(writer, opLeft, opRight);
-      }
-      insertCall.getSource().unparse(writer, opLeft, opRight);
-
-      writer.endList(frame);
-    }
+    writer.getDialect().unparseSqlMergeCall(writer, this, leftPrec, rightPrec);
   }
 
   public void validate(SqlValidator validator, SqlValidatorScope scope) {

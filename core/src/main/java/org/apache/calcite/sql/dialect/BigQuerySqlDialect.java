@@ -32,6 +32,7 @@ import org.apache.calcite.sql.SqlIntervalLiteral;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlLiteral;
+import org.apache.calcite.sql.SqlMerge;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlOrderBy;
@@ -146,6 +147,60 @@ public class BigQuerySqlDialect extends SqlDialect {
   @Override public void unparseOffsetFetch(SqlWriter writer, SqlNode offset,
       SqlNode fetch) {
     unparseFetchUsingLimit(writer, offset, fetch);
+  }
+
+  @Override public void unparseSqlMergeCall(SqlWriter writer, SqlMerge mergeCall,
+      int leftPrec, int rightPrec) {
+    final SqlWriter.Frame frame =
+      writer.startList(SqlWriter.FrameTypeEnum.SELECT, "MERGE INTO", "");
+    final int opLeft = mergeCall.getOperator().getLeftPrec();
+    final int opRight = mergeCall.getOperator().getRightPrec();
+    mergeCall.getTargetTable().unparse(writer, opLeft, opRight);
+    if (mergeCall.getAlias() != null) {
+      writer.keyword("AS");
+      mergeCall.getAlias().unparse(writer, opLeft, opRight);
+    }
+
+    writer.newlineAndIndent();
+    writer.keyword("USING");
+    mergeCall.getSourceTableRef().unparse(writer, opLeft, opRight);
+
+    writer.newlineAndIndent();
+    writer.keyword("ON");
+    mergeCall.getCondition().unparse(writer, opLeft, opRight);
+
+    if (mergeCall.getUpdateCall() != null) {
+      writer.newlineAndIndent();
+      writer.keyword("WHEN MATCHED THEN UPDATE");
+      final SqlWriter.Frame setFrame =
+          writer.startList(
+              SqlWriter.FrameTypeEnum.UPDATE_SET_LIST,
+              "SET",
+              "");
+
+      for (Pair<SqlNode, SqlNode> pair : Pair.zip(
+          mergeCall.getUpdateCall().getTargetColumnList(), mergeCall.getUpdateCall().getSourceExpressionList())) {
+        writer.sep(",");
+        SqlIdentifier id = (SqlIdentifier) pair.left;
+        id.unparse(writer, opLeft, opRight);
+        writer.keyword("=");
+        SqlNode sourceExp = pair.right;
+        sourceExp.unparse(writer, opLeft, opRight);
+      }
+      writer.endList(setFrame);
+    }
+
+    if (mergeCall.getInsertCall() != null) {
+      writer.newlineAndIndent();
+      writer.keyword("WHEN NOT MATCHED THEN INSERT");
+      if (mergeCall.getInsertCall().getTargetColumnList() != null) {
+        mergeCall.getInsertCall().getTargetColumnList().unparse(writer, opLeft,
+            opRight);
+      }
+      unparseCall(writer, (SqlCall) mergeCall.getInsertCall().getSource(),
+          opLeft, opRight);
+      writer.endList(frame);
+    }
   }
 
   @Override public void unparseSqlUpdateCall(SqlWriter writer, SqlUpdate updateCall,
