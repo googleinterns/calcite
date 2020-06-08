@@ -51,17 +51,15 @@ public class SqlCreateAttributeDataBlockSize extends SqlCreateAttribute {
       switch (modifier) {
       case DEFAULT:
         writer.keyword("DEFAULT");
-        writer.keyword("DATABLOCKSIZE");
         break;
       case MINIMUM:
         writer.keyword("MINIMUM");
-        writer.keyword("DATABLOCKSIZE");
         break;
       case MAXIMUM:
         writer.keyword("MAXIMUM");
-        writer.keyword("DATABLOCKSIZE");
         break;
       }
+      writer.keyword("DATABLOCKSIZE");
     } else {
       writer.keyword("DATABLOCKSIZE");
       writer.sep("=");
@@ -101,12 +99,12 @@ public class SqlCreateAttributeDataBlockSize extends SqlCreateAttribute {
     UNSPECIFIED,
 
     /**
-     * The value of data block size is in bytes.
+     * The data block size value is in bytes.
      */
     BYTES,
 
     /**
-     * The value of data block size is in kilobytes.
+     * The data block size value is in kilobytes.
      */
     KILOBYTES,
   }
