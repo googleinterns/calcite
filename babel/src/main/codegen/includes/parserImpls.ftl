@@ -257,6 +257,9 @@ SqlCreateAttribute CreateTableAttributeMergeBlockRatio() :
     {
         if (ratio >= 1 && ratio <= 100) {
             return new SqlCreateAttributeMergeBlockRatio(modifier, ratio, percent, getPos());
+        } else {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.numberLiteralOutOfRange(String.valueOf(ratio)));
         }
     }
 }

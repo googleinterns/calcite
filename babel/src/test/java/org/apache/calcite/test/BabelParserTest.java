@@ -374,9 +374,15 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testTableAttributeMergeBlockRatioIntegerRangeFails() {
+  @Test public void testTableAttributeMergeBlockRatioIntegerNegativeFails() {
     final String sql = "create table foo, mergeblockratio = ^-^20 (bar integer)";
     final String expected = "(?s).*Encountered \"-\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioIntegerRangeFails() {
+    final String sql = "create table foo, mergeblockratio = ^155^ (bar integer)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
     sql(sql).fails(expected);
   }
 
