@@ -483,58 +483,9 @@ public class SqlDialect {
     }
   }
 
-  public void unparseSqlMergeCall(SqlWriter writer, SqlMerge mergeCall,
+  public void unparseSqlInsertSource(SqlWriter writer, SqlInsert insertCall,
       int leftPrec, int rightPrec) {
-    final SqlWriter.Frame frame =
-        writer.startList(SqlWriter.FrameTypeEnum.SELECT, "MERGE INTO", "");
-    final int opLeft = mergeCall.getOperator().getLeftPrec();
-    final int opRight = mergeCall.getOperator().getRightPrec();
-    mergeCall.getTargetTable().unparse(writer, opLeft, opRight);
-    if (mergeCall.getAlias() != null) {
-      writer.keyword("AS");
-      mergeCall.getAlias().unparse(writer, opLeft, opRight);
-    }
-
-    writer.newlineAndIndent();
-    writer.keyword("USING");
-    mergeCall.getSourceTableRef().unparse(writer, opLeft, opRight);
-
-    writer.newlineAndIndent();
-    writer.keyword("ON");
-    mergeCall.getCondition().unparse(writer, opLeft, opRight);
-
-    if (mergeCall.getUpdateCall() != null) {
-      writer.newlineAndIndent();
-      writer.keyword("WHEN MATCHED THEN UPDATE");
-      final SqlWriter.Frame setFrame =
-          writer.startList(
-              SqlWriter.FrameTypeEnum.UPDATE_SET_LIST,
-              "SET",
-              "");
-
-      for (Pair<SqlNode, SqlNode> pair : Pair.zip(
-          mergeCall.getUpdateCall().targetColumnList,
-          mergeCall.getUpdateCall().sourceExpressionList)) {
-        writer.sep(",");
-        SqlIdentifier id = (SqlIdentifier) pair.left;
-        id.unparse(writer, opLeft, opRight);
-        writer.keyword("=");
-        SqlNode sourceExp = pair.right;
-        sourceExp.unparse(writer, opLeft, opRight);
-      }
-      writer.endList(setFrame);
-    }
-
-    if (mergeCall.getInsertCall() != null) {
-      writer.newlineAndIndent();
-      writer.keyword("WHEN NOT MATCHED THEN INSERT");
-      if (mergeCall.getInsertCall().getTargetColumnList() != null) {
-        mergeCall.getInsertCall().getTargetColumnList().unparse(writer, opLeft,
-            opRight);
-      }
-      mergeCall.getInsertCall().getSource().unparse(writer, opLeft, opRight);
-      writer.endList(frame);
-    }
+    insertCall.getSource().unparse(writer, leftPrec, rightPrec);
   }
 
   public void unparseSqlUpdateCall(SqlWriter writer, SqlUpdate updateCall,
