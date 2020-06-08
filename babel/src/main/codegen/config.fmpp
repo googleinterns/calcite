@@ -27,6 +27,8 @@ data: {
       "org.apache.calcite.sql.babel.SetType",
       "org.apache.calcite.sql.babel.SqlCreateAttribute",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading.OperationLevel",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournalTable",
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
@@ -38,9 +40,12 @@ data: {
     # List of keywords.
     keywords: [
       "CASESPECIFIC"
+      "CONCURRENT"
       "FALLBACK"
       "IF"
+      "ISOLATED"
       "JOURNAL"
+      "LOADING"
       "PROTECTION"
       "SEL"
       "SEMI"
@@ -366,6 +371,9 @@ data: {
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
       # not in core, added in babel
+      "CONCURRENT"
+      "ISOLATED"
+      "LOADING"
       "SEMI"
 
       # The following keywords are reserved in core Calcite,
