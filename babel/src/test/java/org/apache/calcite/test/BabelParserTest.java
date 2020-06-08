@@ -328,7 +328,7 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testTableAttributeJournal() {
+  @Test public void testTableAttributeJournalDefault() {
     final String sql = "create table foo, journal (bar integer)";
     final String expected = "CREATE TABLE `FOO`, JOURNAL (`BAR` INTEGER)";
     sql(sql).ok(expected);
