@@ -522,6 +522,20 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testNestedSchemaAccess() {
+    final String sql = "SELECT a.b.c.d.column";
+    final String expected = "SELECT `A`.`B`.`C`.`D`.`COLUMN`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testBetweenUnparsing() {
+    final String sql = "SELECT * FROM foo WHERE col BETWEEN 1 AND 3";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`COL` BETWEEN 1 AND 3)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testInlineModSyntaxInteger() {
     final String sql = "select 27 mod -3";
     final String expected = "SELECT MOD(27, -3)";
