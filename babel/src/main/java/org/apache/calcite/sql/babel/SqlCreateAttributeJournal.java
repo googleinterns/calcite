@@ -59,7 +59,6 @@ public class SqlCreateAttributeJournal extends SqlCreateAttribute {
       writer.keyword("LOCAL");
       break;
     default:
-      break;
     }
     switch (journalType) {
     case BEFORE:
@@ -69,7 +68,6 @@ public class SqlCreateAttributeJournal extends SqlCreateAttribute {
       writer.keyword("AFTER");
       break;
     default:
-      break;
     }
     writer.keyword("JOURNAL");
   }

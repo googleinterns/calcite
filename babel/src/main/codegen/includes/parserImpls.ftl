@@ -238,8 +238,8 @@ SqlCreateAttribute CreateTableAttributeJournalTable() :
 
 SqlCreateAttribute CreateTableAttributeJournal() :
 {
-  JournalType journalType = JournalType.UNSPECIFIED;
-  JournalModifier journalModifier = JournalModifier.UNSPECIFIED;
+  JournalType journalType;
+  JournalModifier journalModifier;
 }
 {
     (
@@ -250,23 +250,23 @@ SqlCreateAttribute CreateTableAttributeJournal() :
         )
         <AFTER> <JOURNAL> { journalType = JournalType.AFTER; }
     |
-        [
-            (
-                <NO> { journalModifier = JournalModifier.NO; }
-            |
-                <DUAL> { journalModifier = JournalModifier.DUAL; }
-            )
-        ]
-        [
-            (
-                <BEFORE> { journalType = JournalType.BEFORE; }
-            |
-                <AFTER> { journalType = JournalType.AFTER; }
-            )
-        ]
+        (
+            <NO> { journalModifier = JournalModifier.NO; }
+        |
+            <DUAL> { journalModifier = JournalModifier.DUAL; }
+        |
+            { journalModifier = JournalModifier.UNSPECIFIED; }
+        )
+        (
+            <BEFORE> { journalType = JournalType.BEFORE; }
+        |
+            <AFTER> { journalType = JournalType.AFTER; }
+        |
+            { journalType = JournalType.UNSPECIFIED; }
+        )
         <JOURNAL>
     )
-    return new SqlCreateAttributeJournal(journalType, journalModifier, getPos());
+    { return new SqlCreateAttributeJournal(journalType, journalModifier, getPos()); }
 }
 
 List<SqlCreateAttribute> CreateTableAttributes() :
