@@ -3818,34 +3818,18 @@ SqlNode AtomicRowExpression() :
     |
         e = SequenceExpression()
     )
-    { return e; }
-}
-
-void DateTimeTerm():
-{
-    final SqlNode e;
-    final SqlIdentifier timeZoneValue;
-}
-{
-    (
-            e = DateTimeLiteral()
-        |
-            e = SimpleIdentifier()
-        |
-            <CURRENT_DATE>
-        |
-            <CURRENT_TIME>
-        |
-            <CURRENT_TIMESTAMP>
-    )
+<#if parser.dateTimeExpressionSuffixes?size != 0>
     [
-        <AT>
-        [
-                <LOCAL>
-            |
-                <TIME> <ZONE> timeZoneValue = SimpleIdentifier()
-        ]
+        LOOKAHEAD(2)
+            <AT>
+            (
+                <LOCAL>{
+                    return new SqlDateTimeAtLocal(getPos(), e);
+                }
+            )
     ]
+</#if>
+    { return e; }
 }
 
 SqlNode CaseExpression() :

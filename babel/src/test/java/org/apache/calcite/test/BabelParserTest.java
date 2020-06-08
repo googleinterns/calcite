@@ -431,6 +431,36 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testDateTimePrimaryColumn(){
+    final String sql = "select time_column";
+    final String expected = "SELECT `TIME_COLUMN`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryLiteral(){
+    final String sql = "select timestamp '2020-05-30 13:20:00'";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00'";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryBuiltInFunction(){
+    final String sql = "select current_timestamp";
+    final String expected = "SELECT CURRENT_TIMESTAMP";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryLiteralAtLocal(){
+    final String sql = "select timestamp '2020-05-30 13:20:00' at local";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT LOCAL";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryColumnAtLocal(){
+    final String sql = "select time_column at local";
+    final String expected = "SELECT `TIME_COLUMN` AT LOCAL";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testUsingRequestModifierSingular() {
     final String sql = "using (foo int)";
     final String expected = "USING (`FOO` INTEGER)";
