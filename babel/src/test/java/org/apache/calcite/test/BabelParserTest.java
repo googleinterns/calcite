@@ -553,4 +553,20 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "SELECT MOD(`FOO`, `BAR`)";
     sql(sql).ok(expected);
   }
+
+  @Test void testIfTokenIsQuotedInAnsi() {
+    final String sql = "select if(x) from foo";
+    final String expected = "SELECT `IF`(`X`)\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testIfTokenIsNotQuotedInBigQuery() {
+    final String sql = "select if(x) from foo";
+    final String expected = "SELECT if(x)\n"
+        + "FROM foo";
+    sql(sql)
+        .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+        .ok(expected);
+  }
 }
