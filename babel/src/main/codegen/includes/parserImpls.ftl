@@ -239,7 +239,7 @@ SqlCreateAttribute CreateTableAttributeJournalTable() :
 SqlCreateAttribute CreateTableAttributeDataBlockSize() :
 {
     DataBlockModifier modifier = null;
-    DataBlockUnitSize unitSize = DataBlockUnitSize.UNSPECIFIED;
+    DataBlockUnitSize unitSize;
     SqlLiteral dataBlockSize = null;
 }
 {
@@ -251,16 +251,16 @@ SqlCreateAttribute CreateTableAttributeDataBlockSize() :
         |
             <DEFAULT_> { modifier = DataBlockModifier.DEFAULT; }
         )
-        <DATABLOCKSIZE>
+        <DATABLOCKSIZE> { unitSize = DataBlockUnitSize.UNSPECIFIED; }
     |
         <DATABLOCKSIZE> <EQ> dataBlockSize = UnsignedNumericLiteral()
-        [
-            (
-                <BYTES> { unitSize = DataBlockUnitSize.BYTES; }
-            |
-                ( <KILOBYTES> | <KBYTES> ) { unitSize = DataBlockUnitSize.KILOBYTES; }
-            )
-        ]
+        (
+            <BYTES> { unitSize = DataBlockUnitSize.BYTES; }
+        |
+            ( <KILOBYTES> | <KBYTES> ) { unitSize = DataBlockUnitSize.KILOBYTES; }
+        |
+            { unitSize = DataBlockUnitSize.UNSPECIFIED; }
+        )
     )
     { return new SqlCreateAttributeDataBlockSize(modifier, unitSize, dataBlockSize, getPos()); }
 }
