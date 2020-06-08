@@ -486,7 +486,7 @@ public class SqlDialect {
   public void unparseSqlMergeCall(SqlWriter writer, SqlMerge mergeCall,
       int leftPrec, int rightPrec) {
     final SqlWriter.Frame frame =
-      writer.startList(SqlWriter.FrameTypeEnum.SELECT, "MERGE INTO", "");
+        writer.startList(SqlWriter.FrameTypeEnum.SELECT, "MERGE INTO", "");
     final int opLeft = mergeCall.getOperator().getLeftPrec();
     final int opRight = mergeCall.getOperator().getRightPrec();
     mergeCall.getTargetTable().unparse(writer, opLeft, opRight);
