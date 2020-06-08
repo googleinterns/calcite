@@ -360,16 +360,16 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testTableAttributeMultipleAttrs() {
     final String sql = "create table foo, with journal table = baz.tbl, "
-        + "fallback protection (bar integer)";
+        + "fallback protection, checksum = on (bar integer)";
     final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ`.`TBL`, "
-        + "FALLBACK PROTECTION (`BAR` INTEGER)";
+        + "FALLBACK PROTECTION, CHECKSUM = ON (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 
   @Test public void testTableAttributeMultipleAttrsOrder() {
-    final String sql = "create table foo, fallback protection, "
+    final String sql = "create table foo, checksum = on, fallback protection, "
         + "with journal table = baz.tbl (bar integer)";
-    final String expected = "CREATE TABLE `FOO`, FALLBACK PROTECTION, "
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON, FALLBACK PROTECTION, "
         + "WITH JOURNAL TABLE = `BAZ`.`TBL` (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
