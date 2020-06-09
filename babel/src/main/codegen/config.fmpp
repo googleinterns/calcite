@@ -27,6 +27,7 @@ data: {
       "org.apache.calcite.sql.babel.SetType",
       "org.apache.calcite.sql.babel.SqlCreateAttribute",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeFreeSpace",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournalTable",
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
@@ -39,6 +40,7 @@ data: {
     keywords: [
       "CASESPECIFIC"
       "FALLBACK"
+      "FREESPACE"
       "IF"
       "JOURNAL"
       "PROTECTION"
@@ -366,6 +368,7 @@ data: {
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
       # not in core, added in babel
+      "FREESPACE"
       "IF"
       "SEMI"
 

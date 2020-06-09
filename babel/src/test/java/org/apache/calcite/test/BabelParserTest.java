@@ -340,6 +340,36 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeFreeSpace() {
+    final String sql = "create table foo, freespace = 35 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 35 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceTruncatedPercent() {
+    final String sql = "create table foo, freespace = 35 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 35 PERCENT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceTruncated() {
+    final String sql = "create table foo, freespace = 32.65 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 32 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceNegativeFails() {
+    final String sql = "create table foo, freespace = ^-^32.65 (bar integer)";
+    final String expected = "(?s).*Encountered \"-\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceOutOfRangeFails() {
+    final String sql = "create table foo, freespace = 82.5 (bar integer)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
   @Test public void testTableAttributeMultipleAttrs() {
     final String sql = "create table foo, with journal table = baz.tbl, "
         + "fallback protection (bar integer)";

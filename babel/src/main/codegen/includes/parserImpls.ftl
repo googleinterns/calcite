@@ -236,6 +236,25 @@ SqlCreateAttribute CreateTableAttributeJournalTable() :
     { return new SqlCreateAttributeJournalTable(id, getPos()); }
 }
 
+// FREESPACE attribute can take in decimals but should truncate to an integer
+SqlCreateAttribute CreateTableAttributeFreeSpace() :
+{
+    SqlLiteral tempNumeric;
+    int freeSpaceValue;
+    boolean percent = false;
+}
+{
+    <FREESPACE> <EQ> tempNumeric = UnsignedNumericLiteral() {
+        freeSpaceValue = tempNumeric.getValueAs(Integer.class);
+        if (freeSpaceValue < 0 || freeSpaceValue > 75) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.numberLiteralOutOfRange(String.valueOf(freeSpaceValue)));
+        }
+    }
+    [ <PERCENT> { percent = true; } ]
+    { return new SqlCreateAttributeFreeSpace(freeSpaceValue, percent, getPos()); }
+}
+
 List<SqlCreateAttribute> CreateTableAttributes() :
 {
     final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
@@ -249,6 +268,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
             e = CreateTableAttributeFallback()
         |
             e = CreateTableAttributeJournalTable()
+        |
+            e = CreateTableAttributeFreeSpace()
         ) { list.add(e); }
     )+
     { return list; }
