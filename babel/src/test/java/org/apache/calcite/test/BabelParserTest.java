@@ -614,6 +614,30 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testMergeInto() {
+    final String sql = "merge into t1 a using t2 b on a.x = b.x when matched then "
+        + "update set y = b.y when not matched then insert (x,y) values (b.x, b.y)";
+    final String expected = "MERGE INTO `T1` AS `A`\n"
+        + "USING `T2` AS `B`\n"
+        + "ON (`A`.`X` = `B`.`X`)\n"
+        + "WHEN MATCHED THEN UPDATE SET `Y` = `B`.`Y`\n"
+        + "WHEN NOT MATCHED THEN INSERT (`X`, `Y`) (VALUES (ROW(`B`.`X`, `B`.`Y`)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testMergeIntoBigQuery() {
+    final String sql = "merge into t1 a using t2 b on a.x = b.x when matched then "
+        + "update set y = b.y when not matched then insert (x,y) values (b.x, b.y)";
+    final String expected = "MERGE INTO t1 AS a\n"
+        + "USING t2 AS b\n"
+        + "ON (a.x = b.x)\n"
+        + "WHEN MATCHED THEN UPDATE SET y = b.y\n"
+        + "WHEN NOT MATCHED THEN INSERT (x, y) VALUES (b.x, b.y)";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+  
   @Test void testIfTokenIsQuotedInAnsi() {
     final String sql = "select if(x) from foo";
     final String expected = "SELECT `IF`(`X`)\n"
