@@ -618,6 +618,7 @@ class BabelParserTest extends SqlParserTest {
       .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
       .ok(expected);
   }
+
   @Test void testIfTokenIsQuotedInAnsi() {
     final String sql = "select if(x) from foo";
     final String expected = "SELECT `IF`(`X`)\n"
