@@ -243,7 +243,9 @@ SqlCreateAttribute CreateTableAttributeDataBlockSize() :
     SqlLiteral dataBlockSize = null;
 }
 {
-    ( <MINIMUM> | <MIN> ) { modifier = DataBlockModifier.MINIMUM; }
+    (
+        (
+            ( <MINIMUM> | <MIN> ) { modifier = DataBlockModifier.MINIMUM; }
         |
             ( <MAXIMUM> | <MAX> ) { modifier = DataBlockModifier.MAXIMUM; }
         |
