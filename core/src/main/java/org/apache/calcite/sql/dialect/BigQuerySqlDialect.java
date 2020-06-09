@@ -162,7 +162,7 @@ public class BigQuerySqlDialect extends SqlDialect {
     // If identifier.names.size() > 1 then this case is not valid as that means
     // that the name is of the form foo.bar.baz.
     if (identifier.names.size() == 1 && IDENTIFIER_FUNCTIONS
-        .contains(identifier.names.get(0).toLowerCase())) {
+        .contains(identifier.names.get(0).toLowerCase(Locale.ROOT))) {
       // Add parentheses to end of the identifier.
       final SqlWriter.Frame frame =
           writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
