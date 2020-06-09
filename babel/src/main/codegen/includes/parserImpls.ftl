@@ -264,6 +264,22 @@ SqlCreateAttribute CreateTableAttributeMergeBlockRatio() :
     }
 }
 
+SqlCreateAttribute CreateTableAttributeChecksum() :
+{
+    ChecksumEnabled checksumEnabled;
+}
+{
+    <CHECKSUM> <EQ>
+    (
+        <DEFAULT_> { checksumEnabled = ChecksumEnabled.DEFAULT; }
+    |
+        <ON> { checksumEnabled = ChecksumEnabled.ON; }
+    |
+        <OFF> { checksumEnabled = ChecksumEnabled.OFF; }
+    )
+    { return new SqlCreateAttributeChecksum(checksumEnabled, getPos()); }
+}
+
 List<SqlCreateAttribute> CreateTableAttributes() :
 {
     final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
@@ -279,6 +295,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
             e = CreateTableAttributeJournalTable()
         |
             e = CreateTableAttributeMergeBlockRatio()
+        |
+            e = CreateTableAttributeChecksum()
         ) { list.add(e); }
     )+
     { return list; }
