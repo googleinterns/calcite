@@ -30,6 +30,8 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum.ChecksumEnabled",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournalTable",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio.MergeBlockRatioModifier",
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
       "org.apache.calcite.sql.babel.SqlExecMacro",
@@ -44,6 +46,7 @@ data: {
       "FALLBACK"
       "IF"
       "JOURNAL"
+      "MERGEBLOCKRATIO"
       "OFF"
       "PROTECTION"
       "SEL"
@@ -372,6 +375,7 @@ data: {
       # not in core, added in babel
       "CHECKSUM"
       "IF"
+      "MERGEBLOCKRATIO"
       "OFF"
       "SEMI"
 

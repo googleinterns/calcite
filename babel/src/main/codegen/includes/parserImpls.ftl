@@ -236,6 +236,34 @@ SqlCreateAttribute CreateTableAttributeJournalTable() :
     { return new SqlCreateAttributeJournalTable(id, getPos()); }
 }
 
+SqlCreateAttribute CreateTableAttributeMergeBlockRatio() :
+{
+    MergeBlockRatioModifier modifier = MergeBlockRatioModifier.UNSPECIFIED;
+    int ratio = 1;
+    boolean percent = false;
+}
+{
+    (
+        (
+            <DEFAULT_> { modifier = MergeBlockRatioModifier.DEFAULT; }
+        |
+            <NO> { modifier = MergeBlockRatioModifier.NO; }
+        )
+        <MERGEBLOCKRATIO>
+    |
+        <MERGEBLOCKRATIO> <EQ> ratio = UnsignedIntLiteral()
+        [ <PERCENT> { percent = true; } ]
+    )
+    {
+        if (ratio >= 1 && ratio <= 100) {
+            return new SqlCreateAttributeMergeBlockRatio(modifier, ratio, percent, getPos());
+        } else {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.numberLiteralOutOfRange(String.valueOf(ratio)));
+        }
+    }
+}
+
 SqlCreateAttribute CreateTableAttributeChecksum() :
 {
     ChecksumEnabled checksumEnabled;
@@ -265,6 +293,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
             e = CreateTableAttributeFallback()
         |
             e = CreateTableAttributeJournalTable()
+        |
+            e = CreateTableAttributeMergeBlockRatio()
         |
             e = CreateTableAttributeChecksum()
         ) { list.add(e); }
