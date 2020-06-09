@@ -485,6 +485,18 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testDateTimePrimaryColumnAtLocalInWhereClause() {
+    final String sql =
+        "select foo "
+        + "from fooTable "
+        + "where timestamp '2020-05-30 13:20:00' at local = timestamp '2020-05-30 20:20:00'";
+    final String expected =
+        "SELECT `FOO`\n"
+        + "FROM `FOOTABLE`\n"
+        + "WHERE (TIMESTAMP '2020-05-30 13:20:00' AT LOCAL = TIMESTAMP '2020-05-30 20:20:00')";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testUsingRequestModifierSingular() {
     final String sql = "using (foo int)";
     final String expected = "USING (`FOO` INTEGER)";
