@@ -57,6 +57,13 @@ public class SqlCreateTable extends SqlCreate
   }
 
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
+      boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query,
+      boolean withData, OnCommitType onCommitType) {
+    this(pos, replace, setType, volatility, ifNotExists, name, /*tableAttributes=*/null,
+        columnList, query, withData, onCommitType);
+  }
+
+  public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
       boolean ifNotExists, SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
       SqlNodeList columnList, SqlNode query,
       boolean withData, OnCommitType onCommitType) {

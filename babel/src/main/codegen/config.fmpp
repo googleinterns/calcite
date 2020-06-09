@@ -26,6 +26,8 @@ data: {
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
       "org.apache.calcite.sql.babel.SqlCreateAttribute",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum.ChecksumEnabled",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournal",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournal.JournalType",
@@ -41,10 +43,12 @@ data: {
     # List of keywords.
     keywords: [
       "CASESPECIFIC"
+      "CHECKSUM"
       "DUAL"
       "FALLBACK"
       "IF"
       "JOURNAL"
+      "OFF"
       "PROTECTION"
       "SEL"
       "SEMI"
@@ -370,8 +374,12 @@ data: {
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
       # not in core, added in babel
+
+      "CHECKSUM"
       "DUAL"
+      "IF"
       "JOURNAL"
+      "OFF"
       "SEMI"
 
       # The following keywords are reserved in core Calcite,
@@ -911,7 +919,7 @@ data: {
       "SqlExecMacro"
     ]
 
-    # List of methods for parsing experssions to "USING" calls
+    # List of methods for parsing expressions to "USING" calls.
     usingStatementParserMethods: [
         "SqlUsingRequestModifier"
     ]

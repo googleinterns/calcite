@@ -388,18 +388,36 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeChecksumDefault() {
+    final String sql = "create table foo, checksum = default (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = DEFAULT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeChecksumOn() {
+    final String sql = "create table foo, checksum = on (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeChecksumOff() {
+    final String sql = "create table foo, checksum = off (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = OFF (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testTableAttributeMultipleAttrs() {
     final String sql = "create table foo, with journal table = baz.tbl, "
-        + "fallback protection (bar integer)";
+        + "fallback protection, checksum = on (bar integer)";
     final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ`.`TBL`, "
-        + "FALLBACK PROTECTION (`BAR` INTEGER)";
+        + "FALLBACK PROTECTION, CHECKSUM = ON (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 
   @Test public void testTableAttributeMultipleAttrsOrder() {
-    final String sql = "create table foo, fallback protection, "
+    final String sql = "create table foo, checksum = on, fallback protection, "
         + "with journal table = baz.tbl (bar integer)";
-    final String expected = "CREATE TABLE `FOO`, FALLBACK PROTECTION, "
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON, FALLBACK PROTECTION, "
         + "WITH JOURNAL TABLE = `BAZ`.`TBL` (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
@@ -465,6 +483,15 @@ class BabelParserTest extends SqlParserTest {
         + "VALUES (ROW(1, 'hi')),\n"
         + "(ROW(2, 'there'))";
     sql(sql).ok(expected);
+  }
+
+
+  @Test void testBigQueryUnicodeUnparsing() {
+    final String sql = "SELECT '¶ÑÍ·'";
+    final String expected = "SELECT '\\u00b6\\u00d1\\u00cd\\u00b7'";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
   }
 
   @Test public void testOrderByUnparsing() {
@@ -561,6 +588,20 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testNestedSchemaAccess() {
+    final String sql = "SELECT a.b.c.d.column";
+    final String expected = "SELECT `A`.`B`.`C`.`D`.`COLUMN`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testBetweenUnparsing() {
+    final String sql = "SELECT * FROM foo WHERE col BETWEEN 1 AND 3";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`COL` BETWEEN 1 AND 3)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testInlineModSyntaxInteger() {
     final String sql = "select 27 mod -3";
     final String expected = "SELECT MOD(27, -3)";
@@ -577,5 +618,21 @@ class BabelParserTest extends SqlParserTest {
     final String sql = "select foo mod bar";
     final String expected = "SELECT MOD(`FOO`, `BAR`)";
     sql(sql).ok(expected);
+  }
+
+  @Test void testIfTokenIsQuotedInAnsi() {
+    final String sql = "select if(x) from foo";
+    final String expected = "SELECT `IF`(`X`)\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testIfTokenIsNotQuotedInBigQuery() {
+    final String sql = "select if(x) from foo";
+    final String expected = "SELECT if(x)\n"
+        + "FROM foo";
+    sql(sql)
+        .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+        .ok(expected);
   }
 }
