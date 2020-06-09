@@ -49,8 +49,10 @@ import org.apache.calcite.util.Pair;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -69,6 +71,11 @@ public class BigQuerySqlDialect extends SqlDialect {
       .withCaseSensitive(false);
 
   public static final SqlDialect DEFAULT = new BigQuerySqlDialect(DEFAULT_CONTEXT);
+
+  // Strings in this set will be unparsed to have empty parentheses at the end.
+  private static final Set<String> IDENTIFIER_FUNCTIONS =
+      new HashSet<String>(
+          Arrays.asList("current_time", "current_timestamp"));
 
   private static final List<String> RESERVED_KEYWORDS =
       ImmutableList.copyOf(
@@ -146,6 +153,20 @@ public class BigQuerySqlDialect extends SqlDialect {
   @Override public void unparseOffsetFetch(SqlWriter writer, SqlNode offset,
       SqlNode fetch) {
     unparseFetchUsingLimit(writer, offset, fetch);
+  }
+
+  @Override public void unparseSqlIdentifier(SqlWriter writer, SqlIdentifier identifier,
+      int leftPrec, int rightPrec) {
+    // Unparse the identifier as normal.
+    super.unparseSqlIdentifier(writer, identifier, leftPrec, rightPrec);
+    // If identifier.names.size() > 1 then this case is not valid as that means
+    // that the name is of the form foo.bar.baz.
+    if (identifier.names.size() == 1 && IDENTIFIER_FUNCTIONS.contains(identifier.names.get(0).toLowerCase())) {
+      // Add parentheses to end of the identifier.
+      final SqlWriter.Frame frame =
+          writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
+      writer.endList(frame);
+    }
   }
 
   @Override public void unparseSqlUpdateCall(SqlWriter writer, SqlUpdate updateCall,

@@ -483,6 +483,11 @@ public class SqlDialect {
     }
   }
 
+  public void unparseSqlIdentifier(SqlWriter writer, SqlIdentifier identifier,
+      int leftPrec, int rightPrec) {
+    SqlUtil.unparseSqlIdentifierSyntax(writer, identifier, false);
+  }
+
   public void unparseSqlUpdateCall(SqlWriter writer, SqlUpdate updateCall,
        int leftPrec, int rightPrec) {
     final SqlWriter.Frame frame =

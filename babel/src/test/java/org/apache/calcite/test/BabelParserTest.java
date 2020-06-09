@@ -548,6 +548,18 @@ class BabelParserTest extends SqlParserTest {
       .ok(expected);
   }
 
+  @Test public void testCurrentTimeFunction() {
+    final String sql = "select current_time";
+    final String expected = "SELECT CURRENT_TIME";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testBothTimeFunctions() {
+    final String sql = "select current_time, current_timestamp";
+    final String expected = "SELECT CURRENT_TIME, CURRENT_TIMESTAMP";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCurrentTimeFunctionBigQuery() {
     final String sql = "select current_time";
     final String expected = "SELECT CURRENT_TIME()";
