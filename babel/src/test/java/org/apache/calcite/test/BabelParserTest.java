@@ -346,8 +346,8 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testTableAttributeFreeSpaceTruncatedPercent() {
-    final String sql = "create table foo, freespace = 35 (bar integer)";
+  @Test public void testTableAttributeFreeSpacePercent() {
+    final String sql = "create table foo, freespace = 35 percent (bar integer)";
     final String expected = "CREATE TABLE `FOO`, FREESPACE = 35 PERCENT (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
@@ -365,7 +365,7 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testTableAttributeFreeSpaceOutOfRangeFails() {
-    final String sql = "create table foo, freespace = 82.5 (bar integer)";
+    final String sql = "create table foo, freespace = ^82.5^ (bar integer)";
     final String expected = "(?s).*Numeric literal.*out of range.*";
     sql(sql).fails(expected);
   }
