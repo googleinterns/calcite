@@ -26,11 +26,15 @@ data: {
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
       "org.apache.calcite.sql.babel.SqlCreateAttribute",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum.ChecksumEnabled",
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize",
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockModifier",
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockUnitSize",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournalTable",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio.MergeBlockRatioModifier",
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
       "org.apache.calcite.sql.babel.SqlExecMacro",
@@ -42,6 +46,7 @@ data: {
     keywords: [
       "BYTES"
       "CASESPECIFIC"
+      "CHECKSUM"
       "DATABLOCKSIZE"
       "FALLBACK"
       "IF"
@@ -49,7 +54,9 @@ data: {
       "KBYTES"
       "KILOBYTES"
       "MAXIMUM"
+      "MERGEBLOCKRATIO"
       "MINIMUM"
+      "OFF"
       "PROTECTION"
       "SEL"
       "SEMI"
@@ -376,12 +383,15 @@ data: {
     nonReservedKeywordsToAdd: [
       # not in core, added in babel
       "BYTES"
+      "CHECKSUM"
       "DATABLOCKSIZE"
       "IF"
       "KBYTES"
       "KILOBYTES"
       "MAXIMUM"
+      "MERGEBLOCKRATIO"
       "MINIMUM"
+      "OFF"
       "SEMI"
 
       # The following keywords are reserved in core Calcite,
