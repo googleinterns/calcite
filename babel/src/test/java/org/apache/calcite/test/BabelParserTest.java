@@ -360,7 +360,8 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testTableAttributeIsolatedLoadingNoConcurrentModifier() {
     final String sql = "create table foo, with no concurrent isolated loading (bar integer)";
-    final String expected = "CREATE TABLE `FOO`, WITH NO CONCURRENT ISOLATED LOADING (`BAR` INTEGER)";
+    final String expected = "CREATE TABLE `FOO`, WITH NO CONCURRENT ISOLATED LOADING "
+        + "(`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 
@@ -384,7 +385,8 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testTableAttributeIsolatedLoadingModifierOperationLevel() {
     final String sql = "create table foo, with concurrent isolated loading for none (bar integer)";
-    final String expected = "CREATE TABLE `FOO`, WITH CONCURRENT ISOLATED LOADING FOR NONE (`BAR` INTEGER)";
+    final String expected = "CREATE TABLE `FOO`, WITH CONCURRENT ISOLATED LOADING FOR NONE "
+        + "(`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 
