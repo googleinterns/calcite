@@ -34,7 +34,7 @@ public class SqlCreateAttributeDataBlockSize extends SqlCreateAttribute {
    * Creates a {@code SqlCreateAttributeDataBlockSize}.
    *
    * @param modifier  Data block size modifier, may be null
-   * @param unitSize  Unit size of a data block
+   * @param unitSize  Unit size of a data block size value
    * @param dataBlockSize  Size of data block, numeric value
    * @param pos  Parser position, must not be null
    */
@@ -71,6 +71,7 @@ public class SqlCreateAttributeDataBlockSize extends SqlCreateAttribute {
       case KILOBYTES:
         writer.keyword("KILOBYTES");
         break;
+      default:
       }
     }
   }
@@ -82,12 +83,12 @@ public class SqlCreateAttributeDataBlockSize extends SqlCreateAttribute {
     DEFAULT,
 
     /**
-     * The smallest data block size.
+     * The minimum data block size for this table.
      */
     MINIMUM,
 
     /**
-     * The largest data block size.
+     * The maximum data block size for this table.
      */
     MAXIMUM,
   }
