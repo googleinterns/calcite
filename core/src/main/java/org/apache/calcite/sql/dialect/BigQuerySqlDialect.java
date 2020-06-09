@@ -85,7 +85,7 @@ public class BigQuerySqlDialect extends SqlDialect {
               "DEFAULT", "DEFINE", "DESC", "DISTINCT", "ELSE", "END", "ENUM",
               "ESCAPE", "EXCEPT", "EXCLUDE", "EXISTS", "EXTRACT", "FALSE",
               "FETCH", "FOLLOWING", "FOR", "FROM", "FULL", "GROUP", "GROUPING",
-              "GROUPS", "HASH", "HAVING", "IF", "IGNORE", "IN", "INNER",
+              "GROUPS", "HASH", "HAVING", "IGNORE", "IN", "INNER",
               "INTERSECT", "INTERVAL", "INTO", "IS", "JOIN", "LATERAL", "LEFT",
               "LIKE", "LIMIT", "LOOKUP", "MERGE", "NATURAL", "NEW", "NO",
               "NOT", "NULL", "NULLS", "OF", "ON", "OR", "ORDER", "OUTER",
