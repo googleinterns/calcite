@@ -45,6 +45,8 @@ data: {
       "org.apache.calcite.sql.babel.SqlExecMacro",
       "org.apache.calcite.sql.babel.SqlUsingRequestModifier",
       "org.apache.calcite.sql.babel.Volatility",
+      "org.apache.calcite.sql.babel.SqlDateTimeAtLocal",
+      "org.apache.calcite.sql.babel.SqlDateTimeAtTimeZone",
     ]
 
     # List of keywords.
@@ -962,6 +964,10 @@ data: {
 
     preAtomicRowMethods: [
       "InlineModOperator()"
+    ]
+
+    dateTimeExpressionMethods: [
+      "DateTimeTerm()"
     ]
 
     # List of files in @includes directory that have parser method

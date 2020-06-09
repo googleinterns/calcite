@@ -590,3 +590,31 @@ SqlNode InlineModOperator() :
         return createCall(qualifiedName, s.end(this), funcType, quantifier, args);
     }
 }
+
+SqlNode DateTimeTerm() :
+{
+    final SqlNode e;
+    SqlIdentifier timeZoneValue;
+}
+{
+    (
+        e = DateTimeLiteral()
+    |
+        e = SimpleIdentifier()
+    )
+    (
+        <AT>
+        (
+            <LOCAL>
+            {
+                return new SqlDateTimeAtLocal(getPos(), e);
+            }
+        |
+            <TIME> <ZONE>
+            {
+                timeZoneValue = SimpleIdentifier();
+                return new SqlDateTimeAtTimeZone(getPos(), e, timeZoneValue);
+            }
+        )
+    )
+}

@@ -705,6 +705,66 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testDateTimePrimaryLiteral() {
+    final String sql = "select timestamp '2020-05-30 13:20:00'";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00'";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryBuiltInFunction() {
+    final String sql = "select current_timestamp";
+    final String expected = "SELECT CURRENT_TIMESTAMP";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryLiteralAtLocal() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at local";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT LOCAL";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryColumnAtLocal() {
+    final String sql = "select foo at local";
+    final String expected = "SELECT `FOO` AT LOCAL";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryBuiltInFunctionAtLocal() {
+    final String sql = "select current_timestamp at local";
+    final String expected = "SELECT CURRENT_TIMESTAMP AT LOCAL";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryLiteralAtTimeZone() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone \"GMT+10\"";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT TIME ZONE `GMT+10`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryColumnAtTimeZone() {
+    final String sql = "select foo at time zone \"Europe Moscow\"";
+    final String expected = "SELECT `FOO` AT TIME ZONE `Europe Moscow`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryBuiltInFunctionAtTimeZone() {
+    final String sql = "select current_date at time zone \"GMT-5\"";
+    final String expected = "SELECT CURRENT_DATE AT TIME ZONE `GMT-5`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryColumnAtLocalInWhereClause() {
+    final String sql =
+        "select foo "
+        + "from fooTable "
+        + "where timestamp '2020-05-30 13:20:00' at local = timestamp '2020-05-30 20:20:00'";
+    final String expected =
+        "SELECT `FOO`\n"
+        + "FROM `FOOTABLE`\n"
+        + "WHERE (TIMESTAMP '2020-05-30 13:20:00' AT LOCAL = TIMESTAMP '2020-05-30 20:20:00')";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testUsingRequestModifierSingular() {
     final String sql = "using (foo int)";
     final String expected = "USING (`FOO` INTEGER)";
