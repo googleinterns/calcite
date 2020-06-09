@@ -28,6 +28,9 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateAttribute",
       "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum",
       "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum.ChecksumEnabled",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockModifier",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockUnitSize",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournalTable",
       "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio",
@@ -41,12 +44,18 @@ data: {
 
     # List of keywords.
     keywords: [
+      "BYTES"
       "CASESPECIFIC"
       "CHECKSUM"
+      "DATABLOCKSIZE"
       "FALLBACK"
       "IF"
       "JOURNAL"
+      "KBYTES"
+      "KILOBYTES"
+      "MAXIMUM"
       "MERGEBLOCKRATIO"
+      "MINIMUM"
       "OFF"
       "PROTECTION"
       "SEL"
@@ -373,9 +382,15 @@ data: {
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
       # not in core, added in babel
+      "BYTES"
       "CHECKSUM"
+      "DATABLOCKSIZE"
       "IF"
+      "KBYTES"
+      "KILOBYTES"
+      "MAXIMUM"
       "MERGEBLOCKRATIO"
+      "MINIMUM"
       "OFF"
       "SEMI"
 
