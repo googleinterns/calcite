@@ -40,11 +40,9 @@ public class SqlDateTimeAtLocal extends SqlCall implements SqlExecutableStatemen
     this.dateTimePrimary = dateTimePrimary;
   }
 
-
   @Override public SqlOperator getOperator() {
     return OPERATOR;
   }
-
 
   @Override public List<SqlNode> getOperandList() {
     return ImmutableNullableList.of(dateTimePrimary);
