@@ -78,7 +78,7 @@ public class BigQuerySqlDialect extends SqlDialect {
               "DEFAULT", "DEFINE", "DESC", "DISTINCT", "ELSE", "END", "ENUM",
               "ESCAPE", "EXCEPT", "EXCLUDE", "EXISTS", "EXTRACT", "FALSE",
               "FETCH", "FOLLOWING", "FOR", "FROM", "FULL", "GROUP", "GROUPING",
-              "GROUPS", "HASH", "HAVING", "IF", "IGNORE", "IN", "INNER",
+              "GROUPS", "HASH", "HAVING", "IGNORE", "IN", "INNER",
               "INTERSECT", "INTERVAL", "INTO", "IS", "JOIN", "LATERAL", "LEFT",
               "LIKE", "LIMIT", "LOOKUP", "MERGE", "NATURAL", "NEW", "NO",
               "NOT", "NULL", "NULLS", "OF", "ON", "OR", "ORDER", "OUTER",
@@ -106,6 +106,27 @@ public class BigQuerySqlDialect extends SqlDialect {
     return !IDENTIFIER_REGEX.matcher(val).matches()
         || RESERVED_KEYWORDS.contains(val.toUpperCase(Locale.ROOT));
   }
+
+  @Override public void quoteStringLiteralUnicode(StringBuilder buf, String val) {
+    buf.append("'");
+    for (int i = 0; i < val.length(); i++) {
+      char c = val.charAt(i);
+      if (c < 32 || c >= 128) {
+        buf.append("\\u");
+        buf.append(HEXITS[(c >> 12) & 0xf]);
+        buf.append(HEXITS[(c >> 8) & 0xf]);
+        buf.append(HEXITS[(c >> 4) & 0xf]);
+        buf.append(HEXITS[c & 0xf]);
+      } else if (c == '\'' || c == '\\') {
+        buf.append(c);
+        buf.append(c);
+      } else {
+        buf.append(c);
+      }
+    }
+    buf.append("'");
+  }
+
 
   @Override public SqlNode emulateNullDirection(SqlNode node,
       boolean nullsFirst, boolean desc) {

@@ -369,6 +369,7 @@ data: {
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
       # not in core, added in babel
+      "IF"
       "MERGEBLOCKRATIO"
       "SEMI"
 
@@ -909,7 +910,7 @@ data: {
       "SqlExecMacro"
     ]
 
-    # List of methods for parsing experssions to "USING" calls
+    # List of methods for parsing expressions to "USING" calls.
     usingStatementParserMethods: [
         "SqlUsingRequestModifier"
     ]
