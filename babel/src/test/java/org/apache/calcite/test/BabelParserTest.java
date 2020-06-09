@@ -370,25 +370,25 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testTableAttributeDataBlockSizeNoUnit() {
+  @Test public void testTableAttributeDataBlockSizeValueNoUnit() {
     final String sql = "create table foo, datablocksize = 12123 (bar integer)";
     final String expected = "CREATE TABLE `FOO`, DATABLOCKSIZE = 12123 (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 
-  @Test public void testTableAttributeDataBlockSizeBytes() {
+  @Test public void testTableAttributeDataBlockSizeValueBytes() {
     final String sql = "create table foo, datablocksize = 12123 bytes (bar integer)";
     final String expected = "CREATE TABLE `FOO`, DATABLOCKSIZE = 12123 BYTES (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 
-  @Test public void testTableAttributeDataBlockSizeKbytes() {
+  @Test public void testTableAttributeDataBlockSizeValueKbytes() {
     final String sql = "create table foo, datablocksize = 42.123 kbytes (bar integer)";
     final String expected = "CREATE TABLE `FOO`, DATABLOCKSIZE = 42.123 KILOBYTES (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 
-  @Test public void testTableAttributeDataBlockSizeKilobytes() {
+  @Test public void testTableAttributeDataBlockSizeValueKilobytes() {
     final String sql = "create table foo, datablocksize = 2e4 kilobytes (bar integer)";
     final String expected = "CREATE TABLE `FOO`, DATABLOCKSIZE = 2E4 KILOBYTES (`BAR` INTEGER)";
     sql(sql).ok(expected);
