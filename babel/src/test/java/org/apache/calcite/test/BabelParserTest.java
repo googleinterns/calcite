@@ -437,7 +437,7 @@ class BabelParserTest extends SqlParserTest {
         + "(`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
-  
+
   @Test public void testTableAttributeDataBlockSizeMinimum() {
     final String sql = "create table foo, minimum datablocksize (bar integer)";
     final String expected = "CREATE TABLE `FOO`, MINIMUM DATABLOCKSIZE (`BAR` INTEGER)";
