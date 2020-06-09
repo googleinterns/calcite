@@ -26,10 +26,20 @@ data: {
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
       "org.apache.calcite.sql.babel.SqlCreateAttribute",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum.ChecksumEnabled",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockModifier",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockUnitSize",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
       "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading",
       "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading.OperationLevel",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeJournal",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeJournal.JournalType",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeJournal.JournalModifier",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournalTable",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio.MergeBlockRatioModifier",
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
       "org.apache.calcite.sql.babel.SqlExecMacro",
@@ -39,13 +49,23 @@ data: {
 
     # List of keywords.
     keywords: [
+      "BYTES"
       "CASESPECIFIC"
+      "CHECKSUM"
       "CONCURRENT"
+      "DATABLOCKSIZE"
+      "DUAL"
       "FALLBACK"
       "IF"
       "ISOLATED"
       "JOURNAL"
+      "KBYTES"
+      "KILOBYTES"
       "LOADING"
+      "MAXIMUM"
+      "MERGEBLOCKRATIO"
+      "MINIMUM"
+      "OFF"
       "PROTECTION"
       "SEL"
       "SEMI"
@@ -371,10 +391,21 @@ data: {
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
       # not in core, added in babel
+      "BYTES"
+      "CHECKSUM"
       "CONCURRENT"
+      "DATABLOCKSIZE"
+      "DUAL"
       "IF"
       "ISOLATED"
+      "JOURNAL"
+      "KBYTES"
+      "KILOBYTES"
       "LOADING"
+      "MAXIMUM"
+      "MERGEBLOCKRATIO"
+      "MINIMUM"
+      "OFF"
       "SEMI"
 
       # The following keywords are reserved in core Calcite,

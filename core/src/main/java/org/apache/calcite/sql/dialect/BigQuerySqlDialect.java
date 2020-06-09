@@ -28,6 +28,7 @@ import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlInsert;
 import org.apache.calcite.sql.SqlIntervalLiteral;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlKind;
@@ -49,8 +50,10 @@ import org.apache.calcite.util.Pair;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -69,6 +72,11 @@ public class BigQuerySqlDialect extends SqlDialect {
       .withCaseSensitive(false);
 
   public static final SqlDialect DEFAULT = new BigQuerySqlDialect(DEFAULT_CONTEXT);
+
+  // Strings in this set will be unparsed to have empty parentheses at the end.
+  private static final Set<String> IDENTIFIER_FUNCTIONS =
+      new HashSet<String>(
+          Arrays.asList("current_time", "current_timestamp"));
 
   private static final List<String> RESERVED_KEYWORDS =
       ImmutableList.copyOf(
@@ -146,6 +154,26 @@ public class BigQuerySqlDialect extends SqlDialect {
   @Override public void unparseOffsetFetch(SqlWriter writer, SqlNode offset,
       SqlNode fetch) {
     unparseFetchUsingLimit(writer, offset, fetch);
+  }
+
+  /* Unparses the given identifier with parentheses at the end if it is
+   * required to have them. */
+  @Override public void unparseSqlIdentifier(SqlWriter writer,
+      SqlIdentifier identifier, int leftPrec, int rightPrec) {
+    super.unparseSqlIdentifier(writer, identifier, leftPrec, rightPrec);
+
+    boolean isValidIdentifier = identifier.names.size() == 1;
+    if (isValidIdentifier && IDENTIFIER_FUNCTIONS
+        .contains(identifier.names.get(0).toLowerCase(Locale.ROOT))) {
+      final SqlWriter.Frame frame =
+          writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
+      writer.endList(frame);
+    }
+  }
+
+  @Override public void unparseSqlInsertSource(SqlWriter writer, SqlInsert insertCall,
+      int leftPrec, int rightPrec) {
+    unparseCall(writer, (SqlCall) insertCall.getSource(), leftPrec, rightPrec);
   }
 
   @Override public void unparseSqlUpdateCall(SqlWriter writer, SqlUpdate updateCall,

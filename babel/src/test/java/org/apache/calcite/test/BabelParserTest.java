@@ -328,6 +328,54 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeJournalDefaultModifierDefaultType() {
+    final String sql = "create table foo, journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalDefaultModifierBeforeType() {
+    final String sql = "create table foo, before journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BEFORE JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalDefaultModifierAfterType() {
+    final String sql = "create table foo, after journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, AFTER JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalNoModifierBeforeType() {
+    final String sql = "create table foo, no before journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, NO BEFORE JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalDualModifierBeforeType() {
+    final String sql = "create table foo, dual before journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, DUAL BEFORE JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalLocalModifierAfterType() {
+    final String sql = "create table foo, local after journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, LOCAL AFTER JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalNotLocalModifierAfterType() {
+    final String sql = "create table foo, not local after journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, NOT LOCAL AFTER JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalLocalModifierBeforeTypeFails() {
+    final String sql = "create table foo, ^local^ before journal (bar integer)";
+    final String expected = "(?s).*Encountered \"local before\" at .*";
+    sql(sql).fails(expected);
+  }
+
   @Test public void testTableAttributeJournalTableWithSimpleIdentifier() {
     final String sql = "create table foo, with journal table = baz (bar integer)";
     final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ` (`BAR` INTEGER)";
@@ -389,21 +437,141 @@ class BabelParserTest extends SqlParserTest {
         + "(`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
+  
+  @Test public void testTableAttributeDataBlockSizeMinimum() {
+    final String sql = "create table foo, minimum datablocksize (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MINIMUM DATABLOCKSIZE (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeDataBlockSizeMin() {
+    final String sql = "create table foo, min datablocksize (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MINIMUM DATABLOCKSIZE (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeDataBlockSizeMaximum() {
+    final String sql = "create table foo, maximum datablocksize (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MAXIMUM DATABLOCKSIZE (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeDataBlockSizeMax() {
+    final String sql = "create table foo, max datablocksize (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MAXIMUM DATABLOCKSIZE (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeDataBlockSizeDefault() {
+    final String sql = "create table foo, default datablocksize (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, DEFAULT DATABLOCKSIZE (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeDataBlockSizeValueNoUnit() {
+    final String sql = "create table foo, datablocksize = 12123 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, DATABLOCKSIZE = 12123 BYTES (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeDataBlockSizeValueBytes() {
+    final String sql = "create table foo, datablocksize = 12123 bytes (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, DATABLOCKSIZE = 12123 BYTES (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeDataBlockSizeValueKbytes() {
+    final String sql = "create table foo, datablocksize = 42.123 kbytes (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, DATABLOCKSIZE = 42.123 KILOBYTES (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeDataBlockSizeValueKilobytes() {
+    final String sql = "create table foo, datablocksize = 2e4 kilobytes (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, DATABLOCKSIZE = 2E4 KILOBYTES (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeDataBlockSizeModifierValueFails() {
+    final String sql = "create table foo, max datablocksize ^=^ 2e4 kilobytes (bar integer)";
+    final String expected = "(?s)Encountered \"=\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeChecksumDefault() {
+    final String sql = "create table foo, checksum = default (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = DEFAULT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeChecksumOn() {
+    final String sql = "create table foo, checksum = on (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeChecksumOff() {
+    final String sql = "create table foo, checksum = off (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = OFF (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
 
   @Test public void testTableAttributeMultipleAttrs() {
     final String sql = "create table foo, with journal table = baz.tbl, "
-        + "fallback protection (bar integer)";
+        + "fallback protection, checksum = on (bar integer)";
     final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ`.`TBL`, "
-        + "FALLBACK PROTECTION (`BAR` INTEGER)";
+        + "FALLBACK PROTECTION, CHECKSUM = ON (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 
   @Test public void testTableAttributeMultipleAttrsOrder() {
-    final String sql = "create table foo, fallback protection, "
+    final String sql = "create table foo, checksum = on, fallback protection, "
         + "with journal table = baz.tbl (bar integer)";
-    final String expected = "CREATE TABLE `FOO`, FALLBACK PROTECTION, "
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON, FALLBACK PROTECTION, "
         + "WITH JOURNAL TABLE = `BAZ`.`TBL` (`BAR` INTEGER)";
     sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioDefault() {
+    final String sql = "create table foo, default mergeblockratio (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, DEFAULT MERGEBLOCKRATIO (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioNo() {
+    final String sql = "create table foo, no mergeblockratio (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, NO MERGEBLOCKRATIO (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioInteger() {
+    final String sql = "create table foo, mergeblockratio = 45 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MERGEBLOCKRATIO = 45 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioIntegerNegativeFails() {
+    final String sql = "create table foo, mergeblockratio = ^-^20 (bar integer)";
+    final String expected = "(?s).*Encountered \"-\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioIntegerRangeFails() {
+    final String sql = "create table foo, mergeblockratio = ^155^ (bar integer)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioPercent() {
+    final String sql = "create table foo, mergeblockratio = 45 percent (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MERGEBLOCKRATIO = 45 PERCENT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioNoModifierIntegerFails() {
+    final String sql = "create table foo, no mergeblockratio ^=^ 45 percent (bar integer)";
+    final String expected = "(?s).*Encountered \"=\" at .*";
+    sql(sql).fails(expected);
   }
 
   @Test public void testCreateTablePermutedColumnLevelAttributes() {
@@ -602,6 +770,88 @@ class BabelParserTest extends SqlParserTest {
     final String sql = "select foo mod bar";
     final String expected = "SELECT MOD(`FOO`, `BAR`)";
     sql(sql).ok(expected);
+  }
+
+  @Test public void testCurrentTimeStampFunction() {
+    final String sql = "select current_timestamp";
+    final String expected = "SELECT CURRENT_TIMESTAMP";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCurrentTimeFunction() {
+    final String sql = "select current_time";
+    final String expected = "SELECT CURRENT_TIME";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testBothTimeFunctions() {
+    final String sql = "select current_time, current_timestamp";
+    final String expected = "SELECT CURRENT_TIME, CURRENT_TIMESTAMP";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCurrentTimeStampFunctionBigQuery() {
+    final String sql = "select current_timestamp";
+    final String expected = "SELECT CURRENT_TIMESTAMP()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testCurrentTimeStampFunctionBigQueryUpperCase() {
+    final String sql = "select CURRENT_TIMESTAMP";
+    final String expected = "SELECT CURRENT_TIMESTAMP()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testCurrentTimeFunctionBigQuery() {
+    final String sql = "select current_time";
+    final String expected = "SELECT CURRENT_TIME()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testBothTimeFunctionsBigQuery() {
+    final String sql = "select current_time, current_timestamp";
+    final String expected = "SELECT CURRENT_TIME(), CURRENT_TIMESTAMP()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testCurrentTimeStampFunctionWithParensBigQuery() {
+    final String sql = "select current_timestamp()";
+    final String expected = "SELECT CURRENT_TIMESTAMP()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testMergeInto() {
+    final String sql = "merge into t1 a using t2 b on a.x = b.x when matched then "
+        + "update set y = b.y when not matched then insert (x,y) values (b.x, b.y)";
+    final String expected = "MERGE INTO `T1` AS `A`\n"
+        + "USING `T2` AS `B`\n"
+        + "ON (`A`.`X` = `B`.`X`)\n"
+        + "WHEN MATCHED THEN UPDATE SET `Y` = `B`.`Y`\n"
+        + "WHEN NOT MATCHED THEN INSERT (`X`, `Y`) (VALUES (ROW(`B`.`X`, `B`.`Y`)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testMergeIntoBigQuery() {
+    final String sql = "merge into t1 a using t2 b on a.x = b.x when matched then "
+        + "update set y = b.y when not matched then insert (x,y) values (b.x, b.y)";
+    final String expected = "MERGE INTO t1 AS a\n"
+        + "USING t2 AS b\n"
+        + "ON (a.x = b.x)\n"
+        + "WHEN MATCHED THEN UPDATE SET y = b.y\n"
+        + "WHEN NOT MATCHED THEN INSERT (x, y) VALUES (b.x, b.y)";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
   }
 
   @Test void testIfTokenIsQuotedInAnsi() {

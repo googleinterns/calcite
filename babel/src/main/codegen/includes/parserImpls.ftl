@@ -260,6 +260,110 @@ SqlCreateAttribute CreateTableAttributeIsolatedLoading() :
     { return new SqlCreateAttributeIsolatedLoading(nonLoadIsolated, concurrent, operationLevel, getPos()); }
 }
 
+SqlCreateAttribute CreateTableAttributeJournal() :
+{
+  JournalType journalType;
+  JournalModifier journalModifier;
+}
+{
+    (
+        (
+            <LOCAL> { journalModifier = JournalModifier.LOCAL; }
+        |
+            <NOT> <LOCAL> { journalModifier = JournalModifier.NOT_LOCAL; }
+        )
+        <AFTER> <JOURNAL> { journalType = JournalType.AFTER; }
+    |
+        (
+            <NO> { journalModifier = JournalModifier.NO; }
+        |
+            <DUAL> { journalModifier = JournalModifier.DUAL; }
+        |
+            { journalModifier = JournalModifier.UNSPECIFIED; }
+        )
+        (
+            <BEFORE> { journalType = JournalType.BEFORE; }
+        |
+            <AFTER> { journalType = JournalType.AFTER; }
+        |
+            { journalType = JournalType.UNSPECIFIED; }
+        )
+        <JOURNAL>
+    )
+    { return new SqlCreateAttributeJournal(journalType, journalModifier, getPos()); }
+}
+
+SqlCreateAttribute CreateTableAttributeDataBlockSize() :
+{
+    DataBlockModifier modifier = null;
+    DataBlockUnitSize unitSize;
+    SqlLiteral dataBlockSize = null;
+}
+{
+    (
+        (
+            ( <MINIMUM> | <MIN> ) { modifier = DataBlockModifier.MINIMUM; }
+        |
+            ( <MAXIMUM> | <MAX> ) { modifier = DataBlockModifier.MAXIMUM; }
+        |
+            <DEFAULT_> { modifier = DataBlockModifier.DEFAULT; }
+        )
+        <DATABLOCKSIZE> { unitSize = DataBlockUnitSize.BYTES; }
+    |
+        <DATABLOCKSIZE> <EQ> dataBlockSize = UnsignedNumericLiteral()
+        (
+            ( <KILOBYTES> | <KBYTES> ) { unitSize = DataBlockUnitSize.KILOBYTES; }
+        |
+            [ <BYTES> ] { unitSize = DataBlockUnitSize.BYTES; }
+        )
+    )
+    { return new SqlCreateAttributeDataBlockSize(modifier, unitSize, dataBlockSize, getPos()); }
+}
+
+SqlCreateAttribute CreateTableAttributeMergeBlockRatio() :
+{
+    MergeBlockRatioModifier modifier = MergeBlockRatioModifier.UNSPECIFIED;
+    int ratio = 1;
+    boolean percent = false;
+}
+{
+    (
+        (
+            <DEFAULT_> { modifier = MergeBlockRatioModifier.DEFAULT; }
+        |
+            <NO> { modifier = MergeBlockRatioModifier.NO; }
+        )
+        <MERGEBLOCKRATIO>
+    |
+        <MERGEBLOCKRATIO> <EQ> ratio = UnsignedIntLiteral()
+        [ <PERCENT> { percent = true; } ]
+    )
+    {
+        if (ratio >= 1 && ratio <= 100) {
+            return new SqlCreateAttributeMergeBlockRatio(modifier, ratio, percent, getPos());
+        } else {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.numberLiteralOutOfRange(String.valueOf(ratio)));
+        }
+    }
+}
+
+SqlCreateAttribute CreateTableAttributeChecksum() :
+{
+    ChecksumEnabled checksumEnabled;
+}
+{
+    <CHECKSUM> <EQ>
+    (
+        <DEFAULT_> { checksumEnabled = ChecksumEnabled.DEFAULT; }
+    |
+        <ON> { checksumEnabled = ChecksumEnabled.ON; }
+    |
+        <OFF> { checksumEnabled = ChecksumEnabled.OFF; }
+    )
+    { return new SqlCreateAttributeChecksum(checksumEnabled, getPos()); }
+}
+
 List<SqlCreateAttribute> CreateTableAttributes() :
 {
     final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
@@ -275,6 +379,14 @@ List<SqlCreateAttribute> CreateTableAttributes() :
             e = CreateTableAttributeJournalTable()
         |
             e = CreateTableAttributeIsolatedLoading()
+        |
+            e = CreateTableAttributeDataBlockSize()
+        |
+            e = CreateTableAttributeMergeBlockRatio()
+        |
+            e = CreateTableAttributeChecksum()
+        |
+            e = CreateTableAttributeJournal()
         ) { list.add(e); }
     )+
     { return list; }
