@@ -372,6 +372,7 @@ data: {
     nonReservedKeywordsToAdd: [
       # not in core, added in babel
       "CONCURRENT"
+      "IF"
       "ISOLATED"
       "LOADING"
       "SEMI"
