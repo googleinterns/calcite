@@ -212,7 +212,7 @@ public class SqlMerge extends SqlCall {
       if (insertCall.getTargetColumnList() != null) {
         insertCall.getTargetColumnList().unparse(writer, opLeft, opRight);
       }
-      insertCall.getSource().unparse(writer, opLeft, opRight);
+      writer.getDialect().unparseSqlInsertSource(writer, insertCall, opLeft, opRight);
 
       writer.endList(frame);
     }

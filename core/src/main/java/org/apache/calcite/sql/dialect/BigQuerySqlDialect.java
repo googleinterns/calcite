@@ -28,6 +28,7 @@ import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlInsert;
 import org.apache.calcite.sql.SqlIntervalLiteral;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlKind;
@@ -168,6 +169,11 @@ public class BigQuerySqlDialect extends SqlDialect {
           writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
       writer.endList(frame);
     }
+  }
+
+  @Override public void unparseSqlInsertSource(SqlWriter writer, SqlInsert insertCall,
+      int leftPrec, int rightPrec) {
+    unparseCall(writer, (SqlCall) insertCall.getSource(), leftPrec, rightPrec);
   }
 
   @Override public void unparseSqlUpdateCall(SqlWriter writer, SqlUpdate updateCall,

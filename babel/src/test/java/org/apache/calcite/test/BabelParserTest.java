@@ -340,20 +340,80 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeChecksumDefault() {
+    final String sql = "create table foo, checksum = default (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = DEFAULT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeChecksumOn() {
+    final String sql = "create table foo, checksum = on (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeChecksumOff() {
+    final String sql = "create table foo, checksum = off (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = OFF (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testTableAttributeMultipleAttrs() {
     final String sql = "create table foo, with journal table = baz.tbl, "
-        + "fallback protection (bar integer)";
+        + "fallback protection, checksum = on (bar integer)";
     final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ`.`TBL`, "
-        + "FALLBACK PROTECTION (`BAR` INTEGER)";
+        + "FALLBACK PROTECTION, CHECKSUM = ON (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 
   @Test public void testTableAttributeMultipleAttrsOrder() {
-    final String sql = "create table foo, fallback protection, "
+    final String sql = "create table foo, checksum = on, fallback protection, "
         + "with journal table = baz.tbl (bar integer)";
-    final String expected = "CREATE TABLE `FOO`, FALLBACK PROTECTION, "
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON, FALLBACK PROTECTION, "
         + "WITH JOURNAL TABLE = `BAZ`.`TBL` (`BAR` INTEGER)";
     sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioDefault() {
+    final String sql = "create table foo, default mergeblockratio (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, DEFAULT MERGEBLOCKRATIO (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioNo() {
+    final String sql = "create table foo, no mergeblockratio (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, NO MERGEBLOCKRATIO (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioInteger() {
+    final String sql = "create table foo, mergeblockratio = 45 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MERGEBLOCKRATIO = 45 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioIntegerNegativeFails() {
+    final String sql = "create table foo, mergeblockratio = ^-^20 (bar integer)";
+    final String expected = "(?s).*Encountered \"-\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioIntegerRangeFails() {
+    final String sql = "create table foo, mergeblockratio = ^155^ (bar integer)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioPercent() {
+    final String sql = "create table foo, mergeblockratio = 45 percent (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MERGEBLOCKRATIO = 45 PERCENT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioNoModifierIntegerFails() {
+    final String sql = "create table foo, no mergeblockratio ^=^ 45 percent (bar integer)";
+    final String expected = "(?s).*Encountered \"=\" at .*";
+    sql(sql).fails(expected);
   }
 
   @Test public void testCreateTablePermutedColumnLevelAttributes() {
@@ -635,6 +695,30 @@ class BabelParserTest extends SqlParserTest {
   @Test public void testCurrentTimeFunctionWithParensBigQuery() {
     final String sql = "select current_time()";
     final String expected = "SELECT CURRENT_TIME()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testMergeInto() {
+    final String sql = "merge into t1 a using t2 b on a.x = b.x when matched then "
+        + "update set y = b.y when not matched then insert (x,y) values (b.x, b.y)";
+    final String expected = "MERGE INTO `T1` AS `A`\n"
+        + "USING `T2` AS `B`\n"
+        + "ON (`A`.`X` = `B`.`X`)\n"
+        + "WHEN MATCHED THEN UPDATE SET `Y` = `B`.`Y`\n"
+        + "WHEN NOT MATCHED THEN INSERT (`X`, `Y`) (VALUES (ROW(`B`.`X`, `B`.`Y`)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testMergeIntoBigQuery() {
+    final String sql = "merge into t1 a using t2 b on a.x = b.x when matched then "
+        + "update set y = b.y when not matched then insert (x,y) values (b.x, b.y)";
+    final String expected = "MERGE INTO t1 AS a\n"
+        + "USING t2 AS b\n"
+        + "ON (a.x = b.x)\n"
+        + "WHEN MATCHED THEN UPDATE SET y = b.y\n"
+        + "WHEN NOT MATCHED THEN INSERT (x, y) VALUES (b.x, b.y)";
     sql(sql)
       .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
       .ok(expected);
