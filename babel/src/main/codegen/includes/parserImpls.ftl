@@ -236,7 +236,7 @@ SqlCreateAttribute CreateTableAttributeJournalTable() :
     { return new SqlCreateAttributeJournalTable(id, getPos()); }
 }
 
-// FREESPACE attribute can take in decimals but should truncate to an integer
+// FREESPACE attribute can take in decimals but should be truncated to an integer.
 SqlCreateAttribute CreateTableAttributeFreeSpace() :
 {
     SqlLiteral tempNumeric;
