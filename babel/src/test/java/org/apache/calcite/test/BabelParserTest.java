@@ -394,6 +394,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeDataBlockSizeModifierValueFails() {
+    final String sql = "create table foo, max datablocksize ^=^ 2e4 kilobytes (bar integer)";
+    final String expected = "(?s)Encountered \"=\" at .*";
+    sql(sql).fails(expected);
+  }
+
   @Test public void testTableAttributeMultipleAttrs() {
     final String sql = "create table foo, with journal table = baz.tbl, "
         + "fallback protection (bar integer)";
