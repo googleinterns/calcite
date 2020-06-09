@@ -340,20 +340,80 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeChecksumDefault() {
+    final String sql = "create table foo, checksum = default (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = DEFAULT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeChecksumOn() {
+    final String sql = "create table foo, checksum = on (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeChecksumOff() {
+    final String sql = "create table foo, checksum = off (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = OFF (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testTableAttributeMultipleAttrs() {
     final String sql = "create table foo, with journal table = baz.tbl, "
-        + "fallback protection (bar integer)";
+        + "fallback protection, checksum = on (bar integer)";
     final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ`.`TBL`, "
-        + "FALLBACK PROTECTION (`BAR` INTEGER)";
+        + "FALLBACK PROTECTION, CHECKSUM = ON (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 
   @Test public void testTableAttributeMultipleAttrsOrder() {
-    final String sql = "create table foo, fallback protection, "
+    final String sql = "create table foo, checksum = on, fallback protection, "
         + "with journal table = baz.tbl (bar integer)";
-    final String expected = "CREATE TABLE `FOO`, FALLBACK PROTECTION, "
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON, FALLBACK PROTECTION, "
         + "WITH JOURNAL TABLE = `BAZ`.`TBL` (`BAR` INTEGER)";
     sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioDefault() {
+    final String sql = "create table foo, default mergeblockratio (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, DEFAULT MERGEBLOCKRATIO (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioNo() {
+    final String sql = "create table foo, no mergeblockratio (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, NO MERGEBLOCKRATIO (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioInteger() {
+    final String sql = "create table foo, mergeblockratio = 45 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MERGEBLOCKRATIO = 45 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioIntegerNegativeFails() {
+    final String sql = "create table foo, mergeblockratio = ^-^20 (bar integer)";
+    final String expected = "(?s).*Encountered \"-\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioIntegerRangeFails() {
+    final String sql = "create table foo, mergeblockratio = ^155^ (bar integer)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioPercent() {
+    final String sql = "create table foo, mergeblockratio = 45 percent (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MERGEBLOCKRATIO = 45 PERCENT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMergeBlockRatioNoModifierIntegerFails() {
+    final String sql = "create table foo, no mergeblockratio ^=^ 45 percent (bar integer)";
+    final String expected = "(?s).*Encountered \"=\" at .*";
+    sql(sql).fails(expected);
   }
 
   @Test public void testCreateTablePermutedColumnLevelAttributes() {
@@ -522,6 +582,20 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testNestedSchemaAccess() {
+    final String sql = "SELECT a.b.c.d.column";
+    final String expected = "SELECT `A`.`B`.`C`.`D`.`COLUMN`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testBetweenUnparsing() {
+    final String sql = "SELECT * FROM foo WHERE col BETWEEN 1 AND 3";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`COL` BETWEEN 1 AND 3)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testInlineModSyntaxInteger() {
     final String sql = "select 27 mod -3";
     final String expected = "SELECT MOD(27, -3)";
@@ -562,5 +636,21 @@ class BabelParserTest extends SqlParserTest {
     sql(sql)
       .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
       .ok(expected);
+  }
+  
+  @Test void testIfTokenIsQuotedInAnsi() {
+    final String sql = "select if(x) from foo";
+    final String expected = "SELECT `IF`(`X`)\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testIfTokenIsNotQuotedInBigQuery() {
+    final String sql = "select if(x) from foo";
+    final String expected = "SELECT if(x)\n"
+        + "FROM foo";
+    sql(sql)
+        .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+        .ok(expected);
   }
 }

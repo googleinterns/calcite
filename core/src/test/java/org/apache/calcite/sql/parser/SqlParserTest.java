@@ -747,7 +747,7 @@ public class SqlParserTest {
         + "where deptno between - DEPTNO + 1 and 5";
     final String expected = "SELECT *\n"
         + "FROM `EMP`\n"
-        + "WHERE (`DEPTNO` BETWEEN ASYMMETRIC ((- `DEPTNO`) + 1) AND 5)";
+        + "WHERE (`DEPTNO` BETWEEN ((- `DEPTNO`) + 1) AND 5)";
     sql(sql).ok(expected);
   }
 
@@ -756,7 +756,7 @@ public class SqlParserTest {
         + "where deptno between - DEPTNO + 1 and - empno - 3";
     final String expected = "SELECT *\n"
         + "FROM `EMP`\n"
-        + "WHERE (`DEPTNO` BETWEEN ASYMMETRIC ((- `DEPTNO`) + 1)"
+        + "WHERE (`DEPTNO` BETWEEN ((- `DEPTNO`) + 1)"
         + " AND ((- `EMPNO`) - 3))";
     sql(sql).ok(expected);
   }
@@ -854,7 +854,7 @@ public class SqlParserTest {
 
     // BETWEEN, IN, LIKE have higher precedence than comparison
     expr("a = x between y = b and z = c")
-        .ok("((`A` = (`X` BETWEEN ASYMMETRIC (`Y` = `B`) AND `Z`)) = `C`)");
+        .ok("((`A` = (`X` BETWEEN (`Y` = `B`) AND `Z`)) = `C`)");
     expr("a = x like y = b")
         .ok("((`A` = (`X` LIKE `Y`)) = `B`)");
     expr("a = x not like y = b")
@@ -971,7 +971,7 @@ public class SqlParserTest {
     sql("select * from t where price between 1 and 2")
         .ok("SELECT *\n"
             + "FROM `T`\n"
-            + "WHERE (`PRICE` BETWEEN ASYMMETRIC 1 AND 2)");
+            + "WHERE (`PRICE` BETWEEN 1 AND 2)");
 
     sql("select * from t where price between symmetric 1 and 2")
         .ok("SELECT *\n"
@@ -986,7 +986,7 @@ public class SqlParserTest {
     sql("select * from t where price between ASYMMETRIC 1 and 2+2*2")
         .ok("SELECT *\n"
             + "FROM `T`\n"
-            + "WHERE (`PRICE` BETWEEN ASYMMETRIC 1 AND (2 + (2 * 2)))");
+            + "WHERE (`PRICE` BETWEEN 1 AND (2 + (2 * 2)))");
 
     final String sql0 = "select * from t\n"
         + " where price > 5\n"
@@ -994,7 +994,7 @@ public class SqlParserTest {
     final String expected0 = "SELECT *\n"
         + "FROM `T`\n"
         + "WHERE (((`PRICE` > 5) "
-        + "AND (`PRICE` NOT BETWEEN ASYMMETRIC (1 + 2) AND (3 * 4))) "
+        + "AND (`PRICE` NOT BETWEEN (1 + 2) AND (3 * 4))) "
         + "AND (`PRICE` IS NULL))";
     sql(sql0).ok(expected0);
 
@@ -1004,7 +1004,7 @@ public class SqlParserTest {
     final String expected1 = "SELECT *\n"
         + "FROM `T`\n"
         + "WHERE ((`PRICE` > 5) "
-        + "AND ((`PRICE` BETWEEN ASYMMETRIC (1 + 2) AND ((3 * 4) + `PRICE`)) "
+        + "AND ((`PRICE` BETWEEN (1 + 2) AND ((3 * 4) + `PRICE`)) "
         + "IS NULL))";
     sql(sql1).ok(expected1);
 
@@ -1014,14 +1014,14 @@ public class SqlParserTest {
     final String expected2 = "SELECT *\n"
         + "FROM `T`\n"
         + "WHERE (((`PRICE` > 5) "
-        + "AND (`PRICE` BETWEEN ASYMMETRIC (1 + 2) AND (3 * 4))) "
+        + "AND (`PRICE` BETWEEN (1 + 2) AND (3 * 4))) "
         + "OR (`PRICE` IS NULL))";
     sql(sql2).ok(expected2);
 
     final String sql3 = "values a between c and d and e and f between g and h";
     final String expected3 = "VALUES ("
-        + "ROW((((`A` BETWEEN ASYMMETRIC `C` AND `D`) AND `E`)"
-        + " AND (`F` BETWEEN ASYMMETRIC `G` AND `H`))))";
+        + "ROW((((`A` BETWEEN `C` AND `D`) AND `E`)"
+        + " AND (`F` BETWEEN `G` AND `H`))))";
     sql(sql3).ok(expected3);
 
     sql("values a between b or c^")
@@ -1035,15 +1035,15 @@ public class SqlParserTest {
 
     // precedence of BETWEEN is higher than AND and OR, but lower than '+'
     sql("values a between b and c + 2 or d and e")
-        .ok("VALUES (ROW(((`A` BETWEEN ASYMMETRIC `B` AND (`C` + 2)) OR (`D` AND `E`))))");
+        .ok("VALUES (ROW(((`A` BETWEEN `B` AND (`C` + 2)) OR (`D` AND `E`))))");
 
     // '=' has slightly lower precedence than BETWEEN; both are left-assoc
     sql("values x = a between b and c = d = e")
-        .ok("VALUES (ROW((((`X` = (`A` BETWEEN ASYMMETRIC `B` AND `C`)) = `D`) = `E`)))");
+        .ok("VALUES (ROW((((`X` = (`A` BETWEEN `B` AND `C`)) = `D`) = `E`)))");
 
     // AND doesn't match BETWEEN if it's between parentheses!
     sql("values a between b or (c and d) or e and f")
-        .ok("VALUES (ROW((`A` BETWEEN ASYMMETRIC ((`B` OR (`C` AND `D`)) OR `E`) AND `F`)))");
+        .ok("VALUES (ROW((`A` BETWEEN ((`B` OR (`C` AND `D`)) OR `E`) AND `F`)))");
   }
 
   @Test void testOperateOnColumn() {
