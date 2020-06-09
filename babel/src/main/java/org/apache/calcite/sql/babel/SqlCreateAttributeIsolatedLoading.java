@@ -29,7 +29,6 @@ public class SqlCreateAttributeIsolatedLoading extends SqlCreateAttribute {
   private boolean concurrent;
   private OperationLevel operationLevel;
 
-
   /**
    * Creates a {@code SqlCreateAttributeIsolatedLoading}.
    *
