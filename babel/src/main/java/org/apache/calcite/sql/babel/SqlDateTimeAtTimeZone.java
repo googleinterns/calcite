@@ -54,9 +54,7 @@ public class SqlDateTimeAtTimeZone extends SqlCall implements SqlExecutableState
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     dateTimePrimary.unparse(writer, leftPrec, rightPrec);
-    writer.keyword("AT");
-    writer.keyword("TIME");
-    writer.keyword("ZONE");
+    writer.keyword("AT TIME ZONE");
     timeZoneValue.unparse(writer, leftPrec, rightPrec);
   }
 

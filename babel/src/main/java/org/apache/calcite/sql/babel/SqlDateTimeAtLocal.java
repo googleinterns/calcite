@@ -50,8 +50,7 @@ public class SqlDateTimeAtLocal extends SqlCall implements SqlExecutableStatemen
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     dateTimePrimary.unparse(writer, leftPrec, rightPrec);
-    writer.keyword("AT");
-    writer.keyword("LOCAL");
+    writer.keyword("AT LOCAL");
   }
 
   // Intentionally left empty.
