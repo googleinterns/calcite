@@ -540,12 +540,10 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testCurrentTimeStampFunctionBigQuery() {
+  @Test public void testCurrentTimeStampFunction() {
     final String sql = "select current_timestamp";
-    final String expected = "SELECT CURRENT_TIMESTAMP()";
-    sql(sql)
-      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
-      .ok(expected);
+    final String expected = "SELECT CURRENT_TIMESTAMP";
+    sql(sql).ok(expected);
   }
 
   @Test public void testCurrentTimeFunction() {
@@ -553,11 +551,18 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "SELECT CURRENT_TIME";
     sql(sql).ok(expected);
   }
-
   @Test public void testBothTimeFunctions() {
     final String sql = "select current_time, current_timestamp";
     final String expected = "SELECT CURRENT_TIME, CURRENT_TIMESTAMP";
     sql(sql).ok(expected);
+  }
+
+  @Test public void testCurrentTimeStampFunctionBigQuery() {
+    final String sql = "select current_timestamp";
+    final String expected = "SELECT CURRENT_TIMESTAMP()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
   }
 
   @Test public void testCurrentTimeFunctionBigQuery() {
