@@ -20,34 +20,54 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlCreateAttributeFreeSpace</code> is a CREATE TABLE option
- * for the FREESPACE attribute.
+ * A <code>SqlCreateAttributeChecksum</code> is a CREATE TABLE option
+ * for the CHECKSUM attribute.
  */
-public class SqlCreateAttributeFreeSpace extends SqlCreateAttribute {
+public class SqlCreateAttributeChecksum extends SqlCreateAttribute {
 
-  private int freeSpaceValue;
-  private boolean percent;
+  private ChecksumEnabled checksumEnabled;
 
   /**
-   * Creates a {@code SqlCreateAttributeFreeSpace}.
+   * Creates a {@code SqlCreateAttributeChecksum}.
    *
-   * @param freeSpaceValue  The percentage of free space to reserve during loading operations
-   * @param percent  Optional keyword percent
+   * @param checksumEnabled  Status of checksums enabled for this table type
    * @param pos  Parser position, must not be null
    */
-  public SqlCreateAttributeFreeSpace(int freeSpaceValue, boolean percent, SqlParserPos pos) {
+  public SqlCreateAttributeChecksum(ChecksumEnabled checksumEnabled, SqlParserPos pos) {
     super(pos);
-    this.freeSpaceValue = freeSpaceValue;
-    this.percent = percent;
+    this.checksumEnabled = checksumEnabled;
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
-    writer.keyword("FREESPACE");
+    writer.keyword("CHECKSUM");
     writer.sep("=");
-    writer.print(freeSpaceValue);
-    writer.print(" ");
-    if (percent) {
-      writer.keyword("PERCENT");
+    switch (checksumEnabled) {
+    case DEFAULT:
+      writer.keyword("DEFAULT");
+      break;
+    case ON:
+      writer.keyword("ON");
+      break;
+    case OFF:
+      writer.keyword("OFF");
+      break;
     }
+  }
+
+  public enum ChecksumEnabled {
+    /**
+     * The current checksum level setting specified for this table type.
+     */
+    DEFAULT,
+
+    /**
+     * Checksums are enabled for this table type.
+     */
+    ON,
+
+    /**
+     * Checksums are disabled for this table type.
+     */
+    OFF,
   }
 }
