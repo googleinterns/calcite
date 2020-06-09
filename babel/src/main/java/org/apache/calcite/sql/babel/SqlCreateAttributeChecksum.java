@@ -25,23 +25,23 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public class SqlCreateAttributeChecksum extends SqlCreateAttribute {
 
-  private ChecksumLevel checksumLevel;
+  private ChecksumEnabled checksumEnabled;
 
   /**
    * Creates a {@code SqlCreateAttributeChecksum}.
    *
-   * @param checksumLevel  Checksum level for integrity checking
+   * @param checksumEnabled  Status of checksums enabled for this table type
    * @param pos  Parser position, must not be null
    */
-  public SqlCreateAttributeChecksum(ChecksumLevel checksumLevel, SqlParserPos pos) {
+  public SqlCreateAttributeChecksum(ChecksumEnabled checksumEnabled, SqlParserPos pos) {
     super(pos);
-    this.checksumLevel = checksumLevel;
+    this.checksumEnabled = checksumEnabled;
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
     writer.keyword("CHECKSUM");
     writer.sep("=");
-    switch (checksumLevel) {
+    switch (checksumEnabled) {
     case DEFAULT:
       writer.keyword("DEFAULT");
       break;
@@ -54,7 +54,7 @@ public class SqlCreateAttributeChecksum extends SqlCreateAttribute {
     }
   }
 
-  public enum ChecksumLevel {
+  public enum ChecksumEnabled {
     /**
      * The current checksum level setting specified for this table type.
      */

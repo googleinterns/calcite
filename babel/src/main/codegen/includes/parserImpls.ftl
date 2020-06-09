@@ -238,18 +238,18 @@ SqlCreateAttribute CreateTableAttributeJournalTable() :
 
 SqlCreateAttribute CreateTableAttributeChecksum() :
 {
-    ChecksumLevel checksumLevel;
+    ChecksumEnabled checksumEnabled;
 }
 {
     <CHECKSUM> <EQ>
     (
-        <DEFAULT_> { checksumLevel = ChecksumLevel.DEFAULT; }
+        <DEFAULT_> { checksumEnabled = ChecksumEnabled.DEFAULT; }
     |
-        <ON> { checksumLevel = ChecksumLevel.ON; }
+        <ON> { checksumEnabled = ChecksumEnabled.ON; }
     |
-        <OFF> { checksumLevel = ChecksumLevel.OFF; }
+        <OFF> { checksumEnabled = ChecksumEnabled.OFF; }
     )
-    { return new SqlCreateAttributeChecksum(checksumLevel, getPos()); }
+    { return new SqlCreateAttributeChecksum(checksumEnabled, getPos()); }
 }
 
 List<SqlCreateAttribute> CreateTableAttributes() :
