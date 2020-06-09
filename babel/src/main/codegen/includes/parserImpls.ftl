@@ -449,8 +449,10 @@ SqlNode dateTimeTerm() :
 {
     (
         e = DateTimeLiteral()
+    |
+        e = SimpleIdentifier()
     )
-    [
+    (
         <AT>
         (
             <LOCAL>
@@ -458,7 +460,7 @@ SqlNode dateTimeTerm() :
                 return new SqlDateTimeAtLocal(getPos(), e);
             }
         )
-    ]
+    )
     {
         return e;
     }
