@@ -431,12 +431,6 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testDateTimePrimaryColumn() {
-    final String sql = "select foo";
-    final String expected = "SELECT `FOO`";
-    sql(sql).ok(expected);
-  }
-
   @Test public void testDateTimePrimaryLiteral() {
     final String sql = "select timestamp '2020-05-30 13:20:00'";
     final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00'";
