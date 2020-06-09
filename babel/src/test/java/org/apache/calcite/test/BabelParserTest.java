@@ -432,8 +432,8 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testDateTimePrimaryColumn() {
-    final String sql = "select time_column";
-    final String expected = "SELECT `TIME_COLUMN`";
+    final String sql = "select foo";
+    final String expected = "SELECT `FOO`";
     sql(sql).ok(expected);
   }
 
@@ -456,8 +456,8 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testDateTimePrimaryColumnAtLocal() {
-    final String sql = "select time_column at local";
-    final String expected = "SELECT `TIME_COLUMN` AT LOCAL";
+    final String sql = "select foo at local";
+    final String expected = "SELECT `FOO` AT LOCAL";
     sql(sql).ok(expected);
   }
 
@@ -474,8 +474,8 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testDateTimePrimaryColumnAtTimeZone() {
-    final String sql = "select time_column at time zone \"Europe Moscow\"";
-    final String expected = "SELECT `TIME_COLUMN` AT TIME ZONE `Europe Moscow`";
+    final String sql = "select foo at time zone \"Europe Moscow\"";
+    final String expected = "SELECT `FOO` AT TIME ZONE `Europe Moscow`";
     sql(sql).ok(expected);
   }
 
