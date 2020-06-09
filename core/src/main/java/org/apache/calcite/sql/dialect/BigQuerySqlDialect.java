@@ -155,13 +155,14 @@ public class BigQuerySqlDialect extends SqlDialect {
     unparseFetchUsingLimit(writer, offset, fetch);
   }
 
-  @Override public void unparseSqlIdentifier(SqlWriter writer, SqlIdentifier identifier,
-      int leftPrec, int rightPrec) {
+  @Override public void unparseSqlIdentifier(SqlWriter writer,
+      SqlIdentifier identifier, int leftPrec, int rightPrec) {
     // Unparse the identifier as normal.
     super.unparseSqlIdentifier(writer, identifier, leftPrec, rightPrec);
     // If identifier.names.size() > 1 then this case is not valid as that means
     // that the name is of the form foo.bar.baz.
-    if (identifier.names.size() == 1 && IDENTIFIER_FUNCTIONS.contains(identifier.names.get(0).toLowerCase())) {
+    if (identifier.names.size() == 1 && IDENTIFIER_FUNCTIONS
+        .contains(identifier.names.get(0).toLowerCase())) {
       // Add parentheses to end of the identifier.
       final SqlWriter.Frame frame =
           writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
