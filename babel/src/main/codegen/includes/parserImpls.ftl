@@ -451,7 +451,6 @@ SqlNode dateTimeTerm() :
     (
         e = DateTimeLiteral()
     |
-        // Somehow this line is matching both column name and ContextVariable like "Current_Timestamp"
         e = SimpleIdentifier()
     )
     (
@@ -469,8 +468,5 @@ SqlNode dateTimeTerm() :
             }
         )
     )
-    {
-        return e;
-    }
 }
 
