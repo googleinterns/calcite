@@ -251,15 +251,13 @@ SqlCreateAttribute CreateTableAttributeDataBlockSize() :
         |
             <DEFAULT_> { modifier = DataBlockModifier.DEFAULT; }
         )
-        <DATABLOCKSIZE> { unitSize = DataBlockUnitSize.UNSPECIFIED; }
+        <DATABLOCKSIZE> { unitSize = DataBlockUnitSize.BYTES; }
     |
         <DATABLOCKSIZE> <EQ> dataBlockSize = UnsignedNumericLiteral()
         (
-            <BYTES> { unitSize = DataBlockUnitSize.BYTES; }
-        |
             ( <KILOBYTES> | <KBYTES> ) { unitSize = DataBlockUnitSize.KILOBYTES; }
         |
-            { unitSize = DataBlockUnitSize.UNSPECIFIED; }
+            [ <BYTES> ] { unitSize = DataBlockUnitSize.BYTES; }
         )
     )
     { return new SqlCreateAttributeDataBlockSize(modifier, unitSize, dataBlockSize, getPos()); }

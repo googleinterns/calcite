@@ -71,7 +71,6 @@ public class SqlCreateAttributeDataBlockSize extends SqlCreateAttribute {
       case KILOBYTES:
         writer.keyword("KILOBYTES");
         break;
-      default:
       }
     }
   }
@@ -95,12 +94,7 @@ public class SqlCreateAttributeDataBlockSize extends SqlCreateAttribute {
 
   public enum DataBlockUnitSize {
     /**
-     * The default unit size, bytes.
-     */
-    UNSPECIFIED,
-
-    /**
-     * The data block size value is in bytes.
+     * The data block size value is in bytes. Defaults to bytes if no unit size is specified.
      */
     BYTES,
 
