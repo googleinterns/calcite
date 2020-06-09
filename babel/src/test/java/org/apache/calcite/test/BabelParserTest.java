@@ -620,20 +620,8 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testCurrentTimeStampFunctionUpperCase() {
-    final String sql = "select CURRENT_TIMESTAMP";
-    final String expected = "SELECT CURRENT_TIMESTAMP";
-    sql(sql).ok(expected);
-  }
-
   @Test public void testCurrentTimeFunction() {
     final String sql = "select current_time";
-    final String expected = "SELECT CURRENT_TIME";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testCurrentTimeFunctionUpperCase() {
-    final String sql = "select CURRENT_TIME";
     final String expected = "SELECT CURRENT_TIME";
     sql(sql).ok(expected);
   }
@@ -652,24 +640,8 @@ class BabelParserTest extends SqlParserTest {
       .ok(expected);
   }
 
-  @Test public void testCurrentTimeStampFunctionUpperCaseBigQuery() {
-    final String sql = "select CURRENT_TIMESTAMP";
-    final String expected = "SELECT CURRENT_TIMESTAMP()";
-    sql(sql)
-      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
-      .ok(expected);
-  }
-
   @Test public void testCurrentTimeFunctionBigQuery() {
     final String sql = "select current_time";
-    final String expected = "SELECT CURRENT_TIME()";
-    sql(sql)
-      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
-      .ok(expected);
-  }
-
-  @Test public void testCurrentTimeFunctionUpperCaseBigQuery() {
-    final String sql = "select CURRENT_TIME";
     final String expected = "SELECT CURRENT_TIME()";
     sql(sql)
       .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
@@ -700,6 +672,14 @@ class BabelParserTest extends SqlParserTest {
       .ok(expected);
   }
 
+  @Test public void testBothTimeFunctionsWithParensBigQuery() {
+    final String sql = "select current_time(), current_timestamp()";
+    final String expected = "SELECT CURRENT_TIME(), CURRENT_TIMESTAMP()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
   @Test public void testMergeInto() {
     final String sql = "merge into t1 a using t2 b on a.x = b.x when matched then "
         + "update set y = b.y when not matched then insert (x,y) values (b.x, b.y)";
@@ -719,14 +699,6 @@ class BabelParserTest extends SqlParserTest {
         + "ON (a.x = b.x)\n"
         + "WHEN MATCHED THEN UPDATE SET y = b.y\n"
         + "WHEN NOT MATCHED THEN INSERT (x, y) VALUES (b.x, b.y)";
-    sql(sql)
-      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
-      .ok(expected);
-  }
-
-  @Test public void testBothTimeFunctionsWithParensBigQuery() {
-    final String sql = "select current_time(), current_timestamp()";
-    final String expected = "SELECT CURRENT_TIME(), CURRENT_TIMESTAMP()";
     sql(sql)
       .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
       .ok(expected);
