@@ -84,7 +84,7 @@ public class SqlCreateAttributeIsolatedLoading extends SqlCreateAttribute {
     INSERT,
 
     /**
-     * No concurrent load operation are allowed.
+     * No concurrent load operations are allowed.
      */
     NONE,
   }
