@@ -392,6 +392,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeMergeBlockRatioNoModifierIntegerFails() {
+    final String sql = "create table foo, no mergeblockratio ^=^ 45 percent (bar integer)";
+    final String expected = "(?s).*Encountered \"=\" at .*";
+    sql(sql).fails(expected);
+  }
+
   @Test public void testCreateTablePermutedColumnLevelAttributes() {
     final String sql = "create table foo (bar int uppercase null casespecific, "
         + "baz varchar(30) casespecific uppercase null)";
