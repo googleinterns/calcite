@@ -236,6 +236,30 @@ SqlCreateAttribute CreateTableAttributeJournalTable() :
     { return new SqlCreateAttributeJournalTable(id, getPos()); }
 }
 
+SqlCreateAttribute CreateTableAttributeIsolatedLoading() :
+{
+    boolean nonLoadIsolated = false;
+    boolean concurrent = false;
+    OperationLevel operationLevel = null;
+}
+{
+    <WITH>
+    [ <NO> { nonLoadIsolated = true; } ]
+    [ <CONCURRENT> { concurrent = true; } ]
+    <ISOLATED> <LOADING>
+    [
+        <FOR>
+        (
+            <ALL> { operationLevel = OperationLevel.ALL; }
+        |
+            <INSERT> { operationLevel = OperationLevel.INSERT; }
+        |
+            <NONE> { operationLevel = OperationLevel.NONE; }
+        )
+    ]
+    { return new SqlCreateAttributeIsolatedLoading(nonLoadIsolated, concurrent, operationLevel, getPos()); }
+}
+
 SqlCreateAttribute CreateTableAttributeJournal() :
 {
   JournalType journalType;
@@ -353,6 +377,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
             e = CreateTableAttributeFallback()
         |
             e = CreateTableAttributeJournalTable()
+        |
+            e = CreateTableAttributeIsolatedLoading()
         |
             e = CreateTableAttributeDataBlockSize()
         |

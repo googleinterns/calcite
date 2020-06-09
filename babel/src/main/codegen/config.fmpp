@@ -32,6 +32,8 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockModifier",
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockUnitSize",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading.OperationLevel",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournal",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournal.JournalType",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournal.JournalModifier",
@@ -50,13 +52,16 @@ data: {
       "BYTES"
       "CASESPECIFIC"
       "CHECKSUM"
+      "CONCURRENT"
       "DATABLOCKSIZE"
       "DUAL"
       "FALLBACK"
       "IF"
+      "ISOLATED"
       "JOURNAL"
       "KBYTES"
       "KILOBYTES"
+      "LOADING"
       "MAXIMUM"
       "MERGEBLOCKRATIO"
       "MINIMUM"
@@ -388,12 +393,15 @@ data: {
       # not in core, added in babel
       "BYTES"
       "CHECKSUM"
+      "CONCURRENT"
       "DATABLOCKSIZE"
       "DUAL"
       "IF"
+      "ISOLATED"
       "JOURNAL"
       "KBYTES"
       "KILOBYTES"
+      "LOADING"
       "MAXIMUM"
       "MERGEBLOCKRATIO"
       "MINIMUM"
