@@ -53,8 +53,7 @@ public class SqlCreateAttributeIsolatedLoading extends SqlCreateAttribute {
     if (concurrent) {
       writer.keyword("CONCURRENT");
     }
-    writer.keyword("ISOLATED");
-    writer.keyword("LOADING");
+    writer.keyword("ISOLATED LOADING");
     if (operationLevel != null) {
       writer.keyword("FOR");
       switch (operationLevel) {
