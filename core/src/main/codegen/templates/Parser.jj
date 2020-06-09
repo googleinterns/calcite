@@ -3786,7 +3786,7 @@ SqlNode AtomicRowExpression() :
     (
 <#if parser.dateTimeExpressionSuffixes?size != 0>
         LOOKAHEAD(4)
-        e = dateTimeTerm()
+        e = DateTimeTerm()
     |
 </#if>
         e = Literal()

@@ -442,7 +442,7 @@ SqlNode InlineModOperator() :
     }
 }
 
-SqlNode dateTimeTerm() :
+SqlNode DateTimeTerm() :
 {
     final SqlNode e;
     SqlIdentifier timeZoneValue;
