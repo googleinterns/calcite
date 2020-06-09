@@ -832,38 +832,24 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testCurrentTimeStampFunction() {
+  @Test public void testCurrentTimestampFunction() {
     final String sql = "select current_timestamp";
     final String expected = "SELECT CURRENT_TIMESTAMP";
     sql(sql).ok(expected);
+  }
+
+  @Test public void testCurrentTimestampFunctionBigQuery() {
+    final String sql = "select current_timestamp";
+    final String expected = "SELECT CURRENT_TIMESTAMP()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
   }
 
   @Test public void testCurrentTimeFunction() {
     final String sql = "select current_time";
     final String expected = "SELECT CURRENT_TIME";
     sql(sql).ok(expected);
-  }
-
-  @Test public void testBothTimeFunctions() {
-    final String sql = "select current_time, current_timestamp";
-    final String expected = "SELECT CURRENT_TIME, CURRENT_TIMESTAMP";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testCurrentTimeStampFunctionBigQuery() {
-    final String sql = "select current_timestamp";
-    final String expected = "SELECT CURRENT_TIMESTAMP()";
-    sql(sql)
-      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
-      .ok(expected);
-  }
-
-  @Test public void testCurrentTimeStampFunctionBigQueryUpperCase() {
-    final String sql = "select CURRENT_TIMESTAMP";
-    final String expected = "SELECT CURRENT_TIMESTAMP()";
-    sql(sql)
-      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
-      .ok(expected);
   }
 
   @Test public void testCurrentTimeFunctionBigQuery() {
@@ -874,7 +860,27 @@ class BabelParserTest extends SqlParserTest {
       .ok(expected);
   }
 
-  @Test public void testBothTimeFunctionsBigQuery() {
+  @Test public void testCurrentDateFunction() {
+    final String sql = "select current_date";
+    final String expected = "SELECT CURRENT_DATE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCurrentDateFunctionBigQuery() {
+    final String sql = "select current_date";
+    final String expected = "SELECT CURRENT_DATE()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testMultipleTimeFunctions() {
+    final String sql = "select current_time, current_timestamp";
+    final String expected = "SELECT CURRENT_TIME, CURRENT_TIMESTAMP";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testMultipleTimeFunctionsBigQuery() {
     final String sql = "select current_time, current_timestamp";
     final String expected = "SELECT CURRENT_TIME(), CURRENT_TIMESTAMP()";
     sql(sql)
@@ -882,7 +888,15 @@ class BabelParserTest extends SqlParserTest {
       .ok(expected);
   }
 
-  @Test public void testCurrentTimeStampFunctionWithParensBigQuery() {
+  @Test public void testCurrentTimestampFunctionBigQueryUpperCase() {
+    final String sql = "select CURRENT_TIMESTAMP";
+    final String expected = "SELECT CURRENT_TIMESTAMP()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testCurrentTimestampFunctionWithParensBigQuery() {
     final String sql = "select current_timestamp()";
     final String expected = "SELECT CURRENT_TIMESTAMP()";
     sql(sql)
