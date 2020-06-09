@@ -238,13 +238,13 @@ SqlCreateAttribute CreateTableAttributeJournalTable() :
 
 SqlCreateAttribute CreateTableAttributeIsolatedLoading() :
 {
-    boolean no = false;
+    boolean nonLoadIsolated = false;
     boolean concurrent = false;
     OperationLevel operationLevel = null;
 }
 {
     <WITH>
-    [ <NO> { no = true; } ]
+    [ <NO> { nonLoadIsolated = true; } ]
     [ <CONCURRENT> { concurrent = true; } ]
     <ISOLATED> <LOADING>
     [
@@ -257,7 +257,7 @@ SqlCreateAttribute CreateTableAttributeIsolatedLoading() :
             <NONE> { operationLevel = OperationLevel.NONE; }
         )
     ]
-    { return new SqlCreateAttributeIsolatedLoading(no, concurrent, operationLevel, getPos()); }
+    { return new SqlCreateAttributeIsolatedLoading(nonLoadIsolated, concurrent, operationLevel, getPos()); }
 }
 
 List<SqlCreateAttribute> CreateTableAttributes() :

@@ -25,29 +25,29 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public class SqlCreateAttributeIsolatedLoading extends SqlCreateAttribute {
 
-  private boolean no;
+  private boolean nonLoadIsolated;
   private boolean concurrent;
   private OperationLevel operationLevel;
 
   /**
    * Creates a {@code SqlCreateAttributeIsolatedLoading}.
    *
-   * @param no  Defines table as non-load isolated
+   * @param nonLoadIsolated  Defines table as non-load isolated
    * @param concurrent  Allows concurrent read operations while table is being modified
    * @param operationLevel  Specifies types of operations allowed to be concurrent, may be null
    * @param pos  Parser position, must not be null
    */
-  public SqlCreateAttributeIsolatedLoading(boolean no, boolean concurrent,
+  public SqlCreateAttributeIsolatedLoading(boolean nonLoadIsolated, boolean concurrent,
       OperationLevel operationLevel, SqlParserPos pos) {
     super(pos);
-    this.no = no;
+    this.nonLoadIsolated = nonLoadIsolated;
     this.concurrent = concurrent;
     this.operationLevel = operationLevel;
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
     writer.keyword("WITH");
-    if (no) {
+    if (nonLoadIsolated) {
       writer.keyword("NO");
     }
     if (concurrent) {
