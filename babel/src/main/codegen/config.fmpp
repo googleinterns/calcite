@@ -32,6 +32,9 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockModifier",
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockUnitSize",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeJournal",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeJournal.JournalType",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeJournal.JournalModifier",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournalTable",
       "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio",
       "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio.MergeBlockRatioModifier",
@@ -48,6 +51,7 @@ data: {
       "CASESPECIFIC"
       "CHECKSUM"
       "DATABLOCKSIZE"
+      "DUAL"
       "FALLBACK"
       "IF"
       "JOURNAL"
@@ -385,7 +389,9 @@ data: {
       "BYTES"
       "CHECKSUM"
       "DATABLOCKSIZE"
+      "DUAL"
       "IF"
+      "JOURNAL"
       "KBYTES"
       "KILOBYTES"
       "MAXIMUM"

@@ -328,6 +328,54 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeJournalDefaultModifierDefaultType() {
+    final String sql = "create table foo, journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalDefaultModifierBeforeType() {
+    final String sql = "create table foo, before journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BEFORE JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalDefaultModifierAfterType() {
+    final String sql = "create table foo, after journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, AFTER JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalNoModifierBeforeType() {
+    final String sql = "create table foo, no before journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, NO BEFORE JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalDualModifierBeforeType() {
+    final String sql = "create table foo, dual before journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, DUAL BEFORE JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalLocalModifierAfterType() {
+    final String sql = "create table foo, local after journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, LOCAL AFTER JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalNotLocalModifierAfterType() {
+    final String sql = "create table foo, not local after journal (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, NOT LOCAL AFTER JOURNAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeJournalLocalModifierBeforeTypeFails() {
+    final String sql = "create table foo, ^local^ before journal (bar integer)";
+    final String expected = "(?s).*Encountered \"local before\" at .*";
+    sql(sql).fails(expected);
+  }
+
   @Test public void testTableAttributeJournalTableWithSimpleIdentifier() {
     final String sql = "create table foo, with journal table = baz (bar integer)";
     final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ` (`BAR` INTEGER)";

@@ -236,6 +236,39 @@ SqlCreateAttribute CreateTableAttributeJournalTable() :
     { return new SqlCreateAttributeJournalTable(id, getPos()); }
 }
 
+SqlCreateAttribute CreateTableAttributeJournal() :
+{
+  JournalType journalType;
+  JournalModifier journalModifier;
+}
+{
+    (
+        (
+            <LOCAL> { journalModifier = JournalModifier.LOCAL; }
+        |
+            <NOT> <LOCAL> { journalModifier = JournalModifier.NOT_LOCAL; }
+        )
+        <AFTER> <JOURNAL> { journalType = JournalType.AFTER; }
+    |
+        (
+            <NO> { journalModifier = JournalModifier.NO; }
+        |
+            <DUAL> { journalModifier = JournalModifier.DUAL; }
+        |
+            { journalModifier = JournalModifier.UNSPECIFIED; }
+        )
+        (
+            <BEFORE> { journalType = JournalType.BEFORE; }
+        |
+            <AFTER> { journalType = JournalType.AFTER; }
+        |
+            { journalType = JournalType.UNSPECIFIED; }
+        )
+        <JOURNAL>
+    )
+    { return new SqlCreateAttributeJournal(journalType, journalModifier, getPos()); }
+}
+
 SqlCreateAttribute CreateTableAttributeDataBlockSize() :
 {
     DataBlockModifier modifier = null;
@@ -326,6 +359,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
             e = CreateTableAttributeMergeBlockRatio()
         |
             e = CreateTableAttributeChecksum()
+        |
+            e = CreateTableAttributeJournal()
         ) { list.add(e); }
     )+
     { return list; }
