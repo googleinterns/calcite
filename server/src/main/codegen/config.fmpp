@@ -453,7 +453,7 @@ data: {
     preAtomicRowMethods: [
     ]
 
-    dateTimeExpressionSuffixes: [
+    dateTimeExpressionMethods: [
     ]
 
     # List of files in @includes directory that have parser method

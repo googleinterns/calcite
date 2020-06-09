@@ -3784,11 +3784,11 @@ SqlNode AtomicRowExpression() :
 }
 {
     (
-<#if parser.dateTimeExpressionSuffixes?size != 0>
+<#list parser.dateTimeExpressionMethods as method>
         LOOKAHEAD(4)
-        e = DateTimeTerm()
+        e = ${method}
     |
-</#if>
+</#list>
         e = Literal()
     |
         e = DynamicParam()
