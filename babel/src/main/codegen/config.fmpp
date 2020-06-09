@@ -377,6 +377,7 @@ data: {
       # not in core, added in babel
       "BYTES"
       "DATABLOCKSIZE"
+      "IF"
       "KBYTES"
       "KILOBYTES"
       "MAXIMUM"
