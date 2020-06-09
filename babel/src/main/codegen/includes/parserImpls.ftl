@@ -445,6 +445,7 @@ SqlNode InlineModOperator() :
 SqlNode dateTimeTerm() :
 {
     final SqlNode e;
+    SqlIdentifier timeZoneValue;
 }
 {
     (
@@ -459,6 +460,12 @@ SqlNode dateTimeTerm() :
             <LOCAL>
             {
                 return new SqlDateTimeAtLocal(getPos(), e);
+            }
+        |
+            <TIME> <ZONE>
+            {
+                timeZoneValue = SimpleIdentifier();
+                return new SqlDateTimeAtTimeZone(getPos(), e, timeZoneValue);
             }
         )
     )

@@ -33,6 +33,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlUsingRequestModifier",
       "org.apache.calcite.sql.babel.Volatility",
       "org.apache.calcite.sql.babel.SqlDateTimeAtLocal",
+      "org.apache.calcite.sql.babel.SqlDateTimeAtTimeZone",
     ]
 
     # List of keywords.
@@ -925,6 +926,7 @@ data: {
 
     dateTimeExpressionSuffixes: [
       "SqlDateTimeAtLocal"
+      "SqlDateTimeAtTimeZone"
     ]
 
     # List of files in @includes directory that have parser method
