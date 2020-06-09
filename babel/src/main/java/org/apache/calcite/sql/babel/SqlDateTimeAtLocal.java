@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.jdbc.CalcitePrepare;
@@ -36,8 +35,7 @@ public class SqlDateTimeAtLocal extends SqlCall implements SqlExecutableStatemen
   }
 
 
-  @Override
-  public SqlOperator getOperator() {
+  @Override public SqlOperator getOperator() {
     return OPERATOR;
   }
 
