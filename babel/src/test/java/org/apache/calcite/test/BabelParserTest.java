@@ -461,6 +461,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testDateTimePrimaryBuiltInFunctionAtLocal(){
+    final String sql = "select current_timestamp at local";
+    final String expected = "SELECT CURRENT_TIMESTAMP AT LOCAL";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testUsingRequestModifierSingular() {
     final String sql = "using (foo int)";
     final String expected = "USING (`FOO` INTEGER)";
