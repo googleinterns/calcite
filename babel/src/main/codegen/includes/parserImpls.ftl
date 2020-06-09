@@ -441,3 +441,26 @@ SqlNode InlineModOperator() :
         return createCall(qualifiedName, s.end(this), funcType, quantifier, args);
     }
 }
+
+SqlNode dateTimeTerm() :
+{
+    final SqlNode e;
+}
+{
+    (
+        e = DateTimeLiteral()
+    )
+    [
+        <AT>
+        (
+            <LOCAL>
+            {
+                return new SqlDateTimeAtLocal(getPos(), e);
+            }
+        )
+    ]
+    {
+        return e;
+    }
+}
+

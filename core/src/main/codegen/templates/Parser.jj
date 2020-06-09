@@ -3784,6 +3784,10 @@ SqlNode AtomicRowExpression() :
 }
 {
     (
+<#if parser.dateTimeExpressionSuffixes?size != 0>
+        e = dateTimeTerm()
+    |
+</#if>
         e = Literal()
     |
         e = DynamicParam()
@@ -3818,17 +3822,6 @@ SqlNode AtomicRowExpression() :
     |
         e = SequenceExpression()
     )
-<#if parser.dateTimeExpressionSuffixes?size != 0>
-    [
-        LOOKAHEAD(2)
-            <AT>
-            (
-                <LOCAL>{
-                    return new SqlDateTimeAtLocal(getPos(), e);
-                }
-            )
-    ]
-</#if>
     { return e; }
 }
 
