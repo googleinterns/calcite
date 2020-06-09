@@ -299,9 +299,9 @@ List<SqlCreateAttribute> CreateTableAttributes() :
         |
             e = CreateTableAttributeJournalTable()
         |
-            e = CreateTableAttributeJournal()
-        |
             e = CreateTableAttributeChecksum()
+        |
+            e = CreateTableAttributeJournal()
         ) { list.add(e); }
     )+
     { return list; }
