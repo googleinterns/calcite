@@ -25,14 +25,14 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public class SqlCreateAttributeFreeSpace extends SqlCreateAttribute {
 
-  private int freeSpaceValue;
-  private boolean percent;
+  private final int freeSpaceValue;
+  private final boolean percent;
 
   /**
    * Creates a {@code SqlCreateAttributeFreeSpace}.
    *
    * @param freeSpaceValue  The percentage of free space to reserve during loading operations
-   * @param percent  Optional keyword percent
+   * @param percent  Optional keyword PERCENT
    * @param pos  Parser position, must not be null
    */
   public SqlCreateAttributeFreeSpace(int freeSpaceValue, boolean percent, SqlParserPos pos) {
