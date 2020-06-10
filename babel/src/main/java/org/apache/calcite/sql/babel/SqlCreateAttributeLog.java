@@ -25,7 +25,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public class SqlCreateAttributeLog extends SqlCreateAttribute {
 
-  private boolean loggingEnabled;
+  private final boolean loggingEnabled;
 
   /**
    * Creates a {@code SqlCreateAttributeLog}.
