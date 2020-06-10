@@ -32,6 +32,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockModifier",
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockUnitSize",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeFreeSpace",
       "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading",
       "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading.OperationLevel",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournal",
@@ -59,6 +60,7 @@ data: {
       "DATABLOCKSIZE"
       "DUAL"
       "FALLBACK"
+      "FREESPACE"
       "IF"
       "ISOLATED"
       "JOURNAL"
@@ -400,6 +402,7 @@ data: {
       "CONCURRENT"
       "DATABLOCKSIZE"
       "DUAL"
+      "FREESPACE"
       "IF"
       "ISOLATED"
       "JOURNAL"
