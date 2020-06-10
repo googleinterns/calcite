@@ -418,6 +418,36 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).fails(expected);
   }
 
+  @Test public void testTableAttributeFreeSpaceOutOfRangePercentFails() {
+    final String sql = "create table foo, freespace = ^82.5^ percent (bar integer)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceRangeLowerBound() {
+    final String sql = "create table foo, freespace = 0 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 0 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceRangeBeforeLowerBoundFail() {
+    final String sql = "create table foo, freespace = ^-^1 (bar integer)";
+    final String expected = "(?s).*Encountered \"-\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceRangeUpperBound() {
+    final String sql = "create table foo, freespace = 75 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 75 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceRangeAfterUpperBound() {
+    final String sql = "create table foo, freespace = ^76^ (bar integer)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
   @Test public void testTableAttributeDataBlockSizeMinimum() {
     final String sql = "create table foo, minimum datablocksize (bar integer)";
     final String expected = "CREATE TABLE `FOO`, MINIMUM DATABLOCKSIZE (`BAR` INTEGER)";
