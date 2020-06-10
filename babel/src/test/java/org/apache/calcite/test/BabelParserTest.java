@@ -466,6 +466,18 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeLog() {
+    final String sql = "create table foo, log (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, LOG (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeLogNoModifier() {
+    final String sql = "create table foo, no log (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, NO LOG (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testTableAttributeMultipleAttrs() {
     final String sql = "create table foo, with journal table = baz.tbl, "
         + "fallback protection, checksum = on (bar integer)";
