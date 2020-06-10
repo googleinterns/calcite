@@ -576,6 +576,30 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeBlockCompressionDefault() {
+    final String sql = "create table foo, blockcompression = default (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BLOCKCOMPRESSION = DEFAULT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeBlockCompressionAutotemp() {
+    final String sql = "create table foo, blockcompression = autotemp (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BLOCKCOMPRESSION = AUTOTEMP (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeBlockCompressionManual() {
+    final String sql = "create table foo, blockcompression = manual (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BLOCKCOMPRESSION = MANUAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeBlockCompressionNever() {
+    final String sql = "create table foo, blockcompression = never (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BLOCKCOMPRESSION = NEVER (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testTableAttributeLog() {
     final String sql = "create table foo, log (bar integer)";
     final String expected = "CREATE TABLE `FOO`, LOG (`BAR` INTEGER)";
