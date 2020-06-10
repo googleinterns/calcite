@@ -340,6 +340,24 @@ SqlCreateAttribute CreateTableAttributeChecksum() :
     { return new SqlCreateAttributeChecksum(checksumEnabled, getPos()); }
 }
 
+SqlCreateAttribute CreateTableAttributeBlockCompression() :
+{
+    BlockCompressionOption blockCompressionOption;
+}
+{
+    <BLOCKCOMPRESSION> <EQ>
+    (
+        <DEFAULT_> { blockCompressionOption = BlockCompressionOption.DEFAULT; }
+    |
+        <AUTOTEMP> { blockCompressionOption = BlockCompressionOption.AUTOTEMP; }
+    |
+        <MANUAL> { blockCompressionOption = BlockCompressionOption.MANUAL; }
+    |
+        <NEVER> { blockCompressionOption = BlockCompressionOption.NEVER; }
+    )
+    { return new SqlCreateAttributeBlockCompression(blockCompressionOption, getPos()); }
+}
+
 List<SqlCreateAttribute> CreateTableAttributes() :
 {
     final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
@@ -359,6 +377,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
             e = CreateTableAttributeMergeBlockRatio()
         |
             e = CreateTableAttributeChecksum()
+        |
+            e = CreateTableAttributeBlockCompression()
         |
             e = CreateTableAttributeJournal()
         ) { list.add(e); }

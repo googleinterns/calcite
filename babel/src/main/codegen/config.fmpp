@@ -26,6 +26,8 @@ data: {
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
       "org.apache.calcite.sql.babel.SqlCreateAttribute",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeBlockCompression",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeBlockCompression.BlockCompressionOption",
       "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum",
       "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum.ChecksumEnabled",
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize",
@@ -47,6 +49,8 @@ data: {
 
     # List of keywords.
     keywords: [
+      "AUTOTEMP"
+      "BLOCKCOMPRESSION"
       "BYTES"
       "CASESPECIFIC"
       "CHECKSUM"
@@ -57,9 +61,11 @@ data: {
       "JOURNAL"
       "KBYTES"
       "KILOBYTES"
+      "MANUAL"
       "MAXIMUM"
       "MERGEBLOCKRATIO"
       "MINIMUM"
+      "NEVER"
       "OFF"
       "PROTECTION"
       "SEL"
@@ -386,6 +392,8 @@ data: {
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
       # not in core, added in babel
+      "AUTOTEMP"
+      "BLOCKCOMPRESSION"
       "BYTES"
       "CHECKSUM"
       "DATABLOCKSIZE"
@@ -394,9 +402,11 @@ data: {
       "JOURNAL"
       "KBYTES"
       "KILOBYTES"
+      "MANUAL"
       "MAXIMUM"
       "MERGEBLOCKRATIO"
       "MINIMUM"
+      "NEVER"
       "OFF"
       "SEMI"
 
