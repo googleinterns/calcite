@@ -985,12 +985,12 @@ data: {
 
     allowUpdateFromTable: true
     allowUpsertFormOfUpdate: true
+    allowAbbreviatedKeywords: true
     includePosixOperators: true
     includeCastFormat: true
     includeCompoundIdentifier: true
     includeBraces: true
     includeAdditionalDeclarations: false
-    includeSelKeyword: true
   }
 }
 

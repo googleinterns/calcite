@@ -1276,7 +1276,7 @@ SqlSelect SqlSelect() :
 {
     (
         <SELECT>
-<#if parser.includeSelKeyword>
+<#if parser.allowAbbreviatedKeywords>
     |
         <SEL>
 </#if>
@@ -1567,7 +1567,7 @@ SqlNode SqlInsert() :
 {
     (
         <INSERT>
-<#if parser.allowUpsertFormOfUpdate>
+<#if parser.allowAbbreviatedKeywords>
     |
         <INS>
 </#if>
@@ -1580,7 +1580,7 @@ SqlNode SqlInsert() :
     }
     (
 <#if parser.allowUpsertFormOfUpdate>
-        [<INTO>]
+        [ <INTO> ]
     |
 </#if>
         <INTO>
@@ -1677,7 +1677,7 @@ SqlNode SqlUpdate() :
 {
     (
         <UPDATE>
-<#if parser.allowUpsertFormOfUpdate>
+<#if parser.allowAbbreviatedKeywords>
     |
         <UPD>
 </#if>
