@@ -914,10 +914,10 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testNestedNamedExpression() {
     final String sql = "SELECT (((a + b) (named x)) + y) (named z) from foo "
-        + "where z > 0";
+        + "where z > 0 and x > 0";
     final String expected = "SELECT ((`A` + `B`) (NAMED `X`) + `Y`) (NAMED `Z`)\n"
         + "FROM `FOO`\n"
-        + "WHERE (`Z` > 0)";
+        + "WHERE ((`Z` > 0) AND (`X` > 0))";
     sql(sql).ok(expected);
   }
 

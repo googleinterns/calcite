@@ -3318,7 +3318,6 @@ SqlNode Expression(ExprContext exprContext) :
 {
     List<Object> list;
     SqlNode e;
-    SqlIdentifier name;
 }
 {
     list = Expression2(exprContext)
