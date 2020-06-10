@@ -385,4 +385,10 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "SELECT MOD(`FOO`, `BAR`)";
     sql(sql).ok(expected);
   }
+
+  @Test public void testSubstr() {
+    final String sql = "select substr('FOOBAR' from 1 for 3)";
+    final String expected = "SELECT SUBSTRING('FOOBAR' FROM 1 FOR 3)";
+    sql(sql).ok(expected);
+  }
 }

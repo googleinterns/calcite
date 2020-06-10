@@ -5446,7 +5446,14 @@ SqlNode BuiltinFunctionCall() :
             return e;
         }
     |
-        <SUBSTRING> { s = span(); }
+        (
+            <SUBSTRING>
+        <#if parser.includeSubstrKeyword>
+        |
+            <SUBSTR>
+        </#if>
+        )
+        { s = span(); }
         <LPAREN>
         e = Expression(ExprContext.ACCEPT_SUB_QUERY)
         { args = startList(e); }
