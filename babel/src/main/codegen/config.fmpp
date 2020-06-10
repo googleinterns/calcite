@@ -34,12 +34,14 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockModifier",
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockUnitSize",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeFreeSpace",
       "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading",
       "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading.OperationLevel",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournal",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournal.JournalType",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournal.JournalModifier",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournalTable",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeLog",
       "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio",
       "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio.MergeBlockRatioModifier",
       "org.apache.calcite.sql.babel.SqlCreateTable",
@@ -62,12 +64,14 @@ data: {
       "DATABLOCKSIZE"
       "DUAL"
       "FALLBACK"
+      "FREESPACE"
       "IF"
       "ISOLATED"
       "JOURNAL"
       "KBYTES"
       "KILOBYTES"
       "LOADING"
+      "LOG"
       "MANUAL"
       "MAXIMUM"
       "MERGEBLOCKRATIO"
@@ -406,12 +410,14 @@ data: {
       "CONCURRENT"
       "DATABLOCKSIZE"
       "DUAL"
+      "FREESPACE"
       "IF"
       "ISOLATED"
       "JOURNAL"
       "KBYTES"
       "KILOBYTES"
       "LOADING"
+      "LOG"
       "MANUAL"
       "MAXIMUM"
       "MERGEBLOCKRATIO"
