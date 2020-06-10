@@ -464,6 +464,7 @@ data: {
     includeCompoundIdentifier: true
     includeBraces: true
     includeAdditionalDeclarations: false
+    includeSubstrKeyword: false
   }
 }
 
