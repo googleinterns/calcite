@@ -1578,13 +1578,11 @@ SqlNode SqlInsert() :
     SqlInsertKeywords(keywords) {
         keywordList = new SqlNodeList(keywords, s.addAll(keywords).pos());
     }
-    (
 <#if parser.allowUpsertFormOfUpdate>
-        [ <INTO> ]
-    |
+    [ <INTO> ]
+<#else>
+    <INTO>
 </#if>
-        <INTO>
-    )
     table = TableRefWithHintsOpt()
     [
         LOOKAHEAD(5)
