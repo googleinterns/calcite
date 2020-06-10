@@ -430,7 +430,7 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testTableAttributeFreeSpaceRangeBeforeLowerBoundFail() {
+  @Test public void testTableAttributeFreeSpaceRangeBelowLowerBoundFail() {
     final String sql = "create table foo, freespace = ^-^1 (bar integer)";
     final String expected = "(?s).*Encountered \"-\" at .*";
     sql(sql).fails(expected);
@@ -442,7 +442,7 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testTableAttributeFreeSpaceRangeAfterUpperBound() {
+  @Test public void testTableAttributeFreeSpaceRangeAboveUpperBound() {
     final String sql = "create table foo, freespace = ^76^ (bar integer)";
     final String expected = "(?s).*Numeric literal.*out of range.*";
     sql(sql).fails(expected);
