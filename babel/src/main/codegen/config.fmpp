@@ -402,6 +402,7 @@ data: {
       "DATABLOCKSIZE"
       "DUAL"
       "IF"
+      "INS"
       "ISOLATED"
       "JOURNAL"
       "KBYTES"
@@ -412,6 +413,7 @@ data: {
       "MINIMUM"
       "OFF"
       "SEMI"
+      "UPD"
 
       # The following keywords are reserved in core Calcite,
       # are reserved in some version of SQL,

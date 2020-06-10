@@ -952,4 +952,20 @@ class BabelParserTest extends SqlParserTest {
         + "VALUES (ROW(1))";
     sql(sql).ok(expected);
   }
+
+  @Test void testUpsertAllOptionalOmitted() {
+    final String sql = "UPDATE foo SET x = 1 WHERE x > 1 ELSE INSERT bar (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR`\n"
+        + "VALUES (ROW(1))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUpsertWithUpdAndInsKeywords() {
+    final String sql = "UPD foo SET x = 1 WHERE x > 1 ELSE INS bar (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR`\n"
+        + "VALUES (ROW(1))";
+    sql(sql).ok(expected);
+  }
 }

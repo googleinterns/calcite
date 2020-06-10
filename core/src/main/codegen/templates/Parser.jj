@@ -1027,6 +1027,11 @@ SqlNode SqlStmt() :
         stmt = SqlSetTimeZone()
     |
 </#if>
+<#if parser.allowUpsertFormOfUpdate>
+        LOOKAHEAD(SqlUpdate() <ELSE>)
+        stmt = SqlUpsert()
+    |
+</#if>
 <#if parser.dropStatementParserMethods?size != 0>
         stmt = SqlDrop()
     |
@@ -1041,10 +1046,6 @@ SqlNode SqlStmt() :
     |
         stmt = SqlDelete()
     |
-<#if parser.allowUpsertFormOfUpdate>
-        stmt = SqlUpsert()
-    |
-</#if>
         stmt = SqlUpdate()
     |
         stmt = SqlMerge()
