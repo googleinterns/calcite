@@ -3784,6 +3784,11 @@ SqlNode AtomicRowExpression() :
 }
 {
     (
+<#list parser.dateTimeExpressionMethods as method>
+        LOOKAHEAD(4)
+        e = ${method}
+    |
+</#list>
         e = Literal()
     |
         e = DynamicParam()

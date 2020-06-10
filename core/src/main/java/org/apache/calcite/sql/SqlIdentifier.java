@@ -282,7 +282,7 @@ public class SqlIdentifier extends SqlNode {
       SqlWriter writer,
       int leftPrec,
       int rightPrec) {
-    SqlUtil.unparseSqlIdentifierSyntax(writer, this, false);
+    writer.getDialect().unparseSqlIdentifier(writer, this, leftPrec, rightPrec);
   }
 
   public void validate(SqlValidator validator, SqlValidatorScope scope) {
