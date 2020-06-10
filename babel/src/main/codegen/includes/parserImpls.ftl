@@ -369,7 +369,8 @@ SqlCreateAttribute CreateTableAttributeLog() :
     boolean loggingEnabled = true;
 }
 {
-    [ <NO> { loggingEnabled = false; } ] <LOG> {
+    [ <NO> { loggingEnabled = false; } ]
+    <LOG> {
         return new SqlCreateAttributeLog(loggingEnabled, getPos());
     }
 }
