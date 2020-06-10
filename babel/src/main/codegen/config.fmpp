@@ -81,6 +81,7 @@ data: {
       "PROTECTION"
       "SEL"
       "SEMI"
+      "SUBSTR"
       "TEMP"
       "UPPERCASE"
       "VOLATILE"
@@ -827,6 +828,7 @@ data: {
 #     "STREAM"
       "SUBMULTISET"
       "SUBSET"
+      "SUBSTR"
       "SUBSTRING"
       "SUBSTRING_REGEX"
       "SUCCEEDS"
@@ -1001,6 +1003,7 @@ data: {
     includeBraces: true
     includeAdditionalDeclarations: false
     includeSelKeyword: true
+    includeSubstrKeyword: true
   }
 }
 
