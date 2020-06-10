@@ -38,6 +38,7 @@ import org.apache.calcite.sql.type.BasicSqlType;
 import org.apache.calcite.sql.type.SqlTypeUtil;
 import org.apache.calcite.sql.validate.SqlConformance;
 import org.apache.calcite.sql.validate.SqlConformanceEnum;
+import org.apache.calcite.util.Pair;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Suppliers;
@@ -482,6 +483,54 @@ public class SqlDialect {
     }
   }
 
+  public void unparseSqlIdentifier(SqlWriter writer, SqlIdentifier identifier,
+      int leftPrec, int rightPrec) {
+    SqlUtil.unparseSqlIdentifierSyntax(writer, identifier, false);
+  }
+
+  public void unparseSqlInsertSource(SqlWriter writer, SqlInsert insertCall,
+      int leftPrec, int rightPrec) {
+    insertCall.getSource().unparse(writer, leftPrec, rightPrec);
+  }
+
+  public void unparseSqlUpdateCall(SqlWriter writer, SqlUpdate updateCall,
+       int leftPrec, int rightPrec) {
+    final SqlWriter.Frame frame =
+        writer.startList(SqlWriter.FrameTypeEnum.SELECT, "UPDATE", "");
+    final int opLeft = updateCall.getOperator().getLeftPrec();
+    final int opRight = updateCall.getOperator().getRightPrec();
+    updateCall.getTargetTable().unparse(writer, opLeft, opRight);
+    if (updateCall.getAlias() != null) {
+      writer.keyword("AS");
+      updateCall.getAlias().unparse(writer, opLeft, opRight);
+    }
+    if (updateCall.getSourceTable() != null) {
+      writer.keyword("FROM");
+      updateCall.getSourceTable().unparse(writer, opLeft, opRight);
+      if (updateCall.getSourceAlias() != null) {
+        writer.keyword("AS");
+        updateCall.getSourceAlias().unparse(writer, opLeft, opRight);
+      }
+    }
+    final SqlWriter.Frame setFrame =
+        writer.startList(SqlWriter.FrameTypeEnum.UPDATE_SET_LIST, "SET", "");
+    for (Pair<SqlNode, SqlNode> pair
+        : Pair.zip(updateCall.getTargetColumnList(), updateCall.getSourceExpressionList())) {
+      writer.sep(",");
+      SqlIdentifier id = (SqlIdentifier) pair.left;
+      id.unparse(writer, opLeft, opRight);
+      writer.keyword("=");
+      SqlNode sourceExp = pair.right;
+      sourceExp.unparse(writer, opLeft, opRight);
+    }
+    writer.endList(setFrame);
+    if (updateCall.getCondition() != null) {
+      writer.sep("WHERE");
+      updateCall.getCondition().unparse(writer, opLeft, opRight);
+    }
+    writer.endList(frame);
+  }
+
   /** Converts an interval qualifier to a SQL string. The default implementation
    * returns strings such as
    * <code>INTERVAL '1 2:3:4' DAY(4) TO SECOND(4)</code>. */
@@ -589,7 +638,7 @@ public class SqlDialect {
     buf.append("'");
   }
 
-  private static final char[] HEXITS = {
+  protected static final char[] HEXITS = {
       '0', '1', '2', '3', '4', '5', '6', '7',
       '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
   };

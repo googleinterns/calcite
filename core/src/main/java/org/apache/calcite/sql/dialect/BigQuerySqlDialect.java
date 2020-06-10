@@ -27,26 +27,33 @@ import org.apache.calcite.sql.SqlAlienSystemTypeNameSpec;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDialect;
+import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlInsert;
 import org.apache.calcite.sql.SqlIntervalLiteral;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlOperator;
+import org.apache.calcite.sql.SqlOrderBy;
 import org.apache.calcite.sql.SqlSetOperator;
 import org.apache.calcite.sql.SqlSyntax;
+import org.apache.calcite.sql.SqlUpdate;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.fun.SqlTrimFunction;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.type.BasicSqlType;
 import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.sql.type.SqlTypeUtil;
+import org.apache.calcite.util.Pair;
 
 import com.google.common.collect.ImmutableList;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -66,6 +73,11 @@ public class BigQuerySqlDialect extends SqlDialect {
 
   public static final SqlDialect DEFAULT = new BigQuerySqlDialect(DEFAULT_CONTEXT);
 
+  // Strings in this set will be unparsed to have empty parentheses at the end.
+  private static final Set<String> IDENTIFIER_FUNCTIONS =
+      new HashSet<String>(
+          Arrays.asList("current_time", "current_timestamp", "current_date"));
+
   private static final List<String> RESERVED_KEYWORDS =
       ImmutableList.copyOf(
           Arrays.asList("ALL", "AND", "ANY", "ARRAY", "AS", "ASC",
@@ -74,7 +86,7 @@ public class BigQuerySqlDialect extends SqlDialect {
               "DEFAULT", "DEFINE", "DESC", "DISTINCT", "ELSE", "END", "ENUM",
               "ESCAPE", "EXCEPT", "EXCLUDE", "EXISTS", "EXTRACT", "FALSE",
               "FETCH", "FOLLOWING", "FOR", "FROM", "FULL", "GROUP", "GROUPING",
-              "GROUPS", "HASH", "HAVING", "IF", "IGNORE", "IN", "INNER",
+              "GROUPS", "HASH", "HAVING", "IGNORE", "IN", "INNER",
               "INTERSECT", "INTERVAL", "INTO", "IS", "JOIN", "LATERAL", "LEFT",
               "LIKE", "LIMIT", "LOOKUP", "MERGE", "NATURAL", "NEW", "NO",
               "NOT", "NULL", "NULLS", "OF", "ON", "OR", "ORDER", "OUTER",
@@ -103,6 +115,27 @@ public class BigQuerySqlDialect extends SqlDialect {
         || RESERVED_KEYWORDS.contains(val.toUpperCase(Locale.ROOT));
   }
 
+  @Override public void quoteStringLiteralUnicode(StringBuilder buf, String val) {
+    buf.append("'");
+    for (int i = 0; i < val.length(); i++) {
+      char c = val.charAt(i);
+      if (c < 32 || c >= 128) {
+        buf.append("\\u");
+        buf.append(HEXITS[(c >> 12) & 0xf]);
+        buf.append(HEXITS[(c >> 8) & 0xf]);
+        buf.append(HEXITS[(c >> 4) & 0xf]);
+        buf.append(HEXITS[c & 0xf]);
+      } else if (c == '\'' || c == '\\') {
+        buf.append(c);
+        buf.append(c);
+      } else {
+        buf.append(c);
+      }
+    }
+    buf.append("'");
+  }
+
+
   @Override public SqlNode emulateNullDirection(SqlNode node,
       boolean nullsFirst, boolean desc) {
     return emulateNullDirectionWithIsNull(node, nullsFirst, desc);
@@ -121,6 +154,64 @@ public class BigQuerySqlDialect extends SqlDialect {
   @Override public void unparseOffsetFetch(SqlWriter writer, SqlNode offset,
       SqlNode fetch) {
     unparseFetchUsingLimit(writer, offset, fetch);
+  }
+
+  /* Unparses the given identifier with parentheses at the end if it is
+   * required to have them. */
+  @Override public void unparseSqlIdentifier(SqlWriter writer,
+      SqlIdentifier identifier, int leftPrec, int rightPrec) {
+    super.unparseSqlIdentifier(writer, identifier, leftPrec, rightPrec);
+
+    boolean isValidIdentifier = identifier.names.size() == 1;
+    if (isValidIdentifier && IDENTIFIER_FUNCTIONS
+        .contains(identifier.names.get(0).toLowerCase(Locale.ROOT))) {
+      final SqlWriter.Frame frame =
+          writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
+      writer.endList(frame);
+    }
+  }
+
+  @Override public void unparseSqlInsertSource(SqlWriter writer, SqlInsert insertCall,
+      int leftPrec, int rightPrec) {
+    unparseCall(writer, (SqlCall) insertCall.getSource(), leftPrec, rightPrec);
+  }
+
+  @Override public void unparseSqlUpdateCall(SqlWriter writer, SqlUpdate updateCall,
+      int leftPrec, int rightPrec) {
+    final SqlWriter.Frame frame =
+        writer.startList(SqlWriter.FrameTypeEnum.SELECT, "UPDATE", "");
+    final int opLeft = updateCall.getOperator().getLeftPrec();
+    final int opRight = updateCall.getOperator().getRightPrec();
+    updateCall.getTargetTable().unparse(writer, opLeft, opRight);
+    if (updateCall.getAlias() != null) {
+      writer.keyword("AS");
+      updateCall.getAlias().unparse(writer, opLeft, opRight);
+    }
+    final SqlWriter.Frame setFrame =
+        writer.startList(SqlWriter.FrameTypeEnum.UPDATE_SET_LIST, "SET", "");
+    for (Pair<SqlNode, SqlNode> pair
+        : Pair.zip(updateCall.getTargetColumnList(), updateCall.getSourceExpressionList())) {
+      writer.sep(",");
+      SqlIdentifier id = (SqlIdentifier) pair.left;
+      id.unparse(writer, opLeft, opRight);
+      writer.keyword("=");
+      SqlNode sourceExp = pair.right;
+      sourceExp.unparse(writer, opLeft, opRight);
+    }
+    writer.endList(setFrame);
+    if (updateCall.getSourceTable() != null) {
+      writer.keyword("FROM");
+      updateCall.getSourceTable().unparse(writer, opLeft, opRight);
+      if (updateCall.getSourceAlias() != null) {
+        writer.keyword("AS");
+        updateCall.getSourceAlias().unparse(writer, opLeft, opRight);
+      }
+    }
+    if (updateCall.getCondition() != null) {
+      writer.sep("WHERE");
+      updateCall.getCondition().unparse(writer, opLeft, opRight);
+    }
+    writer.endList(frame);
   }
 
   @Override public void unparseCall(final SqlWriter writer, final SqlCall call, final int leftPrec,
@@ -161,6 +252,10 @@ public class BigQuerySqlDialect extends SqlDialect {
       break;
     case TRIM:
       unparseTrim(writer, call, leftPrec, rightPrec);
+      break;
+    case ORDER_BY:
+      SqlOrderBy orderBy = (SqlOrderBy) call;
+      orderBy.unparseWithParens(writer, call, leftPrec, rightPrec);
       break;
     default:
       super.unparseCall(writer, call, leftPrec, rightPrec);

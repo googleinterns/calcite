@@ -22,20 +22,61 @@ data: {
     # List of import statements.
     imports: [
       "org.apache.calcite.sql.SqlCreate",
+      "org.apache.calcite.sql.babel.SqlSetTimeZone",
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
+      "org.apache.calcite.sql.babel.SqlCreateAttribute",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum.ChecksumEnabled",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockModifier",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockUnitSize",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading.OperationLevel",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeJournal",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeJournal.JournalType",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeJournal.JournalModifier",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeJournalTable",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeLog",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio.MergeBlockRatioModifier",
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
       "org.apache.calcite.sql.babel.SqlExecMacro",
       "org.apache.calcite.sql.babel.SqlNamedExpression",
+      "org.apache.calcite.sql.babel.SqlUsingRequestModifier",
+      "org.apache.calcite.sql.babel.Volatility",
+      "org.apache.calcite.sql.babel.SqlDateTimeAtLocal",
+      "org.apache.calcite.sql.babel.SqlDateTimeAtTimeZone",
     ]
 
     # List of keywords.
     keywords: [
+      "BYTES"
+      "CASESPECIFIC"
+      "CHECKSUM"
+      "CONCURRENT"
+      "DATABLOCKSIZE"
+      "DUAL"
+      "FALLBACK"
       "IF"
+      "ISOLATED"
+      "JOURNAL"
+      "KBYTES"
+      "KILOBYTES"
+      "LOADING"
+      "LOG"
+      "MAXIMUM"
+      "MERGEBLOCKRATIO"
+      "MINIMUM"
       "NAMED"
+      "OFF"
+      "PROTECTION"
       "SEL"
       "SEMI"
+      "TEMP"
+      "UPPERCASE"
       "VOLATILE"
     ]
 
@@ -356,6 +397,22 @@ data: {
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
       # not in core, added in babel
+      "BYTES"
+      "CHECKSUM"
+      "CONCURRENT"
+      "DATABLOCKSIZE"
+      "DUAL"
+      "IF"
+      "ISOLATED"
+      "JOURNAL"
+      "KBYTES"
+      "KILOBYTES"
+      "LOADING"
+      "LOG"
+      "MAXIMUM"
+      "MERGEBLOCKRATIO"
+      "MINIMUM"
+      "OFF"
       "SEMI"
 
       # The following keywords are reserved in core Calcite,
@@ -880,6 +937,11 @@ data: {
       "SqlCreateTable"
     ]
 
+    # list of methods for parsing extensions to "SET" calls
+    setTimeZoneStatementParserMethods: [
+        "SqlSetTimeZoneValue"
+    ]
+
     # List of methods for parsing extensions to "DROP" calls.
     # Each must accept arguments "(SqlParserPos pos)".
     dropStatementParserMethods: [
@@ -895,6 +957,11 @@ data: {
       "SqlExecMacro"
     ]
 
+    # List of methods for parsing expressions to "USING" calls.
+    usingStatementParserMethods: [
+        "SqlUsingRequestModifier"
+    ]
+
     # Binary operators tokens
     binaryOperatorsTokens: [
       "< INFIX_CAST: \"::\" >"
@@ -907,6 +974,10 @@ data: {
 
     preAtomicRowMethods: [
       "InlineModOperator()"
+    ]
+
+    dateTimeExpressionMethods: [
+      "DateTimeTerm()"
     ]
 
     # List of files in @includes directory that have parser method

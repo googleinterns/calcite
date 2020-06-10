@@ -89,13 +89,15 @@ SetType SetTypeOpt() :
     { return SetType.UNSPECIFIED; }
 }
 
-boolean IsVolatileOpt() :
+Volatility VolatilityOpt() :
 {
 }
 {
-    <VOLATILE> { return true; }
+    <VOLATILE> { return Volatility.VOLATILE; }
 |
-    { return false; }
+    <TEMP> { return Volatility.TEMP; }
+|
+    { return Volatility.UNSPECIFIED; }
 }
 
 OnCommitType OnCommitTypeOpt() :
@@ -133,39 +135,295 @@ SqlNodeList ExtendColumnList() :
     }
 }
 
+boolean IsNullable() :
+{
+
+}
+{
+    (
+        <NOT> <NULL> {
+            return false;
+        }
+    |
+        <NULL> {
+            return true;
+        }
+    )
+}
+
+boolean IsCaseSpecific() :
+{
+
+}
+{
+    (
+        <NOT> <CASESPECIFIC> {
+            return false;
+        }
+    |
+        <CASESPECIFIC> {
+            return true;
+        }
+    )
+}
+
+boolean IsUpperCase() :
+{
+
+}
+{
+    (
+        <NOT> <UPPERCASE> {
+            return false;
+        }
+    |
+        <UPPERCASE> {
+            return true;
+        }
+    )
+}
+
 void ColumnWithType(List<SqlNode> list) :
 {
     SqlIdentifier id;
     SqlDataTypeSpec type;
     boolean nullable = true;
+    Boolean uppercase = null;
+    Boolean caseSpecific = null;
     final Span s = Span.of();
 }
 {
     id = CompoundIdentifier()
     type = DataType()
-    [
-        <NOT> <NULL> {
-            nullable = false;
+    // This acts as a loop to check which optional parameters have been specified.
+    (
+        nullable = IsNullable()
+        {
+            type = type.withNullable(nullable);
         }
-    ]
+    |
+        uppercase = IsUpperCase() {
+            type = type.withUppercase(uppercase);
+        }
+    |
+        caseSpecific = IsCaseSpecific() {
+            type = type.withCaseSpecific(caseSpecific);
+        }
+    )*
     {
-        list.add(SqlDdlNodes.column(s.add(id).end(this), id, type.withNullable(nullable), null, null));
+        list.add(SqlDdlNodes.column(s.add(id).end(this), id, type, null, null));
     }
+}
+
+SqlCreateAttribute CreateTableAttributeFallback() :
+{
+    boolean no = false;
+    boolean protection = false;
+}
+{
+    [ <NO>  { no = true; } ]
+    <FALLBACK>
+    [ <PROTECTION> { protection = true; } ]
+    { return new SqlCreateAttributeFallback(no, protection, getPos()); }
+}
+
+SqlCreateAttribute CreateTableAttributeJournalTable() :
+{
+    final SqlIdentifier id;
+}
+{
+    <WITH> <JOURNAL> <TABLE> <EQ> id = CompoundIdentifier()
+    { return new SqlCreateAttributeJournalTable(id, getPos()); }
+}
+
+SqlCreateAttribute CreateTableAttributeIsolatedLoading() :
+{
+    boolean nonLoadIsolated = false;
+    boolean concurrent = false;
+    OperationLevel operationLevel = null;
+}
+{
+    <WITH>
+    [ <NO> { nonLoadIsolated = true; } ]
+    [ <CONCURRENT> { concurrent = true; } ]
+    <ISOLATED> <LOADING>
+    [
+        <FOR>
+        (
+            <ALL> { operationLevel = OperationLevel.ALL; }
+        |
+            <INSERT> { operationLevel = OperationLevel.INSERT; }
+        |
+            <NONE> { operationLevel = OperationLevel.NONE; }
+        )
+    ]
+    { return new SqlCreateAttributeIsolatedLoading(nonLoadIsolated, concurrent, operationLevel, getPos()); }
+}
+
+SqlCreateAttribute CreateTableAttributeJournal() :
+{
+  JournalType journalType;
+  JournalModifier journalModifier;
+}
+{
+    (
+        (
+            <LOCAL> { journalModifier = JournalModifier.LOCAL; }
+        |
+            <NOT> <LOCAL> { journalModifier = JournalModifier.NOT_LOCAL; }
+        )
+        <AFTER> <JOURNAL> { journalType = JournalType.AFTER; }
+    |
+        (
+            <NO> { journalModifier = JournalModifier.NO; }
+        |
+            <DUAL> { journalModifier = JournalModifier.DUAL; }
+        |
+            { journalModifier = JournalModifier.UNSPECIFIED; }
+        )
+        (
+            <BEFORE> { journalType = JournalType.BEFORE; }
+        |
+            <AFTER> { journalType = JournalType.AFTER; }
+        |
+            { journalType = JournalType.UNSPECIFIED; }
+        )
+        <JOURNAL>
+    )
+    { return new SqlCreateAttributeJournal(journalType, journalModifier, getPos()); }
+}
+
+SqlCreateAttribute CreateTableAttributeDataBlockSize() :
+{
+    DataBlockModifier modifier = null;
+    DataBlockUnitSize unitSize;
+    SqlLiteral dataBlockSize = null;
+}
+{
+    (
+        (
+            ( <MINIMUM> | <MIN> ) { modifier = DataBlockModifier.MINIMUM; }
+        |
+            ( <MAXIMUM> | <MAX> ) { modifier = DataBlockModifier.MAXIMUM; }
+        |
+            <DEFAULT_> { modifier = DataBlockModifier.DEFAULT; }
+        )
+        <DATABLOCKSIZE> { unitSize = DataBlockUnitSize.BYTES; }
+    |
+        <DATABLOCKSIZE> <EQ> dataBlockSize = UnsignedNumericLiteral()
+        (
+            ( <KILOBYTES> | <KBYTES> ) { unitSize = DataBlockUnitSize.KILOBYTES; }
+        |
+            [ <BYTES> ] { unitSize = DataBlockUnitSize.BYTES; }
+        )
+    )
+    { return new SqlCreateAttributeDataBlockSize(modifier, unitSize, dataBlockSize, getPos()); }
+}
+
+SqlCreateAttribute CreateTableAttributeMergeBlockRatio() :
+{
+    MergeBlockRatioModifier modifier = MergeBlockRatioModifier.UNSPECIFIED;
+    int ratio = 1;
+    boolean percent = false;
+}
+{
+    (
+        (
+            <DEFAULT_> { modifier = MergeBlockRatioModifier.DEFAULT; }
+        |
+            <NO> { modifier = MergeBlockRatioModifier.NO; }
+        )
+        <MERGEBLOCKRATIO>
+    |
+        <MERGEBLOCKRATIO> <EQ> ratio = UnsignedIntLiteral()
+        [ <PERCENT> { percent = true; } ]
+    )
+    {
+        if (ratio >= 1 && ratio <= 100) {
+            return new SqlCreateAttributeMergeBlockRatio(modifier, ratio, percent, getPos());
+        } else {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.numberLiteralOutOfRange(String.valueOf(ratio)));
+        }
+    }
+}
+
+SqlCreateAttribute CreateTableAttributeChecksum() :
+{
+    ChecksumEnabled checksumEnabled;
+}
+{
+    <CHECKSUM> <EQ>
+    (
+        <DEFAULT_> { checksumEnabled = ChecksumEnabled.DEFAULT; }
+    |
+        <ON> { checksumEnabled = ChecksumEnabled.ON; }
+    |
+        <OFF> { checksumEnabled = ChecksumEnabled.OFF; }
+    )
+    { return new SqlCreateAttributeChecksum(checksumEnabled, getPos()); }
+}
+
+SqlCreateAttribute CreateTableAttributeLog() :
+{
+    boolean loggingEnabled = true;
+}
+{
+    [ <NO> { loggingEnabled = false; } ]
+    <LOG> {
+        return new SqlCreateAttributeLog(loggingEnabled, getPos());
+    }
+}
+
+List<SqlCreateAttribute> CreateTableAttributes() :
+{
+    final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
+    SqlCreateAttribute e;
+    Span s;
+}
+{
+    (
+        <COMMA>
+        (
+            e = CreateTableAttributeFallback()
+        |
+            e = CreateTableAttributeJournalTable()
+        |
+            e = CreateTableAttributeIsolatedLoading()
+        |
+            e = CreateTableAttributeDataBlockSize()
+        |
+            e = CreateTableAttributeMergeBlockRatio()
+        |
+            e = CreateTableAttributeChecksum()
+        |
+            e = CreateTableAttributeLog()
+        |
+            e = CreateTableAttributeJournal()
+        ) { list.add(e); }
+    )+
+    { return list; }
 }
 
 SqlCreate SqlCreateTable(Span s, boolean replace) :
 {
     final SetType setType;
-    final boolean isVolatile;
+    final Volatility volatility;
     final boolean ifNotExists;
     final SqlIdentifier id;
+    final List<SqlCreateAttribute> tableAttributes;
     final SqlNodeList columnList;
     final SqlNode query;
     boolean withData = false;
     final OnCommitType onCommitType;
 }
 {
-    setType = SetTypeOpt() isVolatile = IsVolatileOpt() <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
+    setType = SetTypeOpt() volatility = VolatilityOpt() <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
+    (
+        tableAttributes = CreateTableAttributes()
+    |
+        { tableAttributes = null; }
+    )
     (
         columnList = ExtendColumnList()
     |
@@ -183,8 +441,8 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     )
     onCommitType = OnCommitTypeOpt()
     {
-        return new SqlCreateTable(s.end(this), replace, setType, isVolatile, ifNotExists, id,
-            columnList, query, withData, onCommitType);
+        return new SqlCreateTable(s.end(this), replace, setType, volatility, ifNotExists, id,
+            tableAttributes, columnList, query, withData, onCommitType);
     }
 }
 
@@ -204,6 +462,31 @@ SqlNode SqlExecMacro() :
     macro = CompoundIdentifier() { s = span(); }
     {
         return new SqlExecMacro(s.end(this), macro);
+    }
+}
+
+SqlNode SqlUsingRequestModifier(Span s) :
+{
+    final SqlNodeList columnList;
+}
+{
+    columnList = ExtendColumnList()
+    {
+        return new SqlUsingRequestModifier(s.end(this), columnList);
+    }
+}
+
+SqlNode SqlSetTimeZoneValue() :
+{
+    SqlIdentifier timeZoneValue;
+    SqlIdentifier name;
+    Span s;
+}
+{
+    <SET> { s = span(); }
+    <TIME> <ZONE> timeZoneValue = SimpleIdentifier()
+    {
+        return new SqlSetTimeZone(s.end(timeZoneValue), timeZoneValue);
     }
 }
 
@@ -227,6 +510,7 @@ SqlNode SqlNamedExpression() :
     final SqlIdentifier name;
 }
 {
+    LOOKAHEAD(SqlNamedExpression())
     <LPAREN> { s = span(); }
     <NAMED> name = SimpleIdentifier() <RPAREN>
     {
@@ -332,4 +616,32 @@ SqlNode InlineModOperator() :
         args.add(e);
         return createCall(qualifiedName, s.end(this), funcType, quantifier, args);
     }
+}
+
+SqlNode DateTimeTerm() :
+{
+    final SqlNode e;
+    SqlIdentifier timeZoneValue;
+}
+{
+    (
+        e = DateTimeLiteral()
+    |
+        e = SimpleIdentifier()
+    )
+    (
+        <AT>
+        (
+            <LOCAL>
+            {
+                return new SqlDateTimeAtLocal(getPos(), e);
+            }
+        |
+            <TIME> <ZONE>
+            {
+                timeZoneValue = SimpleIdentifier();
+                return new SqlDateTimeAtTimeZone(getPos(), e, timeZoneValue);
+            }
+        )
+    )
 }
