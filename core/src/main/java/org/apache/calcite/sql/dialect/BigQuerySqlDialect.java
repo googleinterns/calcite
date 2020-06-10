@@ -76,7 +76,7 @@ public class BigQuerySqlDialect extends SqlDialect {
   // Strings in this set will be unparsed to have empty parentheses at the end.
   private static final Set<String> IDENTIFIER_FUNCTIONS =
       new HashSet<String>(
-          Arrays.asList("current_time", "current_timestamp"));
+          Arrays.asList("current_time", "current_timestamp", "current_date"));
 
   private static final List<String> RESERVED_KEYWORDS =
       ImmutableList.copyOf(

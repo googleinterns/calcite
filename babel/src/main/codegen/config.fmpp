@@ -33,6 +33,8 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockUnitSize",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFreeSpace",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading.OperationLevel",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournal",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournal.JournalType",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournal.JournalModifier",
@@ -44,6 +46,8 @@ data: {
       "org.apache.calcite.sql.babel.SqlExecMacro",
       "org.apache.calcite.sql.babel.SqlUsingRequestModifier",
       "org.apache.calcite.sql.babel.Volatility",
+      "org.apache.calcite.sql.babel.SqlDateTimeAtLocal",
+      "org.apache.calcite.sql.babel.SqlDateTimeAtTimeZone",
     ]
 
     # List of keywords.
@@ -51,14 +55,17 @@ data: {
       "BYTES"
       "CASESPECIFIC"
       "CHECKSUM"
+      "CONCURRENT"
       "DATABLOCKSIZE"
       "DUAL"
       "FALLBACK"
       "FREESPACE"
       "IF"
+      "ISOLATED"
       "JOURNAL"
       "KBYTES"
       "KILOBYTES"
+      "LOADING"
       "MAXIMUM"
       "MERGEBLOCKRATIO"
       "MINIMUM"
@@ -390,13 +397,16 @@ data: {
       # not in core, added in babel
       "BYTES"
       "CHECKSUM"
+      "CONCURRENT"
       "DATABLOCKSIZE"
       "DUAL"
       "FREESPACE"
       "IF"
+      "ISOLATED"
       "JOURNAL"
       "KBYTES"
       "KILOBYTES"
+      "LOADING"
       "MAXIMUM"
       "MERGEBLOCKRATIO"
       "MINIMUM"
@@ -957,6 +967,10 @@ data: {
 
     preAtomicRowMethods: [
       "InlineModOperator()"
+    ]
+
+    dateTimeExpressionMethods: [
+      "DateTimeTerm()"
     ]
 
     # List of files in @includes directory that have parser method

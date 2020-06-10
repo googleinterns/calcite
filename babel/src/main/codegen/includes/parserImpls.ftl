@@ -255,6 +255,30 @@ SqlCreateAttribute CreateTableAttributeFreeSpace() :
     { return new SqlCreateAttributeFreeSpace(freeSpaceValue, percent, getPos()); }
 }
 
+SqlCreateAttribute CreateTableAttributeIsolatedLoading() :
+{
+    boolean nonLoadIsolated = false;
+    boolean concurrent = false;
+    OperationLevel operationLevel = null;
+}
+{
+    <WITH>
+    [ <NO> { nonLoadIsolated = true; } ]
+    [ <CONCURRENT> { concurrent = true; } ]
+    <ISOLATED> <LOADING>
+    [
+        <FOR>
+        (
+            <ALL> { operationLevel = OperationLevel.ALL; }
+        |
+            <INSERT> { operationLevel = OperationLevel.INSERT; }
+        |
+            <NONE> { operationLevel = OperationLevel.NONE; }
+        )
+    ]
+    { return new SqlCreateAttributeIsolatedLoading(nonLoadIsolated, concurrent, operationLevel, getPos()); }
+}
+
 SqlCreateAttribute CreateTableAttributeJournal() :
 {
   JournalType journalType;
@@ -374,6 +398,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
             e = CreateTableAttributeJournalTable()
         |
             e = CreateTableAttributeFreeSpace()
+        |
+            e = CreateTableAttributeIsolatedLoading()
         |
             e = CreateTableAttributeDataBlockSize()
         |
@@ -584,4 +610,32 @@ SqlNode InlineModOperator() :
         args.add(e);
         return createCall(qualifiedName, s.end(this), funcType, quantifier, args);
     }
+}
+
+SqlNode DateTimeTerm() :
+{
+    final SqlNode e;
+    SqlIdentifier timeZoneValue;
+}
+{
+    (
+        e = DateTimeLiteral()
+    |
+        e = SimpleIdentifier()
+    )
+    (
+        <AT>
+        (
+            <LOCAL>
+            {
+                return new SqlDateTimeAtLocal(getPos(), e);
+            }
+        |
+            <TIME> <ZONE>
+            {
+                timeZoneValue = SimpleIdentifier();
+                return new SqlDateTimeAtTimeZone(getPos(), e, timeZoneValue);
+            }
+        )
+    )
 }

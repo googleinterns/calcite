@@ -448,6 +448,56 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).fails(expected);
   }
 
+  @Test public void testTableAttributeIsolatedLoadingDefault() {
+    final String sql = "create table foo, with isolated loading (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH ISOLATED LOADING (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingNoModifier() {
+    final String sql = "create table foo, with no isolated loading (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH NO ISOLATED LOADING (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingConcurrentModifier() {
+    final String sql = "create table foo, with concurrent isolated loading (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH CONCURRENT ISOLATED LOADING (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingNoConcurrentModifier() {
+    final String sql = "create table foo, with no concurrent isolated loading (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH NO CONCURRENT ISOLATED LOADING "
+        + "(`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingForAllOperationLevel() {
+    final String sql = "create table foo, with isolated loading for all (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH ISOLATED LOADING FOR ALL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingForInsertOperationLevel() {
+    final String sql = "create table foo, with isolated loading for insert (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH ISOLATED LOADING FOR INSERT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingForNoneOperationLevel() {
+    final String sql = "create table foo, with isolated loading for none (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH ISOLATED LOADING FOR NONE (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingModifierOperationLevel() {
+    final String sql = "create table foo, with concurrent isolated loading for none (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH CONCURRENT ISOLATED LOADING FOR NONE "
+        + "(`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testTableAttributeDataBlockSizeMinimum() {
     final String sql = "create table foo, minimum datablocksize (bar integer)";
     final String expected = "CREATE TABLE `FOO`, MINIMUM DATABLOCKSIZE (`BAR` INTEGER)";
@@ -715,6 +765,66 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testDateTimePrimaryLiteral() {
+    final String sql = "select timestamp '2020-05-30 13:20:00'";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00'";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryBuiltInFunction() {
+    final String sql = "select current_timestamp";
+    final String expected = "SELECT CURRENT_TIMESTAMP";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryLiteralAtLocal() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at local";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT LOCAL";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryColumnAtLocal() {
+    final String sql = "select foo at local";
+    final String expected = "SELECT `FOO` AT LOCAL";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryBuiltInFunctionAtLocal() {
+    final String sql = "select current_timestamp at local";
+    final String expected = "SELECT CURRENT_TIMESTAMP AT LOCAL";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryLiteralAtTimeZone() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone \"GMT+10\"";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT TIME ZONE `GMT+10`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryColumnAtTimeZone() {
+    final String sql = "select foo at time zone \"Europe Moscow\"";
+    final String expected = "SELECT `FOO` AT TIME ZONE `Europe Moscow`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryBuiltInFunctionAtTimeZone() {
+    final String sql = "select current_date at time zone \"GMT-5\"";
+    final String expected = "SELECT CURRENT_DATE AT TIME ZONE `GMT-5`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryColumnAtLocalInWhereClause() {
+    final String sql =
+        "select foo "
+        + "from fooTable "
+        + "where timestamp '2020-05-30 13:20:00' at local = timestamp '2020-05-30 20:20:00'";
+    final String expected =
+        "SELECT `FOO`\n"
+        + "FROM `FOOTABLE`\n"
+        + "WHERE (TIMESTAMP '2020-05-30 13:20:00' AT LOCAL = TIMESTAMP '2020-05-30 20:20:00')";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testUsingRequestModifierSingular() {
     final String sql = "using (foo int)";
     final String expected = "USING (`FOO` INTEGER)";
@@ -782,38 +892,24 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testCurrentTimeStampFunction() {
+  @Test public void testCurrentTimestampFunction() {
     final String sql = "select current_timestamp";
     final String expected = "SELECT CURRENT_TIMESTAMP";
     sql(sql).ok(expected);
+  }
+
+  @Test public void testCurrentTimestampFunctionBigQuery() {
+    final String sql = "select current_timestamp";
+    final String expected = "SELECT CURRENT_TIMESTAMP()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
   }
 
   @Test public void testCurrentTimeFunction() {
     final String sql = "select current_time";
     final String expected = "SELECT CURRENT_TIME";
     sql(sql).ok(expected);
-  }
-
-  @Test public void testBothTimeFunctions() {
-    final String sql = "select current_time, current_timestamp";
-    final String expected = "SELECT CURRENT_TIME, CURRENT_TIMESTAMP";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testCurrentTimeStampFunctionBigQuery() {
-    final String sql = "select current_timestamp";
-    final String expected = "SELECT CURRENT_TIMESTAMP()";
-    sql(sql)
-      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
-      .ok(expected);
-  }
-
-  @Test public void testCurrentTimeStampFunctionBigQueryUpperCase() {
-    final String sql = "select CURRENT_TIMESTAMP";
-    final String expected = "SELECT CURRENT_TIMESTAMP()";
-    sql(sql)
-      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
-      .ok(expected);
   }
 
   @Test public void testCurrentTimeFunctionBigQuery() {
@@ -824,7 +920,27 @@ class BabelParserTest extends SqlParserTest {
       .ok(expected);
   }
 
-  @Test public void testBothTimeFunctionsBigQuery() {
+  @Test public void testCurrentDateFunction() {
+    final String sql = "select current_date";
+    final String expected = "SELECT CURRENT_DATE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCurrentDateFunctionBigQuery() {
+    final String sql = "select current_date";
+    final String expected = "SELECT CURRENT_DATE()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testMultipleTimeFunctions() {
+    final String sql = "select current_time, current_timestamp";
+    final String expected = "SELECT CURRENT_TIME, CURRENT_TIMESTAMP";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testMultipleTimeFunctionsBigQuery() {
     final String sql = "select current_time, current_timestamp";
     final String expected = "SELECT CURRENT_TIME(), CURRENT_TIMESTAMP()";
     sql(sql)
@@ -832,7 +948,15 @@ class BabelParserTest extends SqlParserTest {
       .ok(expected);
   }
 
-  @Test public void testCurrentTimeStampFunctionWithParensBigQuery() {
+  @Test public void testCurrentTimestampFunctionBigQueryUpperCase() {
+    final String sql = "select CURRENT_TIMESTAMP";
+    final String expected = "SELECT CURRENT_TIMESTAMP()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testCurrentTimestampFunctionWithParensBigQuery() {
     final String sql = "select current_timestamp()";
     final String expected = "SELECT CURRENT_TIMESTAMP()";
     sql(sql)
