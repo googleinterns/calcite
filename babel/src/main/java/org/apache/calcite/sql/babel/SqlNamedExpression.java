@@ -31,7 +31,7 @@ import org.apache.calcite.util.ImmutableNullableList;
 import java.util.List;
 
 /**
- * Parse tree for <expression> (NAMED <name>) statement.
+ * Parse tree for expression (NAMED name) statement.
  */
 public class SqlNamedExpression extends SqlCall implements SqlExecutableStatement {
   private static final SqlOperator OPERATOR =
