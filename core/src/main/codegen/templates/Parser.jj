@@ -5505,10 +5505,10 @@ SqlNode BuiltinFunctionCall() :
     |
         (
             <SUBSTRING>
-        <#if parser.includeSubstrKeyword>
+<#if parser.includeSubstrKeyword>
         |
             <SUBSTR>
-        </#if>
+</#if>
         )
         { s = span(); }
         <LPAREN>
