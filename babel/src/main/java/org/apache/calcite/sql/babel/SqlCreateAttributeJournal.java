@@ -25,8 +25,8 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public class SqlCreateAttributeJournal extends SqlCreateAttribute {
 
-  private JournalType journalType;
-  private JournalModifier journalModifier;
+  private final JournalType journalType;
+  private final JournalModifier journalModifier;
 
   /**
    * Creates a {@code SqlCreateAttributeJournal}.

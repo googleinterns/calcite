@@ -25,9 +25,9 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public class SqlCreateAttributeMergeBlockRatio extends SqlCreateAttribute {
 
-  private MergeBlockRatioModifier modifier;
-  private int ratio;
-  private boolean percent;
+  private final MergeBlockRatioModifier modifier;
+  private final int ratio;
+  private final boolean percent;
 
   /**
    * Creates a {@code SqlCreateAttributeMergeBlockRatio}.

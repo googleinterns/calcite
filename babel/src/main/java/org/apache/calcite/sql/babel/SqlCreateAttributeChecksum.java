@@ -25,7 +25,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public class SqlCreateAttributeChecksum extends SqlCreateAttribute {
 
-  private ChecksumEnabled checksumEnabled;
+  private final ChecksumEnabled checksumEnabled;
 
   /**
    * Creates a {@code SqlCreateAttributeChecksum}.
