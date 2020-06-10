@@ -942,11 +942,6 @@ data: {
     alterStatementParserMethods: [
     ]
 
-    # List of methods for parsing extensions to <expression> calls
-    postExpressionStatementParserMethods: [
-      "SqlNamedExpression"
-    ]
-
     # List of methods for parsing extensions to "CREATE [OR REPLACE]" calls.
     # Each must accept arguments "(SqlParserPos pos, boolean replace)".
     createStatementParserMethods: [
@@ -966,6 +961,11 @@ data: {
     # List of methods for parsing extensions to "INSERT" calls.
     insertStatementParserMethods: [
       "SqlInsertWithOptionalValuesKeyword"
+    ]
+
+    # List of methods for parsing extensions to <expression> calls
+    postExpressionStatementParserMethods: [
+      "SqlNamedExpression"
     ]
 
     # List of methods for parsing expressions to "EXEC" calls.

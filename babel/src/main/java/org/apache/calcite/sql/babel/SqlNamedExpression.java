@@ -40,7 +40,7 @@ public class SqlNamedExpression extends SqlCall implements SqlExecutableStatemen
   private final SqlIdentifier name;
   private final SqlNode expression;
 
-  /** Creates a SqlNamedExpression */
+  /** Creates a SqlNamedExpression. */
   public SqlNamedExpression(SqlParserPos pos, SqlIdentifier name,
       SqlNode expression) {
     super(pos);
