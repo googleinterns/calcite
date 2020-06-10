@@ -38,6 +38,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournal.JournalType",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournal.JournalModifier",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournalTable",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeLog",
       "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio",
       "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio.MergeBlockRatioModifier",
       "org.apache.calcite.sql.babel.SqlCreateTable",
@@ -64,6 +65,7 @@ data: {
       "KBYTES"
       "KILOBYTES"
       "LOADING"
+      "LOG"
       "MAXIMUM"
       "MERGEBLOCKRATIO"
       "MINIMUM"
@@ -404,6 +406,7 @@ data: {
       "KBYTES"
       "KILOBYTES"
       "LOADING"
+      "LOG"
       "MAXIMUM"
       "MERGEBLOCKRATIO"
       "MINIMUM"

@@ -364,6 +364,17 @@ SqlCreateAttribute CreateTableAttributeChecksum() :
     { return new SqlCreateAttributeChecksum(checksumEnabled, getPos()); }
 }
 
+SqlCreateAttribute CreateTableAttributeLog() :
+{
+    boolean loggingEnabled = true;
+}
+{
+    [ <NO> { loggingEnabled = false; } ]
+    <LOG> {
+        return new SqlCreateAttributeLog(loggingEnabled, getPos());
+    }
+}
+
 List<SqlCreateAttribute> CreateTableAttributes() :
 {
     final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
@@ -385,6 +396,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
             e = CreateTableAttributeMergeBlockRatio()
         |
             e = CreateTableAttributeChecksum()
+        |
+            e = CreateTableAttributeLog()
         |
             e = CreateTableAttributeJournal()
         ) { list.add(e); }
