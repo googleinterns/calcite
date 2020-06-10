@@ -1039,4 +1039,10 @@ class BabelParserTest extends SqlParserTest {
         .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
         .ok(expected);
   }
+
+  @Test public void testSubstr() {
+    final String sql = "select substr('FOOBAR' from 1 for 3)";
+    final String expected = "SELECT SUBSTRING('FOOBAR' FROM 1 FOR 3)";
+    sql(sql).ok(expected);
+  }
 }

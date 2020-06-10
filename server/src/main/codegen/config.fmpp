@@ -471,6 +471,7 @@ data: {
     includeBraces: true
     includeAdditionalDeclarations: false
     includeSelKeyword: false
+    includeSubstrKeyword: false
   }
 }
 
