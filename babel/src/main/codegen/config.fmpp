@@ -988,7 +988,6 @@ data: {
       "parserImpls.ftl"
     ]
 
-    allowNamedExpression: true
     allowUpdateFromTable: true
     includePosixOperators: true
     includeCastFormat: true

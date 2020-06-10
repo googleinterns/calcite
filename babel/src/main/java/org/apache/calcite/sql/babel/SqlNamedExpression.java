@@ -17,13 +17,11 @@
 package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.jdbc.CalcitePrepare;
-import org.apache.calcite.sql.SqlCreate;
+import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlExecutableStatement;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlSpecialOperator;
 import org.apache.calcite.sql.SqlWriter;
@@ -31,21 +29,23 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Parse tree for <expression> (NAMED <name>) statement.
  */
 public class SqlNamedExpression extends SqlCall implements SqlExecutableStatement {
-  SqlIdentifier name;
-
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("NAMED", SqlKind.OTHER);
 
+  private final SqlIdentifier name;
+  private final SqlNode expression;
+
   /** Creates a SqlNamedExpression */
-  public SqlNamedExpression(SqlParserPos pos, SqlIdentifier name) {
+  public SqlNamedExpression(SqlParserPos pos, SqlIdentifier name,
+      SqlNode expression) {
     super(pos);
     this.name = name;
+    this.expression = expression;
   }
 
   @Override public SqlOperator getOperator() {
@@ -53,15 +53,15 @@ public class SqlNamedExpression extends SqlCall implements SqlExecutableStatemen
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(name);
+    return ImmutableNullableList.of(name, expression);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    expression.unparse(writer, leftPrec, rightPrec);
     SqlWriter.Frame frame = writer.startList("(", ")");
     writer.keyword("NAMED");
     name.unparse(writer, 0, 0);
     writer.endList(frame);
-
   }
 
   // Intentionally left empty.

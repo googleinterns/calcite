@@ -504,17 +504,16 @@ SqlNode SqlInsertWithOptionalValuesKeyword() :
     }
 }
 
-SqlNode SqlNamedExpression() :
+SqlNode SqlNamedExpression(SqlNode expression) :
 {
     final Span s;
     final SqlIdentifier name;
 }
 {
-    LOOKAHEAD(SqlNamedExpression())
     <LPAREN> { s = span(); }
     <NAMED> name = SimpleIdentifier() <RPAREN>
     {
-        return new SqlNamedExpression(s.end(this), name);
+        return new SqlNamedExpression(s.end(this), name, expression);
     }
 }
 

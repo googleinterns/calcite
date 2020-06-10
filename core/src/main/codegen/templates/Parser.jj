@@ -3326,9 +3326,17 @@ SqlNode Expression(ExprContext exprContext) :
     {
         e = SqlParserUtil.toTree(list);
     }
-    {
-        return e;
-    }
+    (
+<#list parser.postExpressionStatementParserMethods as method>
+        e = ${method}(e) {
+            return e;
+        }
+    |
+</#list>
+        {
+            return e;
+        }
+    )
 }
 
 // TODO jvs 15-Nov-2003:  ANY/ALL
@@ -3812,10 +3820,6 @@ SqlNode AtomicRowExpression() :
     |
         e = PeriodConstructor()
     |
-<#if parser.allowNamedExpression>
-        e = SqlNamedExpression()
-    |
- </#if>
         // NOTE jvs 18-Jan-2005:  use syntactic lookahead to discriminate
         // compound identifiers from function calls in which the function
         // name is a compound identifier
