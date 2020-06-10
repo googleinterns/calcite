@@ -43,6 +43,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
       "org.apache.calcite.sql.babel.SqlExecMacro",
+      "org.apache.calcite.sql.babel.SqlUpsert",
       "org.apache.calcite.sql.babel.SqlUsingRequestModifier",
       "org.apache.calcite.sql.babel.Volatility",
       "org.apache.calcite.sql.babel.SqlDateTimeAtLocal",
@@ -59,6 +60,7 @@ data: {
       "DUAL"
       "FALLBACK"
       "IF"
+      "INS"
       "ISOLATED"
       "JOURNAL"
       "KBYTES"
@@ -72,6 +74,7 @@ data: {
       "SEL"
       "SEMI"
       "TEMP"
+      "UPD"
       "UPPERCASE"
       "VOLATILE"
     ]
@@ -979,6 +982,7 @@ data: {
     ]
 
     allowUpdateFromTable: true
+    allowUpsertFormOfUpdate: true
     includePosixOperators: true
     includeCastFormat: true
     includeCompoundIdentifier: true

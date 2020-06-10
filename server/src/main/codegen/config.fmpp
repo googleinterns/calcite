@@ -465,6 +465,7 @@ data: {
     ]
 
     allowUpdateFromTable: false
+    allowUpsertFormOfUpdate: false
     includePosixOperators: false
     includeCastFormat: false
     includeCompoundIdentifier: true

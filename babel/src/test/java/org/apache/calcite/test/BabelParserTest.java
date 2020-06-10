@@ -943,4 +943,13 @@ class BabelParserTest extends SqlParserTest {
         .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
         .ok(expected);
   }
+
+  @Test void testUpsertAllOptionalSpecified() {
+    final String sql = "UPDATE foo SET x = 1 WHERE x > 1 ELSE INSERT INTO"
+        + " bar (x) VALUES (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR` (`X`)\n"
+        + "VALUES (ROW(1))";
+    sql(sql).ok(expected);
+  }
 }
