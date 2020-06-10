@@ -388,6 +388,66 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeFreeSpace() {
+    final String sql = "create table foo, freespace = 35 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 35 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpacePercent() {
+    final String sql = "create table foo, freespace = 35 percent (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 35 PERCENT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceTruncated() {
+    final String sql = "create table foo, freespace = 32.65 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 32 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceNegativeFails() {
+    final String sql = "create table foo, freespace = ^-^32.65 (bar integer)";
+    final String expected = "(?s).*Encountered \"-\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceOutOfRangeFails() {
+    final String sql = "create table foo, freespace = ^82.5^ (bar integer)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceOutOfRangePercentFails() {
+    final String sql = "create table foo, freespace = ^82.5^ percent (bar integer)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceRangeLowerBound() {
+    final String sql = "create table foo, freespace = 0 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 0 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceRangeBelowLowerBoundFail() {
+    final String sql = "create table foo, freespace = ^-^1 (bar integer)";
+    final String expected = "(?s).*Encountered \"-\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceRangeUpperBound() {
+    final String sql = "create table foo, freespace = 75 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 75 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceRangeAboveUpperBound() {
+    final String sql = "create table foo, freespace = ^76^ (bar integer)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
   @Test public void testTableAttributeIsolatedLoadingDefault() {
     final String sql = "create table foo, with isolated loading (bar integer)";
     final String expected = "CREATE TABLE `FOO`, WITH ISOLATED LOADING (`BAR` INTEGER)";
@@ -513,6 +573,30 @@ class BabelParserTest extends SqlParserTest {
   @Test public void testTableAttributeChecksumOff() {
     final String sql = "create table foo, checksum = off (bar integer)";
     final String expected = "CREATE TABLE `FOO`, CHECKSUM = OFF (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeBlockCompressionDefault() {
+    final String sql = "create table foo, blockcompression = default (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BLOCKCOMPRESSION = DEFAULT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeBlockCompressionAutotemp() {
+    final String sql = "create table foo, blockcompression = autotemp (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BLOCKCOMPRESSION = AUTOTEMP (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeBlockCompressionManual() {
+    final String sql = "create table foo, blockcompression = manual (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BLOCKCOMPRESSION = MANUAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeBlockCompressionNever() {
+    final String sql = "create table foo, blockcompression = never (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BLOCKCOMPRESSION = NEVER (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 
@@ -979,5 +1063,11 @@ class BabelParserTest extends SqlParserTest {
     sql(sql)
         .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
         .ok(expected);
+  }
+
+  @Test public void testSubstr() {
+    final String sql = "select substr('FOOBAR' from 1 for 3)";
+    final String expected = "SELECT SUBSTRING('FOOBAR' FROM 1 FOR 3)";
+    sql(sql).ok(expected);
   }
 }

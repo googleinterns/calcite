@@ -236,6 +236,25 @@ SqlCreateAttribute CreateTableAttributeJournalTable() :
     { return new SqlCreateAttributeJournalTable(id, getPos()); }
 }
 
+// FREESPACE attribute can take in decimals but should be truncated to an integer.
+SqlCreateAttribute CreateTableAttributeFreeSpace() :
+{
+    SqlLiteral tempNumeric;
+    int freeSpaceValue;
+    boolean percent = false;
+}
+{
+    <FREESPACE> <EQ> tempNumeric = UnsignedNumericLiteral() {
+        freeSpaceValue = tempNumeric.getValueAs(Integer.class);
+        if (freeSpaceValue < 0 || freeSpaceValue > 75) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.numberLiteralOutOfRange(String.valueOf(freeSpaceValue)));
+        }
+    }
+    [ <PERCENT> { percent = true; } ]
+    { return new SqlCreateAttributeFreeSpace(freeSpaceValue, percent, getPos()); }
+}
+
 SqlCreateAttribute CreateTableAttributeIsolatedLoading() :
 {
     boolean nonLoadIsolated = false;
@@ -364,6 +383,24 @@ SqlCreateAttribute CreateTableAttributeChecksum() :
     { return new SqlCreateAttributeChecksum(checksumEnabled, getPos()); }
 }
 
+SqlCreateAttribute CreateTableAttributeBlockCompression() :
+{
+    BlockCompressionOption blockCompressionOption;
+}
+{
+    <BLOCKCOMPRESSION> <EQ>
+    (
+        <DEFAULT_> { blockCompressionOption = BlockCompressionOption.DEFAULT; }
+    |
+        <AUTOTEMP> { blockCompressionOption = BlockCompressionOption.AUTOTEMP; }
+    |
+        <MANUAL> { blockCompressionOption = BlockCompressionOption.MANUAL; }
+    |
+        <NEVER> { blockCompressionOption = BlockCompressionOption.NEVER; }
+    )
+    { return new SqlCreateAttributeBlockCompression(blockCompressionOption, getPos()); }
+}
+
 SqlCreateAttribute CreateTableAttributeLog() :
 {
     boolean loggingEnabled = true;
@@ -389,6 +426,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
         |
             e = CreateTableAttributeJournalTable()
         |
+            e = CreateTableAttributeFreeSpace()
+        |
             e = CreateTableAttributeIsolatedLoading()
         |
             e = CreateTableAttributeDataBlockSize()
@@ -396,6 +435,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
             e = CreateTableAttributeMergeBlockRatio()
         |
             e = CreateTableAttributeChecksum()
+        |
+            e = CreateTableAttributeBlockCompression()
         |
             e = CreateTableAttributeLog()
         |

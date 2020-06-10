@@ -26,12 +26,15 @@ data: {
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
       "org.apache.calcite.sql.babel.SqlCreateAttribute",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeBlockCompression",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeBlockCompression.BlockCompressionOption",
       "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum",
       "org.apache.calcite.sql.babel.SqlCreateAttributeChecksum.ChecksumEnabled",
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize",
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockModifier",
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockUnitSize",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeFreeSpace",
       "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading",
       "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading.OperationLevel",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournal",
@@ -53,6 +56,8 @@ data: {
 
     # List of keywords.
     keywords: [
+      "AUTOTEMP"
+      "BLOCKCOMPRESSION"
       "BYTES"
       "CASESPECIFIC"
       "CHECKSUM"
@@ -60,6 +65,7 @@ data: {
       "DATABLOCKSIZE"
       "DUAL"
       "FALLBACK"
+      "FREESPACE"
       "IF"
       "ISOLATED"
       "JOURNAL"
@@ -67,14 +73,17 @@ data: {
       "KILOBYTES"
       "LOADING"
       "LOG"
+      "MANUAL"
       "MAXIMUM"
       "MERGEBLOCKRATIO"
       "MINIMUM"
       "NAMED"
+      "NEVER"
       "OFF"
       "PROTECTION"
       "SEL"
       "SEMI"
+      "SUBSTR"
       "TEMP"
       "UPPERCASE"
       "VOLATILE"
@@ -397,11 +406,14 @@ data: {
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
       # not in core, added in babel
+      "AUTOTEMP"
+      "BLOCKCOMPRESSION"
       "BYTES"
       "CHECKSUM"
       "CONCURRENT"
       "DATABLOCKSIZE"
       "DUAL"
+      "FREESPACE"
       "IF"
       "ISOLATED"
       "JOURNAL"
@@ -409,9 +421,12 @@ data: {
       "KILOBYTES"
       "LOADING"
       "LOG"
+      "MANUAL"
       "MAXIMUM"
       "MERGEBLOCKRATIO"
       "MINIMUM"
+      "NAMED"
+      "NEVER"
       "OFF"
       "SEMI"
 
@@ -816,6 +831,7 @@ data: {
 #     "STREAM"
       "SUBMULTISET"
       "SUBSET"
+      "SUBSTR"
       "SUBSTRING"
       "SUBSTRING_REGEX"
       "SUCCEEDS"
@@ -995,6 +1011,7 @@ data: {
     includeBraces: true
     includeAdditionalDeclarations: false
     includeSelKeyword: true
+    includeSubstrKeyword: true
   }
 }
 
