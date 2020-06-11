@@ -1637,9 +1637,14 @@ SqlNode SqlDelete() :
     final Span s;
 }
 {
-    <DELETE> {
-        s = span();
-    }
+    (
+        <DELETE>
+<#if parser.allowAbbreviatedKeywords>
+    |
+        <DEL>
+</#if>
+    )
+    { s = span(); }
     <FROM> table = TableRefWithHintsOpt()
     [
         [ <EXTEND> ]

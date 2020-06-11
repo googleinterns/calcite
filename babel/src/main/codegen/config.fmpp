@@ -64,6 +64,7 @@ data: {
       "CHECKSUM"
       "CONCURRENT"
       "DATABLOCKSIZE"
+      "DEL"
       "DUAL"
       "FALLBACK"
       "FREESPACE"
