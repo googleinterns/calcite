@@ -47,11 +47,8 @@ import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.sql.type.SqlTypeUtil;
 import org.apache.calcite.util.Pair;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -75,12 +72,10 @@ public class BigQuerySqlDialect extends SqlDialect {
 
   // Strings in this set will be unparsed to have empty parentheses at the end.
   private static final Set<String> IDENTIFIER_FUNCTIONS =
-      new HashSet<String>(
-          Arrays.asList("current_time", "current_timestamp", "current_date"));
+      ImmutableSet.of("current_time", "current_timestamp", "current_date");
 
-  private static final List<String> RESERVED_KEYWORDS =
-      ImmutableList.copyOf(
-          Arrays.asList("ALL", "AND", "ANY", "ARRAY", "AS", "ASC",
+  private static final Set<String> RESERVED_KEYWORDS =
+      ImmutableSet.of("ALL", "AND", "ANY", "ARRAY", "AS", "ASC",
               "ASSERT_ROWS_MODIFIED", "AT", "BETWEEN", "BY", "CASE", "CAST",
               "COLLATE", "CONTAINS", "CREATE", "CROSS", "CUBE", "CURRENT",
               "DEFAULT", "DEFINE", "DESC", "DISTINCT", "ELSE", "END", "ENUM",
@@ -94,7 +89,7 @@ public class BigQuerySqlDialect extends SqlDialect {
               "RESPECT", "RIGHT", "ROLLUP", "ROWS", "SELECT", "SET", "SOME",
               "STRUCT", "TABLESAMPLE", "THEN", "TO", "TREAT", "TRUE",
               "UNBOUNDED", "UNION", "UNNEST", "USING", "WHEN", "WHERE",
-              "WINDOW", "WITH", "WITHIN"));
+              "WINDOW", "WITH", "WITHIN");
 
   /** An unquoted BigQuery identifier must start with a letter and be followed
    * by zero or more letters, digits or _. */

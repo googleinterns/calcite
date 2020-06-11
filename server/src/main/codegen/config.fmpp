@@ -434,6 +434,10 @@ data: {
     insertStatementParserMethods: [
     ]
 
+    # List of methods for parsing extensions to <expression> calls
+    postExpressionStatementParserMethods: [
+    ]
+
     # List of methods for parsing expressions to "EXEC" calls.
     execStatementParserMethods: [
     ]
@@ -468,12 +472,14 @@ data: {
     ]
 
     allowUpdateFromTable: false
+    allowUpsertFormOfUpdate: false
+    allowAbbreviatedKeywords: false
     includePosixOperators: false
     includeCastFormat: false
     includeCompoundIdentifier: true
     includeBraces: true
     includeAdditionalDeclarations: false
-    includeSelKeyword: false
+    includeSubstrKeyword: false
   }
 }
 

@@ -1027,6 +1027,11 @@ SqlNode SqlStmt() :
         stmt = SqlSetTimeZone()
     |
 </#if>
+<#if parser.allowUpsertFormOfUpdate>
+        LOOKAHEAD(SqlUpdate() <ELSE>)
+        stmt = SqlUpsert()
+    |
+</#if>
 <#if parser.dropStatementParserMethods?size != 0>
         stmt = SqlDrop()
     |
@@ -1271,7 +1276,7 @@ SqlSelect SqlSelect() :
 {
     (
         <SELECT>
-<#if parser.includeSelKeyword>
+<#if parser.allowAbbreviatedKeywords>
     |
         <SEL>
 </#if>
@@ -1562,6 +1567,10 @@ SqlNode SqlInsert() :
 {
     (
         <INSERT>
+<#if parser.allowAbbreviatedKeywords>
+    |
+        <INS>
+</#if>
     |
         <UPSERT> { keywords.add(SqlInsertKeyword.UPSERT.symbol(getPos())); }
     )
@@ -1569,7 +1578,12 @@ SqlNode SqlInsert() :
     SqlInsertKeywords(keywords) {
         keywordList = new SqlNodeList(keywords, s.addAll(keywords).pos());
     }
-    <INTO> table = TableRefWithHintsOpt()
+<#if parser.allowUpsertFormOfUpdate>
+    [ <INTO> ]
+<#else>
+    <INTO>
+</#if>
+    table = TableRefWithHintsOpt()
     [
         LOOKAHEAD(5)
         [ <EXTEND> ]
@@ -1623,9 +1637,14 @@ SqlNode SqlDelete() :
     final Span s;
 }
 {
-    <DELETE> {
-        s = span();
-    }
+    (
+        <DELETE>
+<#if parser.allowAbbreviatedKeywords>
+    |
+        <DEL>
+</#if>
+    )
+    { s = span(); }
     <FROM> table = TableRefWithHintsOpt()
     [
         [ <EXTEND> ]
@@ -1659,7 +1678,14 @@ SqlNode SqlUpdate() :
     final Span s;
 }
 {
-    <UPDATE> { s = span(); }
+    (
+        <UPDATE>
+<#if parser.allowAbbreviatedKeywords>
+    |
+        <UPD>
+</#if>
+    )
+    { s = span(); }
     table = TableRefWithHintsOpt() {
         targetColumnList = new SqlNodeList(s.pos());
         sourceExpressionList = new SqlNodeList(s.pos());
@@ -3323,8 +3349,19 @@ SqlNode Expression(ExprContext exprContext) :
     list = Expression2(exprContext)
     {
         e = SqlParserUtil.toTree(list);
-        return e;
     }
+    (
+<#list parser.postExpressionStatementParserMethods as method>
+        e = ${method}(e) {
+            return e;
+        }
+        <#sep>|</#sep>
+    |
+</#list>
+        {
+            return e;
+        }
+    )
 }
 
 // TODO jvs 15-Nov-2003:  ANY/ALL
@@ -4018,6 +4055,22 @@ SqlNode SqlSetTimeZone() :
     )
     {
         return source;
+    }
+}
+</#if>
+<#if parser.allowUpsertFormOfUpdate>
+SqlNode SqlUpsert() :
+{
+    SqlNode updateCall;
+    SqlNode insertCall;
+}
+{
+    updateCall = SqlUpdate()
+    <ELSE>
+    insertCall = SqlInsert()
+    {
+        return new SqlUpsert(span().end(this), (SqlUpdate) updateCall,
+          (SqlInsert) insertCall);
     }
 }
 </#if>
@@ -5508,7 +5561,14 @@ SqlNode BuiltinFunctionCall() :
             return e;
         }
     |
-        <SUBSTRING> { s = span(); }
+        (
+            <SUBSTRING>
+<#if parser.includeSubstrKeyword>
+        |
+            <SUBSTR>
+</#if>
+        )
+        { s = span(); }
         <LPAREN>
         e = Expression(ExprContext.ACCEPT_SUB_QUERY)
         { args = startList(e); }

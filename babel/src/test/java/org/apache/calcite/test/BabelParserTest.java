@@ -103,6 +103,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testDel() {
+    final String sql = "del from t";
+    final String expected = "DELETE FROM `T`";
+    sql(sql).ok(expected);
+  }
+
   @Test void testYearIsNotReserved() {
     final String sql = "select 1 as year from t";
     final String expected = "SELECT 1 AS `YEAR`\n"
@@ -290,6 +296,18 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableWithSetTypeBeforeVolatility() {
+    final String sql = "create multiset volatile table foo (bar integer)";
+    final String expected = "CREATE MULTISET VOLATILE TABLE `FOO` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableWithVolatilityBeforeSetType() {
+    final String sql = "create volatile multiset table foo (bar integer)";
+    final String expected = "CREATE MULTISET VOLATILE TABLE `FOO` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTempTable() {
     final String sql = "create temp table foo (bar int not null, baz varchar(30))";
     final String expected = "CREATE TEMP TABLE `FOO` "
@@ -386,6 +404,66 @@ class BabelParserTest extends SqlParserTest {
     final String sql = "create table foo, with journal table = baz.tbl (bar integer)";
     final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ`.`TBL` (`BAR` INTEGER)";
     sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpace() {
+    final String sql = "create table foo, freespace = 35 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 35 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpacePercent() {
+    final String sql = "create table foo, freespace = 35 percent (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 35 PERCENT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceTruncated() {
+    final String sql = "create table foo, freespace = 32.65 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 32 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceNegativeFails() {
+    final String sql = "create table foo, freespace = ^-^32.65 (bar integer)";
+    final String expected = "(?s).*Encountered \"-\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceOutOfRangeFails() {
+    final String sql = "create table foo, freespace = ^82.5^ (bar integer)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceOutOfRangePercentFails() {
+    final String sql = "create table foo, freespace = ^82.5^ percent (bar integer)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceRangeLowerBound() {
+    final String sql = "create table foo, freespace = 0 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 0 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceRangeBelowLowerBoundFail() {
+    final String sql = "create table foo, freespace = ^-^1 (bar integer)";
+    final String expected = "(?s).*Encountered \"-\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceRangeUpperBound() {
+    final String sql = "create table foo, freespace = 75 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 75 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceRangeAboveUpperBound() {
+    final String sql = "create table foo, freespace = ^76^ (bar integer)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
   }
 
   @Test public void testTableAttributeIsolatedLoadingDefault() {
@@ -513,6 +591,42 @@ class BabelParserTest extends SqlParserTest {
   @Test public void testTableAttributeChecksumOff() {
     final String sql = "create table foo, checksum = off (bar integer)";
     final String expected = "CREATE TABLE `FOO`, CHECKSUM = OFF (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeBlockCompressionDefault() {
+    final String sql = "create table foo, blockcompression = default (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BLOCKCOMPRESSION = DEFAULT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeBlockCompressionAutotemp() {
+    final String sql = "create table foo, blockcompression = autotemp (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BLOCKCOMPRESSION = AUTOTEMP (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeBlockCompressionManual() {
+    final String sql = "create table foo, blockcompression = manual (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BLOCKCOMPRESSION = MANUAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeBlockCompressionNever() {
+    final String sql = "create table foo, blockcompression = never (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BLOCKCOMPRESSION = NEVER (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeLog() {
+    final String sql = "create table foo, log (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, LOG (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeLogNoModifier() {
+    final String sql = "create table foo, no log (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, NO LOG (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 
@@ -800,6 +914,31 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testNamedExpressionAlone() {
+    final String sql = "select (a + b) (named x) from foo where x > 0";
+    final String expected = "SELECT (`A` + `B`) (NAMED `X`)\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`X` > 0)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNamedExpressionWithOtherAttributes() {
+    final String sql = "select (a + b) (named x), k from foo where x > 0";
+    final String expected = "SELECT (`A` + `B`) (NAMED `X`), `K`\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`X` > 0)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedNamedExpression() {
+    final String sql = "SELECT (((a + b) (named x)) + y) (named z) from foo "
+        + "where z > 0 and x > 0";
+    final String expected = "SELECT ((`A` + `B`) (NAMED `X`) + `Y`) (NAMED `Z`)\n"
+        + "FROM `FOO`\n"
+        + "WHERE ((`Z` > 0) AND (`X` > 0))";
+    sql(sql).ok(expected);
+  }
+
   @Test void testNestedSchemaAccess() {
     final String sql = "SELECT a.b.c.d.column";
     final String expected = "SELECT `A`.`B`.`C`.`D`.`COLUMN`";
@@ -942,6 +1081,43 @@ class BabelParserTest extends SqlParserTest {
     sql(sql)
         .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
         .ok(expected);
+  }
+
+  @Test void testUpsertAllOptionalSpecified() {
+    final String sql = "UPDATE foo SET x = 1 WHERE x > 1 ELSE INSERT INTO"
+        + " bar (x) VALUES (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR` (`X`)\n"
+        + "VALUES (ROW(1))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUpsertAllOptionalOmitted() {
+    final String sql = "UPDATE foo SET x = 1 WHERE x > 1 ELSE INSERT bar (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR`\n"
+        + "VALUES (ROW(1))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUpsertWithUpdKeyword() {
+    final String sql = "UPD foo SET x = 1 WHERE x > 1 ELSE INSERT bar (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR`\n"
+        + "VALUES (ROW(1))";
+  }
+
+  @Test void testUpsertWithInsKeyword() {
+    final String sql = "UPDATE foo SET x = 1 WHERE x > 1 ELSE INS bar (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR`\n"
+        + "VALUES (ROW(1))";
+  }
+
+  @Test public void testSubstr() {
+    final String sql = "select substr('FOOBAR' from 1 for 3)";
+    final String expected = "SELECT SUBSTRING('FOOBAR' FROM 1 FOR 3)";
+    sql(sql).ok(expected);
   }
 
   @Test void testAlternativeTypeConversionIdentifier() {
