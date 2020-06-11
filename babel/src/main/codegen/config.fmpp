@@ -47,6 +47,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
       "org.apache.calcite.sql.babel.SqlExecMacro",
+      "org.apache.calcite.sql.babel.SqlUpsert",
       "org.apache.calcite.sql.babel.SqlUsingRequestModifier",
       "org.apache.calcite.sql.babel.Volatility",
       "org.apache.calcite.sql.babel.SqlDateTimeAtLocal",
@@ -66,6 +67,7 @@ data: {
       "FALLBACK"
       "FREESPACE"
       "IF"
+      "INS"
       "ISOLATED"
       "JOURNAL"
       "KBYTES"
@@ -83,6 +85,7 @@ data: {
       "SEMI"
       "SUBSTR"
       "TEMP"
+      "UPD"
       "UPPERCASE"
       "VOLATILE"
     ]
@@ -413,6 +416,7 @@ data: {
       "DUAL"
       "FREESPACE"
       "IF"
+      "INS"
       "ISOLATED"
       "JOURNAL"
       "KBYTES"
@@ -426,6 +430,7 @@ data: {
       "NEVER"
       "OFF"
       "SEMI"
+      "UPD"
 
       # The following keywords are reserved in core Calcite,
       # are reserved in some version of SQL,
@@ -997,12 +1002,13 @@ data: {
     ]
 
     allowUpdateFromTable: true
+    allowUpsertFormOfUpdate: true
+    allowAbbreviatedKeywords: true
     includePosixOperators: true
     includeCastFormat: true
     includeCompoundIdentifier: true
     includeBraces: true
     includeAdditionalDeclarations: false
-    includeSelKeyword: true
     includeSubstrKeyword: true
   }
 }

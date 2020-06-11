@@ -1052,6 +1052,37 @@ class BabelParserTest extends SqlParserTest {
         .ok(expected);
   }
 
+  @Test void testUpsertAllOptionalSpecified() {
+    final String sql = "UPDATE foo SET x = 1 WHERE x > 1 ELSE INSERT INTO"
+        + " bar (x) VALUES (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR` (`X`)\n"
+        + "VALUES (ROW(1))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUpsertAllOptionalOmitted() {
+    final String sql = "UPDATE foo SET x = 1 WHERE x > 1 ELSE INSERT bar (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR`\n"
+        + "VALUES (ROW(1))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUpsertWithUpdKeyword() {
+    final String sql = "UPD foo SET x = 1 WHERE x > 1 ELSE INSERT bar (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR`\n"
+        + "VALUES (ROW(1))";
+  }
+
+  @Test void testUpsertWithInsKeyword() {
+    final String sql = "UPDATE foo SET x = 1 WHERE x > 1 ELSE INS bar (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR`\n"
+        + "VALUES (ROW(1))";
+  }
+
   @Test public void testSubstr() {
     final String sql = "select substr('FOOBAR' from 1 for 3)";
     final String expected = "SELECT SUBSTRING('FOOBAR' FROM 1 FOR 3)";
