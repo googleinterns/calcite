@@ -751,6 +751,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testIns() {
+    final String sql = "ins into foo (1,'hi')";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(1, 'hi'))";
+    sql(sql).ok(expected);
+  }
 
   @Test void testBigQueryUnicodeUnparsing() {
     final String sql = "SELECT '¶ÑÍ·'";
@@ -777,6 +783,13 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testUpdateFromTable() {
     final String sql = "update foo from bar set foo.x = bar.y, foo.z = bar.k";
+    final String expected = "UPDATE `FOO` FROM `BAR` SET `FOO`.`X` = `BAR`.`Y`, "
+        + "`FOO`.`Z` = `BAR`.`K`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUpd() {
+    final String sql = "upd foo from bar set foo.x = bar.y, foo.z = bar.k";
     final String expected = "UPDATE `FOO` FROM `BAR` SET `FOO`.`X` = `BAR`.`Y`, "
         + "`FOO`.`Z` = `BAR`.`K`";
     sql(sql).ok(expected);

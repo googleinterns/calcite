@@ -1032,6 +1032,10 @@ SqlNode SqlStmt() :
         stmt = SqlUpsert()
     |
 </#if>
+        stmt = SqlUpdate()
+    |
+        stmt = SqlInsert()
+    |
 <#if parser.dropStatementParserMethods?size != 0>
         stmt = SqlDrop()
     |
@@ -1042,11 +1046,7 @@ SqlNode SqlStmt() :
     |
         stmt = SqlDescribe()
     |
-        stmt = SqlInsert()
-    |
         stmt = SqlDelete()
-    |
-        stmt = SqlUpdate()
     |
         stmt = SqlMerge()
     |
