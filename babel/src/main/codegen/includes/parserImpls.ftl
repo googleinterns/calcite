@@ -619,7 +619,8 @@ SqlNode DateTimeTerm() :
     )
 }
 
-// This excludes CompoundIdentifier() as a data type.
+// This excludes CompoundIdentifier() as a data type. Custom data types can be parsed
+// in parser.dataTypeParserMethods.
 SqlDataTypeSpec DataTypeAlternativeCastSyntax() :
 {
     SqlTypeNameSpec typeName;

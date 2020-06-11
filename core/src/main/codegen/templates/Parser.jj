@@ -3591,8 +3591,8 @@ SqlNode Expression3(ExprContext exprContext) :
 |
 </#list>
 <#list parser.alternativeTypeConversionLiteralOrIdentifier as method>
-    LOOKAHEAD(${method}())
-    e = ${method}() { return e; }
+    LOOKAHEAD(${method})
+    e = ${method} { return e; }
 |
 </#list>
     e = AtomicRowExpression()

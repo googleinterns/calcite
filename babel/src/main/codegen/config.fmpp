@@ -971,7 +971,7 @@ data: {
     ]
 
     alternativeTypeConversionLiteralOrIdentifier: [
-       "AlternativeTypeConversionLiteralOrIdentifier"
+       "AlternativeTypeConversionLiteralOrIdentifier()"
     ]
 
     # List of files in @includes directory that have parser method

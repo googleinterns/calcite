@@ -955,4 +955,16 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "SELECT CAST(12.5 AS INTEGER)";
     sql(sql).ok(expected);
   }
+
+  @Test void testAlternativeTypeConversionFormat() {
+    final String sql = "select '15h33m' (time(0) format 'HHhMIm')";
+    final String expected = "SELECT CAST('15h33m' AS TIME(0) FORMAT 'HHhMIm')";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionInterval() {
+    final String sql = "select '3700 sec' (interval minute)";
+    final String expected = "SELECT CAST('3700 sec' AS INTERVAL MINUTE)";
+    sql(sql).ok(expected);
+  }
 }
