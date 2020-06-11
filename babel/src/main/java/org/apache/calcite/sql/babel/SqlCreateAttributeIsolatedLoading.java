@@ -25,9 +25,9 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public class SqlCreateAttributeIsolatedLoading extends SqlCreateAttribute {
 
-  private boolean nonLoadIsolated;
-  private boolean concurrent;
-  private OperationLevel operationLevel;
+  private final boolean nonLoadIsolated;
+  private final boolean concurrent;
+  private final OperationLevel operationLevel;
 
   /**
    * Creates a {@code SqlCreateAttributeIsolatedLoading}.

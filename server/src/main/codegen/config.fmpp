@@ -469,12 +469,13 @@ data: {
     ]
 
     allowUpdateFromTable: false
+    allowUpsertFormOfUpdate: false
+    allowAbbreviatedKeywords: false
     includePosixOperators: false
     includeCastFormat: false
     includeCompoundIdentifier: true
     includeBraces: true
     includeAdditionalDeclarations: false
-    includeSelKeyword: false
     includeSubstrKeyword: false
   }
 }

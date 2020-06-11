@@ -290,6 +290,18 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableWithSetTypeBeforeVolatility() {
+    final String sql = "create multiset volatile table foo (bar integer)";
+    final String expected = "CREATE MULTISET VOLATILE TABLE `FOO` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableWithVolatilityBeforeSetType() {
+    final String sql = "create volatile multiset table foo (bar integer)";
+    final String expected = "CREATE MULTISET VOLATILE TABLE `FOO` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTempTable() {
     final String sql = "create temp table foo (bar int not null, baz varchar(30))";
     final String expected = "CREATE TEMP TABLE `FOO` "
@@ -1063,6 +1075,37 @@ class BabelParserTest extends SqlParserTest {
     sql(sql)
         .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
         .ok(expected);
+  }
+
+  @Test void testUpsertAllOptionalSpecified() {
+    final String sql = "UPDATE foo SET x = 1 WHERE x > 1 ELSE INSERT INTO"
+        + " bar (x) VALUES (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR` (`X`)\n"
+        + "VALUES (ROW(1))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUpsertAllOptionalOmitted() {
+    final String sql = "UPDATE foo SET x = 1 WHERE x > 1 ELSE INSERT bar (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR`\n"
+        + "VALUES (ROW(1))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUpsertWithUpdKeyword() {
+    final String sql = "UPD foo SET x = 1 WHERE x > 1 ELSE INSERT bar (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR`\n"
+        + "VALUES (ROW(1))";
+  }
+
+  @Test void testUpsertWithInsKeyword() {
+    final String sql = "UPDATE foo SET x = 1 WHERE x > 1 ELSE INS bar (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR`\n"
+        + "VALUES (ROW(1))";
   }
 
   @Test public void testSubstr() {

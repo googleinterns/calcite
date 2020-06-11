@@ -1027,6 +1027,11 @@ SqlNode SqlStmt() :
         stmt = SqlSetTimeZone()
     |
 </#if>
+<#if parser.allowUpsertFormOfUpdate>
+        LOOKAHEAD(SqlUpdate() <ELSE>)
+        stmt = SqlUpsert()
+    |
+</#if>
 <#if parser.dropStatementParserMethods?size != 0>
         stmt = SqlDrop()
     |
@@ -1271,7 +1276,7 @@ SqlSelect SqlSelect() :
 {
     (
         <SELECT>
-<#if parser.includeSelKeyword>
+<#if parser.allowAbbreviatedKeywords>
     |
         <SEL>
 </#if>
@@ -1562,6 +1567,10 @@ SqlNode SqlInsert() :
 {
     (
         <INSERT>
+<#if parser.allowAbbreviatedKeywords>
+    |
+        <INS>
+</#if>
     |
         <UPSERT> { keywords.add(SqlInsertKeyword.UPSERT.symbol(getPos())); }
     )
@@ -1569,7 +1578,12 @@ SqlNode SqlInsert() :
     SqlInsertKeywords(keywords) {
         keywordList = new SqlNodeList(keywords, s.addAll(keywords).pos());
     }
-    <INTO> table = TableRefWithHintsOpt()
+<#if parser.allowUpsertFormOfUpdate>
+    [ <INTO> ]
+<#else>
+    <INTO>
+</#if>
+    table = TableRefWithHintsOpt()
     [
         LOOKAHEAD(5)
         [ <EXTEND> ]
@@ -1659,7 +1673,14 @@ SqlNode SqlUpdate() :
     final Span s;
 }
 {
-    <UPDATE> { s = span(); }
+    (
+        <UPDATE>
+<#if parser.allowAbbreviatedKeywords>
+    |
+        <UPD>
+</#if>
+    )
+    { s = span(); }
     table = TableRefWithHintsOpt() {
         targetColumnList = new SqlNodeList(s.pos());
         sourceExpressionList = new SqlNodeList(s.pos());
@@ -4024,6 +4045,22 @@ SqlNode SqlSetTimeZone() :
     )
     {
         return source;
+    }
+}
+</#if>
+<#if parser.allowUpsertFormOfUpdate>
+SqlNode SqlUpsert() :
+{
+    SqlNode updateCall;
+    SqlNode insertCall;
+}
+{
+    updateCall = SqlUpdate()
+    <ELSE>
+    insertCall = SqlInsert()
+    {
+        return new SqlUpsert(span().end(this), (SqlUpdate) updateCall,
+          (SqlInsert) insertCall);
     }
 }
 </#if>
