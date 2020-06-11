@@ -618,3 +618,102 @@ SqlNode DateTimeTerm() :
         )
     )
 }
+
+// This excludes CompoundIdentifier() as a data type.
+SqlDataTypeSpec DataTypeAlternativeCastSyntax() :
+{
+    SqlTypeNameSpec typeName;
+    final Span s;
+}
+{
+    typeName = TypeNameAlternativeCastSyntax() {
+        s = span();
+    }
+    (
+        typeName = CollectionsTypeName(typeName)
+    )*
+    {
+        return new SqlDataTypeSpec(
+            typeName,
+            s.end(this));
+    }
+}
+
+// This excludes CompoundIdentifier() as a type name that's found in the
+// original TypeName() function.
+SqlTypeNameSpec TypeNameAlternativeCastSyntax() :
+{
+    final SqlTypeNameSpec typeNameSpec;
+    final SqlIdentifier typeName;
+    final Span s = Span.of();
+}
+{
+    (
+<#-- additional types are included here -->
+<#-- put custom data types in front of Calcite core data types -->
+<#list parser.dataTypeParserMethods as method>
+        LOOKAHEAD(2)
+        typeNameSpec = ${method}
+    |
+</#list>
+        LOOKAHEAD(2)
+        typeNameSpec = SqlTypeName(s)
+    |
+        typeNameSpec = RowTypeName()
+    )
+    {
+        return typeNameSpec;
+    }
+}
+
+SqlNode AlternativeTypeConversionLiteralOrIdentifier() :
+{
+     final List<SqlNode> args;
+     final SqlDataTypeSpec dt;
+     final SqlNodeList list;
+     SqlNode e;
+     final Span s;
+}
+{
+    (
+        e = Literal()
+    |
+        e = SimpleIdentifier()
+    )
+    {
+        s = span();
+        args = startList(e);
+    }
+    <LPAREN>
+    (
+        dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
+    |
+        <INTERVAL> e = IntervalQualifier() { args.add(e); }
+    )
+    [ <FORMAT> e = StringLiteral() { args.add(e); } ]
+    <RPAREN> {
+        return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
+    }
+}
+
+SqlNode AlternativeTypeConversionQuery(SqlNode arg1) :
+{
+     final List<SqlNode> args = startList(arg1);
+     final SqlDataTypeSpec dt;
+     final SqlNodeList list;
+     SqlNode e;
+     final Span s;
+}
+{
+    { s = span(); }
+    <LPAREN>
+    (
+        dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
+    |
+        <INTERVAL> e = IntervalQualifier() { args.add(e); }
+    )
+    [ <FORMAT> e = StringLiteral() { args.add(e); } ]
+    <RPAREN> {
+        return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
+    }
+}
