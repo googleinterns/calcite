@@ -25,6 +25,7 @@ data: {
       "org.apache.calcite.sql.SqlColumnAttribute",
       "org.apache.calcite.sql.SqlColumnAttributeUpperCase",
       "org.apache.calcite.sql.SqlColumnAttributeCaseSpecific",
+      "org.apache.calcite.sql.SqlColumnAttributeCharacterSet",
       "org.apache.calcite.sql.babel.SqlSetTimeZone",
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
