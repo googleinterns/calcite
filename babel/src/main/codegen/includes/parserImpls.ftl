@@ -552,6 +552,19 @@ SqlNode SqlInsertWithOptionalValuesKeyword() :
     }
 }
 
+SqlNode SqlNamedExpression(SqlNode expression) :
+{
+    final Span s;
+    final SqlIdentifier name;
+}
+{
+    <LPAREN> { s = span(); }
+    <NAMED> name = SimpleIdentifier() <RPAREN>
+    {
+        return new SqlNamedExpression(s.end(this), name, expression);
+    }
+}
+
 SqlNodeList LiteralRowConstructorList(Span s) :
 {
     List<SqlNode> rowList = new ArrayList<SqlNode>();

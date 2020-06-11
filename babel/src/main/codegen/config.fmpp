@@ -47,6 +47,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
       "org.apache.calcite.sql.babel.SqlExecMacro",
+      "org.apache.calcite.sql.babel.SqlNamedExpression",
       "org.apache.calcite.sql.babel.SqlUpsert",
       "org.apache.calcite.sql.babel.SqlUsingRequestModifier",
       "org.apache.calcite.sql.babel.Volatility",
@@ -78,6 +79,7 @@ data: {
       "MAXIMUM"
       "MERGEBLOCKRATIO"
       "MINIMUM"
+      "NAMED"
       "NEVER"
       "OFF"
       "PROTECTION"
@@ -427,6 +429,7 @@ data: {
       "MAXIMUM"
       "MERGEBLOCKRATIO"
       "MINIMUM"
+      "NAMED"
       "NEVER"
       "OFF"
       "SEMI"
@@ -963,6 +966,11 @@ data: {
     # List of methods for parsing extensions to "INSERT" calls.
     insertStatementParserMethods: [
       "SqlInsertWithOptionalValuesKeyword"
+    ]
+
+    # List of methods for parsing extensions to <expression> calls
+    postExpressionStatementParserMethods: [
+      "SqlNamedExpression"
     ]
 
     # List of methods for parsing expressions to "EXEC" calls.

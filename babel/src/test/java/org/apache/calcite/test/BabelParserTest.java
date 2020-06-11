@@ -908,6 +908,31 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testNamedExpressionAlone() {
+    final String sql = "select (a + b) (named x) from foo where x > 0";
+    final String expected = "SELECT (`A` + `B`) (NAMED `X`)\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`X` > 0)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNamedExpressionWithOtherAttributes() {
+    final String sql = "select (a + b) (named x), k from foo where x > 0";
+    final String expected = "SELECT (`A` + `B`) (NAMED `X`), `K`\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`X` > 0)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedNamedExpression() {
+    final String sql = "SELECT (((a + b) (named x)) + y) (named z) from foo "
+        + "where z > 0 and x > 0";
+    final String expected = "SELECT ((`A` + `B`) (NAMED `X`) + `Y`) (NAMED `Z`)\n"
+        + "FROM `FOO`\n"
+        + "WHERE ((`Z` > 0) AND (`X` > 0))";
+    sql(sql).ok(expected);
+  }
+
   @Test void testNestedSchemaAccess() {
     final String sql = "SELECT a.b.c.d.column";
     final String expected = "SELECT `A`.`B`.`C`.`D`.`COLUMN`";
