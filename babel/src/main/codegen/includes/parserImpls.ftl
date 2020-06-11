@@ -552,16 +552,14 @@ SqlNode SqlInsertWithOptionalValuesKeyword() :
     }
 }
 
-SqlNode SqlNamedExpression(SqlNode expression) :
+SqlNode SqlNamedExpression(SqlNode e) :
 {
-    final Span s;
     final SqlIdentifier name;
 }
 {
-    <LPAREN> { s = span(); }
-    <NAMED> name = SimpleIdentifier() <RPAREN>
+    <LPAREN> <NAMED> name = SimpleIdentifier() <RPAREN>
     {
-        return new SqlNamedExpression(s.end(this), name, expression);
+        return SqlStdOperatorTable.AS.createCall(span().end(e), e, name);
     }
 }
 

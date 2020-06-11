@@ -929,7 +929,7 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testNamedExpressionAlone() {
     final String sql = "select (a + b) (named x) from foo where x > 0";
-    final String expected = "SELECT (`A` + `B`) (NAMED `X`)\n"
+    final String expected = "SELECT (`A` + `B`) AS `X`\n"
         + "FROM `FOO`\n"
         + "WHERE (`X` > 0)";
     sql(sql).ok(expected);
@@ -937,7 +937,7 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testNamedExpressionWithOtherAttributes() {
     final String sql = "select (a + b) (named x), k from foo where x > 0";
-    final String expected = "SELECT (`A` + `B`) (NAMED `X`), `K`\n"
+    final String expected = "SELECT (`A` + `B`) AS `X`, `K`\n"
         + "FROM `FOO`\n"
         + "WHERE (`X` > 0)";
     sql(sql).ok(expected);
@@ -946,7 +946,7 @@ class BabelParserTest extends SqlParserTest {
   @Test public void testNestedNamedExpression() {
     final String sql = "SELECT (((a + b) (named x)) + y) (named z) from foo "
         + "where z > 0 and x > 0";
-    final String expected = "SELECT ((`A` + `B`) (NAMED `X`) + `Y`) (NAMED `Z`)\n"
+    final String expected = "SELECT (((`A` + `B`) AS `X`) + `Y`) AS `Z`\n"
         + "FROM `FOO`\n"
         + "WHERE ((`Z` > 0) AND (`X` > 0))";
     sql(sql).ok(expected);
