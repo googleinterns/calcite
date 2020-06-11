@@ -692,7 +692,7 @@ class BabelParserTest extends SqlParserTest {
     final String sql = "create table foo (bar int uppercase null casespecific, "
         + "baz varchar(30) casespecific uppercase null)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER UPPERCASE "
-        + "CASESPECIFIC, `BAZ` VARCHAR(30) UPPERCASE CASESPECIFIC)";
+        + "CASESPECIFIC, `BAZ` VARCHAR(30) CASESPECIFIC UPPERCASE)";
     sql(sql).ok(expected);
   }
 
@@ -701,7 +701,7 @@ class BabelParserTest extends SqlParserTest {
         + "casespecific, baz varchar(30) not casespecific not uppercase not null)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER NOT NULL NOT "
         + "UPPERCASE NOT CASESPECIFIC, `BAZ` VARCHAR(30) NOT NULL "
-        + "NOT UPPERCASE NOT CASESPECIFIC)";
+        + "NOT CASESPECIFIC NOT UPPERCASE)";
     sql(sql).ok(expected);
   }
 

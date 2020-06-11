@@ -22,6 +22,9 @@ data: {
     # List of import statements.
     imports: [
       "org.apache.calcite.sql.SqlCreate",
+      "org.apache.calcite.sql.SqlColumnAttribute",
+      "org.apache.calcite.sql.SqlColumnAttributeUpperCase",
+      "org.apache.calcite.sql.SqlColumnAttributeCaseSpecific",
       "org.apache.calcite.sql.babel.SqlSetTimeZone",
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",

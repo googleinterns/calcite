@@ -18,6 +18,7 @@ package org.apache.calcite.sql.ddl;
 
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.sql.SqlCall;
+import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
@@ -70,17 +71,14 @@ public class SqlColumnDeclaration extends SqlCall {
     if (dataType.getNullable() != null && !dataType.getNullable()) {
       writer.keyword("NOT NULL");
     }
-    if (dataType.getUppercase() != null) {
-      String keyword = dataType.getUppercase()
-          ? "UPPERCASE"
-          : "NOT UPPERCASE";
-      writer.keyword(keyword);
-    }
-    if (dataType.getCaseSpecific() != null) {
-      String keyword = dataType.getCaseSpecific()
-          ? "CASESPECIFIC"
-          : "NOT CASESPECIFIC";
-      writer.keyword(keyword);
+    List<SqlColumnAttribute> columnAttributes = dataType.getColumnAttributes();
+    if (columnAttributes.size() > 0) {
+      SqlWriter.Frame frame = writer.startList("", "");
+      for (SqlColumnAttribute a : columnAttributes) {
+        writer.sep("");
+        a.unparse(writer, 0, 0);
+      }
+      writer.endList(frame);
     }
     if (expression != null) {
       switch (strategy) {
