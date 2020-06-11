@@ -23,7 +23,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  * to create custom attributes for columns created by the the SQL CREATE TABLE
  * function.
  *
- * <p>To customize column attribute unparsing, override the method
+ * <p>To customize column attribute unparsing, override the method.</p>
  * {@link #unparse(SqlWriter, int, int)}.
  */
 public abstract class SqlColumnAttribute {
