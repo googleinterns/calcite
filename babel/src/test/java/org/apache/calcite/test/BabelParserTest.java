@@ -955,28 +955,4 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "SELECT CAST(12.5 AS INTEGER)";
     sql(sql).ok(expected);
   }
-
-  @Test void testAlternativeTypeConversionQuery() {
-    final String sql = "select (select foo from bar) (integer) from baz";
-    final String expected = "SELECT CAST((SELECT `FOO`\n"
-        + "FROM `BAR`) AS INTEGER)\n"
-        + "FROM `BAZ`";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testAlternativeTypeConversionQueryFormat() {
-    final String sql = "select (select foo from bar) (time(0) format 'HHhMIm') from baz";
-    final String expected = "SELECT CAST((SELECT `FOO`\n"
-        + "FROM `BAR`) AS TIME(0) FORMAT 'HHhMIm')\n"
-        + "FROM `BAZ`";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testAlternativeTypeConversionQueryNested() {
-    final String sql = "select ((select foo from bar) (integer)) (char) from baz";
-    final String expected = "SELECT CAST(CAST((SELECT `FOO`\n"
-        + "FROM `BAR`) AS INTEGER) AS CHAR)\n"
-        + "FROM `BAZ`";
-    sql(sql).ok(expected);
-  }
 }
