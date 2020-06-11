@@ -72,7 +72,7 @@ public class SqlColumnDeclaration extends SqlCall {
       writer.keyword("NOT NULL");
     }
     List<SqlColumnAttribute> columnAttributes = dataType.getColumnAttributes();
-    if (columnAttributes.size() > 0) {
+    if (columnAttributes != null && columnAttributes.size() > 0) {
       SqlWriter.Frame frame = writer.startList("", "");
       for (SqlColumnAttribute a : columnAttributes) {
         writer.sep("");

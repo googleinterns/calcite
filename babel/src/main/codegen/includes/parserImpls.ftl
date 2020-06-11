@@ -198,7 +198,7 @@ void ColumnWithType(List<SqlNode> list) :
     type = DataType()
     /* This structure is to support [NOT] NULL appearing anywhere in the
        declaration. Hence the list also needs to be passed in as a paramater
-       rather than be the return value. If not then the list would be overriden
+       rather than be the return value. If not, then the list would be overriden
        in the cases where [NOT] NULL appears inbetween other attributes. */
     (
         ColumnAttributes(columnAttributes)

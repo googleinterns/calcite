@@ -16,7 +16,6 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
@@ -29,7 +28,7 @@ public class SqlColumnAttributeUpperCase extends SqlColumnAttribute {
   /**
    * Creates a {@code SqlColumnAttributeUpperCase}.
    *
-   * @param isUpperCase  Whether or not the column is uppercase or not
+   * @param isUpperCase  Whether or not the column is uppercase
    * @param pos  Parser position, must not be null
    */
   public SqlColumnAttributeUpperCase(SqlParserPos pos, boolean isUpperCase) {

@@ -25,8 +25,8 @@ import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.Litmus;
 
-import java.util.Objects;
 import java.util.List;
+import java.util.Objects;
 import java.util.TimeZone;
 
 /**
@@ -88,7 +88,7 @@ public class SqlDataTypeSpec extends SqlNode {
       final SqlTypeNameSpec typeNameSpec,
       SqlParserPos pos) {
     this(typeNameSpec, /*timeZone=*/ null, /*nullable=*/ null,
-        /*columnAttributes=*/ null,  pos);
+        /*columnAttributes=*/ null, pos);
   }
 
   /**

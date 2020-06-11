@@ -16,7 +16,6 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
@@ -24,7 +23,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  * to create custom attributes for columns created by the the SQL CREATE TABLE
  * function.
  *
- * <p>To customize table option unparsing, override the method
+ * <p>To customize column attribute unparsing, override the method
  * {@link #unparse(SqlWriter, int, int)}.
  */
 public abstract class SqlColumnAttribute {
@@ -39,7 +38,7 @@ public abstract class SqlColumnAttribute {
     this.pos = pos;
   }
 
-  /** Writes a SQL representation of this table option to a writer. */
+  /** Writes a SQL representation of this column attribute to a writer. */
   public abstract void unparse(SqlWriter writer, int leftPrec, int rightPrec);
 
   public SqlParserPos getParserPos() {
