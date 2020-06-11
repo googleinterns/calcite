@@ -47,7 +47,6 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
       "org.apache.calcite.sql.babel.SqlExecMacro",
-      "org.apache.calcite.sql.babel.SqlNamedExpression",
       "org.apache.calcite.sql.babel.SqlUpsert",
       "org.apache.calcite.sql.babel.SqlUsingRequestModifier",
       "org.apache.calcite.sql.babel.Volatility",
