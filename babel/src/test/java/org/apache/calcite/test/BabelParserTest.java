@@ -290,6 +290,18 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableWithSetTypeBeforeVolatility() {
+    final String sql = "create multiset volatile table foo (bar integer)";
+    final String expected = "CREATE MULTISET VOLATILE TABLE `FOO` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableWithVolatilityBeforeSetType() {
+    final String sql = "create volatile multiset table foo (bar integer)";
+    final String expected = "CREATE MULTISET VOLATILE TABLE `FOO` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTempTable() {
     final String sql = "create temp table foo (bar int not null, baz varchar(30))";
     final String expected = "CREATE TEMP TABLE `FOO` "

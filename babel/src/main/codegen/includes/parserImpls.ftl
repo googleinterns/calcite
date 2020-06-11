@@ -85,8 +85,6 @@ SetType SetTypeOpt() :
     <MULTISET> { return SetType.MULTISET; }
 |
     <SET> { return SetType.SET; }
-|
-    { return SetType.UNSPECIFIED; }
 }
 
 Volatility VolatilityOpt() :
@@ -96,8 +94,6 @@ Volatility VolatilityOpt() :
     <VOLATILE> { return Volatility.VOLATILE; }
 |
     <TEMP> { return Volatility.TEMP; }
-|
-    { return Volatility.UNSPECIFIED; }
 }
 
 OnCommitType OnCommitTypeOpt() :
@@ -448,8 +444,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
 
 SqlCreate SqlCreateTable(Span s, boolean replace) :
 {
-    final SetType setType;
-    final Volatility volatility;
+    SetType setType = SetType.UNSPECIFIED;
+    Volatility volatility = Volatility.UNSPECIFIED;
     final boolean ifNotExists;
     final SqlIdentifier id;
     final List<SqlCreateAttribute> tableAttributes;
@@ -459,7 +455,18 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     final OnCommitType onCommitType;
 }
 {
-    setType = SetTypeOpt() volatility = VolatilityOpt() <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
+    [
+        setType = SetTypeOpt()
+        volatility = VolatilityOpt()
+    |
+        volatility = VolatilityOpt()
+        setType = SetTypeOpt()
+    |
+        setType = SetTypeOpt()
+    |
+        volatility = VolatilityOpt()
+    ]
+    <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
     (
         tableAttributes = CreateTableAttributes()
     |
