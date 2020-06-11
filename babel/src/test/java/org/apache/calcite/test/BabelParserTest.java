@@ -729,6 +729,42 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableLatinCharacterSetColumnLevelAttribute() {
+    final String sql = "create table foo (bar int character set latin)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET LATIN)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableUnicodeCharacterSetColumnLevelAttribute() {
+    final String sql = "create table foo (bar int character set unicode)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET UNICODE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableGraphicCharacterSetColumnLevelAttribute() {
+    final String sql = "create table foo (bar int character set graphic)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET GRAPHIC)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableKanjisjisCharacterSetColumnLevelAttribute() {
+    final String sql = "create table foo (bar int character set kanjisjis)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET KANJISJIS)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableKanjiCharacterSetColumnLevelAttribute() {
+    final String sql = "create table foo (bar int character set kanji)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET KANJI)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableCharacterSetAndUppercaseColumnLevelAttributes() {
+    final String sql = "create table foo (bar int character set kanji uppercase)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET KANJI UPPERCASE)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testInsertWithSelectInParens() {
     final String sql = "insert into foo (SELECT * FROM bar)";
     final String expected = "INSERT INTO `FOO`\n"

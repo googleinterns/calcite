@@ -33,7 +33,7 @@ public class SqlColumnAttributeCharacterSet extends SqlColumnAttribute {
    */
   public SqlColumnAttributeCharacterSet(SqlParserPos pos, CharacterSet characterSet) {
     super(pos);
-    this.charactetSet = characterSet
+    this.characterSet = characterSet;
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
