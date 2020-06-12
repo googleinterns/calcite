@@ -663,7 +663,7 @@ SqlNode InlineModOperator() :
     }
 }
 
-SqlNode CurrentTime() :
+SqlNode CurrentDateTimeFunctions() :
 {
     final List<SqlNode> args = new ArrayList<SqlNode>();
     final SqlIdentifier qualifiedName;
@@ -690,7 +690,7 @@ SqlNode CurrentTime() :
             }
         ]
         <RPAREN>
-        ]
+    ]
     {
         return createCall(qualifiedName, getPos(), funcType, quantifier, args);
     }
