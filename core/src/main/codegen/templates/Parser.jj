@@ -3668,15 +3668,23 @@ SqlNode Expression3(ExprContext exprContext) :
         )
     ]
     {
-        if (list1.size() == 1) {
-            // interpret as single value or query
-            return list1.get(0);
-        } else {
+        if (list1.size() != 1) {
             // interpret as row constructor
             return SqlStdOperatorTable.ROW.createCall(span().end(list1),
                 list1.toArray());
         }
     }
+<#list parser.alternativeTypeConversionQuery>
+    (
+    <#items as method>
+        e = ${method}(list1.get(0)) { return e; }
+    |
+    </#items>
+        { return list1.get(0); }
+    )
+<#else>
+    { return list1.get(0); }
+</#list>
 }
 
 SqlOperator periodOperator() :
