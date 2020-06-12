@@ -147,36 +147,41 @@ boolean IsNullable() :
     )
 }
 
-boolean IsCaseSpecific() :
+SqlColumnAttribute ColumnAttributeCaseSpecific() :
 {
+    boolean isCaseSpecific = true;
+}
+{
+    [ <NOT> { isCaseSpecific = false; } ]
+    <CASESPECIFIC> {
+        return new SqlColumnAttributeCaseSpecific(getPos(), isCaseSpecific);
+    }
+}
 
+SqlColumnAttribute ColumnAttributeUpperCase() :
+{
+    boolean isUpperCase = true;
+}
+{
+    [ <NOT> { isUpperCase = false; } ]
+    <UPPERCASE> {
+        return new SqlColumnAttributeUpperCase(getPos(), isUpperCase);
+    }
+}
+
+void ColumnAttributes(List<SqlColumnAttribute> list) :
+{
+    SqlColumnAttribute e;
+    Span s;
 }
 {
     (
-        <NOT> <CASESPECIFIC> {
-            return false;
-        }
-    |
-        <CASESPECIFIC> {
-            return true;
-        }
-    )
-}
-
-boolean IsUpperCase() :
-{
-
-}
-{
-    (
-        <NOT> <UPPERCASE> {
-            return false;
-        }
-    |
-        <UPPERCASE> {
-            return true;
-        }
-    )
+        (
+            e = ColumnAttributeUpperCase()
+        |
+            e = ColumnAttributeCaseSpecific()
+        ) { list.add(e); }
+    )+
 }
 
 void ColumnWithType(List<SqlNode> list) :
@@ -184,30 +189,25 @@ void ColumnWithType(List<SqlNode> list) :
     SqlIdentifier id;
     SqlDataTypeSpec type;
     boolean nullable = true;
-    Boolean uppercase = null;
-    Boolean caseSpecific = null;
+    List<SqlColumnAttribute> columnAttributes =
+        new ArrayList<SqlColumnAttribute>();
     final Span s = Span.of();
 }
 {
     id = CompoundIdentifier()
     type = DataType()
-    // This acts as a loop to check which optional parameters have been specified.
+    /* This structure is to support [NOT] NULL appearing anywhere in the
+       declaration. Hence the list also needs to be passed in as a paramater
+       rather than be the return value. If not, then the list would be overriden
+       in the cases where [NOT] NULL appears inbetween other attributes. */
     (
-        nullable = IsNullable()
-        {
-            type = type.withNullable(nullable);
-        }
+        ColumnAttributes(columnAttributes)
     |
-        uppercase = IsUpperCase() {
-            type = type.withUppercase(uppercase);
-        }
-    |
-        caseSpecific = IsCaseSpecific() {
-            type = type.withCaseSpecific(caseSpecific);
-        }
+        nullable = IsNullable() { type = type.withNullable(nullable); }
     )*
     {
-        list.add(SqlDdlNodes.column(s.add(id).end(this), id, type, null, null));
+        list.add(SqlDdlNodes.column(s.add(id).end(this), id,
+            type.withColumnAttributes(columnAttributes), null, null));
     }
 }
 
