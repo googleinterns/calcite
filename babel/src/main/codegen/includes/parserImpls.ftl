@@ -745,7 +745,6 @@ SqlNode AlternativeTypeConversionLiteralOrIdentifier() :
 {
      final List<SqlNode> args;
      final SqlDataTypeSpec dt;
-     final SqlNodeList list;
      SqlNode e;
      final Span s;
 }
