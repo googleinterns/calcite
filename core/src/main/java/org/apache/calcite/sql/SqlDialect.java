@@ -464,8 +464,8 @@ public class SqlDialect {
       break;
     case OTHER_FUNCTION:
       SqlOperator operator = call.getOperator();
-      if (call.getOperandList().size() == 0 &&
-          FUNCTIONS_NO_PARENS.contains(operator.getName().toLowerCase(Locale.ROOT))) {
+      if (call.getOperandList().size() == 0
+          && FUNCTIONS_NO_PARENS.contains(operator.getName().toLowerCase(Locale.ROOT))) {
         unparseSqlIdentifier(writer, operator.getNameAsId(), leftPrec, rightPrec);
       } else {
         // Unparses with parens.
