@@ -73,12 +73,9 @@ public class SqlColumnDeclaration extends SqlCall {
     }
     List<SqlColumnAttribute> columnAttributes = dataType.getColumnAttributes();
     if (columnAttributes != null && columnAttributes.size() > 0) {
-      SqlWriter.Frame frame = writer.startList("", "");
       for (SqlColumnAttribute a : columnAttributes) {
-        writer.sep("");
         a.unparse(writer, 0, 0);
       }
-      writer.endList(frame);
     }
     if (expression != null) {
       switch (strategy) {
