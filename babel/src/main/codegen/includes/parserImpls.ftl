@@ -663,6 +663,39 @@ SqlNode InlineModOperator() :
     }
 }
 
+SqlNode CurrentTime() :
+{
+    final List<SqlNode> args = new ArrayList<SqlNode>();
+    final SqlIdentifier qualifiedName;
+    SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;
+    SqlNode e;
+    SqlLiteral quantifier = null;
+}
+{
+    (
+        <CURRENT_TIME>
+    |
+        <CURRENT_TIMESTAMP>
+    |
+        <CURRENT_DATE>
+    )
+    {
+        qualifiedName = new SqlIdentifier(unquotedIdentifier(), getPos());
+    }
+    [
+        <LPAREN>
+        [
+            e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
+                args.add(e);
+            }
+        ]
+        <RPAREN>
+        ]
+    {
+        return createCall(qualifiedName, getPos(), funcType, quantifier, args);
+    }
+}
+
 SqlNode DateTimeTerm() :
 {
     final SqlNode e;

@@ -999,6 +999,7 @@ data: {
 
     dateTimeExpressionMethods: [
       "DateTimeTerm()"
+      "CurrentTime()"
     ]
 
     # List of files in @includes directory that have parser method

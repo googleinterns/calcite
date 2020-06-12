@@ -145,6 +145,10 @@ public class SqlDialect {
           .add(SqlStdOperatorTable.TAN)
           .build();
 
+  // Strings in this set will be unparsed to not have empty parentheses at the end.
+  private static final Set<String> IDENTIFIER_FUNCTIONS =
+      ImmutableSet.of("current_time", "current_timestamp", "current_date");
+
 
   //~ Instance fields --------------------------------------------------------
 
@@ -458,6 +462,14 @@ public class SqlDialect {
         break;
       }
       call.getOperator().unparse(writer, call, leftPrec, rightPrec);
+      break;
+    case OTHER_FUNCTION:
+      SqlOperator operator = call.getOperator();
+      if (call.getOperandList().size() == 0 && IDENTIFIER_FUNCTIONS.contains(operator.getName().toLowerCase(Locale.ROOT))) {
+        unparseSqlIdentifier(writer, operator.getNameAsId(), leftPrec, rightPrec);
+      } else {
+        operator.unparse(writer, call, leftPrec, rightPrec);
+      }
       break;
     default:
       call.getOperator().unparse(writer, call, leftPrec, rightPrec);
