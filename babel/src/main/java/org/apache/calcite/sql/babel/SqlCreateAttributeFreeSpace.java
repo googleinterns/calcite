@@ -20,54 +20,34 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlCreateAttributeChecksum</code> is a CREATE TABLE option
- * for the CHECKSUM attribute.
+ * A <code>SqlCreateAttributeFreeSpace</code> is a CREATE TABLE option
+ * for the FREESPACE attribute.
  */
-public class SqlCreateAttributeChecksum extends SqlCreateAttribute {
+public class SqlCreateAttributeFreeSpace extends SqlCreateAttribute {
 
-  private final ChecksumEnabled checksumEnabled;
+  private final int freeSpaceValue;
+  private final boolean percent;
 
   /**
-   * Creates a {@code SqlCreateAttributeChecksum}.
+   * Creates a {@code SqlCreateAttributeFreeSpace}.
    *
-   * @param checksumEnabled  Status of checksums enabled for this table type
+   * @param freeSpaceValue  The percentage of free space to reserve during loading operations
+   * @param percent  Optional keyword PERCENT
    * @param pos  Parser position, must not be null
    */
-  public SqlCreateAttributeChecksum(ChecksumEnabled checksumEnabled, SqlParserPos pos) {
+  public SqlCreateAttributeFreeSpace(int freeSpaceValue, boolean percent, SqlParserPos pos) {
     super(pos);
-    this.checksumEnabled = checksumEnabled;
+    this.freeSpaceValue = freeSpaceValue;
+    this.percent = percent;
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
-    writer.keyword("CHECKSUM");
+    writer.keyword("FREESPACE");
     writer.sep("=");
-    switch (checksumEnabled) {
-    case DEFAULT:
-      writer.keyword("DEFAULT");
-      break;
-    case ON:
-      writer.keyword("ON");
-      break;
-    case OFF:
-      writer.keyword("OFF");
-      break;
+    writer.print(freeSpaceValue);
+    writer.print(" ");
+    if (percent) {
+      writer.keyword("PERCENT");
     }
-  }
-
-  public enum ChecksumEnabled {
-    /**
-     * The current checksum level setting specified for this table type.
-     */
-    DEFAULT,
-
-    /**
-     * Checksums are enabled for this table type.
-     */
-    ON,
-
-    /**
-     * Checksums are disabled for this table type.
-     */
-    OFF,
   }
 }

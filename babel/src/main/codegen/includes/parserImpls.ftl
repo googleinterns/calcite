@@ -85,8 +85,6 @@ SetType SetTypeOpt() :
     <MULTISET> { return SetType.MULTISET; }
 |
     <SET> { return SetType.SET; }
-|
-    { return SetType.UNSPECIFIED; }
 }
 
 Volatility VolatilityOpt() :
@@ -96,8 +94,6 @@ Volatility VolatilityOpt() :
     <VOLATILE> { return Volatility.VOLATILE; }
 |
     <TEMP> { return Volatility.TEMP; }
-|
-    { return Volatility.UNSPECIFIED; }
 }
 
 OnCommitType OnCommitTypeOpt() :
@@ -236,6 +232,49 @@ SqlCreateAttribute CreateTableAttributeJournalTable() :
     { return new SqlCreateAttributeJournalTable(id, getPos()); }
 }
 
+// FREESPACE attribute can take in decimals but should be truncated to an integer.
+SqlCreateAttribute CreateTableAttributeFreeSpace() :
+{
+    SqlLiteral tempNumeric;
+    int freeSpaceValue;
+    boolean percent = false;
+}
+{
+    <FREESPACE> <EQ> tempNumeric = UnsignedNumericLiteral() {
+        freeSpaceValue = tempNumeric.getValueAs(Integer.class);
+        if (freeSpaceValue < 0 || freeSpaceValue > 75) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.numberLiteralOutOfRange(String.valueOf(freeSpaceValue)));
+        }
+    }
+    [ <PERCENT> { percent = true; } ]
+    { return new SqlCreateAttributeFreeSpace(freeSpaceValue, percent, getPos()); }
+}
+
+SqlCreateAttribute CreateTableAttributeIsolatedLoading() :
+{
+    boolean nonLoadIsolated = false;
+    boolean concurrent = false;
+    OperationLevel operationLevel = null;
+}
+{
+    <WITH>
+    [ <NO> { nonLoadIsolated = true; } ]
+    [ <CONCURRENT> { concurrent = true; } ]
+    <ISOLATED> <LOADING>
+    [
+        <FOR>
+        (
+            <ALL> { operationLevel = OperationLevel.ALL; }
+        |
+            <INSERT> { operationLevel = OperationLevel.INSERT; }
+        |
+            <NONE> { operationLevel = OperationLevel.NONE; }
+        )
+    ]
+    { return new SqlCreateAttributeIsolatedLoading(nonLoadIsolated, concurrent, operationLevel, getPos()); }
+}
+
 SqlCreateAttribute CreateTableAttributeJournal() :
 {
   JournalType journalType;
@@ -340,6 +379,35 @@ SqlCreateAttribute CreateTableAttributeChecksum() :
     { return new SqlCreateAttributeChecksum(checksumEnabled, getPos()); }
 }
 
+SqlCreateAttribute CreateTableAttributeBlockCompression() :
+{
+    BlockCompressionOption blockCompressionOption;
+}
+{
+    <BLOCKCOMPRESSION> <EQ>
+    (
+        <DEFAULT_> { blockCompressionOption = BlockCompressionOption.DEFAULT; }
+    |
+        <AUTOTEMP> { blockCompressionOption = BlockCompressionOption.AUTOTEMP; }
+    |
+        <MANUAL> { blockCompressionOption = BlockCompressionOption.MANUAL; }
+    |
+        <NEVER> { blockCompressionOption = BlockCompressionOption.NEVER; }
+    )
+    { return new SqlCreateAttributeBlockCompression(blockCompressionOption, getPos()); }
+}
+
+SqlCreateAttribute CreateTableAttributeLog() :
+{
+    boolean loggingEnabled = true;
+}
+{
+    [ <NO> { loggingEnabled = false; } ]
+    <LOG> {
+        return new SqlCreateAttributeLog(loggingEnabled, getPos());
+    }
+}
+
 List<SqlCreateAttribute> CreateTableAttributes() :
 {
     final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
@@ -354,11 +422,19 @@ List<SqlCreateAttribute> CreateTableAttributes() :
         |
             e = CreateTableAttributeJournalTable()
         |
+            e = CreateTableAttributeFreeSpace()
+        |
+            e = CreateTableAttributeIsolatedLoading()
+        |
             e = CreateTableAttributeDataBlockSize()
         |
             e = CreateTableAttributeMergeBlockRatio()
         |
             e = CreateTableAttributeChecksum()
+        |
+            e = CreateTableAttributeBlockCompression()
+        |
+            e = CreateTableAttributeLog()
         |
             e = CreateTableAttributeJournal()
         ) { list.add(e); }
@@ -368,8 +444,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
 
 SqlCreate SqlCreateTable(Span s, boolean replace) :
 {
-    final SetType setType;
-    final Volatility volatility;
+    SetType setType = SetType.UNSPECIFIED;
+    Volatility volatility = Volatility.UNSPECIFIED;
     final boolean ifNotExists;
     final SqlIdentifier id;
     final List<SqlCreateAttribute> tableAttributes;
@@ -379,7 +455,18 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     final OnCommitType onCommitType;
 }
 {
-    setType = SetTypeOpt() volatility = VolatilityOpt() <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
+    [
+        setType = SetTypeOpt()
+        volatility = VolatilityOpt()
+    |
+        volatility = VolatilityOpt()
+        setType = SetTypeOpt()
+    |
+        setType = SetTypeOpt()
+    |
+        volatility = VolatilityOpt()
+    ]
+    <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
     (
         tableAttributes = CreateTableAttributes()
     |
@@ -462,6 +549,17 @@ SqlNode SqlInsertWithOptionalValuesKeyword() :
     {
         return SqlStdOperatorTable.VALUES.createCall(s.end(this),
             rowConstructorList.toArray());
+    }
+}
+
+SqlNode SqlNamedExpression(SqlNode e) :
+{
+    final SqlIdentifier name;
+}
+{
+    <LPAREN> <NAMED> name = SimpleIdentifier() <RPAREN>
+    {
+        return SqlStdOperatorTable.AS.createCall(span().end(e), e, name);
     }
 }
 
@@ -563,6 +661,34 @@ SqlNode InlineModOperator() :
         args.add(e);
         return createCall(qualifiedName, s.end(this), funcType, quantifier, args);
     }
+}
+
+SqlNode DateTimeTerm() :
+{
+    final SqlNode e;
+    SqlIdentifier timeZoneValue;
+}
+{
+    (
+        e = DateTimeLiteral()
+    |
+        e = SimpleIdentifier()
+    )
+    (
+        <AT>
+        (
+            <LOCAL>
+            {
+                return new SqlDateTimeAtLocal(getPos(), e);
+            }
+        |
+            <TIME> <ZONE>
+            {
+                timeZoneValue = SimpleIdentifier();
+                return new SqlDateTimeAtTimeZone(getPos(), e, timeZoneValue);
+            }
+        )
+    )
 }
 
 // This excludes CompoundIdentifier() as a data type.

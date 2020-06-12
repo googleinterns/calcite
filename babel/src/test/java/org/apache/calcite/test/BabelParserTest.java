@@ -103,6 +103,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testDel() {
+    final String sql = "del from t";
+    final String expected = "DELETE FROM `T`";
+    sql(sql).ok(expected);
+  }
+
   @Test void testYearIsNotReserved() {
     final String sql = "select 1 as year from t";
     final String expected = "SELECT 1 AS `YEAR`\n"
@@ -290,6 +296,18 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableWithSetTypeBeforeVolatility() {
+    final String sql = "create multiset volatile table foo (bar integer)";
+    final String expected = "CREATE MULTISET VOLATILE TABLE `FOO` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableWithVolatilityBeforeSetType() {
+    final String sql = "create volatile multiset table foo (bar integer)";
+    final String expected = "CREATE MULTISET VOLATILE TABLE `FOO` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTempTable() {
     final String sql = "create temp table foo (bar int not null, baz varchar(30))";
     final String expected = "CREATE TEMP TABLE `FOO` "
@@ -388,6 +406,116 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeFreeSpace() {
+    final String sql = "create table foo, freespace = 35 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 35 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpacePercent() {
+    final String sql = "create table foo, freespace = 35 percent (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 35 PERCENT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceTruncated() {
+    final String sql = "create table foo, freespace = 32.65 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 32 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceNegativeFails() {
+    final String sql = "create table foo, freespace = ^-^32.65 (bar integer)";
+    final String expected = "(?s).*Encountered \"-\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceOutOfRangeFails() {
+    final String sql = "create table foo, freespace = ^82.5^ (bar integer)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceOutOfRangePercentFails() {
+    final String sql = "create table foo, freespace = ^82.5^ percent (bar integer)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceRangeLowerBound() {
+    final String sql = "create table foo, freespace = 0 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 0 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceRangeBelowLowerBoundFail() {
+    final String sql = "create table foo, freespace = ^-^1 (bar integer)";
+    final String expected = "(?s).*Encountered \"-\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceRangeUpperBound() {
+    final String sql = "create table foo, freespace = 75 (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, FREESPACE = 75 (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeFreeSpaceRangeAboveUpperBound() {
+    final String sql = "create table foo, freespace = ^76^ (bar integer)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingDefault() {
+    final String sql = "create table foo, with isolated loading (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH ISOLATED LOADING (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingNoModifier() {
+    final String sql = "create table foo, with no isolated loading (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH NO ISOLATED LOADING (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingConcurrentModifier() {
+    final String sql = "create table foo, with concurrent isolated loading (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH CONCURRENT ISOLATED LOADING (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingNoConcurrentModifier() {
+    final String sql = "create table foo, with no concurrent isolated loading (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH NO CONCURRENT ISOLATED LOADING "
+        + "(`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingForAllOperationLevel() {
+    final String sql = "create table foo, with isolated loading for all (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH ISOLATED LOADING FOR ALL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingForInsertOperationLevel() {
+    final String sql = "create table foo, with isolated loading for insert (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH ISOLATED LOADING FOR INSERT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingForNoneOperationLevel() {
+    final String sql = "create table foo, with isolated loading for none (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH ISOLATED LOADING FOR NONE (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeIsolatedLoadingModifierOperationLevel() {
+    final String sql = "create table foo, with concurrent isolated loading for none (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, WITH CONCURRENT ISOLATED LOADING FOR NONE "
+        + "(`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testTableAttributeDataBlockSizeMinimum() {
     final String sql = "create table foo, minimum datablocksize (bar integer)";
     final String expected = "CREATE TABLE `FOO`, MINIMUM DATABLOCKSIZE (`BAR` INTEGER)";
@@ -463,6 +591,42 @@ class BabelParserTest extends SqlParserTest {
   @Test public void testTableAttributeChecksumOff() {
     final String sql = "create table foo, checksum = off (bar integer)";
     final String expected = "CREATE TABLE `FOO`, CHECKSUM = OFF (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeBlockCompressionDefault() {
+    final String sql = "create table foo, blockcompression = default (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BLOCKCOMPRESSION = DEFAULT (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeBlockCompressionAutotemp() {
+    final String sql = "create table foo, blockcompression = autotemp (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BLOCKCOMPRESSION = AUTOTEMP (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeBlockCompressionManual() {
+    final String sql = "create table foo, blockcompression = manual (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BLOCKCOMPRESSION = MANUAL (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeBlockCompressionNever() {
+    final String sql = "create table foo, blockcompression = never (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, BLOCKCOMPRESSION = NEVER (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeLog() {
+    final String sql = "create table foo, log (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, LOG (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeLogNoModifier() {
+    final String sql = "create table foo, no log (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, NO LOG (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 
@@ -587,6 +751,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testIns() {
+    final String sql = "ins into foo (1,'hi')";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(1, 'hi'))";
+    sql(sql).ok(expected);
+  }
 
   @Test void testBigQueryUnicodeUnparsing() {
     final String sql = "SELECT '¶ÑÍ·'";
@@ -613,6 +783,13 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testUpdateFromTable() {
     final String sql = "update foo from bar set foo.x = bar.y, foo.z = bar.k";
+    final String expected = "UPDATE `FOO` FROM `BAR` SET `FOO`.`X` = `BAR`.`Y`, "
+        + "`FOO`.`Z` = `BAR`.`K`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUpd() {
+    final String sql = "upd foo from bar set foo.x = bar.y, foo.z = bar.k";
     final String expected = "UPDATE `FOO` FROM `BAR` SET `FOO`.`X` = `BAR`.`Y`, "
         + "`FOO`.`Z` = `BAR`.`K`";
     sql(sql).ok(expected);
@@ -655,6 +832,66 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testDateTimePrimaryLiteral() {
+    final String sql = "select timestamp '2020-05-30 13:20:00'";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00'";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryBuiltInFunction() {
+    final String sql = "select current_timestamp";
+    final String expected = "SELECT CURRENT_TIMESTAMP";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryLiteralAtLocal() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at local";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT LOCAL";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryColumnAtLocal() {
+    final String sql = "select foo at local";
+    final String expected = "SELECT `FOO` AT LOCAL";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryBuiltInFunctionAtLocal() {
+    final String sql = "select current_timestamp at local";
+    final String expected = "SELECT CURRENT_TIMESTAMP AT LOCAL";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryLiteralAtTimeZone() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone \"GMT+10\"";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT TIME ZONE `GMT+10`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryColumnAtTimeZone() {
+    final String sql = "select foo at time zone \"Europe Moscow\"";
+    final String expected = "SELECT `FOO` AT TIME ZONE `Europe Moscow`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryBuiltInFunctionAtTimeZone() {
+    final String sql = "select current_date at time zone \"GMT-5\"";
+    final String expected = "SELECT CURRENT_DATE AT TIME ZONE `GMT-5`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateTimePrimaryColumnAtLocalInWhereClause() {
+    final String sql =
+        "select foo "
+        + "from fooTable "
+        + "where timestamp '2020-05-30 13:20:00' at local = timestamp '2020-05-30 20:20:00'";
+    final String expected =
+        "SELECT `FOO`\n"
+        + "FROM `FOOTABLE`\n"
+        + "WHERE (TIMESTAMP '2020-05-30 13:20:00' AT LOCAL = TIMESTAMP '2020-05-30 20:20:00')";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testUsingRequestModifierSingular() {
     final String sql = "using (foo int)";
     final String expected = "USING (`FOO` INTEGER)";
@@ -690,6 +927,31 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testNamedExpressionAlone() {
+    final String sql = "select (a + b) (named x) from foo where x > 0";
+    final String expected = "SELECT (`A` + `B`) AS `X`\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`X` > 0)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNamedExpressionWithOtherAttributes() {
+    final String sql = "select (a + b) (named x), k from foo where x > 0";
+    final String expected = "SELECT (`A` + `B`) AS `X`, `K`\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`X` > 0)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedNamedExpression() {
+    final String sql = "SELECT (((a + b) (named x)) + y) (named z) from foo "
+        + "where z > 0 and x > 0";
+    final String expected = "SELECT (((`A` + `B`) AS `X`) + `Y`) AS `Z`\n"
+        + "FROM `FOO`\n"
+        + "WHERE ((`Z` > 0) AND (`X` > 0))";
+    sql(sql).ok(expected);
+  }
+
   @Test void testNestedSchemaAccess() {
     final String sql = "SELECT a.b.c.d.column";
     final String expected = "SELECT `A`.`B`.`C`.`D`.`COLUMN`";
@@ -720,6 +982,78 @@ class BabelParserTest extends SqlParserTest {
     final String sql = "select foo mod bar";
     final String expected = "SELECT MOD(`FOO`, `BAR`)";
     sql(sql).ok(expected);
+  }
+
+  @Test public void testCurrentTimestampFunction() {
+    final String sql = "select current_timestamp";
+    final String expected = "SELECT CURRENT_TIMESTAMP";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCurrentTimestampFunctionBigQuery() {
+    final String sql = "select current_timestamp";
+    final String expected = "SELECT CURRENT_TIMESTAMP()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testCurrentTimeFunction() {
+    final String sql = "select current_time";
+    final String expected = "SELECT CURRENT_TIME";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCurrentTimeFunctionBigQuery() {
+    final String sql = "select current_time";
+    final String expected = "SELECT CURRENT_TIME()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testCurrentDateFunction() {
+    final String sql = "select current_date";
+    final String expected = "SELECT CURRENT_DATE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCurrentDateFunctionBigQuery() {
+    final String sql = "select current_date";
+    final String expected = "SELECT CURRENT_DATE()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testMultipleTimeFunctions() {
+    final String sql = "select current_time, current_timestamp";
+    final String expected = "SELECT CURRENT_TIME, CURRENT_TIMESTAMP";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testMultipleTimeFunctionsBigQuery() {
+    final String sql = "select current_time, current_timestamp";
+    final String expected = "SELECT CURRENT_TIME(), CURRENT_TIMESTAMP()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testCurrentTimestampFunctionBigQueryUpperCase() {
+    final String sql = "select CURRENT_TIMESTAMP";
+    final String expected = "SELECT CURRENT_TIMESTAMP()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testCurrentTimestampFunctionWithParensBigQuery() {
+    final String sql = "select current_timestamp()";
+    final String expected = "SELECT CURRENT_TIMESTAMP()";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
   }
 
   @Test public void testMergeInto() {
@@ -760,6 +1094,43 @@ class BabelParserTest extends SqlParserTest {
     sql(sql)
         .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
         .ok(expected);
+  }
+
+  @Test void testUpsertAllOptionalSpecified() {
+    final String sql = "UPDATE foo SET x = 1 WHERE x > 1 ELSE INSERT INTO"
+        + " bar (x) VALUES (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR` (`X`)\n"
+        + "VALUES (ROW(1))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUpsertAllOptionalOmitted() {
+    final String sql = "UPDATE foo SET x = 1 WHERE x > 1 ELSE INSERT bar (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR`\n"
+        + "VALUES (ROW(1))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUpsertWithUpdKeyword() {
+    final String sql = "UPD foo SET x = 1 WHERE x > 1 ELSE INSERT bar (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR`\n"
+        + "VALUES (ROW(1))";
+  }
+
+  @Test void testUpsertWithInsKeyword() {
+    final String sql = "UPDATE foo SET x = 1 WHERE x > 1 ELSE INS bar (1)";
+    final String expected = "UPDATE `FOO` SET `X` = 1\n"
+        + "WHERE (`X` > 1) ELSE INSERT INTO `BAR`\n"
+        + "VALUES (ROW(1))";
+  }
+
+  @Test public void testSubstr() {
+    final String sql = "select substr('FOOBAR' from 1 for 3)";
+    final String expected = "SELECT SUBSTRING('FOOBAR' FROM 1 FOR 3)";
+    sql(sql).ok(expected);
   }
 
   @Test void testAlternativeTypeConversionQuery() {

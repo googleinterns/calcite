@@ -4829,6 +4829,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
   public void validateUpdate(SqlUpdate call) {
     final SqlValidatorNamespace targetNamespace = getNamespace(call);
+    if (targetNamespace == null) {
+      return;
+    }
     validateNamespace(targetNamespace, unknownType);
     final RelOptTable relOptTable = SqlValidatorUtil.getRelOptTable(
         targetNamespace, catalogReader.unwrap(Prepare.CatalogReader.class), null, null);
