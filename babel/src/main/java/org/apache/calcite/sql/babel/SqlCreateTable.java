@@ -43,7 +43,7 @@ public class SqlCreateTable extends SqlCreate
   public final List<SqlCreateAttribute> tableAttributes;
   public final SqlNodeList columnList;
   public final SqlNode query;
-  public final boolean withData;
+  public final WithDataType withData;
   public final OnCommitType onCommitType;
 
   private static final SqlOperator OPERATOR =
@@ -53,12 +53,12 @@ public class SqlCreateTable extends SqlCreate
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
       boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
     this(pos, replace, setType, volatility, ifNotExists, name, /*tableAttributes=*/null,
-        columnList, query, /*withData=*/false, /*onCommitType=*/OnCommitType.UNSPECIFIED);
+        columnList, query, WithDataType.UNSPECIFIED, OnCommitType.UNSPECIFIED);
   }
 
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
       boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query,
-      boolean withData, OnCommitType onCommitType) {
+      WithDataType withData, OnCommitType onCommitType) {
     this(pos, replace, setType, volatility, ifNotExists, name, /*tableAttributes=*/null,
         columnList, query, withData, onCommitType);
   }
@@ -66,7 +66,7 @@ public class SqlCreateTable extends SqlCreate
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
       boolean ifNotExists, SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
       SqlNodeList columnList, SqlNode query,
-      boolean withData, OnCommitType onCommitType) {
+      WithDataType withData, OnCommitType onCommitType) {
     super(OPERATOR, pos, replace, ifNotExists);
     this.name = Objects.requireNonNull(name);
     this.setType = setType;
@@ -130,8 +130,15 @@ public class SqlCreateTable extends SqlCreate
       writer.newlineAndIndent();
       query.unparse(writer, 0, 0);
     }
-    if (withData) {
+    switch (withData) {
+    case WITH_DATA:
       writer.keyword("WITH DATA");
+      break;
+    case WITH_NO_DATA:
+      writer.keyword("WITH NO DATA");
+      break;
+    default:
+      break;
     }
     switch (onCommitType) {
     case PRESERVE:

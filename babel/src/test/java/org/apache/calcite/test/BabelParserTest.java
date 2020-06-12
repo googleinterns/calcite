@@ -322,6 +322,13 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableAsWithNoData() {
+    final String sql = "create table foo as ( select * from bar ) with no data";
+    final String expected = "CREATE TABLE `FOO` AS\n"
+        + "SELECT *\nFROM `BAR` WITH NO DATA";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTableOnCommitPreserveRows() {
     final String sql = "create table foo (bar int) on commit preserve rows";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) ON COMMIT PRESERVE ROWS";

@@ -442,6 +442,17 @@ List<SqlCreateAttribute> CreateTableAttributes() :
     { return list; }
 }
 
+WithDataType WithDataOpt() :
+{
+    WithDataType withData = WithDataType.WITH_DATA;
+}
+{
+    <WITH> [ <NO> { withData = WithDataType.WITH_NO_DATA; } ] <DATA>
+    { return withData; }
+|
+    { return WithDataType.UNSPECIFIED; }
+}
+
 SqlCreate SqlCreateTable(Span s, boolean replace) :
 {
     SetType setType = SetType.UNSPECIFIED;
@@ -451,7 +462,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     final List<SqlCreateAttribute> tableAttributes;
     final SqlNodeList columnList;
     final SqlNode query;
-    boolean withData = false;
+    WithDataType withData = WithDataType.UNSPECIFIED;
     final OnCommitType onCommitType;
 }
 {
@@ -479,11 +490,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     )
     (
         <AS> query = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
-        [
-            <WITH> <DATA> {
-                withData = true;
-            }
-        ]
+        withData = WithDataOpt()
     |
         { query = null; }
     )
