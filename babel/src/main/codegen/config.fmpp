@@ -55,6 +55,7 @@ data: {
       "org.apache.calcite.sql.babel.Volatility",
       "org.apache.calcite.sql.babel.SqlDateTimeAtLocal",
       "org.apache.calcite.sql.babel.SqlDateTimeAtTimeZone",
+      "org.apache.calcite.sql.babel.WithDataType",
     ]
 
     # List of keywords.
