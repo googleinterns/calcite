@@ -413,6 +413,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeMap() {
+    final String sql = "create table foo, map = baz (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MAP = `BAZ` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testTableAttributeFreeSpace() {
     final String sql = "create table foo, freespace = 35 (bar integer)";
     final String expected = "CREATE TABLE `FOO`, FREESPACE = 35 (`BAR` INTEGER)";

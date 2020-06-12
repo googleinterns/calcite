@@ -232,6 +232,15 @@ SqlCreateAttribute CreateTableAttributeJournalTable() :
     { return new SqlCreateAttributeJournalTable(id, getPos()); }
 }
 
+SqlCreateAttribute CreateTableAttributeMap() :
+{
+    final SqlIdentifier id;
+}
+{
+    <MAP> <EQ> id = CompoundIdentifier()
+    { return new SqlCreateAttributeMap(id, getPos()); }
+}
+
 // FREESPACE attribute can take in decimals but should be truncated to an integer.
 SqlCreateAttribute CreateTableAttributeFreeSpace() :
 {
@@ -418,6 +427,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
     (
         <COMMA>
         (
+            e = CreateTableAttributeMap()
+        |
             e = CreateTableAttributeFallback()
         |
             e = CreateTableAttributeJournalTable()
