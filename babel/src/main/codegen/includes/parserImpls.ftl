@@ -474,6 +474,8 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     final SqlNodeList columnList;
     final SqlNode query;
     WithDataType withData = WithDataType.UNSPECIFIED;
+    SqlPrimaryIndex primaryIndex = null;
+    SqlIndex index;
     final OnCommitType onCommitType;
 }
 {
@@ -505,12 +507,55 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     |
         { query = null; }
     )
+    (
+       index = SqlCreateTableIndex(s)
+       {
+           if(index instanceof SqlPrimaryIndex){
+               primaryIndex = (SqlPrimaryIndex) index;
+           }
+           //code for non-primary index support can be added here
+       }
+    )*
     onCommitType = OnCommitTypeOpt()
     {
         return new SqlCreateTable(s.end(this), replace, setType, volatility, ifNotExists, id,
-            tableAttributes, columnList, query, withData, onCommitType);
+            tableAttributes, columnList, query, withData, primaryIndex, onCommitType);
     }
 }
+
+/**
+Parses an index declaration.
+Currently only supports PRIMARY INDEX statements, but can be extended to support non-primary indices
+*/
+SqlIndex SqlCreateTableIndex(Span s) :
+{
+   List<SqlNode> columns;
+   SqlIdentifier name = null;
+   boolean isUnique = false;
+}
+{
+   (
+       <NO> <PRIMARY> <INDEX>
+       {
+           return new SqlPrimaryIndex(s.end(this), /*columns*/ null, /*name*/ null, /*isUnique*/ false, /*explicitNoPrimaryIndex*/ true);
+       }
+   |
+       [
+           <UNIQUE> {isUnique = true;}
+       ]
+       <PRIMARY> <INDEX>
+       [
+           name = SimpleIdentifier()
+       ]
+       <LPAREN>
+       columns = SelectList()
+       <RPAREN>
+       {
+           return new SqlPrimaryIndex(s.end(this), columns, name, isUnique, /*explicitNoPrimaryIndex*/ false);
+       }
+   )
+}
+
 
 /**
     Reason for having this is to be able to return the SqlExecMacro class since

@@ -51,6 +51,8 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
       "org.apache.calcite.sql.babel.SqlExecMacro",
+      "org.apache.calcite.sql.babel.SqlIndex",
+      "org.apache.calcite.sql.babel.SqlPrimaryIndex",
       "org.apache.calcite.sql.babel.SqlUpsert",
       "org.apache.calcite.sql.babel.SqlUsingRequestModifier",
       "org.apache.calcite.sql.babel.Volatility",
@@ -73,6 +75,7 @@ data: {
       "FALLBACK"
       "FREESPACE"
       "IF"
+      "INDEX"
       "INS"
       "ISOLATED"
       "JOURNAL"
@@ -423,6 +426,7 @@ data: {
       "DUAL"
       "FREESPACE"
       "IF"
+      "INDEX"
       "INS"
       "ISOLATED"
       "JOURNAL"
