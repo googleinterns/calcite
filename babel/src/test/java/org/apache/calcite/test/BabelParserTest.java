@@ -894,16 +894,16 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testCreateFunctionSqlFormNoParameter() {
     final String sql =
-        "create function foo()"
-        + "returns Integer"
-        + "language sql"
-        + "collation invoker inline type 1"
-        + "return current_date + 1;";
-    final String expected = "CREATE FUNCTION `foo`()"
-        + "RETURNS INTEGER"
-        + "LANGUAGE SQL"
-        + "COLLATION INVOKER INLINE TYPE 1"
-        + "RETURN current_date + 1;";
+        "create function foo() "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return current_date + 1";
+    final String expected = "CREATE FUNCTION `FOO` () "
+        + "RETURNS INTEGER "
+        + "LANGUAGE SQL "
+        + "COLLATION INVOKER INLINE TYPE 1 "
+        + "RETURN (CURRENT_DATE + 1)";
     sql(sql).ok(expected);
   }
 
