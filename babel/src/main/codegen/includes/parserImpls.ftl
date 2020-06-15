@@ -510,7 +510,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     (
        index = SqlCreateTableIndex(s)
        {
-           if(index instanceof SqlPrimaryIndex){
+           if (index instanceof SqlPrimaryIndex) {
                primaryIndex = (SqlPrimaryIndex) index;
            }
            //code for non-primary index support can be added here
@@ -525,7 +525,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
 
 /**
 Parses an index declaration.
-Currently only supports PRIMARY INDEX statements, but can be extended to support non-primary indices
+Currently only supports PRIMARY INDEX statements, but can be extended to support non-primary indices.
 */
 SqlIndex SqlCreateTableIndex(Span s) :
 {
@@ -537,11 +537,11 @@ SqlIndex SqlCreateTableIndex(Span s) :
    (
        <NO> <PRIMARY> <INDEX>
        {
-           return new SqlPrimaryIndex(s.end(this), /*columns*/ null, /*name*/ null, /*isUnique*/ false, /*explicitNoPrimaryIndex*/ true);
+           return new SqlPrimaryIndex(s.end(this), /*columns=*/ null, /*name=*/ null, /*isUnique=*/ false, /*explicitNoPrimaryIndex=*/ true);
        }
    |
        [
-           <UNIQUE> {isUnique = true;}
+           <UNIQUE> { isUnique = true; }
        ]
        <PRIMARY> <INDEX>
        [
@@ -551,7 +551,7 @@ SqlIndex SqlCreateTableIndex(Span s) :
        columns = SelectList()
        <RPAREN>
        {
-           return new SqlPrimaryIndex(s.end(this), columns, name, isUnique, /*explicitNoPrimaryIndex*/ false);
+           return new SqlPrimaryIndex(s.end(this), columns, name, isUnique, /*explicitNoPrimaryIndex=*/ false);
        }
    )
 }

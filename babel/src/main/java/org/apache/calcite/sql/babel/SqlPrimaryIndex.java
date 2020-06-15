@@ -28,7 +28,7 @@ import java.util.List;
  * to create a primary index, which is used by the SQL CREATE TABLE function.
  */
 public class SqlPrimaryIndex extends SqlIndex {
-  boolean explicitNoPrimaryIndex;
+  private final boolean explicitNoPrimaryIndex;
 
   public SqlPrimaryIndex(SqlParserPos pos, List<SqlNode> columns,
                          SqlIdentifier name, boolean isUnique, boolean explicitNoPrimaryIndex) {
@@ -57,5 +57,4 @@ public class SqlPrimaryIndex extends SqlIndex {
       }
     }
   }
-
 }

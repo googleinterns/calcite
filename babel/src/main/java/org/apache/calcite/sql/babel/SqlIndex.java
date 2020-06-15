@@ -29,10 +29,10 @@ import java.util.List;
  * function.
  */
 public abstract class SqlIndex {
-  public final SqlParserPos pos;
-  public final List<SqlNode> columns;
-  public final SqlIdentifier name;
-  public final boolean isUnique;
+  protected final SqlParserPos pos;
+  protected final List<SqlNode> columns;
+  protected final SqlIdentifier name;
+  protected final boolean isUnique;
 
   public SqlIndex(SqlParserPos pos, List<SqlNode> columns, SqlIdentifier name, boolean isUnique) {
     this.pos = pos;

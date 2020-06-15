@@ -55,14 +55,14 @@ public class SqlCreateTable extends SqlCreate
       boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
     this(pos, replace, setType, volatility, ifNotExists, name, /*tableAttributes=*/null,
         columnList, query, WithDataType.UNSPECIFIED,
-        /*primaryIndex*/null, OnCommitType.UNSPECIFIED);
+        /*primaryIndex=*/ null, OnCommitType.UNSPECIFIED);
   }
 
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
       boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query,
       WithDataType withData, OnCommitType onCommitType) {
     this(pos, replace, setType, volatility, ifNotExists, name, /*tableAttributes=*/null,
-        columnList, query, withData, /*primaryIndex*/null, onCommitType);
+        columnList, query, withData, /*primaryIndex=*/ null, onCommitType);
   }
 
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
@@ -70,7 +70,7 @@ public class SqlCreateTable extends SqlCreate
       SqlNodeList columnList, SqlNode query,
       WithDataType withData, OnCommitType onCommitType) {
     this(pos, replace, setType, volatility, ifNotExists, name, tableAttributes,
-        columnList, query, withData, /*primaryIndex*/null, onCommitType);
+        columnList, query, withData, /*primaryIndex=*/ null, onCommitType);
   }
 
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
