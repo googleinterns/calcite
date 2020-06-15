@@ -43,27 +43,27 @@ public class SqlColumnAttributeCharacterSet extends SqlColumnAttribute {
 
   public enum CharacterSet {
     /**
-     * Column has the LATIN character set
+     * Column has the LATIN character set.
      */
     LATIN,
 
     /**
-     * Column has the UNICODE character set
+     * Column has the UNICODE character set.
      */
     UNICODE,
 
     /**
-     * Column has the GRAPHIC character set
+     * Column has the GRAPHIC character set.
      */
     GRAPHIC,
 
     /**
-     * Column has the KANJISJIS character set
+     * Column has the KANJISJIS character set.
      */
     KANJISJIS,
 
     /**
-     * Column has the KANJI character set
+     * Column has the KANJI character set.
      */
     KANJI,
   }
