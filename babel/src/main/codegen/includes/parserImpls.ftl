@@ -131,6 +131,25 @@ SqlNodeList ExtendColumnList() :
     }
 }
 
+void SourceTableAndAlias(SqlNodeList sourceTables, SqlNodeList sourceAliases) :
+{
+    SqlNode sourceTable;
+    SqlIdentifier sourceAlias;
+}
+{
+    sourceTable = TableRef() {
+        sourceTables.add(sourceTable);
+    }
+    (
+        [ <AS> ]
+        sourceAlias = SimpleIdentifier() {
+            sourceAliases.add(sourceAlias);
+        }
+    |
+        { sourceAliases.add(null); }
+    )
+}
+
 boolean IsNullable() :
 {
 

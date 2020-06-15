@@ -856,16 +856,6 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testUpdateFromMultipleSourcesAllAliasedBigQuery() {
-    final String sql = "UPDATE foo AS f FROM bar AS b, baz AS z SET "
-        + "f.x = b.x, f.y = z.y";
-    final String expected = "UPDATE foo AS f SET f.x = b.x, f.y = z.y"
-        + " FROM bar AS b, baz AS z";
-    sql(sql)
-      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
-      .ok(expected);
-  }
-
   @Test public void testUpdateFromMultipleSourcesSomeAliased() {
     final String sql = "UPDATE foo as f from bar as b, baz, qux as q SET "
         + "f.x = b.x, f.y = baz.y, f.z = q.z";

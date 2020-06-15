@@ -1666,8 +1666,6 @@ SqlNode SqlDelete() :
 SqlNode SqlUpdate() :
 {
     SqlNode table;
-    SqlNode sourceTable;
-    SqlIdentifier sourceAlias;
     SqlNodeList sourceTables = null;
     SqlNodeList sourceAliases = null;
     SqlNodeList extendList = null;
@@ -1702,34 +1700,15 @@ SqlNode SqlUpdate() :
 <#if parser.allowUpdateFromTable>
     [
         (
-            <FROM>
-            sourceTable = TableRef() {
+             <FROM> {
                 sourceTables = new SqlNodeList(s.pos());
                 sourceAliases = new SqlNodeList(s.pos());
-                sourceTables.add(sourceTable);
             }
-            (
-                [ <AS> ]
-                sourceAlias = SimpleIdentifier() {
-                    sourceAliases.add(sourceAlias);
-                }
-            |
-                { sourceAliases.add(null); }
-            )
+            SourceTableAndAlias(sourceTables, sourceAliases)
         )
         (
             <COMMA>
-            sourceTable = TableRef() {
-                sourceTables.add(sourceTable);
-            }
-            (
-                [ <AS> ]
-                sourceAlias = SimpleIdentifier() {
-                    sourceAliases.add(sourceAlias);
-                }
-            |
-                { sourceAliases.add(null); }
-            )
+            SourceTableAndAlias(sourceTables, sourceAliases)
         )*
     ]
 </#if>
