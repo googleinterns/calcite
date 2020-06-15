@@ -94,6 +94,7 @@ data: {
       "NEVER"
       "OFF"
       "PROTECTION"
+      "QUALIFY"
       "SEL"
       "SEMI"
       "SUBSTR"
@@ -1035,6 +1036,7 @@ data: {
     includeBraces: true
     includeAdditionalDeclarations: false
     includeSubstrKeyword: true
+    includeQualifyClause: true
   }
 }
 

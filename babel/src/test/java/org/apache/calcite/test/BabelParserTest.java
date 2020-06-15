@@ -1183,4 +1183,33 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "SELECT SUBSTRING('FOOBAR' FROM 1 FOR 3)";
     sql(sql).ok(expected);
   }
+
+  @Test public void testQualify() {
+    final String sql = "select count(foo) as bar from baz qualify bar = 5";
+    final String expected = "SELECT COUNT(`FOO`) AS `BAR`\n"
+        + "FROM `BAZ`\n"
+        + "QUALIFY (`BAR` = 5)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testQualifyNestedExpression() {
+    final String sql = "select count(foo) as x from bar qualify x in (select y from baz)";
+    final String expected = "SELECT COUNT(`FOO`) AS `X`\n"
+        + "FROM `BAR`\n"
+        + "QUALIFY (`X` IN (SELECT `Y`\n"
+        + "FROM `BAZ`))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testQualifyWithSurroundingClauses() {
+    final String sql = "select count(foo) as x, sum(y), z from bar where z > 5 "
+        + "having y < 5 qualify x = 5 order by z";
+    final String expected = "SELECT COUNT(`FOO`) AS `X`, SUM(`Y`), `Z`\n"
+        + "FROM `BAR`\n"
+        + "WHERE (`Z` > 5)\n"
+        + "HAVING (`Y` < 5)\n"
+        + "QUALIFY (`X` = 5)\n"
+        + "ORDER BY `Z`";
+    sql(sql).ok(expected);
+  }
 }

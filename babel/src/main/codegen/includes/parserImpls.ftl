@@ -732,3 +732,16 @@ SqlNode DateTimeTerm() :
         )
     )
 }
+
+/**
+ * Parses the optional QUALIFY clause for SELECT.
+ */
+SqlNode QualifyOpt() :
+{
+    SqlNode e;
+}
+{
+    <QUALIFY> e = Expression(ExprContext.ACCEPT_SUB_QUERY) { return e; }
+|
+    { return null; }
+}
