@@ -866,6 +866,14 @@ class BabelParserTest extends SqlParserTest {
       .ok(expected);
   }
 
+  @Test public void testUpdateFromMultipleSourcesSomeAliased() {
+    final String sql = "UPDATE foo as f from bar as b, baz, qux as q SET "
+        + "f.x = b.x, f.y = baz.y, f.z = q.z";
+    final String expected = "UPDATE `FOO` AS `F` FROM `BAR` AS `B`, `BAZ`, "
+        + "`QUX` AS `Q` SET `F`.`X` = `B`.`X`, `F`.`Y` = `BAZ`.`Y`, `F`.`Z` = `Q`.`Z`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testExecMacro() {
     final String sql = "exec foo";
     final String expected = "EXECUTE `FOO`";

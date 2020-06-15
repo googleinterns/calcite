@@ -51,7 +51,7 @@ public class SqlUpdate extends SqlCall {
       SqlSelect sourceSelect,
       SqlIdentifier alias) {
     this(pos, targetTable, targetColumnList, sourceExpressionList, condition, sourceSelect, alias,
-        /*sourceTables=*/null, /*sourceAliases=*/null);
+        /*sourceTables=*/ null, /*sourceAliases=*/ null);
   }
 
   public SqlUpdate(SqlParserPos pos,
