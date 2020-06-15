@@ -24,8 +24,8 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import java.util.List;
 
 /**
- * A <code>SqlPrimaryIndex</code> is a class that can be used
- * to create a primary index, which is used by the SQL CREATE TABLE function.
+ * A <code>SqlPrimaryIndex</code> is a class that can be used to create a primary index,
+ * which is used by the SQL CREATE TABLE function.
  */
 public class SqlPrimaryIndex extends SqlIndex {
   private final boolean explicitNoPrimaryIndex;
@@ -39,22 +39,22 @@ public class SqlPrimaryIndex extends SqlIndex {
   public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     if (explicitNoPrimaryIndex) {
       writer.keyword("NO PRIMARY INDEX");
-    } else {
-      if (isUnique) {
-        writer.keyword("UNIQUE");
+      return;
+    }
+    if (isUnique) {
+      writer.keyword("UNIQUE");
+    }
+    writer.keyword("PRIMARY INDEX");
+    if (name != null) {
+      name.unparse(writer, leftPrec, rightPrec);
+    }
+    if (columns != null) {
+      SqlWriter.Frame frame = writer.startList("(", ")");
+      for (SqlNode c : columns) {
+        writer.sep(",");
+        c.unparse(writer, 0, 0);
       }
-      writer.keyword("PRIMARY INDEX");
-      if (name != null) {
-        name.unparse(writer, leftPrec, rightPrec);
-      }
-      if (columns != null) {
-        SqlWriter.Frame frame = writer.startList("(", ")");
-        for (SqlNode c : columns) {
-          writer.sep(",");
-          c.unparse(writer, 0, 0);
-        }
-        writer.endList(frame);
-      }
+      writer.endList(frame);
     }
   }
 }

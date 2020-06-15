@@ -24,9 +24,8 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import java.util.List;
 
 /**
- * A <code>SqlIndex</code> is a class that can be used
- * to create an index used by the SQL CREATE TABLE
- * function.
+ * A <code>SqlIndex</code> is a class that can be used to create an index used by the
+ * SQL CREATE TABLE function.
  */
 public abstract class SqlIndex {
   protected final SqlParserPos pos;

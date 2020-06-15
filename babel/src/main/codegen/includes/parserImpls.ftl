@@ -474,7 +474,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     final SqlNodeList columnList;
     final SqlNode query;
     WithDataType withData = WithDataType.UNSPECIFIED;
-    SqlPrimaryIndex primaryIndex = null;
+    final SqlPrimaryIndex primaryIndex = null;
     SqlIndex index;
     final OnCommitType onCommitType;
 }
@@ -513,7 +513,6 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
            if (index instanceof SqlPrimaryIndex) {
                primaryIndex = (SqlPrimaryIndex) index;
            }
-           //code for non-primary index support can be added here
        }
     )*
     onCommitType = OnCommitTypeOpt()
@@ -524,8 +523,8 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
 }
 
 /**
-Parses an index declaration.
-Currently only supports PRIMARY INDEX statements, but can be extended to support non-primary indices.
+    Parses an index declaration. Currently only supports PRIMARY INDEX statements,
+    but can be extended to support non-primary indices.
 */
 SqlIndex SqlCreateTableIndex(Span s) :
 {
@@ -537,7 +536,8 @@ SqlIndex SqlCreateTableIndex(Span s) :
    (
        <NO> <PRIMARY> <INDEX>
        {
-           return new SqlPrimaryIndex(s.end(this), /*columns=*/ null, /*name=*/ null, /*isUnique=*/ false, /*explicitNoPrimaryIndex=*/ true);
+           return new SqlPrimaryIndex(s.end(this), /*columns=*/ null, /*name=*/ null,
+                /*isUnique=*/ false, /*explicitNoPrimaryIndex=*/ true);
        }
    |
        [
@@ -547,11 +547,10 @@ SqlIndex SqlCreateTableIndex(Span s) :
        [
            name = SimpleIdentifier()
        ]
-       <LPAREN>
-       columns = SelectList()
-       <RPAREN>
+       columns = ParenthesizedSimpleIdentifierList()
        {
-           return new SqlPrimaryIndex(s.end(this), columns, name, isUnique, /*explicitNoPrimaryIndex=*/ false);
+           return new SqlPrimaryIndex(s.end(this), columns, name, isUnique,
+                /*explicitNoPrimaryIndex=*/ false);
        }
    )
 }
