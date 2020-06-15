@@ -996,14 +996,11 @@ data: {
 
     preAtomicRowMethods: [
       "InlineModOperator()"
+      "AlternativeTypeConversionLiteralOrIdentifier()"
     ]
 
     dateTimeExpressionMethods: [
       "DateTimeTerm()"
-    ]
-
-    alternativeTypeConversionLiteralOrIdentifier: [
-       "AlternativeTypeConversionLiteralOrIdentifier()"
     ]
 
     # List of files in @includes directory that have parser method
