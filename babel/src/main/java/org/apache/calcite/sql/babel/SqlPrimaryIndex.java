@@ -14,14 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlWriter;
-import org.apache.calcite.sql.babel.SqlIndex;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 import java.util.List;
@@ -30,24 +27,24 @@ import java.util.List;
  * A <code>SqlPrimaryIndex</code> is a class that inherits from {@link #SqlIndex} and can be used
  * to create a primary index, which is used by the SQL CREATE TABLE function.
  */
-public class SqlPrimaryIndex extends SqlIndex{
+public class SqlPrimaryIndex extends SqlIndex {
   boolean explicitNoPrimaryIndex;
 
-  public SqlPrimaryIndex(SqlParserPos pos, List<SqlNode> columns, SqlIdentifier name, boolean isUnique, boolean explicitNoPrimaryIndex){
+  public SqlPrimaryIndex(SqlParserPos pos, List<SqlNode> columns,
+                         SqlIdentifier name, boolean isUnique, boolean explicitNoPrimaryIndex) {
     super(pos, columns, name, isUnique);
     this.explicitNoPrimaryIndex = explicitNoPrimaryIndex;
   }
 
-  public void unparse(SqlWriter writer, int leftPrec, int rightPrec){
-    if(explicitNoPrimaryIndex){
+  public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    if (explicitNoPrimaryIndex) {
       writer.keyword("NO PRIMARY INDEX");
-    }
-    else{
-      if(isUnique){
+    } else {
+      if (isUnique) {
         writer.keyword("UNIQUE");
       }
       writer.keyword("PRIMARY INDEX");
-      if(name!=null){
+      if (name != null) {
         name.unparse(writer, leftPrec, rightPrec);
       }
       if (columns != null) {

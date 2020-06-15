@@ -54,7 +54,8 @@ public class SqlCreateTable extends SqlCreate
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
       boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
     this(pos, replace, setType, volatility, ifNotExists, name, /*tableAttributes=*/null,
-        columnList, query, WithDataType.UNSPECIFIED, /*primaryIndex*/null, OnCommitType.UNSPECIFIED);
+        columnList, query, WithDataType.UNSPECIFIED,
+        /*primaryIndex*/null, OnCommitType.UNSPECIFIED);
   }
 
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
@@ -142,7 +143,7 @@ public class SqlCreateTable extends SqlCreate
     default:
       break;
     }
-    if(primaryIndex!=null){
+    if (primaryIndex != null) {
       primaryIndex.unparse(writer, leftPrec, rightPrec);
     }
     switch (onCommitType) {

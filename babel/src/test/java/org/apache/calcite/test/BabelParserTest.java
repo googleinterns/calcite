@@ -1146,55 +1146,55 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testPrimaryIndexNoName(){
+  @Test public void testPrimaryIndexNoName() {
     final String sql = "create table foo primary index (lname)";
     final String expected = "CREATE TABLE `FOO` PRIMARY INDEX (`LNAME`)";
     sql(sql).ok(expected);
   }
 
-  @Test public void testPrimaryIndexWithName(){
+  @Test public void testPrimaryIndexWithName() {
     final String sql = "create table foo primary index bar (lname)";
     final String expected = "CREATE TABLE `FOO` PRIMARY INDEX `BAR` (`LNAME`)";
     sql(sql).ok(expected);
   }
 
-  @Test public void testPrimaryIndexMultiColumn(){
+  @Test public void testPrimaryIndexMultiColumn() {
     final String sql = "create table foo primary index bar (lname, fname)";
     final String expected = "CREATE TABLE `FOO` PRIMARY INDEX `BAR` (`LNAME`, `FNAME`)";
     sql(sql).ok(expected);
   }
 
-  @Test public void testPrimaryIndexUnique(){
+  @Test public void testPrimaryIndexUnique() {
     final String sql = "create table foo unique primary index (lname)";
     final String expected = "CREATE TABLE `FOO` UNIQUE PRIMARY INDEX (`LNAME`)";
     sql(sql).ok(expected);
   }
 
-  @Test public void testNoPrimaryIndex(){
+  @Test public void testNoPrimaryIndex() {
     final String sql = "create table foo no primary index";
     final String expected = "CREATE TABLE `FOO` NO PRIMARY INDEX";
     sql(sql).ok(expected);
   }
 
-  @Test public void testPrimaryIndexMultipleOverwritten(){
+  @Test public void testPrimaryIndexMultipleOverwritten() {
     final String sql = "create table foo primary index bar (lname) primary index baz (fname)";
     final String expected = "CREATE TABLE `FOO` PRIMARY INDEX `BAZ` (`FNAME`)";
     sql(sql).ok(expected);
   }
 
-  @Test public void testNoPrimaryIndexWithColumnsFails(){
+  @Test public void testNoPrimaryIndexWithColumnsFails() {
     final String sql = "create table foo no primary index ^(^lname)";
     final String expected = "(?s).*Encountered \"\\(\" at .*";
     sql(sql).fails(expected);
   }
 
-  @Test public void testNoPrimaryIndexWithNameFails(){
+  @Test public void testNoPrimaryIndexWithNameFails() {
     final String sql = "create table foo no primary index ^bar^";
     final String expected = "(?s).*Encountered \"bar\" at .*";
     sql(sql).fails(expected);
   }
 
-  @Test public void testPrimaryIndexNoColumnsFails(){
+  @Test public void testPrimaryIndexNoColumnsFails() {
     final String sql = "create table foo primary inde^x^";
     final String expected = "(?s).*Encountered \"<EOF>\" at .*";
     sql(sql).fails(expected);
