@@ -18,6 +18,7 @@ package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
@@ -30,7 +31,7 @@ import java.util.List;
 public class SqlPrimaryIndex extends SqlIndex {
   private final boolean explicitNoPrimaryIndex;
 
-  public SqlPrimaryIndex(SqlParserPos pos, List<SqlNode> columns,
+  public SqlPrimaryIndex(SqlParserPos pos, SqlNodeList columns,
                          SqlIdentifier name, boolean isUnique, boolean explicitNoPrimaryIndex) {
     super(pos, columns, name, isUnique);
     this.explicitNoPrimaryIndex = explicitNoPrimaryIndex;

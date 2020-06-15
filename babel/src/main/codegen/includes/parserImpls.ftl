@@ -474,7 +474,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     final SqlNodeList columnList;
     final SqlNode query;
     WithDataType withData = WithDataType.UNSPECIFIED;
-    final SqlPrimaryIndex primaryIndex = null;
+    SqlPrimaryIndex primaryIndex = null;
     SqlIndex index;
     final OnCommitType onCommitType;
 }
@@ -528,7 +528,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
 */
 SqlIndex SqlCreateTableIndex(Span s) :
 {
-   List<SqlNode> columns;
+   SqlNodeList columns;
    SqlIdentifier name = null;
    boolean isUnique = false;
 }

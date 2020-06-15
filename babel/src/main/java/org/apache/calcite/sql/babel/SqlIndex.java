@@ -18,6 +18,7 @@ package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
@@ -29,11 +30,11 @@ import java.util.List;
  */
 public abstract class SqlIndex {
   protected final SqlParserPos pos;
-  protected final List<SqlNode> columns;
+  protected final SqlNodeList columns;
   protected final SqlIdentifier name;
   protected final boolean isUnique;
 
-  public SqlIndex(SqlParserPos pos, List<SqlNode> columns, SqlIdentifier name, boolean isUnique) {
+  public SqlIndex(SqlParserPos pos, SqlNodeList columns, SqlIdentifier name, boolean isUnique) {
     this.pos = pos;
     this.columns = columns;
     this.name = name;
