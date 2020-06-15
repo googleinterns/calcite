@@ -833,6 +833,39 @@ class BabelParserTest extends SqlParserTest {
       .ok(expected);
   }
 
+  @Test public void testUpdateFromMultipleSources() {
+    final String sql = "UPDATE foo from bar, baz SET foo.x = bar.x, foo.y = baz.y";
+    final String expected = "UPDATE `FOO` FROM `BAR`, `BAZ` SET "
+        + "`FOO`.`X` = `BAR`.`X`, `FOO`.`Y` = `BAZ`.`Y`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testUpdateFromMultipleSourcesBigQuery() {
+    final String sql = "UPDATE foo FROM bar, baz SET foo.x = bar.x, foo.y = baz.y";
+    final String expected = "UPDATE foo SET foo.x = bar.x, foo.y = baz.y FROM bar, baz";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
+  @Test public void testUpdateFromMultipleSourcesAllAliased() {
+    final String sql = "UPDATE foo as f from bar as b, baz as z SET "
+        + "f.x = b.x, f.y = z.y";
+    final String expected = "UPDATE `FOO` AS `F` FROM `BAR` AS `B`, `BAZ` AS `Z` SET "
+        + "`F`.`X` = `B`.`X`, `F`.`Y` = `Z`.`Y`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testUpdateFromMultipleSourcesAllAliasedBigQuery() {
+    final String sql = "UPDATE foo AS f FROM bar AS b, baz AS z SET "
+        + "f.x = b.x, f.y = z.y";
+    final String expected = "UPDATE foo AS f SET f.x = b.x, f.y = z.y"
+        + " FROM bar AS b, baz AS z";
+    sql(sql)
+      .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
+      .ok(expected);
+  }
+
   @Test public void testExecMacro() {
     final String sql = "exec foo";
     final String expected = "EXECUTE `FOO`";

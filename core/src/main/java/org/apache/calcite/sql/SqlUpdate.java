@@ -74,6 +74,7 @@ public class SqlUpdate extends SqlCall {
     this.sourceTables = sourceTables;
     this.sourceAliases = sourceAliases;
     if (sourceTables != null) {
+      assert this.sourceAliases != null
       assert this.sourceTables.size() == this.sourceAliases.size();
     }
   }
