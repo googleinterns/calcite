@@ -25,6 +25,8 @@ data: {
       "org.apache.calcite.sql.SqlColumnAttribute",
       "org.apache.calcite.sql.SqlColumnAttributeUpperCase",
       "org.apache.calcite.sql.SqlColumnAttributeCaseSpecific",
+      "org.apache.calcite.sql.SqlColumnAttributeCharacterSet",
+      "org.apache.calcite.sql.SqlColumnAttributeCharacterSet.CharacterSet",
       "org.apache.calcite.sql.babel.SqlSetTimeZone",
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
@@ -72,12 +74,16 @@ data: {
       "DUAL"
       "FALLBACK"
       "FREESPACE"
+      "GRAPHIC"
       "IF"
       "INS"
       "ISOLATED"
       "JOURNAL"
+      "KANJI"
+      "KANJISJIS"
       "KBYTES"
       "KILOBYTES"
+      "LATIN"
       "LOADING"
       "LOG"
       "MANUAL"
@@ -92,6 +98,7 @@ data: {
       "SEMI"
       "SUBSTR"
       "TEMP"
+      "UNICODE"
       "UPD"
       "UPPERCASE"
       "VOLATILE"
@@ -422,12 +429,16 @@ data: {
       "DATABLOCKSIZE"
       "DUAL"
       "FREESPACE"
+      "GRAPHIC"
       "IF"
       "INS"
       "ISOLATED"
       "JOURNAL"
+      "KANJI"
+      "KANJISJIS"
       "KBYTES"
       "KILOBYTES"
+      "LATIN"
       "LOADING"
       "LOG"
       "MANUAL"
@@ -438,6 +449,7 @@ data: {
       "NEVER"
       "OFF"
       "SEMI"
+      "UNICODE"
       "UPD"
 
       # The following keywords are reserved in core Calcite,
