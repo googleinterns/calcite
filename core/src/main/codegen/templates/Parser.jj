@@ -1671,8 +1671,8 @@ SqlNode SqlDelete() :
 SqlNode SqlUpdate() :
 {
     SqlNode table;
-    SqlNode secondTable = null;
-    SqlIdentifier secondAlias = null;
+    SqlNodeList sourceTables = null;
+    SqlNodeList sourceAliases = null;
     SqlNodeList extendList = null;
     SqlIdentifier alias = null;
     SqlNode condition;
@@ -1703,10 +1703,19 @@ SqlNode SqlUpdate() :
     ]
     [ [ <AS> ] alias = SimpleIdentifier() ]
 <#if parser.allowUpdateFromTable>
-    (
-        <FROM> secondTable = TableRef()
-        [ [ <AS> ] secondAlias = SimpleIdentifier() ]
-    )?
+    [
+        (
+            <FROM> {
+                sourceTables = new SqlNodeList(s.pos());
+                sourceAliases = new SqlNodeList(s.pos());
+            }
+            SourceTableAndAlias(sourceTables, sourceAliases)
+        )
+        (
+            <COMMA>
+            SourceTableAndAlias(sourceTables, sourceAliases)
+        )*
+    ]
 </#if>
     /* CompoundIdentifier() can read statements like FOO.X, SimpleIdentifier()
        is unable to do this
@@ -1734,7 +1743,7 @@ SqlNode SqlUpdate() :
         return new SqlUpdate(s.addAll(targetColumnList)
             .addAll(sourceExpressionList).addIf(condition).pos(), table,
             targetColumnList, sourceExpressionList, condition, null, alias,
-            secondTable, secondAlias);
+            sourceTables, sourceAliases);
     }
 }
 
