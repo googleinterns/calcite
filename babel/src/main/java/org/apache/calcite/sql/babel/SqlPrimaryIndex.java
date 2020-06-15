@@ -24,7 +24,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import java.util.List;
 
 /**
- * A <code>SqlPrimaryIndex</code> is a class that inherits from {@link #SqlIndex} and can be used
+ * A <code>SqlPrimaryIndex</code> is a class that can be used
  * to create a primary index, which is used by the SQL CREATE TABLE function.
  */
 public class SqlPrimaryIndex extends SqlIndex {

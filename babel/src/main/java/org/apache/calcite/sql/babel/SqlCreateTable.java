@@ -68,6 +68,14 @@ public class SqlCreateTable extends SqlCreate
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
       boolean ifNotExists, SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
       SqlNodeList columnList, SqlNode query,
+      WithDataType withData, OnCommitType onCommitType) {
+    this(pos, replace, setType, volatility, ifNotExists, name, tableAttributes,
+        columnList, query, withData, /*primaryIndex*/null, onCommitType);
+  }
+
+  public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
+      boolean ifNotExists, SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
+      SqlNodeList columnList, SqlNode query,
       WithDataType withData, SqlPrimaryIndex primaryIndex, OnCommitType onCommitType) {
     super(OPERATOR, pos, replace, ifNotExists);
     this.name = Objects.requireNonNull(name);
