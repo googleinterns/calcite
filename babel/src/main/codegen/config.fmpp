@@ -962,6 +962,9 @@ data: {
     builtinFunctionCallMethods: [
        "DateFunctionCall()"
        "DateaddFunctionCall()"
+       "CurrentTimestampFunction()"
+       "CurrentTimeFunction()"
+       "CurrentDateFunction()"
     ]
 
     # List of methods for parsing extensions to "ALTER <scope>" calls.

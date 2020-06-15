@@ -145,7 +145,6 @@ public class SqlDialect {
           .add(SqlStdOperatorTable.TAN)
           .build();
 
-
   //~ Instance fields --------------------------------------------------------
 
   protected final String identifierQuoteString;

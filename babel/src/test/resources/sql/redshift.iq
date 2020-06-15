@@ -955,18 +955,8 @@ select age('2017-01-01','2011-06-24');
 SELECT "AGE"('2017-01-01', '2011-06-24')
 !explain-validated-on calcite
 
-# CURRENT_TIME. Use GETDATE Function or SYSDATE instead.
-select current_time;
-SELECT CURRENT_TIME AS CURRENT_TIME
-!explain-validated-on calcite
-
 select current_time(2);
 SELECT CURRENT_TIME(2)
-!explain-validated-on calcite
-
-# CURRENT_TIMESTAMP. Use GETDATE Function or SYSDATE instead.
-select current_timestamp;
-SELECT CURRENT_TIMESTAMP AS CURRENT_TIMESTAMP
 !explain-validated-on calcite
 
 select current_timestamp(2);
@@ -1064,13 +1054,6 @@ select convert_timezone('America/New_York', '2013-02-01 08:00:00');
 select CONVERT_TIMEZONE('GMT','GMT+2','2014-05-17 12:00:00');
 !ok
 !}
-
-# CURRENT_DATE returns DATE
-# Returns a date in the current session time zone (UTC by default) for the start
-# of the current transaction.
-select current_date;
-SELECT CURRENT_DATE AS CURRENT_DATE
-!explain-validated-on calcite
 
 # DATE_CMP (date1, date2) returns INTEGER
 # Compares two dates and returns 0 if the dates are identical, 1 if date1 is

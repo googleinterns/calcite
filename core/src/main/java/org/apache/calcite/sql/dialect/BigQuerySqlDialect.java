@@ -70,10 +70,6 @@ public class BigQuerySqlDialect extends SqlDialect {
 
   public static final SqlDialect DEFAULT = new BigQuerySqlDialect(DEFAULT_CONTEXT);
 
-  // Strings in this set will be unparsed to have empty parentheses at the end.
-  private static final Set<String> IDENTIFIER_FUNCTIONS =
-      ImmutableSet.of("current_time", "current_timestamp", "current_date");
-
   private static final Set<String> RESERVED_KEYWORDS =
       ImmutableSet.of("ALL", "AND", "ANY", "ARRAY", "AS", "ASC",
               "ASSERT_ROWS_MODIFIED", "AT", "BETWEEN", "BY", "CASE", "CAST",
@@ -149,21 +145,6 @@ public class BigQuerySqlDialect extends SqlDialect {
   @Override public void unparseOffsetFetch(SqlWriter writer, SqlNode offset,
       SqlNode fetch) {
     unparseFetchUsingLimit(writer, offset, fetch);
-  }
-
-  /* Unparses the given identifier with parentheses at the end if it is
-   * required to have them. */
-  @Override public void unparseSqlIdentifier(SqlWriter writer,
-      SqlIdentifier identifier, int leftPrec, int rightPrec) {
-    super.unparseSqlIdentifier(writer, identifier, leftPrec, rightPrec);
-
-    boolean isValidIdentifier = identifier.names.size() == 1;
-    if (isValidIdentifier && IDENTIFIER_FUNCTIONS
-        .contains(identifier.names.get(0).toLowerCase(Locale.ROOT))) {
-      final SqlWriter.Frame frame =
-          writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
-      writer.endList(frame);
-    }
   }
 
   @Override public void unparseSqlInsertSource(SqlWriter writer, SqlInsert insertCall,

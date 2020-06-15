@@ -749,6 +749,69 @@ SqlNode InlineModOperator() :
     }
 }
 
+SqlNode CurrentTimestampFunction() :
+{
+    final List<SqlNode> args = new ArrayList<SqlNode>();
+    SqlNode e;
+}
+{
+    <CURRENT_TIMESTAMP>
+    [
+        <LPAREN>
+        [
+            e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
+                args.add(e);
+            }
+        ]
+        <RPAREN>
+    ]
+    {
+        return SqlStdOperatorTable.CURRENT_TIMESTAMP.createCall(getPos(), args);
+    }
+}
+
+SqlNode CurrentTimeFunction() :
+{
+    final List<SqlNode> args = new ArrayList<SqlNode>();
+    SqlNode e;
+}
+{
+    <CURRENT_TIME>
+    [
+        <LPAREN>
+        [
+            e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
+                args.add(e);
+            }
+        ]
+        <RPAREN>
+    ]
+    {
+        return SqlStdOperatorTable.CURRENT_TIME.createCall(getPos(), args);
+    }
+}
+
+SqlNode CurrentDateFunction() :
+{
+    final List<SqlNode> args = new ArrayList<SqlNode>();
+    SqlNode e;
+}
+{
+    <CURRENT_DATE>
+    [
+        <LPAREN>
+        [
+            e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
+                args.add(e);
+            }
+        ]
+        <RPAREN>
+    ]
+    {
+        return SqlStdOperatorTable.CURRENT_DATE.createCall(getPos(), args);
+    }
+}
+
 SqlNode DateTimeTerm() :
 {
     final SqlNode e;
