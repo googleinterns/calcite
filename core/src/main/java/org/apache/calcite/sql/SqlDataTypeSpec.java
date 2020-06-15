@@ -25,6 +25,7 @@ import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.Litmus;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
 
@@ -72,11 +73,8 @@ public class SqlDataTypeSpec extends SqlNode {
    */
   private Boolean nullable;
 
-  //Whether data type is uppercase
-  private Boolean uppercase;
-
-  //Whether data type is case specific
-  private Boolean caseSpecific;
+  // The column level attributes
+  private List<SqlColumnAttribute> columnAttributes;
 
   //~ Constructors -----------------------------------------------------------
 
@@ -89,8 +87,8 @@ public class SqlDataTypeSpec extends SqlNode {
   public SqlDataTypeSpec(
       final SqlTypeNameSpec typeNameSpec,
       SqlParserPos pos) {
-    this(typeNameSpec, /*timeZone=*/ null, /*nullable=*/ null, /*uppercase=*/ null,
-        /*caseSpecific=*/ null, pos);
+    this(typeNameSpec, /*timeZone=*/ null, /*nullable=*/ null,
+        /*columnAttributes=*/ null, pos);
   }
 
   /**
@@ -104,35 +102,32 @@ public class SqlDataTypeSpec extends SqlNode {
       final SqlTypeNameSpec typeNameSpec,
       TimeZone timeZone,
       SqlParserPos pos) {
-    this(typeNameSpec, timeZone, /*nullable=*/ null, /*uppercase=*/ null,
-        /*caseSpecific=*/ null, pos);
+    this(typeNameSpec, timeZone, /*nullable=*/ null, /*columnAttributes=*/ null,
+        pos);
   }
 
   /**
    * Creates a type specification representing a type, with time zone,
-   * nullability, uppercase status, caseSpecific status, and base type name
+   * nullability, column attributes, and base type name
    * specified.
    *
-   * @param typeNameSpec The type name can be basic sql type, row type,
-   *                     collections type and user defined type
-   * @param timeZone     Specified time zone
-   * @param nullable     The nullability of the data type
-   * @param uppercase    Whether or not the data type is uppercase
-   * @param caseSpecific Whether or not the data type is case specific
+   * @param typeNameSpec        The type name can be basic sql type, row type,
+   *                            collections type and user defined type
+   * @param timeZone            Specified time zone
+   * @param nullable            The nullability of the data type
+   * @param columnAttributes    The column attributes
    */
   public SqlDataTypeSpec(
       SqlTypeNameSpec typeNameSpec,
       TimeZone timeZone,
       Boolean nullable,
-      Boolean uppercase,
-      Boolean caseSpecific,
+      List<SqlColumnAttribute> columnAttributes,
       SqlParserPos pos) {
     super(pos);
     this.typeNameSpec = typeNameSpec;
     this.timeZone = timeZone;
     this.nullable = nullable;
-    this.uppercase = uppercase;
-    this.caseSpecific = caseSpecific;
+    this.columnAttributes = columnAttributes;
   }
 
   //~ Methods ----------------------------------------------------------------
@@ -168,12 +163,8 @@ public class SqlDataTypeSpec extends SqlNode {
     return nullable;
   }
 
-  public Boolean getUppercase() {
-    return uppercase;
-  }
-
-  public Boolean getCaseSpecific() {
-    return caseSpecific;
+  public List<SqlColumnAttribute> getColumnAttributes() {
+    return columnAttributes;
   }
 
   /** Returns a copy of this data type specification with a given
@@ -182,28 +173,18 @@ public class SqlDataTypeSpec extends SqlNode {
     if (Objects.equals(nullable, this.nullable)) {
       return this;
     }
-    return new SqlDataTypeSpec(typeNameSpec, timeZone, nullable, uppercase,
-        caseSpecific, getParserPosition());
+    return new SqlDataTypeSpec(typeNameSpec, timeZone, nullable, columnAttributes,
+        getParserPosition());
   }
 
-  /** Returns a copy of this data type specification with a given
-    * uppercase status. */
-  public SqlDataTypeSpec withUppercase(Boolean uppercase) {
-    if (Objects.equals(uppercase, this.uppercase)) {
+  /** Returns a copy of this data type specification with given
+    * column attributes. */
+  public SqlDataTypeSpec withColumnAttributes(List<SqlColumnAttribute> columnAttributes) {
+    if (Objects.equals(columnAttributes, this.columnAttributes)) {
       return this;
     }
-    return new SqlDataTypeSpec(typeNameSpec, timeZone, nullable, uppercase,
-        caseSpecific, getParserPosition());
-  }
-
-  /** Returns a copy of this data type specification with a given
-    * caseSpecific status. */
-  public SqlDataTypeSpec withCaseSpecific(Boolean caseSpecific) {
-    if (Objects.equals(caseSpecific, this.caseSpecific)) {
-      return this;
-    }
-    return new SqlDataTypeSpec(typeNameSpec, timeZone, nullable, uppercase,
-        caseSpecific, getParserPosition());
+    return new SqlDataTypeSpec(typeNameSpec, timeZone, nullable, columnAttributes,
+        getParserPosition());
   }
 
   /**

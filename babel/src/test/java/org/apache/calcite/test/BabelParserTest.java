@@ -322,6 +322,13 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableAsWithNoData() {
+    final String sql = "create table foo as ( select * from bar ) with no data";
+    final String expected = "CREATE TABLE `FOO` AS\n"
+        + "SELECT *\nFROM `BAR` WITH NO DATA";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTableOnCommitPreserveRows() {
     final String sql = "create table foo (bar int) on commit preserve rows";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) ON COMMIT PRESERVE ROWS";
@@ -403,6 +410,12 @@ class BabelParserTest extends SqlParserTest {
   @Test public void testTableAttributeJournalTableWithCompoundIdentifier() {
     final String sql = "create table foo, with journal table = baz.tbl (bar integer)";
     final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ`.`TBL` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMap() {
+    final String sql = "create table foo, map = baz (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MAP = `BAZ` (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 
@@ -692,7 +705,7 @@ class BabelParserTest extends SqlParserTest {
     final String sql = "create table foo (bar int uppercase null casespecific, "
         + "baz varchar(30) casespecific uppercase null)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER UPPERCASE "
-        + "CASESPECIFIC, `BAZ` VARCHAR(30) UPPERCASE CASESPECIFIC)";
+        + "CASESPECIFIC, `BAZ` VARCHAR(30) CASESPECIFIC UPPERCASE)";
     sql(sql).ok(expected);
   }
 
@@ -701,7 +714,7 @@ class BabelParserTest extends SqlParserTest {
         + "casespecific, baz varchar(30) not casespecific not uppercase not null)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER NOT NULL NOT "
         + "UPPERCASE NOT CASESPECIFIC, `BAZ` VARCHAR(30) NOT NULL "
-        + "NOT UPPERCASE NOT CASESPECIFIC)";
+        + "NOT CASESPECIFIC NOT UPPERCASE)";
     sql(sql).ok(expected);
   }
 
@@ -729,6 +742,44 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableLatinCharacterSetColumnLevelAttribute() {
+    final String sql = "create table foo (bar int character set latin)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET LATIN)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableUnicodeCharacterSetColumnLevelAttribute() {
+    final String sql = "create table foo (bar int character set unicode)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET UNICODE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableGraphicCharacterSetColumnLevelAttribute() {
+    final String sql = "create table foo (bar int character set graphic)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET GRAPHIC)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableKanjisjisCharacterSetColumnLevelAttribute() {
+    final String sql = "create table foo (bar int character set kanjisjis)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER "
+        + "SET KANJISJIS)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableKanjiCharacterSetColumnLevelAttribute() {
+    final String sql = "create table foo (bar int character set kanji)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET KANJI)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableCharacterSetAndUppercaseColumnLevelAttributes() {
+    final String sql = "create table foo (bar int character set kanji uppercase)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET "
+        + "KANJI UPPERCASE)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testInsertWithSelectInParens() {
     final String sql = "insert into foo (SELECT * FROM bar)";
     final String expected = "INSERT INTO `FOO`\n"
@@ -751,6 +802,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testIns() {
+    final String sql = "ins into foo (1,'hi')";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(1, 'hi'))";
+    sql(sql).ok(expected);
+  }
 
   @Test void testBigQueryUnicodeUnparsing() {
     final String sql = "SELECT '¶ÑÍ·'";
@@ -777,6 +834,13 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testUpdateFromTable() {
     final String sql = "update foo from bar set foo.x = bar.y, foo.z = bar.k";
+    final String expected = "UPDATE `FOO` FROM `BAR` SET `FOO`.`X` = `BAR`.`Y`, "
+        + "`FOO`.`Z` = `BAR`.`K`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUpd() {
+    final String sql = "upd foo from bar set foo.x = bar.y, foo.z = bar.k";
     final String expected = "UPDATE `FOO` FROM `BAR` SET `FOO`.`X` = `BAR`.`Y`, "
         + "`FOO`.`Z` = `BAR`.`K`";
     sql(sql).ok(expected);
@@ -916,7 +980,7 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testNamedExpressionAlone() {
     final String sql = "select (a + b) (named x) from foo where x > 0";
-    final String expected = "SELECT (`A` + `B`) (NAMED `X`)\n"
+    final String expected = "SELECT (`A` + `B`) AS `X`\n"
         + "FROM `FOO`\n"
         + "WHERE (`X` > 0)";
     sql(sql).ok(expected);
@@ -924,7 +988,7 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testNamedExpressionWithOtherAttributes() {
     final String sql = "select (a + b) (named x), k from foo where x > 0";
-    final String expected = "SELECT (`A` + `B`) (NAMED `X`), `K`\n"
+    final String expected = "SELECT (`A` + `B`) AS `X`, `K`\n"
         + "FROM `FOO`\n"
         + "WHERE (`X` > 0)";
     sql(sql).ok(expected);
@@ -933,7 +997,7 @@ class BabelParserTest extends SqlParserTest {
   @Test public void testNestedNamedExpression() {
     final String sql = "SELECT (((a + b) (named x)) + y) (named z) from foo "
         + "where z > 0 and x > 0";
-    final String expected = "SELECT ((`A` + `B`) (NAMED `X`) + `Y`) (NAMED `Z`)\n"
+    final String expected = "SELECT (((`A` + `B`) AS `X`) + `Y`) AS `Z`\n"
         + "FROM `FOO`\n"
         + "WHERE ((`Z` > 0) AND (`X` > 0))";
     sql(sql).ok(expected);
@@ -1117,6 +1181,35 @@ class BabelParserTest extends SqlParserTest {
   @Test public void testSubstr() {
     final String sql = "select substr('FOOBAR' from 1 for 3)";
     final String expected = "SELECT SUBSTRING('FOOBAR' FROM 1 FOR 3)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testQualify() {
+    final String sql = "select count(foo) as bar from baz qualify bar = 5";
+    final String expected = "SELECT COUNT(`FOO`) AS `BAR`\n"
+        + "FROM `BAZ`\n"
+        + "QUALIFY (`BAR` = 5)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testQualifyNestedExpression() {
+    final String sql = "select count(foo) as x from bar qualify x in (select y from baz)";
+    final String expected = "SELECT COUNT(`FOO`) AS `X`\n"
+        + "FROM `BAR`\n"
+        + "QUALIFY (`X` IN (SELECT `Y`\n"
+        + "FROM `BAZ`))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testQualifyWithSurroundingClauses() {
+    final String sql = "select count(foo) as x, sum(y), z from bar where z > 5 "
+        + "having y < 5 qualify x = 5 order by z";
+    final String expected = "SELECT COUNT(`FOO`) AS `X`, SUM(`Y`), `Z`\n"
+        + "FROM `BAR`\n"
+        + "WHERE (`Z` > 5)\n"
+        + "HAVING (`Y` < 5)\n"
+        + "QUALIFY (`X` = 5)\n"
+        + "ORDER BY `Z`";
     sql(sql).ok(expected);
   }
 

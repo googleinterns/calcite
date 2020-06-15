@@ -22,6 +22,11 @@ data: {
     # List of import statements.
     imports: [
       "org.apache.calcite.sql.SqlCreate",
+      "org.apache.calcite.sql.SqlColumnAttribute",
+      "org.apache.calcite.sql.SqlColumnAttributeUpperCase",
+      "org.apache.calcite.sql.SqlColumnAttributeCaseSpecific",
+      "org.apache.calcite.sql.SqlColumnAttributeCharacterSet",
+      "org.apache.calcite.sql.SqlColumnAttributeCharacterSet.CharacterSet",
       "org.apache.calcite.sql.babel.SqlSetTimeZone",
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
@@ -42,17 +47,18 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournal.JournalModifier",
       "org.apache.calcite.sql.babel.SqlCreateAttributeJournalTable",
       "org.apache.calcite.sql.babel.SqlCreateAttributeLog",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeMap",
       "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio",
       "org.apache.calcite.sql.babel.SqlCreateAttributeMergeBlockRatio.MergeBlockRatioModifier",
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
       "org.apache.calcite.sql.babel.SqlExecMacro",
-      "org.apache.calcite.sql.babel.SqlNamedExpression",
       "org.apache.calcite.sql.babel.SqlUpsert",
       "org.apache.calcite.sql.babel.SqlUsingRequestModifier",
       "org.apache.calcite.sql.babel.Volatility",
       "org.apache.calcite.sql.babel.SqlDateTimeAtLocal",
       "org.apache.calcite.sql.babel.SqlDateTimeAtTimeZone",
+      "org.apache.calcite.sql.babel.WithDataType",
     ]
 
     # List of keywords.
@@ -68,12 +74,16 @@ data: {
       "DUAL"
       "FALLBACK"
       "FREESPACE"
+      "GRAPHIC"
       "IF"
       "INS"
       "ISOLATED"
       "JOURNAL"
+      "KANJI"
+      "KANJISJIS"
       "KBYTES"
       "KILOBYTES"
+      "LATIN"
       "LOADING"
       "LOG"
       "MANUAL"
@@ -84,10 +94,12 @@ data: {
       "NEVER"
       "OFF"
       "PROTECTION"
+      "QUALIFY"
       "SEL"
       "SEMI"
       "SUBSTR"
       "TEMP"
+      "UNICODE"
       "UPD"
       "UPPERCASE"
       "VOLATILE"
@@ -418,12 +430,16 @@ data: {
       "DATABLOCKSIZE"
       "DUAL"
       "FREESPACE"
+      "GRAPHIC"
       "IF"
       "INS"
       "ISOLATED"
       "JOURNAL"
+      "KANJI"
+      "KANJISJIS"
       "KBYTES"
       "KILOBYTES"
+      "LATIN"
       "LOADING"
       "LOG"
       "MANUAL"
@@ -434,6 +450,7 @@ data: {
       "NEVER"
       "OFF"
       "SEMI"
+      "UNICODE"
       "UPD"
 
       # The following keywords are reserved in core Calcite,
@@ -1020,6 +1037,7 @@ data: {
     includeBraces: true
     includeAdditionalDeclarations: false
     includeSubstrKeyword: true
+    includeQualifyClause: true
   }
 }
 

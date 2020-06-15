@@ -1032,6 +1032,10 @@ SqlNode SqlStmt() :
         stmt = SqlUpsert()
     |
 </#if>
+        stmt = SqlUpdate()
+    |
+        stmt = SqlInsert()
+    |
 <#if parser.dropStatementParserMethods?size != 0>
         stmt = SqlDrop()
     |
@@ -1042,11 +1046,7 @@ SqlNode SqlStmt() :
     |
         stmt = SqlDescribe()
     |
-        stmt = SqlInsert()
-    |
         stmt = SqlDelete()
-    |
-        stmt = SqlUpdate()
     |
         stmt = SqlMerge()
     |
@@ -1269,6 +1269,7 @@ SqlSelect SqlSelect() :
     final SqlNode where;
     final SqlNodeList groupBy;
     final SqlNode having;
+    SqlNode qualify = null;
     final SqlNodeList windowDecls;
     final List<SqlNode> hints = new ArrayList<SqlNode>();
     final Span s;
@@ -1312,6 +1313,9 @@ SqlSelect SqlSelect() :
         where = WhereOpt()
         groupBy = GroupByOpt()
         having = HavingOpt()
+<#if parser.includeQualifyClause>
+        qualify = QualifyOpt()
+</#if>
         windowDecls = WindowOpt()
     |
         E() {
@@ -1319,13 +1323,14 @@ SqlSelect SqlSelect() :
             where = null;
             groupBy = null;
             having = null;
+            qualify = null;
             windowDecls = null;
         }
     )
     {
         return new SqlSelect(s.end(this), keywordList,
             new SqlNodeList(selectList, Span.of(selectList).pos()),
-            fromClause, where, groupBy, having, windowDecls, null, null, null,
+            fromClause, where, groupBy, having, qualify, windowDecls, null, null, null,
             new SqlNodeList(hints, getPos()));
     }
 }
