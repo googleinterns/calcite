@@ -1700,7 +1700,7 @@ SqlNode SqlUpdate() :
 <#if parser.allowUpdateFromTable>
     [
         (
-             <FROM> {
+            <FROM> {
                 sourceTables = new SqlNodeList(s.pos());
                 sourceAliases = new SqlNodeList(s.pos());
             }
