@@ -494,6 +494,33 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     }
 }
 
+SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
+{
+    final boolean ifNotExists = false;
+    final SqlIdentifier id;
+    final SqlNode className = null;
+    final SqlNodeList usingList = SqlNodeList.EMPTY;
+    final SqlDataTypeSpec returnsDataType;
+    final int typeInt;
+    final SqlNode returnExpression;
+}
+{
+    <FUNCTION>
+    id = CompoundIdentifier()
+    <LPAREN> <RPAREN>
+    <RETURNS>
+    returnsDataType = DataType()
+    <LANGUAGE> <SQL>
+    <COLLATION> <INVOKER> <INLINE> <TYPE> typeInt = IntLiteral()
+    <RETURN> returnExpression = Expression(ExprContext.ACCEPT_SUB_QUERY)
+    {
+        return new SqlCreateFunctionSqlForm(s.end(this), replace, ifNotExists,
+            id, className, usingList, returnsDataType, false, false, false, typeInt, returnExpression);
+    }
+
+
+}
+
 /**
     Reason for having this is to be able to return the SqlExecMacro class since
     Parser.jj does not have it as a reference.

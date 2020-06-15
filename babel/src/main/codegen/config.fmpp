@@ -53,6 +53,7 @@ data: {
       "org.apache.calcite.sql.babel.Volatility",
       "org.apache.calcite.sql.babel.SqlDateTimeAtLocal",
       "org.apache.calcite.sql.babel.SqlDateTimeAtTimeZone",
+      "org.apache.calcite.sql.babel.SqlCreateFunctionSqlForm",
     ]
 
     # List of keywords.
@@ -70,6 +71,7 @@ data: {
       "FREESPACE"
       "IF"
       "INS"
+      "INLINE"
       "ISOLATED"
       "JOURNAL"
       "KBYTES"
@@ -419,6 +421,7 @@ data: {
       "DUAL"
       "FREESPACE"
       "IF"
+      "INLINE"
       "INS"
       "ISOLATED"
       "JOURNAL"
@@ -952,6 +955,7 @@ data: {
     # Each must accept arguments "(SqlParserPos pos, boolean replace)".
     createStatementParserMethods: [
       "SqlCreateTable"
+      "SqlCreateFunctionSqlForm"
     ]
 
     # list of methods for parsing extensions to "SET" calls

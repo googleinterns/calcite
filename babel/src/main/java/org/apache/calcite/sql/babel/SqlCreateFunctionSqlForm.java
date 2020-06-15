@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlDataTypeSpec;
@@ -29,6 +28,7 @@ public class SqlCreateFunctionSqlForm extends org.apache.calcite.sql.ddl.SqlCrea
   public final boolean isDeterministic;
   public final boolean canRunOnNullInput;
   public final boolean hasSqlSecurityDefiner;
+  public final int typeInt;
   public final SqlNode returnExpression;
 
   /** Creates a SqlCreateFunctionSqlForm.
@@ -45,11 +45,12 @@ public class SqlCreateFunctionSqlForm extends org.apache.calcite.sql.ddl.SqlCrea
    * @param hasSqlSecurityDefiner if "sql security definer" is specified
    * @param returnExpression the expression that is returned
    * */
-  public SqlCreateFunctionSqlForm(final SqlParserPos pos, final boolean replace, final boolean ifNotExists,
+  public SqlCreateFunctionSqlForm(final SqlParserPos pos, final boolean replace,
+      final boolean ifNotExists,
       final SqlIdentifier name, final SqlNode className,
       final SqlNodeList usingList, final SqlDataTypeSpec returnsDataType,
       final boolean isDeterministic, final boolean canRunOnNullInput,
-      final boolean hasSqlSecurityDefiner, final SqlNode returnExpression) {
+      final boolean hasSqlSecurityDefiner, final int typeInt, final SqlNode returnExpression) {
 
     super(pos, replace, ifNotExists, name, className, usingList);
 
@@ -57,11 +58,19 @@ public class SqlCreateFunctionSqlForm extends org.apache.calcite.sql.ddl.SqlCrea
     this.isDeterministic = isDeterministic;
     this.canRunOnNullInput = canRunOnNullInput;
     this.hasSqlSecurityDefiner = hasSqlSecurityDefiner;
+    this.typeInt = typeInt;
     this.returnExpression = returnExpression;
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec,
-      int rightPrec) {
-
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    writer.keyword("CREATE FUNCTION");
+    name.unparse(writer, 0,  0);
+    writer.print("() ");
+    writer.keyword("RETURNS");
+    returnsDataType.unparse(writer, 0, 0);
+    writer.keyword("LANGUAGE SQL COLLATION INVOKER INLINE TYPE");
+    writer.print(typeInt + " ");
+    writer.keyword("RETURN");
+    returnExpression.unparse(writer, 0, 0);
   }
 }
