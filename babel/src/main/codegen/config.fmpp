@@ -940,6 +940,9 @@ data: {
     builtinFunctionCallMethods: [
        "DateFunctionCall()"
        "DateaddFunctionCall()"
+       "CurrentTimeStampFunction()"
+       "CurrentTimeFunction()"
+       "CurrentDateFunction()"
     ]
 
     # List of methods for parsing extensions to "ALTER <scope>" calls.
@@ -999,7 +1002,6 @@ data: {
 
     dateTimeExpressionMethods: [
       "DateTimeTerm()"
-      "CurrentDateTimeFunctions()"
     ]
 
     # List of files in @includes directory that have parser method

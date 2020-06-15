@@ -233,9 +233,6 @@ public class BigQuerySqlDialect extends SqlDialect {
       SqlOrderBy orderBy = (SqlOrderBy) call;
       orderBy.unparseWithParens(writer, call, leftPrec, rightPrec);
       break;
-    case OTHER_FUNCTION:
-      call.getOperator().unparse(writer, call, leftPrec, rightPrec);
-      break;
     default:
       super.unparseCall(writer, call, leftPrec, rightPrec);
     }

@@ -663,25 +663,13 @@ SqlNode InlineModOperator() :
     }
 }
 
-SqlNode CurrentDateTimeFunctions() :
+SqlNode CurrentTimeStampFunction() :
 {
     final List<SqlNode> args = new ArrayList<SqlNode>();
-    final SqlIdentifier qualifiedName;
-    SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;
     SqlNode e;
-    SqlLiteral quantifier = null;
 }
 {
-    (
-        <CURRENT_TIME>
-    |
-        <CURRENT_TIMESTAMP>
-    |
-        <CURRENT_DATE>
-    )
-    {
-        qualifiedName = new SqlIdentifier(unquotedIdentifier(), getPos());
-    }
+    <CURRENT_TIMESTAMP>
     [
         <LPAREN>
         [
@@ -692,7 +680,49 @@ SqlNode CurrentDateTimeFunctions() :
         <RPAREN>
     ]
     {
-        return createCall(qualifiedName, getPos(), funcType, quantifier, args);
+        return SqlStdOperatorTable.CURRENT_TIMESTAMP.createCall(getPos(), args);
+    }
+}
+
+SqlNode CurrentTimeFunction() :
+{
+    final List<SqlNode> args = new ArrayList<SqlNode>();
+    SqlNode e;
+}
+{
+    <CURRENT_TIME>
+    [
+        <LPAREN>
+        [
+            e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
+                args.add(e);
+            }
+        ]
+        <RPAREN>
+    ]
+    {
+        return SqlStdOperatorTable.CURRENT_TIME.createCall(getPos(), args);
+    }
+}
+
+SqlNode CurrentDateFunction() :
+{
+    final List<SqlNode> args = new ArrayList<SqlNode>();
+    SqlNode e;
+}
+{
+    <CURRENT_DATE>
+    [
+        <LPAREN>
+        [
+            e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
+                args.add(e);
+            }
+        ]
+        <RPAREN>
+    ]
+    {
+        return SqlStdOperatorTable.CURRENT_DATE.createCall(getPos(), args);
     }
 }
 
