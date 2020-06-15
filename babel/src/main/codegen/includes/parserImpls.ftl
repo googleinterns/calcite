@@ -256,6 +256,15 @@ SqlCreateAttribute CreateTableAttributeJournalTable() :
     { return new SqlCreateAttributeJournalTable(id, getPos()); }
 }
 
+SqlCreateAttribute CreateTableAttributeMap() :
+{
+    final SqlIdentifier id;
+}
+{
+    <MAP> <EQ> id = CompoundIdentifier()
+    { return new SqlCreateAttributeMap(id, getPos()); }
+}
+
 // FREESPACE attribute can take in decimals but should be truncated to an integer.
 SqlCreateAttribute CreateTableAttributeFreeSpace() :
 {
@@ -442,6 +451,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
     (
         <COMMA>
         (
+            e = CreateTableAttributeMap()
+        |
             e = CreateTableAttributeFallback()
         |
             e = CreateTableAttributeJournalTable()
@@ -466,6 +477,17 @@ List<SqlCreateAttribute> CreateTableAttributes() :
     { return list; }
 }
 
+WithDataType WithDataOpt() :
+{
+    WithDataType withData = WithDataType.WITH_DATA;
+}
+{
+    <WITH> [ <NO> { withData = WithDataType.WITH_NO_DATA; } ] <DATA>
+    { return withData; }
+|
+    { return WithDataType.UNSPECIFIED; }
+}
+
 SqlCreate SqlCreateTable(Span s, boolean replace) :
 {
     SetType setType = SetType.UNSPECIFIED;
@@ -475,7 +497,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     final List<SqlCreateAttribute> tableAttributes;
     final SqlNodeList columnList;
     final SqlNode query;
-    boolean withData = false;
+    WithDataType withData = WithDataType.UNSPECIFIED;
     final OnCommitType onCommitType;
 }
 {
@@ -503,11 +525,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     )
     (
         <AS> query = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
-        [
-            <WITH> <DATA> {
-                withData = true;
-            }
-        ]
+        withData = WithDataOpt()
     |
         { query = null; }
     )
@@ -576,16 +594,14 @@ SqlNode SqlInsertWithOptionalValuesKeyword() :
     }
 }
 
-SqlNode SqlNamedExpression(SqlNode expression) :
+SqlNode SqlNamedExpression(SqlNode e) :
 {
-    final Span s;
     final SqlIdentifier name;
 }
 {
-    <LPAREN> { s = span(); }
-    <NAMED> name = SimpleIdentifier() <RPAREN>
+    <LPAREN> <NAMED> name = SimpleIdentifier() <RPAREN>
     {
-        return new SqlNamedExpression(s.end(this), name, expression);
+        return SqlStdOperatorTable.AS.createCall(span().end(e), e, name);
     }
 }
 

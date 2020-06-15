@@ -322,6 +322,13 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableAsWithNoData() {
+    final String sql = "create table foo as ( select * from bar ) with no data";
+    final String expected = "CREATE TABLE `FOO` AS\n"
+        + "SELECT *\nFROM `BAR` WITH NO DATA";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTableOnCommitPreserveRows() {
     final String sql = "create table foo (bar int) on commit preserve rows";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) ON COMMIT PRESERVE ROWS";
@@ -403,6 +410,12 @@ class BabelParserTest extends SqlParserTest {
   @Test public void testTableAttributeJournalTableWithCompoundIdentifier() {
     final String sql = "create table foo, with journal table = baz.tbl (bar integer)";
     final String expected = "CREATE TABLE `FOO`, WITH JOURNAL TABLE = `BAZ`.`TBL` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeMap() {
+    final String sql = "create table foo, map = baz (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, MAP = `BAZ` (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 
@@ -749,7 +762,8 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testCreateTableKanjisjisCharacterSetColumnLevelAttribute() {
     final String sql = "create table foo (bar int character set kanjisjis)";
-    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET KANJISJIS)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER "
+        + "SET KANJISJIS)";
     sql(sql).ok(expected);
   }
 
@@ -761,7 +775,8 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testCreateTableCharacterSetAndUppercaseColumnLevelAttributes() {
     final String sql = "create table foo (bar int character set kanji uppercase)";
-    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET KANJI UPPERCASE)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET "
+        + "KANJI UPPERCASE)";
     sql(sql).ok(expected);
   }
 
@@ -787,6 +802,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testIns() {
+    final String sql = "ins into foo (1,'hi')";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(1, 'hi'))";
+    sql(sql).ok(expected);
+  }
 
   @Test void testBigQueryUnicodeUnparsing() {
     final String sql = "SELECT '¶ÑÍ·'";
@@ -813,6 +834,13 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testUpdateFromTable() {
     final String sql = "update foo from bar set foo.x = bar.y, foo.z = bar.k";
+    final String expected = "UPDATE `FOO` FROM `BAR` SET `FOO`.`X` = `BAR`.`Y`, "
+        + "`FOO`.`Z` = `BAR`.`K`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUpd() {
+    final String sql = "upd foo from bar set foo.x = bar.y, foo.z = bar.k";
     final String expected = "UPDATE `FOO` FROM `BAR` SET `FOO`.`X` = `BAR`.`Y`, "
         + "`FOO`.`Z` = `BAR`.`K`";
     sql(sql).ok(expected);
@@ -952,7 +980,7 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testNamedExpressionAlone() {
     final String sql = "select (a + b) (named x) from foo where x > 0";
-    final String expected = "SELECT (`A` + `B`) (NAMED `X`)\n"
+    final String expected = "SELECT (`A` + `B`) AS `X`\n"
         + "FROM `FOO`\n"
         + "WHERE (`X` > 0)";
     sql(sql).ok(expected);
@@ -960,7 +988,7 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testNamedExpressionWithOtherAttributes() {
     final String sql = "select (a + b) (named x), k from foo where x > 0";
-    final String expected = "SELECT (`A` + `B`) (NAMED `X`), `K`\n"
+    final String expected = "SELECT (`A` + `B`) AS `X`, `K`\n"
         + "FROM `FOO`\n"
         + "WHERE (`X` > 0)";
     sql(sql).ok(expected);
@@ -969,7 +997,7 @@ class BabelParserTest extends SqlParserTest {
   @Test public void testNestedNamedExpression() {
     final String sql = "SELECT (((a + b) (named x)) + y) (named z) from foo "
         + "where z > 0 and x > 0";
-    final String expected = "SELECT ((`A` + `B`) (NAMED `X`) + `Y`) (NAMED `Z`)\n"
+    final String expected = "SELECT (((`A` + `B`) AS `X`) + `Y`) AS `Z`\n"
         + "FROM `FOO`\n"
         + "WHERE ((`Z` > 0) AND (`X` > 0))";
     sql(sql).ok(expected);
