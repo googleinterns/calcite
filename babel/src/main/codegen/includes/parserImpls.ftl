@@ -673,7 +673,7 @@ SqlNode CurrentTimestampFunction() :
     [
         <LPAREN>
         [
-            e = AtomicRowExpression() {
+            e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
                 args.add(e);
             }
         ]
@@ -694,7 +694,7 @@ SqlNode CurrentTimeFunction() :
     [
         <LPAREN>
         [
-            e = AtomicRowExpression() {
+            e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
                 args.add(e);
             }
         ]
@@ -715,7 +715,7 @@ SqlNode CurrentDateFunction() :
     [
         <LPAREN>
         [
-            e = AtomicRowExpression() {
+            e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
                 args.add(e);
             }
         ]
