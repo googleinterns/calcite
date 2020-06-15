@@ -3627,11 +3627,12 @@ SqlNode Expression3(ExprContext exprContext) :
     Span rowSpan = null;
 }
 {
-    LOOKAHEAD(2)
 <#list parser.preAtomicRowMethods as method>
+    LOOKAHEAD(${method})
     e = ${method} { return e; }
 |
 </#list>
+    LOOKAHEAD(2)
     e = AtomicRowExpression()
     {
         checkNonQueryExpression(exprContext);
