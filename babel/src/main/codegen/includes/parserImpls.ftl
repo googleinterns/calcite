@@ -663,7 +663,7 @@ SqlNode InlineModOperator() :
     }
 }
 
-SqlNode CurrentTimeStampFunction() :
+SqlNode CurrentTimestampFunction() :
 {
     final List<SqlNode> args = new ArrayList<SqlNode>();
     SqlNode e;
@@ -673,7 +673,7 @@ SqlNode CurrentTimeStampFunction() :
     [
         <LPAREN>
         [
-            e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
+            e = AtomicRowExpression() {
                 args.add(e);
             }
         ]
@@ -694,7 +694,7 @@ SqlNode CurrentTimeFunction() :
     [
         <LPAREN>
         [
-            e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
+            e = AtomicRowExpression() {
                 args.add(e);
             }
         ]
@@ -715,7 +715,7 @@ SqlNode CurrentDateFunction() :
     [
         <LPAREN>
         [
-            e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
+            e = AtomicRowExpression() {
                 args.add(e);
             }
         ]

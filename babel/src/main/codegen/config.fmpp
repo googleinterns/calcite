@@ -940,7 +940,7 @@ data: {
     builtinFunctionCallMethods: [
        "DateFunctionCall()"
        "DateaddFunctionCall()"
-       "CurrentTimeStampFunction()"
+       "CurrentTimestampFunction()"
        "CurrentTimeFunction()"
        "CurrentDateFunction()"
     ]
