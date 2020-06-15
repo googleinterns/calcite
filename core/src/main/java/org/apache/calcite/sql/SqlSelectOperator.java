@@ -64,18 +64,18 @@ public class SqlSelectOperator extends SqlOperator {
       SqlNode... operands) {
     assert functionQualifier == null;
     return new SqlSelect(pos,
-        (SqlNodeList) operands[0],
-        (SqlNodeList) operands[1],
-        operands[2],
-        operands[3],
-        (SqlNodeList) operands[4],
-        operands[5],
-        operands[6],
-        (SqlNodeList) operands[7],
-        (SqlNodeList) operands[8],
-        operands[9],
-        operands[10],
-        (SqlNodeList) operands[11]);
+        /*keywordList=*/ (SqlNodeList) operands[0],
+        /*selectList=*/ (SqlNodeList) operands[1],
+        /*fromClause=*/ operands[2],
+        /*whereClause=*/ operands[3],
+        /*groupBy=*/ (SqlNodeList) operands[4],
+        /*having=*/ operands[5],
+        /*qualify=*/ operands[6],
+        /*windowDecls=*/ (SqlNodeList) operands[7],
+        /*orderBy=*/ (SqlNodeList) operands[8],
+        /*offset=*/ operands[9],
+        /*fetch=*/ operands[10],
+        /*hints=*/ (SqlNodeList) operands[11]);
   }
 
   /**
