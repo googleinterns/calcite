@@ -44,6 +44,7 @@ public class SqlSelect extends SqlCall {
   SqlNode where;
   SqlNodeList groupBy;
   SqlNode having;
+  SqlNode qualify;
   SqlNodeList windowDecls;
   SqlNodeList orderBy;
   SqlNode offset;
@@ -64,6 +65,23 @@ public class SqlSelect extends SqlCall {
       SqlNode offset,
       SqlNode fetch,
       SqlNodeList hints) {
+    this(pos, keywordList, selectList, from, where, groupBy, having, /*qualify=*/ null,
+        windowDecls, orderBy, offset, fetch, hints);
+  }
+
+  public SqlSelect(SqlParserPos pos,
+      SqlNodeList keywordList,
+      SqlNodeList selectList,
+      SqlNode from,
+      SqlNode where,
+      SqlNodeList groupBy,
+      SqlNode having,
+      SqlNode qualify,
+      SqlNodeList windowDecls,
+      SqlNodeList orderBy,
+      SqlNode offset,
+      SqlNode fetch,
+      SqlNodeList hints) {
     super(pos);
     this.keywordList = Objects.requireNonNull(keywordList != null
         ? keywordList : new SqlNodeList(pos));
@@ -72,6 +90,7 @@ public class SqlSelect extends SqlCall {
     this.where = where;
     this.groupBy = groupBy;
     this.having = having;
+    this.qualify = qualify;
     this.windowDecls = Objects.requireNonNull(windowDecls != null
         ? windowDecls : new SqlNodeList(pos));
     this.orderBy = orderBy;
@@ -169,6 +188,14 @@ public class SqlSelect extends SqlCall {
 
   public void setHaving(SqlNode having) {
     this.having = having;
+  }
+
+  public final SqlNode getQualify() {
+    return qualify;
+  }
+
+  public void setQualify(SqlNode qualify) {
+    this.qualify = qualify;
   }
 
   public final SqlNodeList getSelectList() {

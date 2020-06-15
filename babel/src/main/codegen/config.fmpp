@@ -83,6 +83,7 @@ data: {
       "NEVER"
       "OFF"
       "PROTECTION"
+      "QUALIFY"
       "SEL"
       "SEMI"
       "SUBSTR"
@@ -999,6 +1000,10 @@ data: {
 
     dateTimeExpressionMethods: [
       "DateTimeTerm()"
+    ]
+
+    qualifyClauseMethod: [
+      "QualifyOpt()"
     ]
 
     # List of files in @includes directory that have parser method
