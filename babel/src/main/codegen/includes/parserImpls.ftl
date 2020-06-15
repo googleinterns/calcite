@@ -147,6 +147,28 @@ boolean IsNullable() :
     )
 }
 
+SqlColumnAttribute ColumnAttributeCharacterSet() :
+{
+    CharacterSet characterSet = null;
+}
+{
+    <CHARACTER> <SET>
+    (
+        <LATIN> { characterSet = CharacterSet.LATIN; }
+    |
+        <UNICODE> { characterSet = CharacterSet.UNICODE; }
+    |
+        <GRAPHIC> { characterSet = CharacterSet.GRAPHIC; }
+    |
+        <KANJISJIS> { characterSet = CharacterSet.KANJISJIS; }
+    |
+        <KANJI> { characterSet = CharacterSet.KANJI; }
+    )
+    {
+        return new SqlColumnAttributeCharacterSet(getPos(), characterSet);
+    }
+}
+
 SqlColumnAttribute ColumnAttributeCaseSpecific() :
 {
     boolean isCaseSpecific = true;
@@ -180,6 +202,8 @@ void ColumnAttributes(List<SqlColumnAttribute> list) :
             e = ColumnAttributeUpperCase()
         |
             e = ColumnAttributeCaseSpecific()
+        |
+            e = ColumnAttributeCharacterSet()
         ) { list.add(e); }
     )+
 }
@@ -751,4 +775,17 @@ SqlNode DateTimeTerm() :
             }
         )
     )
+}
+
+/**
+ * Parses the optional QUALIFY clause for SELECT.
+ */
+SqlNode QualifyOpt() :
+{
+    SqlNode e;
+}
+{
+    <QUALIFY> e = Expression(ExprContext.ACCEPT_SUB_QUERY) { return e; }
+|
+    { return null; }
 }
