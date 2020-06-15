@@ -1002,10 +1002,6 @@ data: {
       "DateTimeTerm()"
     ]
 
-    qualifyClauseMethod: [
-      "QualifyOpt()"
-    ]
-
     # List of files in @includes directory that have parser method
     # implementations for parsing custom SQL statements, literals or types
     # given as part of "statementParserMethods", "literalParserMethods" or
@@ -1023,6 +1019,7 @@ data: {
     includeBraces: true
     includeAdditionalDeclarations: false
     includeSubstrKeyword: true
+    includeQualifyClause: true
   }
 }
 

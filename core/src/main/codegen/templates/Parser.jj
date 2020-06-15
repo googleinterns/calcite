@@ -1313,11 +1313,11 @@ SqlSelect SqlSelect() :
         where = WhereOpt()
         groupBy = GroupByOpt()
         having = HavingOpt()
-<#list parser.qualifyClauseMethod as method>
-        qualify = ${method}
+<#if parser.includeQualifyClause>
+        qualify = QualifyOpt()
 <#else>
         { qualify = null; }
-</#list>
+</#if>
         windowDecls = WindowOpt()
     |
         E() {
