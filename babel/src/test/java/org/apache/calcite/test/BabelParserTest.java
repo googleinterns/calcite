@@ -1150,7 +1150,7 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testQualifyWithMultipleOtherClauses() {
+  @Test public void testQualifyWithSurroundingClauses() {
     final String sql = "select count(foo) as x, sum(y), z from bar where z > 5 "
         + "having y < 5 qualify x = 5 order by z";
     final String expected = "SELECT COUNT(`FOO`) AS `X`, SUM(`Y`), `Z`\n"
