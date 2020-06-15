@@ -17,12 +17,10 @@
 package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlIdentifier;
-import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-import java.util.List;
 
 /**
  * A <code>SqlIndex</code> is a class that can be used to create an index used by the

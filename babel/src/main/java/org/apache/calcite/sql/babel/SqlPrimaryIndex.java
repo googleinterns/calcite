@@ -22,7 +22,6 @@ import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-import java.util.List;
 
 /**
  * A <code>SqlPrimaryIndex</code> is a class that can be used to create a primary index,
