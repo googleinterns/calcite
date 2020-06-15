@@ -1183,7 +1183,7 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "SELECT SUBSTRING('FOOBAR' FROM 1 FOR 3)";
     sql(sql).ok(expected);
   }
-  
+
   @Test public void testPrimaryIndexNoName() {
     final String sql = "create table foo primary index (lname)";
     final String expected = "CREATE TABLE `FOO` PRIMARY INDEX (`LNAME`)";
