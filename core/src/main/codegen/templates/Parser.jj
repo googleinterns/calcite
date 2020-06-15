@@ -1269,7 +1269,7 @@ SqlSelect SqlSelect() :
     final SqlNode where;
     final SqlNodeList groupBy;
     final SqlNode having;
-    final SqlNode qualify;
+    SqlNode qualify = null;
     final SqlNodeList windowDecls;
     final List<SqlNode> hints = new ArrayList<SqlNode>();
     final Span s;
@@ -1315,8 +1315,6 @@ SqlSelect SqlSelect() :
         having = HavingOpt()
 <#if parser.includeQualifyClause>
         qualify = QualifyOpt()
-<#else>
-        { qualify = null; }
 </#if>
         windowDecls = WindowOpt()
     |

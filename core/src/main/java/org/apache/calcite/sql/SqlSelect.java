@@ -44,7 +44,7 @@ public class SqlSelect extends SqlCall {
   SqlNode where;
   SqlNodeList groupBy;
   SqlNode having;
-  SqlNode qualify;
+  private SqlNode qualify;
   SqlNodeList windowDecls;
   SqlNodeList orderBy;
   SqlNode offset;
@@ -192,10 +192,6 @@ public class SqlSelect extends SqlCall {
 
   public final SqlNode getQualify() {
     return qualify;
-  }
-
-  public void setQualify(SqlNode qualify) {
-    this.qualify = qualify;
   }
 
   public final SqlNodeList getSelectList() {
