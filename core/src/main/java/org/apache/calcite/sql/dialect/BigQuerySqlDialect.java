@@ -195,8 +195,9 @@ public class BigQuerySqlDialect extends SqlDialect {
     }
     writer.endList(setFrame);
     if (updateCall.getSourceTables() != null) {
+      writer.keyword("FROM");
       final SqlWriter.Frame fromFrame = writer.startList("", "");
-      for (Pair<SqlNode, SqlIdentifier> pair
+      for (Pair<SqlNode, SqlNode> pair
           : Pair.zip(updateCall.getSourceTables(), updateCall.getSourceAliases())) {
         writer.sep(",");
         SqlNode sourceTable = pair.left;

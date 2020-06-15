@@ -38,8 +38,8 @@ public class SqlUpdate extends SqlCall {
   SqlNode condition;
   SqlSelect sourceSelect;
   SqlIdentifier alias;
-  List<SqlNode> sourceTables;
-  List<SqlIdentifier> sourceAliases;
+  SqlNodeList sourceTables;
+  SqlNodeList sourceAliases;
 
   //~ Constructors -----------------------------------------------------------
 
@@ -61,8 +61,8 @@ public class SqlUpdate extends SqlCall {
       SqlNode condition,
       SqlSelect sourceSelect,
       SqlIdentifier alias,
-      List<SqlNode> sourceTable,
-      List<SqlIdentifier> sourceAliases) {
+      SqlNodeList sourceTables,
+      SqlNodeList sourceAliases) {
     super(pos);
     this.targetTable = targetTable;
     this.targetColumnList = targetColumnList;
@@ -73,7 +73,9 @@ public class SqlUpdate extends SqlCall {
     this.alias = alias;
     this.sourceTables = sourceTables;
     this.sourceAliases = sourceAliases;
-    assert this.sourceTables.size() == this.sourceAliases.size();
+    if (sourceTables != null) {
+      assert this.sourceTables.size() == this.sourceAliases.size();
+    }
   }
 
   //~ Methods ----------------------------------------------------------------
@@ -88,7 +90,7 @@ public class SqlUpdate extends SqlCall {
 
   public List<SqlNode> getOperandList() {
     return ImmutableNullableList.of(targetTable, targetColumnList,
-        sourceExpressionList, condition, alias);
+        sourceExpressionList, condition, alias, sourceTables, sourceAliases);
   }
 
   @Override public void setOperand(int i, SqlNode operand) {
@@ -111,6 +113,12 @@ public class SqlUpdate extends SqlCall {
       break;
     case 5:
       alias = (SqlIdentifier) operand;
+      break;
+    case 6:
+      sourceTables = (SqlNodeList) operand;
+      break;
+    case 7:
+      sourceAliases = (SqlNodeList) operand;
       break;
     default:
       throw new AssertionError(i);
@@ -177,14 +185,14 @@ public class SqlUpdate extends SqlCall {
   /**
    * @return the source table names
    */
-  public List<SqlNode> getSourceTables() {
+  public SqlNodeList getSourceTables() {
     return sourceTables;
   }
 
   /**
    * @return the source table aliases
    */
-  public List<SqlIdentifier> getSourceAliases() {
+  public SqlNodeList getSourceAliases() {
     return sourceAliases;
   }
 

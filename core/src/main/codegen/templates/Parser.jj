@@ -1668,8 +1668,8 @@ SqlNode SqlUpdate() :
     SqlNode table;
     SqlNode sourceTable;
     SqlIdentifier sourceAlias;
-    List<SqlNode> sourceTables = null;
-    List<SqlIdentifier> sourceAliases = null;
+    SqlNodeList sourceTables = null;
+    SqlNodeList sourceAliases = null;
     SqlNodeList extendList = null;
     SqlIdentifier alias = null;
     SqlNode condition;
@@ -1704,8 +1704,8 @@ SqlNode SqlUpdate() :
         (
             <FROM>
             sourceTable = TableRef() {
-                sourceTables = new ArrayList<SqlNode>();
-                sourceAliases = new ArrayList<SqlIdentifier>();
+                sourceTables = new SqlNodeList(s.pos());
+                sourceAliases = new SqlNodeList(s.pos());
                 sourceTables.add(sourceTable);
             }
             (
