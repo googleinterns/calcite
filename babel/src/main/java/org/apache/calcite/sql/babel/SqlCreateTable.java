@@ -44,6 +44,7 @@ public class SqlCreateTable extends SqlCreate
   public final SqlNodeList columnList;
   public final SqlNode query;
   public final WithDataType withData;
+  public final SqlPrimaryIndex primaryIndex;
   public final OnCommitType onCommitType;
 
   private static final SqlOperator OPERATOR =
@@ -53,20 +54,29 @@ public class SqlCreateTable extends SqlCreate
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
       boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
     this(pos, replace, setType, volatility, ifNotExists, name, /*tableAttributes=*/null,
-        columnList, query, WithDataType.UNSPECIFIED, OnCommitType.UNSPECIFIED);
+        columnList, query, WithDataType.UNSPECIFIED,
+        /*primaryIndex=*/ null, OnCommitType.UNSPECIFIED);
   }
 
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
       boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query,
       WithDataType withData, OnCommitType onCommitType) {
     this(pos, replace, setType, volatility, ifNotExists, name, /*tableAttributes=*/null,
-        columnList, query, withData, onCommitType);
+        columnList, query, withData, /*primaryIndex=*/ null, onCommitType);
   }
 
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
       boolean ifNotExists, SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
       SqlNodeList columnList, SqlNode query,
       WithDataType withData, OnCommitType onCommitType) {
+    this(pos, replace, setType, volatility, ifNotExists, name, tableAttributes,
+        columnList, query, withData, /*primaryIndex=*/ null, onCommitType);
+  }
+
+  public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
+      boolean ifNotExists, SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
+      SqlNodeList columnList, SqlNode query,
+      WithDataType withData, SqlPrimaryIndex primaryIndex, OnCommitType onCommitType) {
     super(OPERATOR, pos, replace, ifNotExists);
     this.name = Objects.requireNonNull(name);
     this.setType = setType;
@@ -75,6 +85,7 @@ public class SqlCreateTable extends SqlCreate
     this.columnList = columnList; // may be null
     this.query = query; // for "CREATE TABLE ... AS query"; may be null
     this.withData = withData;
+    this.primaryIndex = primaryIndex;
     this.onCommitType = onCommitType;
   }
 
@@ -139,6 +150,9 @@ public class SqlCreateTable extends SqlCreate
       break;
     default:
       break;
+    }
+    if (primaryIndex != null) {
+      primaryIndex.unparse(writer, leftPrec, rightPrec);
     }
     switch (onCommitType) {
     case PRESERVE:

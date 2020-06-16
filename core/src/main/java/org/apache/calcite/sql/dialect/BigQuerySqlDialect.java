@@ -70,10 +70,6 @@ public class BigQuerySqlDialect extends SqlDialect {
 
   public static final SqlDialect DEFAULT = new BigQuerySqlDialect(DEFAULT_CONTEXT);
 
-  // Strings in this set will be unparsed to have empty parentheses at the end.
-  private static final Set<String> IDENTIFIER_FUNCTIONS =
-      ImmutableSet.of("current_time", "current_timestamp", "current_date");
-
   private static final Set<String> RESERVED_KEYWORDS =
       ImmutableSet.of("ALL", "AND", "ANY", "ARRAY", "AS", "ASC",
               "ASSERT_ROWS_MODIFIED", "AT", "BETWEEN", "BY", "CASE", "CAST",
@@ -151,21 +147,6 @@ public class BigQuerySqlDialect extends SqlDialect {
     unparseFetchUsingLimit(writer, offset, fetch);
   }
 
-  /* Unparses the given identifier with parentheses at the end if it is
-   * required to have them. */
-  @Override public void unparseSqlIdentifier(SqlWriter writer,
-      SqlIdentifier identifier, int leftPrec, int rightPrec) {
-    super.unparseSqlIdentifier(writer, identifier, leftPrec, rightPrec);
-
-    boolean isValidIdentifier = identifier.names.size() == 1;
-    if (isValidIdentifier && IDENTIFIER_FUNCTIONS
-        .contains(identifier.names.get(0).toLowerCase(Locale.ROOT))) {
-      final SqlWriter.Frame frame =
-          writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
-      writer.endList(frame);
-    }
-  }
-
   @Override public void unparseSqlInsertSource(SqlWriter writer, SqlInsert insertCall,
       int leftPrec, int rightPrec) {
     unparseCall(writer, (SqlCall) insertCall.getSource(), leftPrec, rightPrec);
@@ -194,13 +175,21 @@ public class BigQuerySqlDialect extends SqlDialect {
       sourceExp.unparse(writer, opLeft, opRight);
     }
     writer.endList(setFrame);
-    if (updateCall.getSourceTable() != null) {
+    if (updateCall.getSourceTables() != null) {
       writer.keyword("FROM");
-      updateCall.getSourceTable().unparse(writer, opLeft, opRight);
-      if (updateCall.getSourceAlias() != null) {
-        writer.keyword("AS");
-        updateCall.getSourceAlias().unparse(writer, opLeft, opRight);
+      final SqlWriter.Frame fromFrame = writer.startList("", "");
+      for (Pair<SqlNode, SqlNode> pair
+          : Pair.zip(updateCall.getSourceTables(), updateCall.getSourceAliases())) {
+        writer.sep(",");
+        SqlNode sourceTable = pair.left;
+        sourceTable.unparse(writer, opLeft, opRight);
+        SqlNode sourceAlias = pair.right;
+        if (sourceAlias != null) {
+          writer.keyword("AS");
+          sourceAlias.unparse(writer, opLeft, opRight);
+        }
       }
+      writer.endList(fromFrame);
     }
     if (updateCall.getCondition() != null) {
       writer.sep("WHERE");

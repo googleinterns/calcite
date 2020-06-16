@@ -136,6 +136,25 @@ SqlNodeList ExtendColumnList() :
     }
 }
 
+void SourceTableAndAlias(SqlNodeList sourceTables, SqlNodeList sourceAliases) :
+{
+    SqlNode sourceTable;
+    SqlIdentifier sourceAlias;
+}
+{
+    sourceTable = TableRef() {
+        sourceTables.add(sourceTable);
+    }
+    (
+        [ <AS> ]
+        sourceAlias = SimpleIdentifier() {
+            sourceAliases.add(sourceAlias);
+        }
+    |
+        { sourceAliases.add(null); }
+    )
+}
+
 boolean IsNullable() :
 {
 
@@ -150,6 +169,28 @@ boolean IsNullable() :
             return true;
         }
     )
+}
+
+SqlColumnAttribute ColumnAttributeCharacterSet() :
+{
+    CharacterSet characterSet = null;
+}
+{
+    <CHARACTER> <SET>
+    (
+        <LATIN> { characterSet = CharacterSet.LATIN; }
+    |
+        <UNICODE> { characterSet = CharacterSet.UNICODE; }
+    |
+        <GRAPHIC> { characterSet = CharacterSet.GRAPHIC; }
+    |
+        <KANJISJIS> { characterSet = CharacterSet.KANJISJIS; }
+    |
+        <KANJI> { characterSet = CharacterSet.KANJI; }
+    )
+    {
+        return new SqlColumnAttributeCharacterSet(getPos(), characterSet);
+    }
 }
 
 SqlColumnAttribute ColumnAttributeCaseSpecific() :
@@ -185,6 +226,8 @@ void ColumnAttributes(List<SqlColumnAttribute> list) :
             e = ColumnAttributeUpperCase()
         |
             e = ColumnAttributeCaseSpecific()
+        |
+            e = ColumnAttributeCharacterSet()
         ) { list.add(e); }
     )+
 }
@@ -479,6 +522,8 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     final SqlNodeList columnList;
     final SqlNode query;
     WithDataType withData = WithDataType.UNSPECIFIED;
+    SqlPrimaryIndex primaryIndex = null;
+    SqlIndex index;
     final OnCommitType onCommitType;
 }
 {
@@ -510,12 +555,54 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     |
         { query = null; }
     )
+    (
+       index = SqlCreateTableIndex(s)
+       {
+           if (index instanceof SqlPrimaryIndex) {
+               primaryIndex = (SqlPrimaryIndex) index;
+           }
+       }
+    )*
     onCommitType = OnCommitTypeOpt()
     {
         return new SqlCreateTable(s.end(this), replace, setType, volatility, ifNotExists, id,
-            tableAttributes, columnList, query, withData, onCommitType);
+            tableAttributes, columnList, query, withData, primaryIndex, onCommitType);
     }
 }
+
+/**
+    Parses an index declaration. Currently only supports PRIMARY INDEX statements,
+    but can be extended to support non-primary indices.
+*/
+SqlIndex SqlCreateTableIndex(Span s) :
+{
+   SqlNodeList columns;
+   SqlIdentifier name = null;
+   boolean isUnique = false;
+}
+{
+   (
+       <NO> <PRIMARY> <INDEX>
+       {
+           return new SqlPrimaryIndex(s.end(this), /*columns=*/ null, /*name=*/ null,
+                /*isUnique=*/ false, /*explicitNoPrimaryIndex=*/ true);
+       }
+   |
+       [
+           <UNIQUE> { isUnique = true; }
+       ]
+       <PRIMARY> <INDEX>
+       [
+           name = SimpleIdentifier()
+       ]
+       columns = ParenthesizedSimpleIdentifierList()
+       {
+           return new SqlPrimaryIndex(s.end(this), columns, name, isUnique,
+                /*explicitNoPrimaryIndex=*/ false);
+       }
+   )
+}
+
 
 /**
     Reason for having this is to be able to return the SqlExecMacro class since
@@ -686,6 +773,69 @@ SqlNode InlineModOperator() :
     }
 }
 
+SqlNode CurrentTimestampFunction() :
+{
+    final List<SqlNode> args = new ArrayList<SqlNode>();
+    SqlNode e;
+}
+{
+    <CURRENT_TIMESTAMP>
+    [
+        <LPAREN>
+        [
+            e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
+                args.add(e);
+            }
+        ]
+        <RPAREN>
+    ]
+    {
+        return SqlStdOperatorTable.CURRENT_TIMESTAMP.createCall(getPos(), args);
+    }
+}
+
+SqlNode CurrentTimeFunction() :
+{
+    final List<SqlNode> args = new ArrayList<SqlNode>();
+    SqlNode e;
+}
+{
+    <CURRENT_TIME>
+    [
+        <LPAREN>
+        [
+            e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
+                args.add(e);
+            }
+        ]
+        <RPAREN>
+    ]
+    {
+        return SqlStdOperatorTable.CURRENT_TIME.createCall(getPos(), args);
+    }
+}
+
+SqlNode CurrentDateFunction() :
+{
+    final List<SqlNode> args = new ArrayList<SqlNode>();
+    SqlNode e;
+}
+{
+    <CURRENT_DATE>
+    [
+        <LPAREN>
+        [
+            e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
+                args.add(e);
+            }
+        ]
+        <RPAREN>
+    ]
+    {
+        return SqlStdOperatorTable.CURRENT_DATE.createCall(getPos(), args);
+    }
+}
+
 SqlNode DateTimeTerm() :
 {
     final SqlNode e;
@@ -714,4 +864,94 @@ SqlNode DateTimeTerm() :
             }
         )
     )
+}
+
+/**
+ * Parses the optional QUALIFY clause for SELECT.
+ */
+SqlNode QualifyOpt() :
+{
+    SqlNode e;
+}
+{
+    <QUALIFY> e = Expression(ExprContext.ACCEPT_SUB_QUERY) { return e; }
+|
+    { return null; }
+}
+
+// This excludes CompoundIdentifier() as a data type.
+SqlDataTypeSpec DataTypeAlternativeCastSyntax() :
+{
+    SqlTypeNameSpec typeName;
+    final Span s;
+}
+{
+    typeName = TypeNameAlternativeCastSyntax() {
+        s = span();
+    }
+    (
+        typeName = CollectionsTypeName(typeName)
+    )*
+    {
+        return new SqlDataTypeSpec(
+            typeName,
+            s.end(this));
+    }
+}
+
+// This excludes CompoundIdentifier() as a type name that's found in the
+// original TypeName() function. Custom data types can be parsed
+// in parser.dataTypeParserMethods.
+SqlTypeNameSpec TypeNameAlternativeCastSyntax() :
+{
+    final SqlTypeNameSpec typeNameSpec;
+    final SqlIdentifier typeName;
+    final Span s = Span.of();
+}
+{
+    (
+<#-- additional types are included here -->
+<#-- put custom data types in front of Calcite core data types -->
+<#list parser.dataTypeParserMethods as method>
+        LOOKAHEAD(2)
+        typeNameSpec = ${method}
+    |
+</#list>
+        LOOKAHEAD(2)
+        typeNameSpec = SqlTypeName(s)
+    |
+        typeNameSpec = RowTypeName()
+    )
+    {
+        return typeNameSpec;
+    }
+}
+
+SqlNode AlternativeTypeConversionLiteralOrIdentifier() :
+{
+     final List<SqlNode> args;
+     final SqlDataTypeSpec dt;
+     SqlNode e;
+     final Span s;
+}
+{
+    (
+        e = Literal()
+    |
+        e = SimpleIdentifier()
+    )
+    {
+        s = span();
+        args = startList(e);
+    }
+    <LPAREN>
+    (
+        dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
+    |
+        <INTERVAL> e = IntervalQualifier() { args.add(e); }
+    )
+    [ <FORMAT> e = StringLiteral() { args.add(e); } ]
+    <RPAREN> {
+        return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
+    }
 }

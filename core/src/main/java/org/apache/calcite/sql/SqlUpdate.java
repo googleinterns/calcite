@@ -38,8 +38,8 @@ public class SqlUpdate extends SqlCall {
   SqlNode condition;
   SqlSelect sourceSelect;
   SqlIdentifier alias;
-  SqlNode sourceTable;
-  SqlIdentifier sourceAlias;
+  SqlNodeList sourceTables;
+  SqlNodeList sourceAliases;
 
   //~ Constructors -----------------------------------------------------------
 
@@ -51,7 +51,7 @@ public class SqlUpdate extends SqlCall {
       SqlSelect sourceSelect,
       SqlIdentifier alias) {
     this(pos, targetTable, targetColumnList, sourceExpressionList, condition, sourceSelect, alias,
-        /*sourceTable=*/null, /*sourceAlias=*/null);
+        /*sourceTables=*/ null, /*sourceAliases=*/ null);
   }
 
   public SqlUpdate(SqlParserPos pos,
@@ -61,8 +61,8 @@ public class SqlUpdate extends SqlCall {
       SqlNode condition,
       SqlSelect sourceSelect,
       SqlIdentifier alias,
-      SqlNode sourceTable,
-      SqlIdentifier sourceAlias) {
+      SqlNodeList sourceTables,
+      SqlNodeList sourceAliases) {
     super(pos);
     this.targetTable = targetTable;
     this.targetColumnList = targetColumnList;
@@ -71,8 +71,12 @@ public class SqlUpdate extends SqlCall {
     this.sourceSelect = sourceSelect;
     assert sourceExpressionList.size() == targetColumnList.size();
     this.alias = alias;
-    this.sourceTable = sourceTable;
-    this.sourceAlias = sourceAlias;
+    this.sourceTables = sourceTables;
+    this.sourceAliases = sourceAliases;
+    if (sourceTables != null) {
+      assert this.sourceAliases != null;
+      assert this.sourceTables.size() == this.sourceAliases.size();
+    }
   }
 
   //~ Methods ----------------------------------------------------------------
@@ -87,7 +91,7 @@ public class SqlUpdate extends SqlCall {
 
   public List<SqlNode> getOperandList() {
     return ImmutableNullableList.of(targetTable, targetColumnList,
-        sourceExpressionList, condition, alias, sourceTable, sourceAlias);
+        sourceExpressionList, condition, alias, sourceTables, sourceAliases);
   }
 
   @Override public void setOperand(int i, SqlNode operand) {
@@ -110,6 +114,12 @@ public class SqlUpdate extends SqlCall {
       break;
     case 5:
       alias = (SqlIdentifier) operand;
+      break;
+    case 6:
+      sourceTables = (SqlNodeList) operand;
+      break;
+    case 7:
+      sourceAliases = (SqlNodeList) operand;
       break;
     default:
       throw new AssertionError(i);
@@ -174,17 +184,17 @@ public class SqlUpdate extends SqlCall {
   }
 
   /**
-   * @return the source table name
+   * @return the source table names
    */
-  public SqlNode getSourceTable() {
-    return sourceTable;
+  public SqlNodeList getSourceTables() {
+    return sourceTables;
   }
 
   /**
-   * @return the source table alias
+   * @return the source table aliases
    */
-  public SqlIdentifier getSourceAlias() {
-    return sourceAlias;
+  public SqlNodeList getSourceAliases() {
+    return sourceAliases;
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {

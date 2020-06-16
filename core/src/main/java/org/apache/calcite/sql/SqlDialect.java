@@ -145,7 +145,6 @@ public class SqlDialect {
           .add(SqlStdOperatorTable.TAN)
           .build();
 
-
   //~ Instance fields --------------------------------------------------------
 
   protected final String identifierQuoteString;
@@ -504,13 +503,21 @@ public class SqlDialect {
       writer.keyword("AS");
       updateCall.getAlias().unparse(writer, opLeft, opRight);
     }
-    if (updateCall.getSourceTable() != null) {
+    if (updateCall.getSourceTables() != null) {
       writer.keyword("FROM");
-      updateCall.getSourceTable().unparse(writer, opLeft, opRight);
-      if (updateCall.getSourceAlias() != null) {
-        writer.keyword("AS");
-        updateCall.getSourceAlias().unparse(writer, opLeft, opRight);
+      final SqlWriter.Frame fromFrame = writer.startList("", "");
+      for (Pair<SqlNode, SqlNode> pair
+          : Pair.zip(updateCall.getSourceTables(), updateCall.getSourceAliases())) {
+        writer.sep(",");
+        SqlNode sourceTable = pair.left;
+        sourceTable.unparse(writer, opLeft, opRight);
+        SqlNode sourceAlias = pair.right;
+        if (sourceAlias != null) {
+          writer.keyword("AS");
+          sourceAlias.unparse(writer, opLeft, opRight);
+        }
       }
+      writer.endList(fromFrame);
     }
     final SqlWriter.Frame setFrame =
         writer.startList(SqlWriter.FrameTypeEnum.UPDATE_SET_LIST, "SET", "");
