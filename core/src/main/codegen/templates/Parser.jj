@@ -1269,6 +1269,7 @@ SqlSelect SqlSelect() :
     final SqlNode where;
     final SqlNodeList groupBy;
     final SqlNode having;
+    SqlNode qualify = null;
     final SqlNodeList windowDecls;
     final List<SqlNode> hints = new ArrayList<SqlNode>();
     final Span s;
@@ -1312,6 +1313,9 @@ SqlSelect SqlSelect() :
         where = WhereOpt()
         groupBy = GroupByOpt()
         having = HavingOpt()
+<#if parser.includeQualifyClause>
+        qualify = QualifyOpt()
+</#if>
         windowDecls = WindowOpt()
     |
         E() {
@@ -1319,13 +1323,14 @@ SqlSelect SqlSelect() :
             where = null;
             groupBy = null;
             having = null;
+            qualify = null;
             windowDecls = null;
         }
     )
     {
         return new SqlSelect(s.end(this), keywordList,
             new SqlNodeList(selectList, Span.of(selectList).pos()),
-            fromClause, where, groupBy, having, windowDecls, null, null, null,
+            fromClause, where, groupBy, having, qualify, windowDecls, null, null, null,
             new SqlNodeList(hints, getPos()));
     }
 }
@@ -1666,8 +1671,8 @@ SqlNode SqlDelete() :
 SqlNode SqlUpdate() :
 {
     SqlNode table;
-    SqlNode secondTable = null;
-    SqlIdentifier secondAlias = null;
+    SqlNodeList sourceTables = null;
+    SqlNodeList sourceAliases = null;
     SqlNodeList extendList = null;
     SqlIdentifier alias = null;
     SqlNode condition;
@@ -1698,10 +1703,19 @@ SqlNode SqlUpdate() :
     ]
     [ [ <AS> ] alias = SimpleIdentifier() ]
 <#if parser.allowUpdateFromTable>
-    (
-        <FROM> secondTable = TableRef()
-        [ [ <AS> ] secondAlias = SimpleIdentifier() ]
-    )?
+    [
+        (
+            <FROM> {
+                sourceTables = new SqlNodeList(s.pos());
+                sourceAliases = new SqlNodeList(s.pos());
+            }
+            SourceTableAndAlias(sourceTables, sourceAliases)
+        )
+        (
+            <COMMA>
+            SourceTableAndAlias(sourceTables, sourceAliases)
+        )*
+    ]
 </#if>
     /* CompoundIdentifier() can read statements like FOO.X, SimpleIdentifier()
        is unable to do this
@@ -1729,7 +1743,7 @@ SqlNode SqlUpdate() :
         return new SqlUpdate(s.addAll(targetColumnList)
             .addAll(sourceExpressionList).addIf(condition).pos(), table,
             targetColumnList, sourceExpressionList, condition, null, alias,
-            secondTable, secondAlias);
+            sourceTables, sourceAliases);
     }
 }
 
@@ -3622,11 +3636,12 @@ SqlNode Expression3(ExprContext exprContext) :
     Span rowSpan = null;
 }
 {
-    LOOKAHEAD(2)
 <#list parser.preAtomicRowMethods as method>
+    LOOKAHEAD(${method})
     e = ${method} { return e; }
 |
 </#list>
+    LOOKAHEAD(2)
     e = AtomicRowExpression()
     {
         checkNonQueryExpression(exprContext);

@@ -44,6 +44,7 @@ public class SqlSelect extends SqlCall {
   SqlNode where;
   SqlNodeList groupBy;
   SqlNode having;
+  SqlNode qualify;
   SqlNodeList windowDecls;
   SqlNodeList orderBy;
   SqlNode offset;
@@ -64,6 +65,23 @@ public class SqlSelect extends SqlCall {
       SqlNode offset,
       SqlNode fetch,
       SqlNodeList hints) {
+    this(pos, keywordList, selectList, from, where, groupBy, having, /*qualify=*/ null,
+        windowDecls, orderBy, offset, fetch, hints);
+  }
+
+  public SqlSelect(SqlParserPos pos,
+      SqlNodeList keywordList,
+      SqlNodeList selectList,
+      SqlNode from,
+      SqlNode where,
+      SqlNodeList groupBy,
+      SqlNode having,
+      SqlNode qualify,
+      SqlNodeList windowDecls,
+      SqlNodeList orderBy,
+      SqlNode offset,
+      SqlNode fetch,
+      SqlNodeList hints) {
     super(pos);
     this.keywordList = Objects.requireNonNull(keywordList != null
         ? keywordList : new SqlNodeList(pos));
@@ -72,6 +90,7 @@ public class SqlSelect extends SqlCall {
     this.where = where;
     this.groupBy = groupBy;
     this.having = having;
+    this.qualify = qualify;
     this.windowDecls = Objects.requireNonNull(windowDecls != null
         ? windowDecls : new SqlNodeList(pos));
     this.orderBy = orderBy;
@@ -82,7 +101,7 @@ public class SqlSelect extends SqlCall {
 
   //~ Methods ----------------------------------------------------------------
 
-  public SqlOperator getOperator() {
+  @Override public SqlOperator getOperator() {
     return SqlSelectOperator.INSTANCE;
   }
 
@@ -92,7 +111,7 @@ public class SqlSelect extends SqlCall {
 
   @Override public List<SqlNode> getOperandList() {
     return ImmutableNullableList.of(keywordList, selectList, from, where,
-        groupBy, having, windowDecls, orderBy, offset, fetch, hints);
+        groupBy, having, qualify, windowDecls, orderBy, offset, fetch, hints);
   }
 
   @Override public void setOperand(int i, SqlNode operand) {
@@ -116,15 +135,18 @@ public class SqlSelect extends SqlCall {
       having = operand;
       break;
     case 6:
-      windowDecls = Objects.requireNonNull((SqlNodeList) operand);
+      qualify = operand;
       break;
     case 7:
-      orderBy = (SqlNodeList) operand;
+      windowDecls = Objects.requireNonNull((SqlNodeList) operand);
       break;
     case 8:
-      offset = operand;
+      orderBy = (SqlNodeList) operand;
       break;
     case 9:
+      offset = operand;
+      break;
+    case 10:
       fetch = operand;
       break;
     default:
@@ -169,6 +191,10 @@ public class SqlSelect extends SqlCall {
 
   public void setHaving(SqlNode having) {
     this.having = having;
+  }
+
+  public final SqlNode getQualify() {
+    return qualify;
   }
 
   public final SqlNodeList getSelectList() {
@@ -228,7 +254,7 @@ public class SqlSelect extends SqlCall {
     return this.hints != null && this.hints.size() > 0;
   }
 
-  public void validate(SqlValidator validator, SqlValidatorScope scope) {
+  @Override public void validate(SqlValidator validator, SqlValidatorScope scope) {
     validator.validateQuery(this, scope, validator.getUnknownType());
   }
 
