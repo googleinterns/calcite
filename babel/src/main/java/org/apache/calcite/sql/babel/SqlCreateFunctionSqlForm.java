@@ -24,12 +24,15 @@ import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlSpecialOperator;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 
 public class SqlCreateFunctionSqlForm extends SqlCreate {
   public final SqlIdentifier functionName;
   public final SqlIdentifier specificFunctionName;
+  public List<SqlIdentifier> fieldNames;
+  public List<SqlDataTypeSpec> fieldTypes;
   public final SqlDataTypeSpec returnsDataType;
   public final boolean isDeterministic;
   public final boolean canRunOnNullInput;
@@ -43,7 +46,6 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
   /** Creates a SqlCreateFunctionSqlForm.
    * @param pos position
    * @param replace if "or replace" token occurred
-   * @param ifNotExists if "not exists" token occurred
    * @param functionName the name of the function
    * @param specificFunctionName an optional specific functionName
    * @param returnsDataType return type of the function
@@ -55,14 +57,17 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
    * @param returnExpression the expression that is returned
    * */
   public SqlCreateFunctionSqlForm(final SqlParserPos pos, final boolean replace,
-      final boolean ifNotExists,
-      final SqlIdentifier functionName, final SqlIdentifier specificFunctionName,
+      final SqlIdentifier functionName,
+      final SqlIdentifier specificFunctionName, final List<SqlIdentifier> fieldNames,
+      final List<SqlDataTypeSpec> fieldTypes,
       final SqlDataTypeSpec returnsDataType, final boolean isDeterministic,
       final boolean canRunOnNullInput, final boolean hasSqlSecurityDefiner,
       final int typeInt, final SqlNode returnExpression) {
 
-    super(OPERATOR, pos, replace, ifNotExists);
+    super(OPERATOR, pos, replace, false);
     this.functionName = functionName;
+    this.fieldNames = fieldNames;
+    this.fieldTypes = fieldTypes;
     this.specificFunctionName = specificFunctionName;
     this.returnsDataType = returnsDataType;
     this.isDeterministic = isDeterministic;
@@ -73,13 +78,19 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return null;
+    return ImmutableNullableList.of(functionName,specificFunctionName,returnsDataType,
+        returnExpression);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("CREATE FUNCTION");
     functionName.unparse(writer, 0,  0);
-    writer.print("() ");
+    writer.print("(");
+    for (int i = 0; i < fieldNames.size(); i++) {
+      fieldNames.get(i).unparse(writer, 0, 0);
+      fieldTypes.get(i).unparse(writer, 0, 0);
+    }
+    writer.print(") ");
     writer.keyword("RETURNS");
     returnsDataType.unparse(writer, 0, 0);
     writer.keyword("LANGUAGE SQL COLLATION INVOKER INLINE TYPE");

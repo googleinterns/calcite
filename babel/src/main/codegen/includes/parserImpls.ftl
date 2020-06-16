@@ -496,8 +496,9 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
 
 SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
 {
-    final boolean ifNotExists = false;
     SqlIdentifier functionName = null;
+    List<SqlIdentifier> fieldNames = new ArrayList<SqlIdentifier>();
+    List<SqlDataTypeSpec> fieldTypes = new ArrayList<SqlDataTypeSpec>();
     SqlIdentifier specificFunctionName = null;
     final SqlDataTypeSpec returnsDataType;
     int typeInt;
@@ -506,18 +507,53 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
 {
     <FUNCTION>
     functionName = CompoundIdentifier()
-    <LPAREN> <RPAREN>
+    <LPAREN>
+    [
+      FieldNameTypeCommaListWithoutOptionalNull(fieldNames, fieldTypes)
+    ]
+    <RPAREN>
     <RETURNS>
     returnsDataType = DataType()
     <LANGUAGE> <SQL>
     <COLLATION> <INVOKER> <INLINE> <TYPE> typeInt = IntLiteral()
     <RETURN> returnExpression = Expression(ExprContext.ACCEPT_SUB_QUERY)
     {
-        return new SqlCreateFunctionSqlForm(s.end(this), replace, ifNotExists,
-            functionName, specificFunctionName, returnsDataType, false, false, false, typeInt, returnExpression);
+        return new SqlCreateFunctionSqlForm(s.end(this), replace,
+            functionName, specificFunctionName, fieldNames, fieldTypes,
+            returnsDataType, false, false, false, typeInt, returnExpression);
     }
 
 
+}
+
+
+/**
+* Parse a "name1 type1 , name2 type2 ..." list,
+* the field type default is not nullable.
+*/
+void FieldNameTypeCommaListWithoutOptionalNull(
+        List<SqlIdentifier> fieldNames,
+        List<SqlDataTypeSpec> fieldTypes) :
+{
+    SqlIdentifier fName;
+    SqlDataTypeSpec fType;
+}
+{
+    fName = SimpleIdentifier()
+    fType = DataType()
+    {
+        fieldNames.add(fName);
+        fieldTypes.add(fType);
+    }
+    (
+        <COMMA>
+        fName = SimpleIdentifier()
+        fType = DataType()
+        {
+            fieldNames.add(fName);
+            fieldTypes.add(fType);
+        }
+    )*
 }
 
 /**
