@@ -36,7 +36,7 @@ public class SqlPrimaryIndex extends SqlIndex {
     this.explicitNoPrimaryIndex = explicitNoPrimaryIndex;
   }
 
-  public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     if (explicitNoPrimaryIndex) {
       writer.keyword("NO PRIMARY INDEX");
       return;

@@ -21,7 +21,6 @@ import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-
 /**
  * A <code>SqlIndex</code> is a class that can be used to create an index used by the
  * SQL CREATE TABLE function.
@@ -32,7 +31,7 @@ public abstract class SqlIndex {
   protected final SqlIdentifier name;
   protected final boolean isUnique;
 
-  public SqlIndex(SqlParserPos pos, SqlNodeList columns, SqlIdentifier name, boolean isUnique) {
+  protected SqlIndex(SqlParserPos pos, SqlNodeList columns, SqlIdentifier name, boolean isUnique) {
     this.pos = pos;
     this.columns = columns;
     this.name = name;
