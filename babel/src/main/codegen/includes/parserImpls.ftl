@@ -500,6 +500,7 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
     List<SqlIdentifier> fieldNames = new ArrayList<SqlIdentifier>();
     List<SqlDataTypeSpec> fieldTypes = new ArrayList<SqlDataTypeSpec>();
     DeterministicType isDeterministic = DeterministicType.UNSPECIFIED;
+    ReactToNullInputType canRunOnNullInput = ReactToNullInputType.UNSPECIFIED;
     SqlIdentifier specificFunctionName = null;
     final SqlDataTypeSpec returnsDataType;
     int typeInt;
@@ -516,7 +517,7 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
     <RETURNS>
     returnsDataType = DataType()
     <LANGUAGE> <SQL>
-    [
+    (
       <NOT> <DETERMINISTIC>
       {
         isDeterministic = DeterministicType.NOTDETERMINISTIC;
@@ -526,13 +527,24 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
       {
         isDeterministic = DeterministicType.DETERMINISTIC;
       }
-    ]
+    |
+      <RETURNS> <NULL> <ON> <NULL> <INPUT>
+      {
+        canRunOnNullInput = ReactToNullInputType.RETURNSNULL;
+      }
+    |
+      <CALLED> <ON> <NULL> <INPUT>
+      {
+        canRunOnNullInput = ReactToNullInputType.CALLED;
+      }
+    )*
     <COLLATION> <INVOKER> <INLINE> <TYPE> typeInt = IntLiteral()
     <RETURN> returnExpression = Expression(ExprContext.ACCEPT_SUB_QUERY)
     {
         return new SqlCreateFunctionSqlForm(s.end(this), replace,
             functionName, specificFunctionName, fieldNames, fieldTypes,
-            returnsDataType, isDeterministic, false, false, typeInt, returnExpression);
+            returnsDataType, isDeterministic, canRunOnNullInput,
+            false, typeInt, returnExpression);
     }
 
 

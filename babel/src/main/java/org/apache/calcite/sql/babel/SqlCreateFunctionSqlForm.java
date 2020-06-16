@@ -35,7 +35,7 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
   public List<SqlDataTypeSpec> fieldTypes;
   public final SqlDataTypeSpec returnsDataType;
   public final DeterministicType isDeterministic;
-  public final boolean canRunOnNullInput;
+  public final ReactToNullInputType canRunOnNullInput;
   public final boolean hasSqlSecurityDefiner;
   public final int typeInt;
   public final SqlNode returnExpression;
@@ -61,7 +61,7 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
       final SqlIdentifier specificFunctionName, final List<SqlIdentifier> fieldNames,
       final List<SqlDataTypeSpec> fieldTypes,
       final SqlDataTypeSpec returnsDataType, final DeterministicType isDeterministic,
-      final boolean canRunOnNullInput, final boolean hasSqlSecurityDefiner,
+      final ReactToNullInputType canRunOnNullInput, final boolean hasSqlSecurityDefiner,
       final int typeInt, final SqlNode returnExpression) {
 
     super(OPERATOR, pos, replace, false);
@@ -94,6 +94,7 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
     writer.print(") ");
     writer.keyword("RETURNS");
     returnsDataType.unparse(writer, 0, 0);
+
     writer.keyword("LANGUAGE SQL");
     switch (isDeterministic) {
     case UNSPECIFIED:
@@ -105,6 +106,18 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
       writer.keyword("NOT DETERMINISTIC");
       break;
     }
+
+    switch (canRunOnNullInput) {
+    case UNSPECIFIED:
+      break;
+    case RETURNSNULL:
+      writer.keyword("RETURNS NULL ON NULL INPUT");
+      break;
+    case CALLED:
+      writer.keyword("CALLED ON NULL INPUT");
+      break;
+    }
+
     writer.keyword("COLLATION INVOKER INLINE TYPE");
     writer.print(typeInt + " ");
     writer.keyword("RETURN");
@@ -126,5 +139,22 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
      * Explicitly stated not deterministic
      */
     NOTDETERMINISTIC,
+  }
+
+  public enum ReactToNullInputType {
+    /**
+     * Not Specified
+     */
+    UNSPECIFIED,
+
+    /**
+     * Explicitly stated return null
+     */
+    RETURNSNULL,
+
+    /**
+     * Explicitly stated allows call
+     */
+    CALLED,
   }
 }

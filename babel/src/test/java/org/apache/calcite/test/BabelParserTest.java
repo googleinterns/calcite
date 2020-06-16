@@ -981,6 +981,40 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateFunctionSqlFormCalledOnNUllInput() {
+    final String sql =
+        "create function add1(a Integer) "
+            + "returns Integer "
+            + "language sql "
+            + "called on null input "
+            + "collation invoker inline type 1 "
+            + "return a + 1";
+    final String expected = "CREATE FUNCTION `ADD1` (`A` INTEGER ) "
+        + "RETURNS INTEGER "
+        + "LANGUAGE SQL "
+        + "CALLED ON NULL INPUT "
+        + "COLLATION INVOKER INLINE TYPE 1 "
+        + "RETURN (`A` + 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateFunctionSqlFormReturnsNullOnNUllInput() {
+    final String sql =
+        "create function add1(a Integer) "
+            + "returns Integer "
+            + "language sql "
+            + "returns null on null input "
+            + "collation invoker inline type 1 "
+            + "return a + 1";
+    final String expected = "CREATE FUNCTION `ADD1` (`A` INTEGER ) "
+        + "RETURNS INTEGER "
+        + "LANGUAGE SQL "
+        + "RETURNS NULL ON NULL INPUT "
+        + "COLLATION INVOKER INLINE TYPE 1 "
+        + "RETURN (`A` + 1)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testUsingRequestModifierSingular() {
     final String sql = "using (foo int)";
     final String expected = "USING (`FOO` INTEGER)";
