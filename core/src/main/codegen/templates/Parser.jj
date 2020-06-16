@@ -1015,6 +1015,10 @@ SqlNode SqlStmt() :
         stmt = SqlCreate()
     |
 </#if>
+<#if parser.renameStatementParserMethods?size != 0>
+        stmt = SqlRename()
+    |
+</#if>
 <#if parser.execStatementParserMethods?size != 0>
         stmt = SqlExec()
     |
@@ -4081,6 +4085,28 @@ SqlNode SqlUpsert() :
     {
         return new SqlUpsert(span().end(this), (SqlUpdate) updateCall,
           (SqlInsert) insertCall);
+    }
+}
+</#if>
+<#if parser.renameStatementParserMethods?size != 0>
+/**
+ * Parses an RENAME statement
+ */
+SqlNode SqlRename() :
+{
+    SqlNode source;
+}
+{
+    <RENAME>
+    (
+<#-- additional literal parser methods are included here -->
+<#list parser.renameStatementParserMethods as method>
+        source = ${method}()
+        <#sep>|</#sep>
+</#list>
+    )
+    {
+        return source;
     }
 }
 </#if>

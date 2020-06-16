@@ -892,6 +892,27 @@ SqlDataTypeSpec DataTypeAlternativeCastSyntax() :
     }
 }
 
+SqlNode SqlRenameTable() :
+{
+    SqlIdentifier targetTable;
+    SqlIdentifier sourceTable;
+    RenameOption renameOption;
+}
+{
+    <TABLE>
+    targetTable = CompoundIdentifier()
+    (
+        <TO> { renameOption = RenameOption.TO; }
+    |
+        <AS> { renameOption = RenameOption.AS; }
+    )
+    sourceTable = CompoundIdentifier()
+    {
+        return new SqlRenameTable(getPos(), targetTable, sourceTable,
+            renameOption);
+    }
+}
+
 // This excludes CompoundIdentifier() as a type name that's found in the
 // original TypeName() function. Custom data types can be parsed
 // in parser.dataTypeParserMethods.

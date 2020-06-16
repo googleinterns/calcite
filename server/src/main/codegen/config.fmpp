@@ -430,6 +430,10 @@ data: {
       "SqlDropFunction"
     ]
 
+    # List of methods for parsing extentions to "RENAME" calls.
+    renameStatementParserMethods: [
+    ]
+
     # List of methods for parsing extensions to "INSERT" calls.
     insertStatementParserMethods: [
     ]
