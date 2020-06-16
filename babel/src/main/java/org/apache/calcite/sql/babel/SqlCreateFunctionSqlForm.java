@@ -118,9 +118,9 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
       break;
     }
 
-    if (specificFunctionName != null){
+    if (specificFunctionName != null) {
       writer.keyword("SPECIFIC");
-      specificFunctionName.unparse(writer,0,0);
+      specificFunctionName.unparse(writer, 0, 0);
     }
 
     writer.keyword("COLLATION INVOKER INLINE TYPE");
