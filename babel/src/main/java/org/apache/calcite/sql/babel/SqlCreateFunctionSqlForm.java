@@ -34,7 +34,7 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
   public List<SqlIdentifier> fieldNames;
   public List<SqlDataTypeSpec> fieldTypes;
   public final SqlDataTypeSpec returnsDataType;
-  public final boolean isDeterministic;
+  public final DeterministicType isDeterministic;
   public final boolean canRunOnNullInput;
   public final boolean hasSqlSecurityDefiner;
   public final int typeInt;
@@ -60,7 +60,7 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
       final SqlIdentifier functionName,
       final SqlIdentifier specificFunctionName, final List<SqlIdentifier> fieldNames,
       final List<SqlDataTypeSpec> fieldTypes,
-      final SqlDataTypeSpec returnsDataType, final boolean isDeterministic,
+      final SqlDataTypeSpec returnsDataType, final DeterministicType isDeterministic,
       final boolean canRunOnNullInput, final boolean hasSqlSecurityDefiner,
       final int typeInt, final SqlNode returnExpression) {
 
@@ -85,21 +85,46 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("CREATE FUNCTION");
     functionName.unparse(writer, 0,  0);
-//    writer.print("(");
-//    if (fieldNames.size() != 0){
     SqlWriter.Frame frame = writer.startList("(", ")");
     for (int i = 0; i < fieldNames.size(); i++) {
       writer.sep(",", false);
       fieldNames.get(i).unparse(writer, 0, 0);
       fieldTypes.get(i).unparse(writer, 0, 0);
     }
-//    }
     writer.print(") ");
     writer.keyword("RETURNS");
     returnsDataType.unparse(writer, 0, 0);
-    writer.keyword("LANGUAGE SQL COLLATION INVOKER INLINE TYPE");
+    writer.keyword("LANGUAGE SQL");
+    switch (isDeterministic) {
+    case UNSPECIFIED:
+      break;
+    case DETERMINISTIC:
+      writer.keyword("DETERMINISTIC");
+      break;
+    case NOTDETERMINISTIC:
+      writer.keyword("NOT DETERMINISTIC");
+      break;
+    }
+    writer.keyword("COLLATION INVOKER INLINE TYPE");
     writer.print(typeInt + " ");
     writer.keyword("RETURN");
     returnExpression.unparse(writer, 0, 0);
+  }
+
+  public enum DeterministicType {
+    /**
+     * Not Specified
+     */
+    UNSPECIFIED,
+
+    /**
+     * Explicitly stated deterministic
+     */
+    DETERMINISTIC,
+
+    /**
+     * Explicitly stated not deterministic
+     */
+    NOTDETERMINISTIC,
   }
 }

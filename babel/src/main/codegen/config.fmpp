@@ -54,6 +54,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlDateTimeAtLocal",
       "org.apache.calcite.sql.babel.SqlDateTimeAtTimeZone",
       "org.apache.calcite.sql.babel.SqlCreateFunctionSqlForm",
+      "org.apache.calcite.sql.babel.SqlCreateFunctionSqlForm.DeterministicType",
     ]
 
     # List of keywords.

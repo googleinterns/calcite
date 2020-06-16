@@ -499,6 +499,7 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
     SqlIdentifier functionName = null;
     List<SqlIdentifier> fieldNames = new ArrayList<SqlIdentifier>();
     List<SqlDataTypeSpec> fieldTypes = new ArrayList<SqlDataTypeSpec>();
+    DeterministicType isDeterministic = DeterministicType.UNSPECIFIED;
     SqlIdentifier specificFunctionName = null;
     final SqlDataTypeSpec returnsDataType;
     int typeInt;
@@ -515,12 +516,23 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
     <RETURNS>
     returnsDataType = DataType()
     <LANGUAGE> <SQL>
+    [
+      <NOT> <DETERMINISTIC>
+      {
+        isDeterministic = DeterministicType.NOTDETERMINISTIC;
+      }
+    |
+      <DETERMINISTIC>
+      {
+        isDeterministic = DeterministicType.DETERMINISTIC;
+      }
+    ]
     <COLLATION> <INVOKER> <INLINE> <TYPE> typeInt = IntLiteral()
     <RETURN> returnExpression = Expression(ExprContext.ACCEPT_SUB_QUERY)
     {
         return new SqlCreateFunctionSqlForm(s.end(this), replace,
             functionName, specificFunctionName, fieldNames, fieldTypes,
-            returnsDataType, false, false, false, typeInt, returnExpression);
+            returnsDataType, isDeterministic, false, false, typeInt, returnExpression);
     }
 
 
