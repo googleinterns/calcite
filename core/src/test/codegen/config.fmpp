@@ -454,6 +454,7 @@ data: {
     includeBraces: true
     includeAdditionalDeclarations: false
     includeSubstrKeyword: false
+    includeQualifyClause: false
   }
 }
 

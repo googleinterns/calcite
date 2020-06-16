@@ -36,9 +36,10 @@ import java.util.List;
  * <li>2: fromClause ({@link SqlCall} to "join" operator)</li>
  * <li>3: whereClause ({@link SqlNode})</li>
  * <li>4: havingClause ({@link SqlNode})</li>
- * <li>5: groupClause ({@link SqlNode})</li>
- * <li>6: windowClause ({@link SqlNodeList})</li>
- * <li>7: orderClause ({@link SqlNode})</li>
+ * <li>5: qualifyClause ({@link SqlNode})</li>
+ * <li>6: groupClause ({@link SqlNode})</li>
+ * <li>7: windowClause ({@link SqlNodeList})</li>
+ * <li>8: orderClause ({@link SqlNode})</li>
  * </ul>
  */
 public class SqlSelectOperator extends SqlOperator {
@@ -63,17 +64,18 @@ public class SqlSelectOperator extends SqlOperator {
       SqlNode... operands) {
     assert functionQualifier == null;
     return new SqlSelect(pos,
-        (SqlNodeList) operands[0],
-        (SqlNodeList) operands[1],
-        operands[2],
-        operands[3],
-        (SqlNodeList) operands[4],
-        operands[5],
-        (SqlNodeList) operands[6],
-        (SqlNodeList) operands[7],
-        operands[8],
-        operands[9],
-        (SqlNodeList) operands[10]);
+        /*keywordList=*/ (SqlNodeList) operands[0],
+        /*selectList=*/ (SqlNodeList) operands[1],
+        /*fromClause=*/ operands[2],
+        /*whereClause=*/ operands[3],
+        /*groupBy=*/ (SqlNodeList) operands[4],
+        /*having=*/ operands[5],
+        /*qualify=*/ operands[6],
+        /*windowDecls=*/ (SqlNodeList) operands[7],
+        /*orderBy=*/ (SqlNodeList) operands[8],
+        /*offset=*/ operands[9],
+        /*fetch=*/ operands[10],
+        /*hints=*/ (SqlNodeList) operands[11]);
   }
 
   /**
@@ -85,6 +87,7 @@ public class SqlSelectOperator extends SqlOperator {
    * @param whereClause The WHERE clause, or null if not present
    * @param groupBy     The GROUP BY clause, or null if not present
    * @param having      The HAVING clause, or null if not present
+   * @param qualify     The QUALIFY clause, or null if not present
    * @param windowDecls The WINDOW clause, or null if not present
    * @param orderBy     The ORDER BY clause, or null if not present
    * @param offset      Expression for number of rows to discard before
@@ -102,6 +105,7 @@ public class SqlSelectOperator extends SqlOperator {
       SqlNode whereClause,
       SqlNodeList groupBy,
       SqlNode having,
+      SqlNode qualify,
       SqlNodeList windowDecls,
       SqlNodeList orderBy,
       SqlNode offset,
@@ -116,6 +120,7 @@ public class SqlSelectOperator extends SqlOperator {
         whereClause,
         groupBy,
         having,
+        qualify,
         windowDecls,
         orderBy,
         offset,
@@ -221,6 +226,10 @@ public class SqlSelectOperator extends SqlOperator {
     if (select.having != null) {
       writer.sep("HAVING");
       select.having.unparse(writer, 0, 0);
+    }
+    if (select.getQualify() != null) {
+      writer.sep("QUALIFY");
+      select.getQualify().unparse(writer, 0, 0);
     }
     if (select.windowDecls.size() > 0) {
       writer.sep("WINDOW");
