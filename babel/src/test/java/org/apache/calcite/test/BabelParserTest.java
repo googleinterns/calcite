@@ -1273,4 +1273,39 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "SELECT CAST('3700 sec' AS INTERVAL MINUTE)";
     sql(sql).ok(expected);
   }
+
+  @Test void testRankSortingParam() {
+    final String sql = "select rank(foo) from bar";
+    final String expected = "SELECT RANK(`FOO`)\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testRankSortingParamAsc() {
+    final String sql = "select rank(foo asc) from bar";
+    final String expected = "SELECT RANK(`FOO` ASC)\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testRankSortingParamDesc() {
+    final String sql = "select rank(foo desc) from bar";
+    final String expected = "SELECT RANK(`FOO`)\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testRankSortingParamCommaList() {
+    final String sql = "select rank(foo asc, baz desc, x) from bar";
+    final String expected = "SELECT RANK() OVER (ORDER BY `FOO`, `BAZ` DESC, `X` DESC)\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testRankSortingParamMultipleParams() {
+    final String sql = "select rank((foo, bax, x) asc, y desc, z) from bar";
+    final String expected = "SELECT RANK((`FOO`, `BAZ`, `X`) ASC, `Y` DESC, `Z`)\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
 }
