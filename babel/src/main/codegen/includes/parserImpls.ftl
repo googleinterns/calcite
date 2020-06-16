@@ -949,9 +949,9 @@ SqlNode AlternativeTypeConversionLiteralOrIdentifier() :
     }
 }
 
-SqlNode AlternativeTypeConversionQuery(SqlNode arg1) :
+SqlNode AlternativeTypeConversionQuery(SqlNode query) :
 {
-    final List<SqlNode> args = startList(arg1);
+    final List<SqlNode> args = startList(query);
     final SqlDataTypeSpec dt;
     final Span s;
     SqlNode e;

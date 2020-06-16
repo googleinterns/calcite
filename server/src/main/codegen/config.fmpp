@@ -460,7 +460,7 @@ data: {
     dateTimeExpressionMethods: [
     ]
 
-    alternativeTypeConversionQuery: [
+    alternativeTypeConversionQueryMethods: [
     ]
 
     # List of files in @includes directory that have parser method

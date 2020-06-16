@@ -1027,7 +1027,7 @@ data: {
       "DateTimeTerm()"
     ]
 
-    alternativeTypeConversionQuery: [
+    alternativeTypeConversionQueryMethods: [
        "AlternativeTypeConversionQuery"
     ]
 

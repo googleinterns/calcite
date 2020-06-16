@@ -3726,7 +3726,7 @@ SqlNode Expression3(ExprContext exprContext) :
                 list1.toArray());
         }
     }
-<#list parser.alternativeTypeConversionQuery>
+<#list parser.alternativeTypeConversionQueryMethods>
     (
     <#items as method>
         e = ${method}(list1.get(0)) { return e; }
