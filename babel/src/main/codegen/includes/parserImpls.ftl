@@ -35,10 +35,15 @@ SqlNode DateFunctionCall() :
         s = span();
         qualifiedName = new SqlIdentifier(unquotedIdentifier(), getPos());
     }
-    args = FunctionParameterList(ExprContext.ACCEPT_SUB_QUERY) {
-        quantifier = (SqlLiteral) args.get(0);
-        args.remove(0);
-        return createCall(qualifiedName, s.end(this), funcType, quantifier, args);
+    [
+        args = FunctionParameterList(ExprContext.ACCEPT_SUB_QUERY) {
+            quantifier = (SqlLiteral) args.get(0);
+            args.remove(0);
+            return createCall(qualifiedName, s.end(this), funcType, quantifier, args);
+        }
+    ]
+    {
+        return SqlStdOperatorTable.DATE.createCall(getPos());
     }
 }
 
@@ -681,6 +686,14 @@ SqlNode InlineModOperator() :
     }
 }
 
+SqlNode Date() :
+{
+
+}
+{
+    <DATE> { return SqlStdOperatorTable.DATE.createCall(getPos()); }
+}
+
 SqlNode DateTimeTerm() :
 {
     final SqlNode e;
@@ -691,6 +704,8 @@ SqlNode DateTimeTerm() :
         e = DateTimeLiteral()
     |
         e = SimpleIdentifier()
+    |
+        e = DateFunctionCall()
     )
     (
         <AT>
