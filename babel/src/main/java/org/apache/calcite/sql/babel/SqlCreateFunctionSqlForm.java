@@ -123,6 +123,10 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
       specificFunctionName.unparse(writer, 0, 0);
     }
 
+    if (hasSqlSecurityDefiner) {
+      writer.keyword("SQL SECURITY DEFINER");
+    }
+
     writer.keyword("COLLATION INVOKER INLINE TYPE");
     writer.print(typeInt + " ");
     writer.keyword("RETURN");

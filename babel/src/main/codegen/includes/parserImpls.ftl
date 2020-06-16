@@ -503,6 +503,7 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
     ReactToNullInputType canRunOnNullInput = ReactToNullInputType.UNSPECIFIED;
     SqlIdentifier specificFunctionName = null;
     final SqlDataTypeSpec returnsDataType;
+    boolean hasSqlSecurityDefiner = false;
     SqlLiteral tempNumeric;
     int typeInt;
     final SqlNode returnExpression;
@@ -544,6 +545,12 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
         specificFunctionName = CompoundIdentifier();
       }
     )*
+    [
+      <SQL> <SECURITY> <DEFINER>
+      {
+        hasSqlSecurityDefiner = true;
+      }
+    ]
     <COLLATION> <INVOKER> <INLINE> <TYPE> tempNumeric = UnsignedNumericLiteral() {
         typeInt = tempNumeric.getValueAs(Integer.class);
         if (typeInt != 1) {
@@ -556,7 +563,7 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
         return new SqlCreateFunctionSqlForm(s.end(this), replace,
             functionName, specificFunctionName, fieldNames, fieldTypes,
             returnsDataType, isDeterministic, canRunOnNullInput,
-            false, typeInt, returnExpression);
+            hasSqlSecurityDefiner, typeInt, returnExpression);
     }
 
 
