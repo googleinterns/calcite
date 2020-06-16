@@ -914,7 +914,7 @@ class BabelParserTest extends SqlParserTest {
             + "language sql "
             + "collation invoker inline type 1 "
             + "return current_date + 1";
-    final String expected = "CREATE FUNCTION `FOO` (`A` INTEGER ) "
+    final String expected = "CREATE FUNCTION `FOO` (`A` INTEGER) "
         + "RETURNS INTEGER "
         + "LANGUAGE SQL "
         + "COLLATION INVOKER INLINE TYPE 1 "
@@ -939,7 +939,7 @@ class BabelParserTest extends SqlParserTest {
             + "language sql "
             + "collation invoker inline type 1 "
             + "return current_date + 1";
-    final String expected = "CREATE FUNCTION `FOO` (`A` INTEGER, `B` VARCHAR(30) ) "
+    final String expected = "CREATE FUNCTION `FOO` (`A` INTEGER, `B` VARCHAR(30)) "
         + "RETURNS INTEGER "
         + "LANGUAGE SQL "
         + "COLLATION INVOKER INLINE TYPE 1 "
@@ -955,7 +955,7 @@ class BabelParserTest extends SqlParserTest {
             + "not deterministic "
             + "collation invoker inline type 1 "
             + "return a + 1";
-    final String expected = "CREATE FUNCTION `ADD1` (`A` INTEGER ) "
+    final String expected = "CREATE FUNCTION `ADD1` (`A` INTEGER) "
         + "RETURNS INTEGER "
         + "LANGUAGE SQL "
         + "NOT DETERMINISTIC "
@@ -972,7 +972,7 @@ class BabelParserTest extends SqlParserTest {
             + "deterministic "
             + "collation invoker inline type 1 "
             + "return a + 1";
-    final String expected = "CREATE FUNCTION `ADD1` (`A` INTEGER ) "
+    final String expected = "CREATE FUNCTION `ADD1` (`A` INTEGER) "
         + "RETURNS INTEGER "
         + "LANGUAGE SQL "
         + "DETERMINISTIC "
@@ -989,7 +989,7 @@ class BabelParserTest extends SqlParserTest {
             + "called on null input "
             + "collation invoker inline type 1 "
             + "return a + 1";
-    final String expected = "CREATE FUNCTION `ADD1` (`A` INTEGER ) "
+    final String expected = "CREATE FUNCTION `ADD1` (`A` INTEGER) "
         + "RETURNS INTEGER "
         + "LANGUAGE SQL "
         + "CALLED ON NULL INPUT "
@@ -1006,10 +1006,27 @@ class BabelParserTest extends SqlParserTest {
             + "returns null on null input "
             + "collation invoker inline type 1 "
             + "return a + 1";
-    final String expected = "CREATE FUNCTION `ADD1` (`A` INTEGER ) "
+    final String expected = "CREATE FUNCTION `ADD1` (`A` INTEGER) "
         + "RETURNS INTEGER "
         + "LANGUAGE SQL "
         + "RETURNS NULL ON NULL INPUT "
+        + "COLLATION INVOKER INLINE TYPE 1 "
+        + "RETURN (`A` + 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateFunctionSqlFormSpecificFunctionName() {
+    final String sql =
+        "create function add1(a Integer) "
+            + "returns Integer "
+            + "language sql "
+            + "specific someTable.plusOne "
+            + "collation invoker inline type 1 "
+            + "return a + 1";
+    final String expected = "CREATE FUNCTION `ADD1` (`A` INTEGER) "
+        + "RETURNS INTEGER "
+        + "LANGUAGE SQL "
+        + "SPECIFIC `SOMETABLE`.`PLUSONE` "
         + "COLLATION INVOKER INLINE TYPE 1 "
         + "RETURN (`A` + 1)";
     sql(sql).ok(expected);

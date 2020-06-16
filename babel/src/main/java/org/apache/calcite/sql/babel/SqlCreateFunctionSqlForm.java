@@ -91,7 +91,7 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
       fieldNames.get(i).unparse(writer, 0, 0);
       fieldTypes.get(i).unparse(writer, 0, 0);
     }
-    writer.print(") ");
+    writer.endList(frame);
     writer.keyword("RETURNS");
     returnsDataType.unparse(writer, 0, 0);
 
@@ -116,6 +116,11 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
     case CALLED:
       writer.keyword("CALLED ON NULL INPUT");
       break;
+    }
+
+    if (specificFunctionName != null){
+      writer.keyword("SPECIFIC");
+      specificFunctionName.unparse(writer,0,0);
     }
 
     writer.keyword("COLLATION INVOKER INLINE TYPE");

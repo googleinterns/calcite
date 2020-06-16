@@ -537,6 +537,11 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
       {
         canRunOnNullInput = ReactToNullInputType.CALLED;
       }
+    |
+      <SPECIFIC>
+      {
+        specificFunctionName = CompoundIdentifier();
+      }
     )*
     <COLLATION> <INVOKER> <INLINE> <TYPE> typeInt = IntLiteral()
     <RETURN> returnExpression = Expression(ExprContext.ACCEPT_SUB_QUERY)
