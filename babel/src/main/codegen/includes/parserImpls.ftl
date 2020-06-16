@@ -503,6 +503,7 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
     ReactToNullInputType canRunOnNullInput = ReactToNullInputType.UNSPECIFIED;
     SqlIdentifier specificFunctionName = null;
     final SqlDataTypeSpec returnsDataType;
+    SqlLiteral tempNumeric;
     int typeInt;
     final SqlNode returnExpression;
 }
@@ -543,7 +544,13 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
         specificFunctionName = CompoundIdentifier();
       }
     )*
-    <COLLATION> <INVOKER> <INLINE> <TYPE> typeInt = IntLiteral()
+    <COLLATION> <INVOKER> <INLINE> <TYPE> tempNumeric = UnsignedNumericLiteral() {
+        typeInt = tempNumeric.getValueAs(Integer.class);
+        if (typeInt != 1) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.numberLiteralOutOfRange(String.valueOf(typeInt)));
+        }
+    }
     <RETURN> returnExpression = Expression(ExprContext.ACCEPT_SUB_QUERY)
     {
         return new SqlCreateFunctionSqlForm(s.end(this), replace,
