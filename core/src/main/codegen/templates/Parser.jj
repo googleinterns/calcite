@@ -3726,17 +3726,13 @@ SqlNode Expression3(ExprContext exprContext) :
                 list1.toArray());
         }
     }
-<#list parser.alternativeTypeConversionQueryMethods>
     (
-    <#items as method>
+<#list parser.alternativeTypeConversionQueryMethods as method>
         e = ${method}(list1.get(0)) { return e; }
     |
-    </#items>
+</#list>
         { return list1.get(0); }
     )
-<#else>
-    { return list1.get(0); }
-</#list>
 }
 
 SqlOperator periodOperator() :
