@@ -922,6 +922,21 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateFunctionSqlFormMoreThanOneParameter() {
+    final String sql =
+        "create function foo(a Integer, b varchar(30) ) "
+            + "returns Integer "
+            + "language sql "
+            + "collation invoker inline type 1 "
+            + "return current_date + 1";
+    final String expected = "CREATE FUNCTION `FOO` (`A` INTEGER, `B` VARCHAR(30) ) "
+        + "RETURNS INTEGER "
+        + "LANGUAGE SQL "
+        + "COLLATION INVOKER INLINE TYPE 1 "
+        + "RETURN (CURRENT_DATE + 1)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testUsingRequestModifierSingular() {
     final String sql = "using (foo int)";
     final String expected = "USING (`FOO` INTEGER)";
