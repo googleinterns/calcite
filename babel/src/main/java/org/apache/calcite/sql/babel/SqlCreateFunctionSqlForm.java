@@ -78,7 +78,7 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(functionName,specificFunctionName,returnsDataType,
+    return ImmutableNullableList.of(functionName, specificFunctionName, returnsDataType,
         returnExpression);
   }
 
@@ -87,7 +87,7 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
     functionName.unparse(writer, 0,  0);
 //    writer.print("(");
 //    if (fieldNames.size() != 0){
-    SqlWriter.Frame frame = writer.startList("(",")");
+    SqlWriter.Frame frame = writer.startList("(", ")");
     for (int i = 0; i < fieldNames.size(); i++) {
       writer.sep(",", false);
       fieldNames.get(i).unparse(writer, 0, 0);
