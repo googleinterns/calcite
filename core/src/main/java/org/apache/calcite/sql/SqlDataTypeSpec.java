@@ -71,10 +71,10 @@ public class SqlDataTypeSpec extends SqlNode {
    * <p>Nullable is nullable! Null means "not specified". E.g.
    * {@code CAST(x AS INTEGER)} preserves the same nullability as {@code x}.
    */
-  private Boolean nullable;
+  private final Boolean nullable;
 
   // The column level attributes
-  private List<SqlColumnAttribute> columnAttributes;
+  private final List<SqlColumnAttribute> columnAttributes;
 
   //~ Constructors -----------------------------------------------------------
 

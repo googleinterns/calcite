@@ -72,7 +72,7 @@ public class SqlColumnDeclaration extends SqlCall {
       writer.keyword("NOT NULL");
     }
     List<SqlColumnAttribute> columnAttributes = dataType.getColumnAttributes();
-    if (columnAttributes != null && columnAttributes.size() > 0) {
+    if (columnAttributes != null && !columnAttributes.isEmpty()) {
       for (SqlColumnAttribute a : columnAttributes) {
         a.unparse(writer, 0, 0);
       }
