@@ -1083,7 +1083,7 @@ class BabelParserTest extends SqlParserTest {
   @Test public void testSelectDateExpression() {
     final String sql = "SELECT DATE -1 FROM foo";
     final String expected = "SELECT (DATE - 1)\n"
-     + "FROM `FOO`";
+        + "FROM `FOO`";
     sql(sql).ok(expected);
   }
 
