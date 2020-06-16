@@ -16,14 +16,20 @@
  */
 package org.apache.calcite.sql.babel;
 
+import org.apache.calcite.sql.SqlCreate;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlSpecialOperator;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-public class SqlCreateFunctionSqlForm extends org.apache.calcite.sql.ddl.SqlCreateFunction {
+import java.util.List;
+
+public class SqlCreateFunctionSqlForm extends SqlCreate {
+  public final SqlIdentifier functionName;
+  public final SqlIdentifier specificFunctionName;
   public final SqlDataTypeSpec returnsDataType;
   public final boolean isDeterministic;
   public final boolean canRunOnNullInput;
@@ -31,29 +37,33 @@ public class SqlCreateFunctionSqlForm extends org.apache.calcite.sql.ddl.SqlCrea
   public final int typeInt;
   public final SqlNode returnExpression;
 
+  private static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("CREATE FUNCTION", SqlKind.CREATE_FUNCTION);
+
   /** Creates a SqlCreateFunctionSqlForm.
    * @param pos position
    * @param replace if "or replace" token occurred
    * @param ifNotExists if "not exists" token occurred
-   * @param name the name of the function
-   * @param className ?
-   * @param usingList list of parameter name and type
+   * @param functionName the name of the function
+   * @param specificFunctionName an optional specific functionName
    * @param returnsDataType return type of the function
    * @param isDeterministic if "deterministic" is specified
    * @param canRunOnNullInput if "called on null input" or "returns null on null input"
    *                          is specified
    * @param hasSqlSecurityDefiner if "sql security definer" is specified
+   * @param typeInt integer value after inline type
    * @param returnExpression the expression that is returned
    * */
   public SqlCreateFunctionSqlForm(final SqlParserPos pos, final boolean replace,
       final boolean ifNotExists,
-      final SqlIdentifier name, final SqlNode className,
-      final SqlNodeList usingList, final SqlDataTypeSpec returnsDataType,
-      final boolean isDeterministic, final boolean canRunOnNullInput,
-      final boolean hasSqlSecurityDefiner, final int typeInt, final SqlNode returnExpression) {
+      final SqlIdentifier functionName, final SqlIdentifier specificFunctionName,
+      final SqlDataTypeSpec returnsDataType, final boolean isDeterministic,
+      final boolean canRunOnNullInput, final boolean hasSqlSecurityDefiner,
+      final int typeInt, final SqlNode returnExpression) {
 
-    super(pos, replace, ifNotExists, name, className, usingList);
-
+    super(OPERATOR, pos, replace, ifNotExists);
+    this.functionName = functionName;
+    this.specificFunctionName = specificFunctionName;
     this.returnsDataType = returnsDataType;
     this.isDeterministic = isDeterministic;
     this.canRunOnNullInput = canRunOnNullInput;
@@ -62,9 +72,13 @@ public class SqlCreateFunctionSqlForm extends org.apache.calcite.sql.ddl.SqlCrea
     this.returnExpression = returnExpression;
   }
 
+  @Override public List<SqlNode> getOperandList() {
+    return null;
+  }
+
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("CREATE FUNCTION");
-    name.unparse(writer, 0,  0);
+    functionName.unparse(writer, 0,  0);
     writer.print("() ");
     writer.keyword("RETURNS");
     returnsDataType.unparse(writer, 0, 0);

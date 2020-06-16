@@ -497,16 +497,15 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
 SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
 {
     final boolean ifNotExists = false;
-    final SqlIdentifier id;
-    final SqlNode className = null;
-    final SqlNodeList usingList = SqlNodeList.EMPTY;
+    SqlIdentifier functionName = null;
+    SqlIdentifier specificFunctionName = null;
     final SqlDataTypeSpec returnsDataType;
-    final int typeInt;
+    int typeInt;
     final SqlNode returnExpression;
 }
 {
     <FUNCTION>
-    id = CompoundIdentifier()
+    functionName = CompoundIdentifier()
     <LPAREN> <RPAREN>
     <RETURNS>
     returnsDataType = DataType()
@@ -515,7 +514,7 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
     <RETURN> returnExpression = Expression(ExprContext.ACCEPT_SUB_QUERY)
     {
         return new SqlCreateFunctionSqlForm(s.end(this), replace, ifNotExists,
-            id, className, usingList, returnsDataType, false, false, false, typeInt, returnExpression);
+            functionName, specificFunctionName, returnsDataType, false, false, false, typeInt, returnExpression);
     }
 
 
