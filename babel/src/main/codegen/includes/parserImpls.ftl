@@ -686,14 +686,6 @@ SqlNode InlineModOperator() :
     }
 }
 
-SqlNode Date() :
-{
-
-}
-{
-    <DATE> { return SqlStdOperatorTable.DATE.createCall(getPos()); }
-}
-
 SqlNode DateTimeTerm() :
 {
     final SqlNode e;
