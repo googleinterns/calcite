@@ -48,6 +48,8 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
    * @param replace if "or replace" token occurred
    * @param functionName the name of the function
    * @param specificFunctionName an optional specific functionName
+   * @param fieldNames function parameter names
+   * @param fieldTypes function parameter types
    * @param returnsDataType return type of the function
    * @param isDeterministic if "deterministic" is specified
    * @param canRunOnNullInput if "called on null input" or "returns null on null input"
