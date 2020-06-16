@@ -4090,7 +4090,7 @@ SqlNode SqlUpsert() :
 </#if>
 <#if parser.renameStatementParserMethods?size != 0>
 /**
- * Parses an RENAME statement
+ * Parses a RENAME statement
  */
 SqlNode SqlRename() :
 {
