@@ -19,27 +19,20 @@ package org.apache.calcite.sql;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlColumnAttributeUpperCase</code> is the column UPPERCASE attribute.
+ * A <code>SqlColumnAttributeCompress</code> is the column COMPRESS attribute.
  */
-public class SqlColumnAttributeUpperCase extends SqlColumnAttribute {
-
-  private final boolean isUpperCase;
+public class SqlColumnAttributeCompress extends SqlColumnAttribute {
 
   /**
-   * Creates a {@code SqlColumnAttributeUpperCase}.
+   * Creates a {@code SqlColumnAttributeCompress}.
    *
    * @param pos  Parser position, must not be null
-   * @param isUpperCase  Whether or not the column is uppercase
    */
-  public SqlColumnAttributeUpperCase(SqlParserPos pos, boolean isUpperCase) {
+  public SqlColumnAttributeCompress(SqlParserPos pos) {
     super(pos);
-    this.isUpperCase = isUpperCase;
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    if (!isUpperCase) {
-      writer.keyword("NOT");
-    }
-    writer.keyword("UPPERCASE");
+    writer.keyword("COMPRESS");
   }
 }

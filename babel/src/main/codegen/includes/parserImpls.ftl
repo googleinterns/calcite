@@ -210,6 +210,15 @@ SqlColumnAttribute ColumnAttributeUpperCase() :
     }
 }
 
+SqlColumnAttribute ColumnAttributeCompress() :
+{
+}
+{
+    <COMPRESS> {
+        return new SqlColumnAttributeCompress(getPos());
+    }
+}
+
 void ColumnAttributes(List<SqlColumnAttribute> list) :
 {
     SqlColumnAttribute e;
@@ -223,6 +232,8 @@ void ColumnAttributes(List<SqlColumnAttribute> list) :
             e = ColumnAttributeCaseSpecific()
         |
             e = ColumnAttributeCharacterSet()
+        |
+            e = ColumnAttributeCompress()
         ) { list.add(e); }
     )+
 }
