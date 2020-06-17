@@ -426,6 +426,10 @@ data: {
     insertStatementParserMethods: [
     ]
 
+    # List of methods for parsing extentions to "RENAME" calls.
+    renameStatementParserMethods: [
+    ]
+
     # List of methods for parsing extensions to <expression> calls
     postExpressionStatementParserMethods: [
     ]

@@ -786,6 +786,60 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableDefaultNumericColumnLevelAttribute() {
+    final String sql = "create table foo (bar int default 1)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultStringColumnLevelAttribute() {
+    final String sql = "create table foo (bar int default 'baz')";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT 'baz')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultNullColumnLevelAttribute() {
+    final String sql = "create table foo (bar int default null)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT NULL)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultUserColumnLevelAttribute() {
+    final String sql = "create table foo (bar int default user)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT USER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultCurrentDateColumnLevelAttribute() {
+    final String sql = "create table foo (bar int default current_date)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT CURRENT_DATE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultCurrentTimeColumnLevelAttribute() {
+    final String sql = "create table foo (bar int default current_time)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT CURRENT_TIME)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultCurrentTimestampColumnLevelAttribute() {
+    final String sql = "create table foo (bar int default current_timestamp)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT CURRENT_TIMESTAMP)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultCurrentDateWithParamColumnLevelAttribute() {
+    final String sql = "create table foo (bar int default current_date(0))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT CURRENT_DATE(0))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultCaseSpecificColumnLevelAttributes() {
+    final String sql = "create table foo (bar int default 1 casespecific)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT 1 CASESPECIFIC)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testInsertWithSelectInParens() {
     final String sql = "insert into foo (SELECT * FROM bar)";
     final String expected = "INSERT INTO `FOO`\n"
@@ -977,6 +1031,206 @@ class BabelParserTest extends SqlParserTest {
         "SELECT `FOO`\n"
         + "FROM `FOOTABLE`\n"
         + "WHERE (TIMESTAMP '2020-05-30 13:20:00' AT LOCAL = TIMESTAMP '2020-05-30 20:20:00')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateFunctionSqlFormNoParameter() {
+    final String sql =
+        "create function foo() "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return current_date + 1";
+    final String expected = "CREATE FUNCTION `FOO` () "
+        + "RETURNS INTEGER "
+        + "LANGUAGE SQL "
+        + "COLLATION INVOKER INLINE TYPE 1 "
+        + "RETURN (CURRENT_DATE + 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateFunctionSqlFormOneParameter() {
+    final String sql =
+        "create function foo(a Integer) "
+            + "returns Integer "
+            + "language sql "
+            + "collation invoker inline type 1 "
+            + "return current_date + 1";
+    final String expected = "CREATE FUNCTION `FOO` (`A` INTEGER) "
+        + "RETURNS INTEGER "
+        + "LANGUAGE SQL "
+        + "COLLATION INVOKER INLINE TYPE 1 "
+        + "RETURN (CURRENT_DATE + 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateFunctionSqlFormNotIncludeLanguageSQLFails() {
+    final String sql =
+        "create function foo() "
+            + "returns Integer "
+            + "^collation^ invoker inline type 1 "
+            + "return current_date + 1";
+    final String expected = "(?s).*Encountered \"collation\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testCreateFunctionSqlFormMoreThanOneParameter() {
+    final String sql =
+        "create function foo(a Integer, b varchar(30) ) "
+            + "returns Integer "
+            + "language sql "
+            + "collation invoker inline type 1 "
+            + "return current_date + 1";
+    final String expected = "CREATE FUNCTION `FOO` (`A` INTEGER, `B` VARCHAR(30)) "
+        + "RETURNS INTEGER "
+        + "LANGUAGE SQL "
+        + "COLLATION INVOKER INLINE TYPE 1 "
+        + "RETURN (CURRENT_DATE + 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateFunctionSqlFormNotDeterministic() {
+    final String sql =
+        "create function add1(a Integer) "
+            + "returns Integer "
+            + "language sql "
+            + "not deterministic "
+            + "collation invoker inline type 1 "
+            + "return a + 1";
+    final String expected = "CREATE FUNCTION `ADD1` (`A` INTEGER) "
+        + "RETURNS INTEGER "
+        + "LANGUAGE SQL "
+        + "NOT DETERMINISTIC "
+        + "COLLATION INVOKER INLINE TYPE 1 "
+        + "RETURN (`A` + 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateFunctionSqlFormDeterministic() {
+    final String sql =
+        "create function add1(a Integer) "
+            + "returns Integer "
+            + "language sql "
+            + "deterministic "
+            + "collation invoker inline type 1 "
+            + "return a + 1";
+    final String expected = "CREATE FUNCTION `ADD1` (`A` INTEGER) "
+        + "RETURNS INTEGER "
+        + "LANGUAGE SQL "
+        + "DETERMINISTIC "
+        + "COLLATION INVOKER INLINE TYPE 1 "
+        + "RETURN (`A` + 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateFunctionSqlFormCalledOnNullInput() {
+    final String sql =
+        "create function add1(a Integer) "
+            + "returns Integer "
+            + "language sql "
+            + "called on null input "
+            + "collation invoker inline type 1 "
+            + "return a + 1";
+    final String expected = "CREATE FUNCTION `ADD1` (`A` INTEGER) "
+        + "RETURNS INTEGER "
+        + "LANGUAGE SQL "
+        + "CALLED ON NULL INPUT "
+        + "COLLATION INVOKER INLINE TYPE 1 "
+        + "RETURN (`A` + 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateFunctionSqlFormReturnsNullOnNullInput() {
+    final String sql =
+        "create function add1(a Integer) "
+            + "returns Integer "
+            + "language sql "
+            + "returns null on null input "
+            + "collation invoker inline type 1 "
+            + "return a + 1";
+    final String expected = "CREATE FUNCTION `ADD1` (`A` INTEGER) "
+        + "RETURNS INTEGER "
+        + "LANGUAGE SQL "
+        + "RETURNS NULL ON NULL INPUT "
+        + "COLLATION INVOKER INLINE TYPE 1 "
+        + "RETURN (`A` + 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateFunctionSqlFormSpecificFunctionName() {
+    final String sql =
+        "create function add1(a Integer) "
+            + "returns Integer "
+            + "language sql "
+            + "specific someTable.plusOne "
+            + "collation invoker inline type 1 "
+            + "return a + 1";
+    final String expected = "CREATE FUNCTION `ADD1` (`A` INTEGER) "
+        + "RETURNS INTEGER "
+        + "LANGUAGE SQL "
+        + "SPECIFIC `SOMETABLE`.`PLUSONE` "
+        + "COLLATION INVOKER INLINE TYPE 1 "
+        + "RETURN (`A` + 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateFunctionSqlFormInvalidPositiveTypeIntFails() {
+    final String sql =
+        "create function foo() "
+            + "returns Integer "
+            + "language sql "
+            + "collation invoker inline type ^2^ "
+            + "return current_date + 1";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testCreateFunctionSqlFormInvalidNegativeTypeIntFails() {
+    final String sql =
+        "create function foo() "
+            + "returns Integer "
+            + "language sql "
+            + "collation invoker inline type ^-^2 "
+            + "return current_date + 1";
+    final String expected = "(?s).*Encountered \"-\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testCreateFunctionSqlFormHasSecurityDefiner() {
+    final String sql =
+        "create function foo() "
+            + "returns Integer "
+            + "language sql "
+            + "sql security definer "
+            + "collation invoker inline type 1 "
+            + "return current_date + 1";
+    final String expected = "CREATE FUNCTION `FOO` () "
+        + "RETURNS INTEGER "
+        + "LANGUAGE SQL "
+        + "SQL SECURITY DEFINER "
+        + "COLLATION INVOKER INLINE TYPE 1 "
+        + "RETURN (CURRENT_DATE + 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateFunctionSqlFormNotDeterministicReturnsNullHasSecurityDefiner() {
+    final String sql =
+        "create function foo() "
+            + "returns Integer "
+            + "language sql "
+            + "returns null on null input "
+            + "not deterministic "
+            + "sql security definer "
+            + "collation invoker inline type 1 "
+            + "return current_date + 1";
+    final String expected = "CREATE FUNCTION `FOO` () "
+        + "RETURNS INTEGER "
+        + "LANGUAGE SQL "
+        + "NOT DETERMINISTIC "
+        + "RETURNS NULL ON NULL INPUT "
+        + "SQL SECURITY DEFINER "
+        + "COLLATION INVOKER INLINE TYPE 1 "
+        + "RETURN (CURRENT_DATE + 1)";
     sql(sql).ok(expected);
   }
 
@@ -1277,6 +1531,24 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testRenameTableWithTo() {
+    final String sql = "rename table foo to bar";
+    final String expected = "RENAME TABLE `FOO` TO `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameTableWithAs() {
+    final String sql = "rename table foo as bar";
+    final String expected = "RENAME TABLE `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameTableWithCompoundIdentifiers() {
+    final String sql = "rename table foo.bar as bar.foo";
+    final String expected = "RENAME TABLE `FOO`.`BAR` AS `BAR`.`FOO`";
+    sql(sql).ok(expected);
+  }
+
   @Test void testAlternativeTypeConversionIdentifier() {
     final String sql = "select foo (integer)";
     final String expected = "SELECT CAST(`FOO` AS INTEGER)";
@@ -1330,6 +1602,34 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "SELECT CAST((SELECT CAST(`FOO` AS INTEGER)\n"
         + "FROM `BAR`) AS CHAR)\n"
         + "FROM `BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testCreateTableAsIdentifier() {
+    final String sql = "create table foo as bar";
+    final String expected = "CREATE TABLE `FOO` AS\n"
+        + "`BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testCreateTableAsCompoundIdentifier() {
+    final String sql = "create table foo as bar.baz";
+    final String expected = "CREATE TABLE `FOO` AS\n"
+        + "`BAR`.`BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testCreateTableAsIdentifierWithData() {
+    final String sql = "create table foo as bar with data";
+    final String expected = "CREATE TABLE `FOO` AS\n"
+        + "`BAR` WITH DATA";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testCreateTableAsIdentifierWithNoData() {
+    final String sql = "create table foo as bar with no data";
+    final String expected = "CREATE TABLE `FOO` AS\n"
+        + "`BAR` WITH NO DATA";
     sql(sql).ok(expected);
   }
 

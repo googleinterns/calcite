@@ -171,6 +171,34 @@ boolean IsNullable() :
     )
 }
 
+// The DateTime functions are singled out to allow for arguments to
+// be parsed, such as CURRENT_DATE(0).
+SqlColumnAttribute ColumnAttributeDefault() :
+{
+    SqlNode defaultValue;
+}
+{
+    <DEFAULT_>
+    (
+        defaultValue = OptionValue()
+    |
+        <NULL> {
+            defaultValue = SqlLiteral.createNull(getPos());
+        }
+    |
+        defaultValue = CurrentDateFunction()
+    |
+        defaultValue = CurrentTimeFunction()
+    |
+        defaultValue = CurrentTimestampFunction()
+    |
+        defaultValue = ContextVariable()
+    )
+    {
+        return new SqlColumnAttributeDefault(getPos(), defaultValue);
+    }
+}
+
 SqlColumnAttribute ColumnAttributeCharacterSet() :
 {
     CharacterSet characterSet = null;
@@ -239,6 +267,8 @@ void ColumnAttributes(List<SqlColumnAttribute> list) :
             e = ColumnAttributeCharacterSet()
         |
             e = ColumnAttributeCompress()
+        |
+            e = ColumnAttributeDefault()
         ) { list.add(e); }
     )+
 }
@@ -561,7 +591,12 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
         { columnList = null; }
     )
     (
-        <AS> query = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+        <AS>
+        (
+            query = CompoundIdentifier()
+        |
+            query = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+        )
         withData = WithDataOpt()
     |
         { query = null; }
@@ -579,6 +614,108 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
         return new SqlCreateTable(s.end(this), replace, setType, volatility, ifNotExists, id,
             tableAttributes, columnList, query, withData, primaryIndex, onCommitType);
     }
+}
+
+SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
+{
+    SqlIdentifier functionName = null;
+    SqlNodeList fieldNames = new SqlNodeList(getPos());
+    SqlNodeList fieldTypes = new SqlNodeList(getPos());
+    DeterministicType isDeterministic = DeterministicType.UNSPECIFIED;
+    ReactToNullInputType canRunOnNullInput = ReactToNullInputType.UNSPECIFIED;
+    SqlIdentifier specificFunctionName = null;
+    final SqlDataTypeSpec returnsDataType;
+    boolean hasSqlSecurityDefiner = false;
+    SqlLiteral tempNumeric;
+    int typeInt;
+    final SqlNode returnExpression;
+}
+{
+    <FUNCTION>
+    functionName = CompoundIdentifier()
+    <LPAREN>
+    [
+        FieldNameTypeCommaListWithoutOptionalNull(fieldNames, fieldTypes)
+    ]
+    <RPAREN>
+    <RETURNS>
+    returnsDataType = DataType()
+    <LANGUAGE> <SQL>
+    (
+        <NOT> <DETERMINISTIC>
+        {
+            isDeterministic = DeterministicType.NOTDETERMINISTIC;
+        }
+    |
+        <DETERMINISTIC>
+        {
+            isDeterministic = DeterministicType.DETERMINISTIC;
+        }
+    |
+        <RETURNS> <NULL> <ON> <NULL> <INPUT>
+        {
+            canRunOnNullInput = ReactToNullInputType.RETURNSNULL;
+        }
+    |
+        <CALLED> <ON> <NULL> <INPUT>
+        {
+            canRunOnNullInput = ReactToNullInputType.CALLED;
+        }
+    |
+        <SPECIFIC>
+        {
+            specificFunctionName = CompoundIdentifier();
+        }
+    )*
+    [
+        <SQL> <SECURITY> <DEFINER>
+        {
+            hasSqlSecurityDefiner = true;
+        }
+    ]
+    <COLLATION> <INVOKER> <INLINE> <TYPE> tempNumeric = UnsignedNumericLiteral() {
+        typeInt = tempNumeric.getValueAs(Integer.class);
+        if (typeInt != 1) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.numberLiteralOutOfRange(String.valueOf(typeInt)));
+        }
+    }
+    <RETURN> returnExpression = Expression(ExprContext.ACCEPT_SUB_QUERY)
+    {
+        return new SqlCreateFunctionSqlForm(s.end(this), replace,
+            functionName, specificFunctionName, fieldNames, fieldTypes,
+            returnsDataType, isDeterministic, canRunOnNullInput,
+            hasSqlSecurityDefiner, typeInt, returnExpression);
+    }
+}
+
+/**
+* Parse a "name1 type1 , name2 type2 ..." list,
+* the field type default is not nullable.
+*/
+void FieldNameTypeCommaListWithoutOptionalNull(
+        SqlNodeList fieldNames,
+        SqlNodeList fieldTypes) :
+{
+    SqlIdentifier fName;
+    SqlDataTypeSpec fType;
+}
+{
+    fName = SimpleIdentifier()
+    fType = DataType()
+    {
+        fieldNames.add(fName);
+        fieldTypes.add(fType);
+    }
+    (
+        <COMMA>
+        fName = SimpleIdentifier()
+        fType = DataType()
+        {
+            fieldNames.add(fName);
+            fieldTypes.add(fType);
+        }
+    )*
 }
 
 /**
@@ -907,6 +1044,27 @@ SqlDataTypeSpec DataTypeAlternativeCastSyntax() :
         return new SqlDataTypeSpec(
             typeName,
             s.end(this));
+    }
+}
+
+SqlRenameTable SqlRenameTable() :
+{
+    SqlIdentifier targetTable;
+    SqlIdentifier sourceTable;
+    RenameOption renameOption;
+}
+{
+    <TABLE>
+    targetTable = CompoundIdentifier()
+    (
+        <TO> { renameOption = RenameOption.TO; }
+    |
+        <AS> { renameOption = RenameOption.AS; }
+    )
+    sourceTable = CompoundIdentifier()
+    {
+        return new SqlRenameTable(getPos(), targetTable, sourceTable,
+            renameOption);
     }
 }
 
