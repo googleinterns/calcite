@@ -81,7 +81,7 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
     this.returnExpression = returnExpression;
   }
 
-  @Override public SqlOperator getOperator(){
+  @Override public SqlOperator getOperator() {
     return OPERATOR;
   }
 
