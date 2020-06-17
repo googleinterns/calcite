@@ -1277,6 +1277,24 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testRenameTableWithTo() {
+    final String sql = "rename table foo to bar";
+    final String expected = "RENAME TABLE `FOO` TO `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameTableWithAs() {
+    final String sql = "rename table foo as bar";
+    final String expected = "RENAME TABLE `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameTableWithCompoundIdentifiers() {
+    final String sql = "rename table foo.bar as bar.foo";
+    final String expected = "RENAME TABLE `FOO`.`BAR` AS `BAR`.`FOO`";
+    sql(sql).ok(expected);
+  }
+
   @Test void testAlternativeTypeConversionIdentifier() {
     final String sql = "select foo (integer)";
     final String expected = "SELECT CAST(`FOO` AS INTEGER)";
