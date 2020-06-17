@@ -1565,10 +1565,17 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testCreateTableAsIdentifierWith() {
+  @Test void testCreateTableAsIdentifierWithData() {
     final String sql = "create table foo as bar with data";
     final String expected = "CREATE TABLE `FOO` AS\n"
         + "`BAR` WITH DATA";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testCreateTableAsIdentifierWithNoData() {
+    final String sql = "create table foo as bar with no data";
+    final String expected = "CREATE TABLE `FOO` AS\n"
+        + "`BAR` WITH NO DATA";
     sql(sql).ok(expected);
   }
 }
