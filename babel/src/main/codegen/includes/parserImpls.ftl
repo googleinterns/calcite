@@ -171,6 +171,8 @@ boolean IsNullable() :
     )
 }
 
+// The DateTime functions are singled out to allow for arguments to
+// be parsed, such as CURRENT_DATE(0).
 SqlColumnAttribute ColumnAttributeDefault() :
 {
     SqlNode defaultValue;
@@ -184,8 +186,6 @@ SqlColumnAttribute ColumnAttributeDefault() :
             defaultValue = SqlLiteral.createNull(getPos());
         }
     |
-        // The DateTime functions are singled out to allow for arguments to
-        // be parsed, such as CURRENT_DATE(0).
         defaultValue = CurrentDateFunction()
     |
         defaultValue = CurrentTimeFunction()
