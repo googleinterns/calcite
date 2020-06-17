@@ -1063,7 +1063,7 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testCreateFunctionSqlFormCalledOnNUllInput() {
+  @Test public void testCreateFunctionSqlFormCalledOnNullInput() {
     final String sql =
         "create function add1(a Integer) "
             + "returns Integer "
@@ -1080,7 +1080,7 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testCreateFunctionSqlFormReturnsNullOnNUllInput() {
+  @Test public void testCreateFunctionSqlFormReturnsNullOnNullInput() {
     final String sql =
         "create function add1(a Integer) "
             + "returns Integer "
@@ -1136,7 +1136,7 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).fails(expected);
   }
 
-  @Test public void testCreateFunctionSqlFormhasSecurityDefiner() {
+  @Test public void testCreateFunctionSqlFormHasSecurityDefiner() {
     final String sql =
         "create function foo() "
             + "returns Integer "
