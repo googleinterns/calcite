@@ -31,8 +31,8 @@ import java.util.List;
 public class SqlCreateFunctionSqlForm extends SqlCreate {
   public final SqlIdentifier functionName;
   public final SqlIdentifier specificFunctionName;
-  public List<SqlIdentifier> fieldNames;
-  public List<SqlDataTypeSpec> fieldTypes;
+  public final List<SqlIdentifier> fieldNames;
+  public final List<SqlDataTypeSpec> fieldTypes;
   public final SqlDataTypeSpec returnsDataType;
   public final DeterministicType isDeterministic;
   public final ReactToNullInputType canRunOnNullInput;
@@ -87,6 +87,7 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("CREATE FUNCTION");
     functionName.unparse(writer, 0,  0);
+
     SqlWriter.Frame frame = writer.startList("(", ")");
     for (int i = 0; i < fieldNames.size(); i++) {
       writer.sep(",", false);
@@ -137,34 +138,34 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
 
   public enum DeterministicType {
     /**
-     * Not Specified
+     * Not Specified.
      */
     UNSPECIFIED,
 
     /**
-     * Explicitly stated deterministic
+     * Explicitly stated deterministic.
      */
     DETERMINISTIC,
 
     /**
-     * Explicitly stated not deterministic
+     * Explicitly stated not deterministic.
      */
     NOTDETERMINISTIC,
   }
 
   public enum ReactToNullInputType {
     /**
-     * Not Specified
+     * Not Specified.
      */
     UNSPECIFIED,
 
     /**
-     * Explicitly stated return null
+     * Explicitly stated return null.
      */
     RETURNSNULL,
 
     /**
-     * Explicitly stated allows call
+     * Explicitly stated allows call.
      */
     CALLED,
   }
