@@ -185,7 +185,7 @@ SqlColumnAttribute ColumnAttributeDefault() :
         }
     |
         // The DateTime functions are singled out to allow for arguments to
-        // be passed in.
+        // be parsed, such as CURRENT_DATE(0).
         defaultValue = CurrentDateFunction()
     |
         defaultValue = CurrentTimeFunction()

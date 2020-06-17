@@ -839,6 +839,7 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT 1 CASESPECIFIC)";
     sql(sql).ok(expected);
   }
+
   @Test public void testInsertWithSelectInParens() {
     final String sql = "insert into foo (SELECT * FROM bar)";
     final String expected = "INSERT INTO `FOO`\n"
