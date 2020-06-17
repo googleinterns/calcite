@@ -64,6 +64,9 @@ data: {
       "org.apache.calcite.sql.babel.SqlDateTimeAtLocal",
       "org.apache.calcite.sql.babel.SqlDateTimeAtTimeZone",
       "org.apache.calcite.sql.babel.WithDataType",
+      "org.apache.calcite.sql.babel.SqlCreateFunctionSqlForm",
+      "org.apache.calcite.sql.babel.SqlCreateFunctionSqlForm.DeterministicType",
+      "org.apache.calcite.sql.babel.SqlCreateFunctionSqlForm.ReactToNullInputType",
     ]
 
     # List of keywords.
@@ -83,6 +86,7 @@ data: {
       "GRAPHIC"
       "IF"
       "INDEX"
+      "INLINE"
       "INS"
       "ISOLATED"
       "JOURNAL"
@@ -441,6 +445,7 @@ data: {
       "GRAPHIC"
       "IF"
       "INDEX"
+      "INLINE"
       "INS"
       "ISOLATED"
       "JOURNAL"
@@ -982,6 +987,7 @@ data: {
     # Each must accept arguments "(SqlParserPos pos, boolean replace)".
     createStatementParserMethods: [
       "SqlCreateTable"
+      "SqlCreateFunctionSqlForm"
     ]
 
     # list of methods for parsing extensions to "SET" calls

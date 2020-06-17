@@ -581,6 +581,108 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     }
 }
 
+SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
+{
+    SqlIdentifier functionName = null;
+    SqlNodeList fieldNames = new SqlNodeList(getPos());
+    SqlNodeList fieldTypes = new SqlNodeList(getPos());
+    DeterministicType isDeterministic = DeterministicType.UNSPECIFIED;
+    ReactToNullInputType canRunOnNullInput = ReactToNullInputType.UNSPECIFIED;
+    SqlIdentifier specificFunctionName = null;
+    final SqlDataTypeSpec returnsDataType;
+    boolean hasSqlSecurityDefiner = false;
+    SqlLiteral tempNumeric;
+    int typeInt;
+    final SqlNode returnExpression;
+}
+{
+    <FUNCTION>
+    functionName = CompoundIdentifier()
+    <LPAREN>
+    [
+        FieldNameTypeCommaListWithoutOptionalNull(fieldNames, fieldTypes)
+    ]
+    <RPAREN>
+    <RETURNS>
+    returnsDataType = DataType()
+    <LANGUAGE> <SQL>
+    (
+        <NOT> <DETERMINISTIC>
+        {
+            isDeterministic = DeterministicType.NOTDETERMINISTIC;
+        }
+    |
+        <DETERMINISTIC>
+        {
+            isDeterministic = DeterministicType.DETERMINISTIC;
+        }
+    |
+        <RETURNS> <NULL> <ON> <NULL> <INPUT>
+        {
+            canRunOnNullInput = ReactToNullInputType.RETURNSNULL;
+        }
+    |
+        <CALLED> <ON> <NULL> <INPUT>
+        {
+            canRunOnNullInput = ReactToNullInputType.CALLED;
+        }
+    |
+        <SPECIFIC>
+        {
+            specificFunctionName = CompoundIdentifier();
+        }
+    )*
+    [
+        <SQL> <SECURITY> <DEFINER>
+        {
+            hasSqlSecurityDefiner = true;
+        }
+    ]
+    <COLLATION> <INVOKER> <INLINE> <TYPE> tempNumeric = UnsignedNumericLiteral() {
+        typeInt = tempNumeric.getValueAs(Integer.class);
+        if (typeInt != 1) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.numberLiteralOutOfRange(String.valueOf(typeInt)));
+        }
+    }
+    <RETURN> returnExpression = Expression(ExprContext.ACCEPT_SUB_QUERY)
+    {
+        return new SqlCreateFunctionSqlForm(s.end(this), replace,
+            functionName, specificFunctionName, fieldNames, fieldTypes,
+            returnsDataType, isDeterministic, canRunOnNullInput,
+            hasSqlSecurityDefiner, typeInt, returnExpression);
+    }
+}
+
+/**
+* Parse a "name1 type1 , name2 type2 ..." list,
+* the field type default is not nullable.
+*/
+void FieldNameTypeCommaListWithoutOptionalNull(
+        SqlNodeList fieldNames,
+        SqlNodeList fieldTypes) :
+{
+    SqlIdentifier fName;
+    SqlDataTypeSpec fType;
+}
+{
+    fName = SimpleIdentifier()
+    fType = DataType()
+    {
+        fieldNames.add(fName);
+        fieldTypes.add(fType);
+    }
+    (
+        <COMMA>
+        fName = SimpleIdentifier()
+        fType = DataType()
+        {
+            fieldNames.add(fName);
+            fieldTypes.add(fType);
+        }
+    )*
+}
+
 /**
     Parses an index declaration. Currently only supports PRIMARY INDEX statements,
     but can be extended to support non-primary indices.
