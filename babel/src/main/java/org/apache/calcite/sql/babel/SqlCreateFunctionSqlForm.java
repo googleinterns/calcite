@@ -21,6 +21,7 @@ import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlSpecialOperator;
 import org.apache.calcite.sql.SqlWriter;
@@ -32,8 +33,8 @@ import java.util.List;
 public class SqlCreateFunctionSqlForm extends SqlCreate {
   public final SqlIdentifier functionName;
   public final SqlIdentifier specificFunctionName;
-  public final List<SqlIdentifier> fieldNames;
-  public final List<SqlDataTypeSpec> fieldTypes;
+  public final SqlNodeList fieldNames;
+  public final SqlNodeList fieldTypes;
   public final SqlDataTypeSpec returnsDataType;
   public final DeterministicType isDeterministic;
   public final ReactToNullInputType canRunOnNullInput;
@@ -62,8 +63,8 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
    */
   public SqlCreateFunctionSqlForm(final SqlParserPos pos, final boolean replace,
       final SqlIdentifier functionName,
-      final SqlIdentifier specificFunctionName, final List<SqlIdentifier> fieldNames,
-      final List<SqlDataTypeSpec> fieldTypes,
+      final SqlIdentifier specificFunctionName, final SqlNodeList fieldNames,
+      final SqlNodeList fieldTypes,
       final SqlDataTypeSpec returnsDataType, final DeterministicType isDeterministic,
       final ReactToNullInputType canRunOnNullInput, final boolean hasSqlSecurityDefiner,
       final int typeInt, final SqlNode returnExpression) {
@@ -86,8 +87,8 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(functionName, specificFunctionName, returnsDataType,
-        returnExpression);
+    return ImmutableNullableList.of(functionName, fieldNames, fieldTypes,
+        specificFunctionName, returnsDataType, returnExpression);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {

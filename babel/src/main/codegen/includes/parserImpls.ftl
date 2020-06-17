@@ -568,8 +568,8 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
 SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
 {
     SqlIdentifier functionName = null;
-    List<SqlIdentifier> fieldNames = new ArrayList<SqlIdentifier>();
-    List<SqlDataTypeSpec> fieldTypes = new ArrayList<SqlDataTypeSpec>();
+    SqlNodeList fieldNames = new SqlNodeList(getPos());
+    SqlNodeList fieldTypes = new SqlNodeList(getPos());
     DeterministicType isDeterministic = DeterministicType.UNSPECIFIED;
     ReactToNullInputType canRunOnNullInput = ReactToNullInputType.UNSPECIFIED;
     SqlIdentifier specificFunctionName = null;
@@ -643,8 +643,8 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
 * the field type default is not nullable.
 */
 void FieldNameTypeCommaListWithoutOptionalNull(
-        List<SqlIdentifier> fieldNames,
-        List<SqlDataTypeSpec> fieldTypes) :
+        SqlNodeList fieldNames,
+        SqlNodeList fieldTypes) :
 {
     SqlIdentifier fName;
     SqlDataTypeSpec fType;
