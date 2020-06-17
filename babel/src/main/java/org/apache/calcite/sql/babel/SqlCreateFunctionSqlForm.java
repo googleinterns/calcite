@@ -43,7 +43,8 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("CREATE FUNCTION", SqlKind.CREATE_FUNCTION);
 
-  /** Creates a SqlCreateFunctionSqlForm.
+  /**
+   * Creates a SqlCreateFunctionSqlForm.
    * @param pos position
    * @param replace if "or replace" token occurred
    * @param functionName the name of the function
@@ -57,7 +58,7 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
    * @param hasSqlSecurityDefiner if "sql security definer" is specified
    * @param typeInt integer value after inline type
    * @param returnExpression the expression that is returned
-   * */
+   */
   public SqlCreateFunctionSqlForm(final SqlParserPos pos, final boolean replace,
       final SqlIdentifier functionName,
       final SqlIdentifier specificFunctionName, final List<SqlIdentifier> fieldNames,
