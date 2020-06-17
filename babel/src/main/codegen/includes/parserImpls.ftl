@@ -892,7 +892,7 @@ SqlDataTypeSpec DataTypeAlternativeCastSyntax() :
     }
 }
 
-SqlNode SqlRenameTable() :
+SqlRenameTable SqlRenameTable() :
 {
     SqlIdentifier targetTable;
     SqlIdentifier sourceTable;

@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class SqlRenameTable extends SqlCall implements SqlExecutableStatement {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("RENAME TABLE", SqlKind.OTHER);
+      new SqlSpecialOperator("RENAME TABLE", SqlKind.RENAME_TABLE);
 
   private final SqlIdentifier targetTable;
   private final SqlIdentifier sourceTable;
