@@ -3727,10 +3727,10 @@ SqlNode Expression3(ExprContext exprContext) :
         }
     }
     (
-<#list parser.alternativeTypeConversionQueryMethods as method>
-        e = ${method}(list1.get(0)) { return e; }
+<#if parser.includeAlternativeTypeConversionQuery>
+        e = AlternativeTypeConversionQuery(list1.get(0)) { return e; }
     |
-</#list>
+</#if>
         { return list1.get(0); }
     )
 }
