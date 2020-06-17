@@ -990,7 +990,7 @@ SqlNode AlternativeTypeConversionQuery(SqlNode query) :
 
 /**
  * The RANK function call with sorting expressions has a default ordering of DESC
- * while the RANK() OVER function call has a default ordering of ASC
+ * while the RANK() OVER function call has a default ordering of ASC.
  */
 SqlNode RankSortingExpression() :
 {
