@@ -1550,4 +1550,25 @@ class BabelParserTest extends SqlParserTest {
         + "FROM `BAZ`";
     sql(sql).ok(expected);
   }
+
+  @Test void testCreateTableAsIdentifier() {
+    final String sql = "create table foo as bar";
+    final String expected = "CREATE TABLE `FOO` AS\n"
+        + "`BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testCreateTableAsCompoundIdentifier() {
+    final String sql = "create table foo as bar.baz";
+    final String expected = "CREATE TABLE `FOO` AS\n"
+        + "`BAR`.`BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testCreateTableAsIdentifierWith() {
+    final String sql = "create table foo as bar with data";
+    final String expected = "CREATE TABLE `FOO` AS\n"
+        + "`BAR` WITH DATA";
+    sql(sql).ok(expected);
+  }
 }

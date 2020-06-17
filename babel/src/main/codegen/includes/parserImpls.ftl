@@ -561,7 +561,12 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
         { columnList = null; }
     )
     (
-        <AS> query = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+        <AS>
+        (
+            query = CompoundIdentifier()
+        |
+            query = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+        )
         withData = WithDataOpt()
     |
         { query = null; }
