@@ -172,7 +172,7 @@ class BabelParserTest extends SqlParserTest {
    * parser because it is a reserved keyword.
    * (Curiously, TIMESTAMP and TIME are not functions.) */
   @Test void testDateFunction() {
-    final String expected = "SELECT `DATE`(`X`)\n"
+    final String expected = "SELECT DATE(`X`)\n"
         + "FROM `T`";
     sql("select date(x) from t").ok(expected);
   }
@@ -1069,6 +1069,27 @@ class BabelParserTest extends SqlParserTest {
   @Test public void testInlineModSyntaxIdentifier() {
     final String sql = "select foo mod bar";
     final String expected = "SELECT MOD(`FOO`, `BAR`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateAtLocalWhere() {
+    final String sql = "SELECT * FROM foo WHERE bar = DATE AT LOCAL";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`BAR` = DATE AT LOCAL)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateAtLocalSelect() {
+    final String sql = "SELECT DATE AT LOCAL";
+    final String expected = "SELECT DATE AT LOCAL";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectDateExpression() {
+    final String sql = "SELECT DATE -1 FROM foo";
+    final String expected = "SELECT (DATE - 1)\n"
+        + "FROM `FOO`";
     sql(sql).ok(expected);
   }
 

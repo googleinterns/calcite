@@ -3837,7 +3837,7 @@ SqlNode AtomicRowExpression() :
 {
     (
 <#list parser.dateTimeExpressionMethods as method>
-        LOOKAHEAD(4)
+        LOOKAHEAD(${method})
         e = ${method}
     |
 </#list>
