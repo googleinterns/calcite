@@ -584,43 +584,43 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
     functionName = CompoundIdentifier()
     <LPAREN>
     [
-      FieldNameTypeCommaListWithoutOptionalNull(fieldNames, fieldTypes)
+        FieldNameTypeCommaListWithoutOptionalNull(fieldNames, fieldTypes)
     ]
     <RPAREN>
     <RETURNS>
     returnsDataType = DataType()
     <LANGUAGE> <SQL>
     (
-      <NOT> <DETERMINISTIC>
-      {
-        isDeterministic = DeterministicType.NOTDETERMINISTIC;
-      }
+        <NOT> <DETERMINISTIC>
+        {
+            isDeterministic = DeterministicType.NOTDETERMINISTIC;
+        }
     |
-      <DETERMINISTIC>
-      {
-        isDeterministic = DeterministicType.DETERMINISTIC;
-      }
+        <DETERMINISTIC>
+        {
+            isDeterministic = DeterministicType.DETERMINISTIC;
+        }
     |
-      <RETURNS> <NULL> <ON> <NULL> <INPUT>
-      {
-        canRunOnNullInput = ReactToNullInputType.RETURNSNULL;
-      }
+        <RETURNS> <NULL> <ON> <NULL> <INPUT>
+        {
+            canRunOnNullInput = ReactToNullInputType.RETURNSNULL;
+        }
     |
-      <CALLED> <ON> <NULL> <INPUT>
-      {
-        canRunOnNullInput = ReactToNullInputType.CALLED;
-      }
+        <CALLED> <ON> <NULL> <INPUT>
+        {
+            canRunOnNullInput = ReactToNullInputType.CALLED;
+        }
     |
-      <SPECIFIC>
-      {
-        specificFunctionName = CompoundIdentifier();
-      }
+        <SPECIFIC>
+        {
+            specificFunctionName = CompoundIdentifier();
+        }
     )*
     [
-      <SQL> <SECURITY> <DEFINER>
-      {
-        hasSqlSecurityDefiner = true;
-      }
+        <SQL> <SECURITY> <DEFINER>
+        {
+            hasSqlSecurityDefiner = true;
+        }
     ]
     <COLLATION> <INVOKER> <INLINE> <TYPE> tempNumeric = UnsignedNumericLiteral() {
         typeInt = tempNumeric.getValueAs(Integer.class);
@@ -636,10 +636,7 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
             returnsDataType, isDeterministic, canRunOnNullInput,
             hasSqlSecurityDefiner, typeInt, returnExpression);
     }
-
-
 }
-
 
 /**
 * Parse a "name1 type1 , name2 type2 ..." list,
