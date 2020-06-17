@@ -988,6 +988,10 @@ SqlNode AlternativeTypeConversionQuery(SqlNode query) :
     }
 }
 
+/**
+ * The RANK function call with sorting expressions has a default ordering of DESC
+ * while the RANK() OVER function call has a default ordering of ASC
+ */
 SqlNode RankSortingExpression() :
 {
     SqlNode e;
@@ -1031,7 +1035,7 @@ SqlNode RankFunctionCallWithParams() :
     )*
     <RPAREN> {
         over = SqlWindow.create(null, null, SqlNodeList.EMPTY, orderByList,
-                SqlLiteral.createBoolean(false, SqlParserPos.ZERO), null, null, null, s1.end(this));
+            SqlLiteral.createBoolean(false, SqlParserPos.ZERO), null, null, null, s1.end(this));
         return SqlStdOperatorTable.OVER.createCall(s.end(over), rankCall, over);
     }
 }
