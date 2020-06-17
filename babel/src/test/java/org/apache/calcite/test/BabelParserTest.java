@@ -1299,9 +1299,9 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test void testAlternativeTypeConversionQueryNested() {
-    final String sql = "select ((select foo from bar) (integer)) (char) from baz";
-    final String expected = "SELECT CAST(CAST((SELECT `FOO`\n"
-        + "FROM `BAR`) AS INTEGER) AS CHAR)\n"
+    final String sql = "select (select foo (integer) from bar) (char) from baz";
+    final String expected = "SELECT CAST((SELECT CAST(`FOO` AS INTEGER)\n"
+        + "FROM `BAR`) AS CHAR)\n"
         + "FROM `BAZ`";
     sql(sql).ok(expected);
   }
