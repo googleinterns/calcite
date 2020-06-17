@@ -730,6 +730,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableCompressColumnLevelAttribute() {
+    final String sql = "create table foo (bar int compress)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER COMPRESS)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTableNullColumnLevelAttribute() {
     final String sql = "create table foo (bar int null)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER)";
