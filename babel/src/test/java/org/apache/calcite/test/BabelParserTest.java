@@ -1300,4 +1300,36 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "SELECT CAST('3700 sec' AS INTERVAL MINUTE)";
     sql(sql).ok(expected);
   }
+
+  @Test void testAlternativeTypeConversionQuery() {
+    final String sql = "select (select foo from bar) (integer) from baz";
+    final String expected = "SELECT CAST((SELECT `FOO`\n"
+        + "FROM `BAR`) AS INTEGER)\n"
+        + "FROM `BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionQueryFormat() {
+    final String sql = "select (select foo from bar) (time(0) format 'HHhMIm') from baz";
+    final String expected = "SELECT CAST((SELECT `FOO`\n"
+        + "FROM `BAR`) AS TIME(0) FORMAT 'HHhMIm')\n"
+        + "FROM `BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionQueryInterval() {
+    final String sql = "select (select foo from bar) (interval minute) from baz";
+    final String expected = "SELECT CAST((SELECT `FOO`\n"
+        + "FROM `BAR`) AS INTERVAL MINUTE)\n"
+        + "FROM `BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionQueryNested() {
+    final String sql = "select (select foo (integer) from bar) (char) from baz";
+    final String expected = "SELECT CAST((SELECT CAST(`FOO` AS INTEGER)\n"
+        + "FROM `BAR`) AS CHAR)\n"
+        + "FROM `BAZ`";
+    sql(sql).ok(expected);
+  }
 }

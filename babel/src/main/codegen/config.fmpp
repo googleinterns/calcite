@@ -1047,6 +1047,7 @@ data: {
     includeAdditionalDeclarations: false
     includeSubstrKeyword: true
     includeQualifyClause: true
+    includeAlternativeTypeConversionQuery: true
   }
 }
 

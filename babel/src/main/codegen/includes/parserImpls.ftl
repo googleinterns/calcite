@@ -966,3 +966,24 @@ SqlNode AlternativeTypeConversionLiteralOrIdentifier() :
         return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
     }
 }
+
+SqlNode AlternativeTypeConversionQuery(SqlNode query) :
+{
+    final List<SqlNode> args = startList(query);
+    final SqlDataTypeSpec dt;
+    final Span s;
+    SqlNode e;
+}
+{
+    { s = span(); }
+    <LPAREN>
+    (
+        dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
+    |
+        <INTERVAL> e = IntervalQualifier() { args.add(e); }
+    )
+    [ <FORMAT> e = StringLiteral() { args.add(e); } ]
+    <RPAREN> {
+        return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
+    }
+}
