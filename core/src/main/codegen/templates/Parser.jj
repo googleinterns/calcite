@@ -5662,6 +5662,11 @@ SqlNode BuiltinFunctionCall() :
         node = ${method} { return node; }
     |
 </#list>
+<#if parser.includeRankWithSortingExpressions>
+        LOOKAHEAD(<RANK>, { getToken(3).kind != RPAREN })
+        node = RankFunctionCallWithParams() { return node; }
+    |
+</#if>
         node = MatchRecognizeFunctionCall() { return node; }
     |
         node = JsonExistsFunctionCall() { return node; }

@@ -1276,35 +1276,28 @@ class BabelParserTest extends SqlParserTest {
 
   @Test void testRankSortingParam() {
     final String sql = "select rank(foo) from bar";
-    final String expected = "SELECT RANK(`FOO`)\n"
+    final String expected = "SELECT (RANK() OVER (ORDER BY `FOO` DESC))\n"
         + "FROM `BAR`";
     sql(sql).ok(expected);
   }
 
   @Test void testRankSortingParamAsc() {
     final String sql = "select rank(foo asc) from bar";
-    final String expected = "SELECT RANK(`FOO` ASC)\n"
+    final String expected = "SELECT (RANK() OVER (ORDER BY `FOO`))\n"
         + "FROM `BAR`";
     sql(sql).ok(expected);
   }
 
   @Test void testRankSortingParamDesc() {
     final String sql = "select rank(foo desc) from bar";
-    final String expected = "SELECT RANK(`FOO`)\n"
+    final String expected = "SELECT (RANK() OVER (ORDER BY `FOO` DESC))\n"
         + "FROM `BAR`";
     sql(sql).ok(expected);
   }
 
   @Test void testRankSortingParamCommaList() {
     final String sql = "select rank(foo asc, baz desc, x) from bar";
-    final String expected = "SELECT RANK() OVER (ORDER BY `FOO`, `BAZ` DESC, `X` DESC)\n"
-        + "FROM `BAR`";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testRankSortingParamMultipleParams() {
-    final String sql = "select rank((foo, bax, x) asc, y desc, z) from bar";
-    final String expected = "SELECT RANK((`FOO`, `BAZ`, `X`) ASC, `Y` DESC, `Z`)\n"
+    final String expected = "SELECT (RANK() OVER (ORDER BY `FOO`, `BAZ` DESC, `X` DESC))\n"
         + "FROM `BAR`";
     sql(sql).ok(expected);
   }
