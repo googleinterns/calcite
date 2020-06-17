@@ -1333,6 +1333,13 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testRankAnsiSyntax() {
+    final String sql = "select rank() over (order by foo desc) from bar";
+    final String expected = "SELECT (RANK() OVER (ORDER BY `FOO` DESC))\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
   @Test void testRankSortingParam() {
     final String sql = "select rank(foo) from bar";
     final String expected = "SELECT (RANK() OVER (ORDER BY `FOO` DESC))\n"
