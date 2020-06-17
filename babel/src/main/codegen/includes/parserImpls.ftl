@@ -171,6 +171,34 @@ boolean IsNullable() :
     )
 }
 
+SqlColumnAttribute ColumnAttributeDefault() :
+{
+    SqlNode defaultValue;
+}
+{
+    <DEFAULT_>
+    (
+        defaultValue = OptionValue()
+    |
+        <NULL> {
+            defaultValue = SqlLiteral.createNull(getPos());
+        }
+    |
+        // The DateTime functions are singled out to allow for arguments to
+        // be passed in.
+        defaultValue = CurrentDateFunction()
+    |
+        defaultValue = CurrentTimeFunction()
+    |
+        defaultValue = CurrentTimestampFunction()
+    |
+        defaultValue = ContextVariable()
+    )
+    {
+        return new SqlColumnAttributeDefault(getPos(), defaultValue);
+    }
+}
+
 SqlColumnAttribute ColumnAttributeCharacterSet() :
 {
     CharacterSet characterSet = null;
@@ -239,6 +267,8 @@ void ColumnAttributes(List<SqlColumnAttribute> list) :
             e = ColumnAttributeCharacterSet()
         |
             e = ColumnAttributeCompress()
+        |
+            e = ColumnAttributeDefault()
         ) { list.add(e); }
     )+
 }

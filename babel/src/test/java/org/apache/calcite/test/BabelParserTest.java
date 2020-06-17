@@ -786,6 +786,59 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableDefaultNumericColumnLevelAttribute() {
+    final String sql = "create table foo (bar int default 1)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultStringColumnLevelAttribute() {
+    final String sql = "create table foo (bar int default 'baz')";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT 'baz')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultNullColumnLevelAttribute() {
+    final String sql = "create table foo (bar int default null)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT NULL)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultUserColumnLevelAttribute() {
+    final String sql = "create table foo (bar int default user)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT USER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultCurrentDateColumnLevelAttribute() {
+    final String sql = "create table foo (bar int default current_date)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT CURRENT_DATE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultCurrentTimeColumnLevelAttribute() {
+    final String sql = "create table foo (bar int default current_time)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT CURRENT_TIME)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultCurrentTimestampColumnLevelAttribute() {
+    final String sql = "create table foo (bar int default current_timestamp)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT CURRENT_TIMESTAMP)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultCurrentDateWithParamColumnLevelAttribute() {
+    final String sql = "create table foo (bar int default current_date(0))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT CURRENT_DATE(0))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultCaseSpecificColumnLevelAttributes() {
+    final String sql = "create table foo (bar int default 1 casespecific)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT 1 CASESPECIFIC)";
+    sql(sql).ok(expected);
+  }
   @Test public void testInsertWithSelectInParens() {
     final String sql = "insert into foo (SELECT * FROM bar)";
     final String expected = "INSERT INTO `FOO`\n"

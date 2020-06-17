@@ -28,6 +28,7 @@ data: {
       "org.apache.calcite.sql.SqlColumnAttributeCharacterSet",
       "org.apache.calcite.sql.SqlColumnAttributeCharacterSet.CharacterSet",
       "org.apache.calcite.sql.SqlColumnAttributeCompress",
+      "org.apache.calcite.sql.SqlColumnAttributeDefault",
       "org.apache.calcite.sql.babel.SqlSetTimeZone",
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
