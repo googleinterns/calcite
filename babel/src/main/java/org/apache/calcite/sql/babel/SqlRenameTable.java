@@ -31,11 +31,11 @@ import org.apache.calcite.util.ImmutableNullableList;
 import java.util.List;
 
 /**
- * Parse tree for {@code RENAME} statement.
+ * Parse tree for {@code RENAME TABLE} statement.
  */
 public class SqlRenameTable extends SqlCall implements SqlExecutableStatement {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("RENAME", SqlKind.OTHER);
+      new SqlSpecialOperator("RENAME TABLE", SqlKind.OTHER);
 
   private final SqlIdentifier targetTable;
   private final SqlIdentifier sourceTable;
