@@ -949,39 +949,6 @@ SqlNode AlternativeTypeConversionLiteralOrIdentifier() :
     }
 }
 
-/*
-* Parse Floor/Ceil function parameters
-*/
-SqlNode RankFunctionCall() :
-{
-    final SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;
-    final SqlIdentifier qualifiedName;
-    final SqlNode rankCall;
-    final SqlNode over;
-    final List<SqlNode> orderByList;
-    SqlNode e;
-    Span s;
-    Span s1;
-}
-{
-    <RANK> {
-        s = span();
-        qualifiedName = new SqlIdentifier(unquotedIdentifier(), getPos());
-        rankCall = createCall(qualifiedName, s.end(this), funcType, null, Collections.emptyList());
-    }
-    <LPAREN> { s1 = span(); }
-    e = RankSortingExpression() { orderByList = startList(e); }
-    (
-        <COMMA> e = RankSortingExpression() {
-            orderByList.add(e);
-        }
-    )*
-    <RPAREN> {
-        over = SqlWindow.create(null, null, SqlNodeList.EMPTY, new SqlNodeList(orderByList, s1.addAll(orderByList).pos()),
-                SqlLiteral.createBoolean(false, SqlParserPos.ZERO), null, null, null, s.end(this));
-        return SqlStdOperatorTable.OVER.createCall(s.end(over), rankCall, over);
-    }
-}
 
 SqlNode RankSortingExpression() :
 {
@@ -997,4 +964,38 @@ SqlNode RankSortingExpression() :
         }
     )
     { return e; }
+}
+
+/*
+* Parse Rank function call with sorting expressions
+*/
+SqlNode RankFunctionCallWithParams() :
+{
+    final SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;
+    final SqlNodeList orderByList = new SqlNodeList(SqlParserPos.ZERO);
+    final SqlIdentifier qualifiedName;
+    final SqlNode rankCall;
+    final SqlNode over;
+    SqlNode e;
+    Span s;
+    Span s1;
+}
+{
+    <RANK> {
+        s = span();
+        qualifiedName = new SqlIdentifier(unquotedIdentifier(), getPos());
+        rankCall = createCall(qualifiedName, s.end(this), funcType, null, Collections.emptyList());
+    }
+    <LPAREN> { s1 = span(); }
+    e = RankSortingExpression() { orderByList.add(e); }
+    (
+        <COMMA> e = RankSortingExpression() {
+            orderByList.add(e);
+        }
+    )*
+    <RPAREN> {
+        over = SqlWindow.create(null, null, SqlNodeList.EMPTY, orderByList,
+                SqlLiteral.createBoolean(false, SqlParserPos.ZERO), null, null, null, s1.end(this));
+        return SqlStdOperatorTable.OVER.createCall(s.end(over), rankCall, over);
+    }
 }
