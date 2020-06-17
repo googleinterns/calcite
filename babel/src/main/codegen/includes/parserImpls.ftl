@@ -35,10 +35,15 @@ SqlNode DateFunctionCall() :
         s = span();
         qualifiedName = new SqlIdentifier(unquotedIdentifier(), getPos());
     }
-    args = FunctionParameterList(ExprContext.ACCEPT_SUB_QUERY) {
-        quantifier = (SqlLiteral) args.get(0);
-        args.remove(0);
-        return createCall(qualifiedName, s.end(this), funcType, quantifier, args);
+    [
+        args = FunctionParameterList(ExprContext.ACCEPT_SUB_QUERY) {
+            quantifier = (SqlLiteral) args.get(0);
+            args.remove(0);
+            return createCall(qualifiedName, s.end(this), funcType, quantifier, args);
+        }
+    ]
+    {
+        return SqlStdOperatorTable.DATE.createCall(getPos());
     }
 }
 
@@ -210,6 +215,15 @@ SqlColumnAttribute ColumnAttributeUpperCase() :
     }
 }
 
+SqlColumnAttribute ColumnAttributeCompress() :
+{
+}
+{
+    <COMPRESS> {
+        return new SqlColumnAttributeCompress(getPos());
+    }
+}
+
 void ColumnAttributes(List<SqlColumnAttribute> list) :
 {
     SqlColumnAttribute e;
@@ -223,6 +237,8 @@ void ColumnAttributes(List<SqlColumnAttribute> list) :
             e = ColumnAttributeCaseSpecific()
         |
             e = ColumnAttributeCharacterSet()
+        |
+            e = ColumnAttributeCompress()
         ) { list.add(e); }
     )+
 }
@@ -841,6 +857,8 @@ SqlNode DateTimeTerm() :
         e = DateTimeLiteral()
     |
         e = SimpleIdentifier()
+    |
+        e = DateFunctionCall()
     )
     (
         <AT>
@@ -937,6 +955,27 @@ SqlNode AlternativeTypeConversionLiteralOrIdentifier() :
         s = span();
         args = startList(e);
     }
+    <LPAREN>
+    (
+        dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
+    |
+        <INTERVAL> e = IntervalQualifier() { args.add(e); }
+    )
+    [ <FORMAT> e = StringLiteral() { args.add(e); } ]
+    <RPAREN> {
+        return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
+    }
+}
+
+SqlNode AlternativeTypeConversionQuery(SqlNode query) :
+{
+    final List<SqlNode> args = startList(query);
+    final SqlDataTypeSpec dt;
+    final Span s;
+    SqlNode e;
+}
+{
+    { s = span(); }
     <LPAREN>
     (
         dt = DataTypeAlternativeCastSyntax() { args.add(dt); }

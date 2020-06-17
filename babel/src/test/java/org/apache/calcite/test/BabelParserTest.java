@@ -172,7 +172,7 @@ class BabelParserTest extends SqlParserTest {
    * parser because it is a reserved keyword.
    * (Curiously, TIMESTAMP and TIME are not functions.) */
   @Test void testDateFunction() {
-    final String expected = "SELECT `DATE`(`X`)\n"
+    final String expected = "SELECT DATE(`X`)\n"
         + "FROM `T`";
     sql("select date(x) from t").ok(expected);
   }
@@ -730,6 +730,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableCompressColumnLevelAttribute() {
+    final String sql = "create table foo (bar int compress)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER COMPRESS)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTableNullColumnLevelAttribute() {
     final String sql = "create table foo (bar int null)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER)";
@@ -1066,6 +1072,27 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testDateAtLocalWhere() {
+    final String sql = "SELECT * FROM foo WHERE bar = DATE AT LOCAL";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`BAR` = DATE AT LOCAL)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDateAtLocalSelect() {
+    final String sql = "SELECT DATE AT LOCAL";
+    final String expected = "SELECT DATE AT LOCAL";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectDateExpression() {
+    final String sql = "SELECT DATE -1 FROM foo";
+    final String expected = "SELECT (DATE - 1)\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCurrentTimestampFunction() {
     final String sql = "select current_timestamp";
     final String expected = "SELECT CURRENT_TIMESTAMP";
@@ -1271,6 +1298,38 @@ class BabelParserTest extends SqlParserTest {
   @Test void testAlternativeTypeConversionInterval() {
     final String sql = "select '3700 sec' (interval minute)";
     final String expected = "SELECT CAST('3700 sec' AS INTERVAL MINUTE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionQuery() {
+    final String sql = "select (select foo from bar) (integer) from baz";
+    final String expected = "SELECT CAST((SELECT `FOO`\n"
+        + "FROM `BAR`) AS INTEGER)\n"
+        + "FROM `BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionQueryFormat() {
+    final String sql = "select (select foo from bar) (time(0) format 'HHhMIm') from baz";
+    final String expected = "SELECT CAST((SELECT `FOO`\n"
+        + "FROM `BAR`) AS TIME(0) FORMAT 'HHhMIm')\n"
+        + "FROM `BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionQueryInterval() {
+    final String sql = "select (select foo from bar) (interval minute) from baz";
+    final String expected = "SELECT CAST((SELECT `FOO`\n"
+        + "FROM `BAR`) AS INTERVAL MINUTE)\n"
+        + "FROM `BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionQueryNested() {
+    final String sql = "select (select foo (integer) from bar) (char) from baz";
+    final String expected = "SELECT CAST((SELECT CAST(`FOO` AS INTEGER)\n"
+        + "FROM `BAR`) AS CHAR)\n"
+        + "FROM `BAZ`";
     sql(sql).ok(expected);
   }
 

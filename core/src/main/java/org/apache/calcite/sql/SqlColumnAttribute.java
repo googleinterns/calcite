@@ -20,7 +20,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
  * A <code>SqlColumnAttribute</code> is a base class that can be used
- * to create custom attributes for columns created by the the SQL CREATE TABLE
+ * to create custom attributes for columns created by the SQL CREATE TABLE
  * function.
  *
  * <p>To customize column attribute unparsing, override the method.</p>
@@ -34,7 +34,7 @@ public abstract class SqlColumnAttribute {
    *
    * @param pos  Parser position, must not be null
    */
-  public SqlColumnAttribute(SqlParserPos pos) {
+  protected SqlColumnAttribute(SqlParserPos pos) {
     this.pos = pos;
   }
 

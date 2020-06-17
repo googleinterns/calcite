@@ -470,6 +470,7 @@ data: {
     includeAdditionalDeclarations: false
     includeSubstrKeyword: false
     includeQualifyClause: false
+    includeAlternativeTypeConversionQuery: false
     includeRankWithSortingExpressions: false
   }
 }

@@ -29,8 +29,8 @@ public class SqlColumnAttributeCaseSpecific extends SqlColumnAttribute {
   /**
    * Creates a {@code SqlColumnAttributeCaseSpecific}.
    *
-   * @param isCaseSpecific  Whether or not the column is case specific
    * @param pos  Parser position, must not be null
+   * @param isCaseSpecific  Whether or not the column is case specific
    */
   public SqlColumnAttributeCaseSpecific(SqlParserPos pos, boolean isCaseSpecific) {
     super(pos);
