@@ -1012,9 +1012,9 @@ SqlNode RankFunctionCallWithParams() :
     final SqlIdentifier qualifiedName;
     final SqlNode rankCall;
     final SqlNode over;
+    final Span s;
+    final Span s1;
     SqlNode e;
-    Span s;
-    Span s1;
 }
 {
     <RANK> {
