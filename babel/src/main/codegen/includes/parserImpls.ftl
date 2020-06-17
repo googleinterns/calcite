@@ -949,7 +949,6 @@ SqlNode AlternativeTypeConversionLiteralOrIdentifier() :
     }
 }
 
-
 SqlNode RankSortingExpression() :
 {
     SqlNode e;
@@ -966,9 +965,7 @@ SqlNode RankSortingExpression() :
     { return e; }
 }
 
-/*
-* Parse Rank function call with sorting expressions
-*/
+// Parse RANK function call with sorting expressions.
 SqlNode RankFunctionCallWithParams() :
 {
     final SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;
