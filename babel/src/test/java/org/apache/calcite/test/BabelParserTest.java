@@ -1243,6 +1243,15 @@ class BabelParserTest extends SqlParserTest {
         .ok("TRANSLATE ('abc' USING `LATIN`_TO_`UNICODE` WITH ERROR)");
   }
 
+  @Test public void testTranslateUsingCharacterSetWithErrorInSelectStatement() {
+    final String sql = "SELECT TRANSLATE('bar' USING LATIN_TO_UNICODE WITH ERROR) bar_translated "
+        + "FROM foo";
+    final String expected =
+        "SELECT TRANSLATE ('bar' USING `LATIN`_TO_`UNICODE` WITH ERROR) AS `BAR_TRANSLATED`\n"
+            + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testUsingRequestModifierSingular() {
     final String sql = "using (foo int)";
     final String expected = "USING (`FOO` INTEGER)";
