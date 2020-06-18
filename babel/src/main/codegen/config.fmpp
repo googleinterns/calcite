@@ -114,7 +114,6 @@ data: {
       "SEMI"
       "SUBSTR"
       "TEMP"
-      "_TO_"
       "UNICODE"
       "UPD"
       "UPPERCASE"
@@ -469,7 +468,6 @@ data: {
       "OFF"
       "RENAME"
       "SEMI"
-      "_TO_"
       "UNICODE"
       "UPD"
 
