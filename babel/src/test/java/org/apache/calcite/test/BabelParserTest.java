@@ -1632,4 +1632,39 @@ class BabelParserTest extends SqlParserTest {
         + "`BAR` WITH NO DATA";
     sql(sql).ok(expected);
   }
+
+  @Test void testRankAnsiSyntax() {
+    final String sql = "select rank() over (order by foo desc) from bar";
+    final String expected = "SELECT (RANK() OVER (ORDER BY `FOO` DESC))\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testRankSortingParam() {
+    final String sql = "select rank(foo) from bar";
+    final String expected = "SELECT (RANK() OVER (ORDER BY `FOO` DESC))\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testRankSortingParamAsc() {
+    final String sql = "select rank(foo asc) from bar";
+    final String expected = "SELECT (RANK() OVER (ORDER BY `FOO`))\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testRankSortingParamDesc() {
+    final String sql = "select rank(foo desc) from bar";
+    final String expected = "SELECT (RANK() OVER (ORDER BY `FOO` DESC))\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testRankSortingParamCommaList() {
+    final String sql = "select rank(foo asc, baz desc, x) from bar";
+    final String expected = "SELECT (RANK() OVER (ORDER BY `FOO`, `BAZ` DESC, `X` DESC))\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
 }
