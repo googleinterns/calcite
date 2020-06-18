@@ -1233,6 +1233,15 @@ class BabelParserTest extends SqlParserTest {
         + "RETURN (CURRENT_DATE + 1)";
     sql(sql).ok(expected);
   }
+  @Test public void testTranslateUsingCharacterSet() {
+    expr("translate ('abc' using latin_to_unicode)")
+        .ok("TRANSLATE ('abc' USING `LATIN`_TO_`UNICODE`)");
+  }
+
+  @Test public void testTranslateUsingCharacterSetWithError() {
+    expr("translate ('abc' using latin_to_unicode with error)")
+        .ok("TRANSLATE ('abc' USING `LATIN`_TO_`UNICODE` WITH ERROR)");
+  }
 
   @Test public void testUsingRequestModifierSingular() {
     final String sql = "using (foo int)";

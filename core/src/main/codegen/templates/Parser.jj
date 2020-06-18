@@ -5484,6 +5484,10 @@ SqlNode BuiltinFunctionCall() :
     TimeUnit interval;
     final TimeUnit unit;
     final SqlNode node;
+<#if parser.allowTranslateUsingCharSetWithError>
+    boolean isWithError = false;
+    boolean allowTranslateUsingCharSet = false;
+</#if>
 }
 {
     //~ FUNCTIONS WITH SPECIAL SYNTAX ---------------------------------------
@@ -5554,9 +5558,33 @@ SqlNode BuiltinFunctionCall() :
         }
         (
             <USING> name = SimpleIdentifier() {
+<#if parser.allowTranslateUsingCharSetWithError>
+                String nameString = name.toString().toUpperCase();
+                String[] charSets = new String[2];
+                if(nameString.contains("_TO_") && nameString.split("_TO_").length == 2){
+                    allowTranslateUsingCharSet = true;
+                    charSets = nameString.split("_TO_");
+                    args.add(new SqlCharacterSetToCharacterSet(charSets, getPos()));
+                }else{
+                    args.add(name);
+                }
+<#else>
                 args.add(name);
+</#if>
             }
+<#if parser.allowTranslateUsingCharSetWithError>
+            [
+              <WITH> <ERROR> {
+                isWithError = true;
+              }
+            ]
+</#if>
             <RPAREN> {
+<#if parser.allowTranslateUsingCharSetWithError>
+                if(allowTranslateUsingCharSet){
+                  return new SqlTranslateUsingCharacterSet(s.end(this), args, isWithError);
+                }
+</#if>
                 return SqlStdOperatorTable.TRANSLATE.createCall(s.end(this),
                     args);
             }

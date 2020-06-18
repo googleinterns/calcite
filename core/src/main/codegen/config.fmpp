@@ -467,6 +467,7 @@ data: {
     allowUpdateFromTable: false
     allowUpsertFormOfUpdate: false
     allowAbbreviatedKeywords: false
+    allowTranslateUsingCharSetWithError: false
     includePosixOperators: false
     includeCastFormat: false
     includeCompoundIdentifier: true
