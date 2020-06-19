@@ -30,7 +30,7 @@ import org.apache.calcite.util.ImmutableNullableList;
 import java.util.List;
 
 /**
- * A <code>SqlTranslateUsingCharacterSet</code> is an AST node that describe
+ * A {@code SqlTranslateUsingCharacterSet}. is an AST node that describe
  * the Translate Using CharacterSet to CharacterSet with Error
  */
 public class SqlTranslateUsingCharacterSet extends SqlCall implements SqlExecutableStatement {
@@ -44,9 +44,9 @@ public class SqlTranslateUsingCharacterSet extends SqlCall implements SqlExecuta
    * Creates a {@code SqlTranslateUsingCharacterSet}.
    *
    * @param pos  Parser position, must not be null
-   * @param args  it contains two SqlNode, the first one is an char sequence to be
+   * @param args  List of SqlNode, the first one is an char sequence to be
    *              translated, the second one is the AST node of SqlCharacterSetToCharacterSet
-   * @param isWithError if the with error token is specified
+   * @param isWithError If the with error token is specified
    */
   public SqlTranslateUsingCharacterSet(final SqlParserPos pos, final List<SqlNode> args,
       final boolean isWithError) {

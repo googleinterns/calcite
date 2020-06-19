@@ -23,7 +23,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import java.util.ArrayList;
 import java.util.Arrays;
 /**
- * A <code>SqlCharacterSetToCharacterSet</code> is an AST node contains
+ * A {@code SqlCharacterSetToCharacterSet} is an AST node contains
  * the structure of CharacterSet to CharacterSet token
  */
 public class SqlCharacterSetToCharacterSet extends SqlIdentifier {
