@@ -1243,6 +1243,7 @@ class BabelParserTest extends SqlParserTest {
   @Test public void testUsingRequestModifierMultiple() {
     final String sql = "using (foo int, bar varchar(30), baz int)";
     final String expected = "USING (`FOO` INTEGER, `BAR` VARCHAR(30), `BAZ` INTEGER)";
+    sql(sql).ok(expected);
   }
 
   @Test public void testSetTimeZoneGMT() {
@@ -1433,6 +1434,7 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "UPDATE `FOO` SET `X` = 1\n"
         + "WHERE (`X` > 1) ELSE INSERT INTO `BAR`\n"
         + "VALUES (ROW(1))";
+    sql(sql).ok(expected);
   }
 
   @Test void testUpsertWithInsKeyword() {
@@ -1440,6 +1442,7 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "UPDATE `FOO` SET `X` = 1\n"
         + "WHERE (`X` > 1) ELSE INSERT INTO `BAR`\n"
         + "VALUES (ROW(1))";
+    sql(sql).ok(expected);
   }
 
   @Test public void testSubstr() {
