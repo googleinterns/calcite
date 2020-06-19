@@ -1253,6 +1253,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTranslateOriginalUseCaseParsedToWithoutErrorToken() {
+    final String sql = "translate('abc' using lazy_translation with error)";
+    final String expected = "TRANSLATE('abc' USING `LAZY_TRANSLATION`)";
+    expr(sql).ok(expected);
+  }
+
   @Test public void testUsingRequestModifierSingular() {
     final String sql = "using (foo int)";
     final String expected = "USING (`FOO` INTEGER)";
