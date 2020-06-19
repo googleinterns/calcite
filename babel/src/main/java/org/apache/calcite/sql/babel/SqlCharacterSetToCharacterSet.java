@@ -33,6 +33,6 @@ public class SqlCharacterSetToCharacterSet extends SqlIdentifier {
 
   @Override public void unparse(final SqlWriter writer,
       final int leftPrec, final int rightPrec) {
-    writer.print("`" + names.get(0) + "`_TO_`" + names.get(1) + "`");
+    writer.print(names.get(0) + "_TO_" + names.get(1));
   }
 }

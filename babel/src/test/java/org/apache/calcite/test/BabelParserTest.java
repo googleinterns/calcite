@@ -1235,19 +1235,19 @@ class BabelParserTest extends SqlParserTest {
   }
   @Test public void testTranslateUsingCharacterSet() {
     expr("translate ('abc' using latin_to_unicode)")
-        .ok("TRANSLATE ('abc' USING `LATIN`_TO_`UNICODE`)");
+        .ok("TRANSLATE ('abc' USING LATIN_TO_UNICODE)");
   }
 
   @Test public void testTranslateUsingCharacterSetWithError() {
     expr("translate ('abc' using latin_to_unicode with error)")
-        .ok("TRANSLATE ('abc' USING `LATIN`_TO_`UNICODE` WITH ERROR)");
+        .ok("TRANSLATE ('abc' USING LATIN_TO_UNICODE WITH ERROR)");
   }
 
   @Test public void testTranslateUsingCharacterSetWithErrorInSelectStatement() {
     final String sql = "SELECT TRANSLATE('bar' USING LATIN_TO_UNICODE WITH ERROR) bar_translated "
         + "FROM foo";
     final String expected =
-        "SELECT TRANSLATE ('bar' USING `LATIN`_TO_`UNICODE` WITH ERROR) AS `BAR_TRANSLATED`\n"
+        "SELECT TRANSLATE ('bar' USING LATIN_TO_UNICODE WITH ERROR) AS `BAR_TRANSLATED`\n"
             + "FROM `FOO`";
     sql(sql).ok(expected);
   }

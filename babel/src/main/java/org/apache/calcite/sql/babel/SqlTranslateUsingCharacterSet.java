@@ -70,8 +70,8 @@ public class SqlTranslateUsingCharacterSet extends SqlCall implements SqlExecuta
     args.get(0).unparse(writer, 0, 0);
     writer.keyword("USING");
     args.get(1).unparse(writer, 0, 0);
+    writer.setNeedWhitespace(true);
     if (isWithError) {
-      writer.print(" ");
       writer.keyword("WITH ERROR");
     }
 
