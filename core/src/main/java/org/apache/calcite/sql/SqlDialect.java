@@ -949,7 +949,16 @@ public class SqlDialect {
    * @param offset Number of rows to skip before emitting, or null
    * @param fetch Number of rows to fetch, or null
    */
-  public void unparseTopN(SqlWriter writer, SqlNode offset, SqlNode fetch) {
+  public void unparseFetchAsTopN(SqlWriter writer, SqlNode offset, SqlNode fetch) {
+    //fetch.unparse(writer, -1, -1);
+  }
+
+  /**
+   * Unparses a TOP N clause (ex. SELECT TOP 5 * FROM FOO)
+   * @param topN
+   */
+  public void unparseTopN(SqlWriter writer, SqlNode topN) {
+    topN.unparse(writer, -1, -1);
   }
 
   /** Unparses offset/fetch using ANSI standard "OFFSET offset ROWS FETCH NEXT

@@ -57,6 +57,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlExecMacro",
       "org.apache.calcite.sql.babel.SqlRenameTable",
       "org.apache.calcite.sql.babel.SqlRenameTable.RenameOption",
+      "org.apache.calcite.sql.babel.SqlSelectTopN",
       "org.apache.calcite.sql.babel.SqlIndex",
       "org.apache.calcite.sql.babel.SqlPrimaryIndex",
       "org.apache.calcite.sql.babel.SqlUpsert",
@@ -112,6 +113,7 @@ data: {
       "SEMI"
       "SUBSTR"
       "TEMP"
+      "TOP"
       "UNICODE"
       "UPD"
       "UPPERCASE"
@@ -466,6 +468,7 @@ data: {
       "OFF"
       "RENAME"
       "SEMI"
+      "TOP"
       "UNICODE"
       "UPD"
 
@@ -1065,6 +1068,7 @@ data: {
     includeQualifyClause: true
     includeAlternativeTypeConversionQuery: true
     includeRankWithSortingExpressions: true
+    includeTopN: true
   }
 }
 

@@ -39,6 +39,7 @@ public class SqlSelect extends SqlCall {
   public static final int HAVING_OPERAND = 5;
 
   public SqlNodeList keywordList;
+  SqlNode topN;
   SqlNodeList selectList;
   SqlNode from;
   SqlNode where;
@@ -65,12 +66,30 @@ public class SqlSelect extends SqlCall {
       SqlNode offset,
       SqlNode fetch,
       SqlNodeList hints) {
-    this(pos, keywordList, selectList, from, where, groupBy, having, /*qualify=*/ null,
-        windowDecls, orderBy, offset, fetch, hints);
+    this(pos, keywordList, /*topN=*/ null, selectList, from, where, groupBy, having,
+        /*qualify=*/ null, windowDecls, orderBy, offset, fetch, hints);
+  }
+
+  public SqlSelect(SqlParserPos pos,
+                   SqlNodeList keywordList,
+                   SqlNodeList selectList,
+                   SqlNode from,
+                   SqlNode where,
+                   SqlNodeList groupBy,
+                   SqlNode having,
+                   SqlNode qualify,
+                   SqlNodeList windowDecls,
+                   SqlNodeList orderBy,
+                   SqlNode offset,
+                   SqlNode fetch,
+                   SqlNodeList hints) {
+    this(pos, keywordList, /*topN=*/ null, selectList, from, where, groupBy, having,
+        qualify, windowDecls, orderBy, offset, fetch, hints);
   }
 
   public SqlSelect(SqlParserPos pos,
       SqlNodeList keywordList,
+      SqlNode topN,
       SqlNodeList selectList,
       SqlNode from,
       SqlNode where,
@@ -85,6 +104,7 @@ public class SqlSelect extends SqlCall {
     super(pos);
     this.keywordList = Objects.requireNonNull(keywordList != null
         ? keywordList : new SqlNodeList(pos));
+    this.topN = topN;
     this.selectList = selectList;
     this.from = from;
     this.where = where;
@@ -111,7 +131,7 @@ public class SqlSelect extends SqlCall {
 
   @Override public List<SqlNode> getOperandList() {
     return ImmutableNullableList.of(keywordList, selectList, from, where,
-        groupBy, having, qualify, windowDecls, orderBy, offset, fetch, hints);
+        groupBy, having, qualify, windowDecls, orderBy, offset, fetch, hints, topN);
   }
 
   @Override public void setOperand(int i, SqlNode operand) {

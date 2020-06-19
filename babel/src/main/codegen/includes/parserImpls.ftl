@@ -1197,3 +1197,38 @@ SqlNode RankFunctionCallWithParams() :
         return SqlStdOperatorTable.OVER.createCall(s.end(over), rankCall, over);
     }
 }
+
+SqlNode SqlSelectTopN(SqlParserPos pos) :
+{
+    final SqlNumericLiteral selectNum;
+    final double tempNum;
+    boolean isPercent = false;
+    boolean withTies = false;
+}
+{
+    <TOP>
+    selectNum = UnsignedNumericLiteral()
+    { tempNum = selectNum.getValueAs(Double.class); }
+    [
+        <PERCENT>
+        {
+            isPercent = true;
+            if (tempNum > 100) {
+                throw SqlUtil.newContextException(getPos(),
+                    RESOURCE.numberLiteralOutOfRange(String.valueOf(tempNum)));
+            }
+        }
+    ]
+    {
+        if (tempNum != Math.floor(tempNum) && !isPercent) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.nonIntegerRequiredWithoutPercent(String.valueOf(tempNum)));
+        }
+    }
+    [
+        <WITH> <TIES> { withTies = true; }
+    ]
+    {
+        return new SqlSelectTopN(pos, selectNum, SqlLiteral.createBoolean(isPercent, pos), SqlLiteral.createBoolean(withTies, pos));
+    }
+}

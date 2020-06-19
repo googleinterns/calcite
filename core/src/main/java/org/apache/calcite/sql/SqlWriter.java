@@ -376,11 +376,16 @@ public interface SqlWriter {
   void fetchOffset(SqlNode fetch, SqlNode offset);
 
   /**
-   * Prints the TOP(n) clause.
+   * Prints the fetch clause as a TOP(n) clause.
    *
    * @see #fetchOffset
    */
-  void topN(SqlNode fetch, SqlNode offset);
+  void fetchAsTopN(SqlNode fetch, SqlNode offset);
+
+  /**
+   * Prints the TOP N clause
+   */
+  void topN(SqlNode topN);
 
   /**
    * Prints a new line, and indents.

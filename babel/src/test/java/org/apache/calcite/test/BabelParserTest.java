@@ -1667,4 +1667,44 @@ class BabelParserTest extends SqlParserTest {
         + "FROM `BAR`";
     sql(sql).ok(expected);
   }
+
+  @Test void testTopNNoPercentNoTies() {
+    final String sql = "select top 5 bar from foo";
+    final String expected = "SELECT TOP 5 `BAR`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testTopNWithTies() {
+    final String sql = "select top 5 with ties bar from foo";
+    final String expected = "SELECT TOP 5 WITH TIES `BAR`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testTopNWithPercent() {
+    final String sql = "select top 5.2 percent bar from foo";
+    final String expected = "SELECT TOP 5.2 PERCENT `BAR`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testTopNWithPercentWithTies() {
+    final String sql = "select top 5 percent with ties bar from foo";
+    final String expected = "SELECT TOP 5 PERCENT WITH TIES `BAR`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testTopNDecimalWithoutPercentFails() {
+    final String sql = "select top ^5.2^ bar from foo";
+    final String expected = "(?s).*Cannot specify non-integer value.*without specifying PERCENT.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testTopNPercentGreaterThan100Fails() {
+    final String sql = "select top 200 ^percent^ bar from foo";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
 }
