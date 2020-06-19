@@ -30,8 +30,8 @@ import org.apache.calcite.util.ImmutableNullableList;
 import java.util.List;
 
 /**
- * A {@code SqlTranslateUsingCharacterSet}. is an AST node that describe
- * the Translate Using CharacterSet to CharacterSet with Error
+ * A {@code SqlTranslateUsingCharacterSet} is an AST node that describes
+ * the Translate Using CharacterSet to CharacterSet with Error.
  */
 public class SqlTranslateUsingCharacterSet extends SqlCall implements SqlExecutableStatement {
   private static final SqlSpecialOperator OPERATOR =
@@ -74,7 +74,6 @@ public class SqlTranslateUsingCharacterSet extends SqlCall implements SqlExecuta
     if (isWithError) {
       writer.keyword("WITH ERROR");
     }
-
     writer.print(")");
   }
 
