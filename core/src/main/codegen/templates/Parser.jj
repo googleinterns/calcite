@@ -5561,11 +5561,13 @@ SqlNode BuiltinFunctionCall() :
 <#if parser.allowTranslateUsingCharSetWithError>
                 String nameString = name.toString().toUpperCase();
                 String[] charSets = new String[2];
-                if(nameString.contains("_TO_") && nameString.split("_TO_").length == 2){
-                    allowTranslateUsingCharSet = true;
+                if (nameString.contains("_TO_")) {
                     charSets = nameString.split("_TO_");
-                    args.add(new SqlCharacterSetToCharacterSet(charSets, getPos()));
-                }else{
+                    if (charSets.length == 2) {
+                        allowTranslateUsingCharSet = true;
+                        args.add(new SqlCharacterSetToCharacterSet(charSets, getPos()));
+                    }
+                } else {
                     args.add(name);
                 }
 <#else>
@@ -5574,15 +5576,15 @@ SqlNode BuiltinFunctionCall() :
             }
 <#if parser.allowTranslateUsingCharSetWithError>
             [
-              <WITH> <ERROR> {
-                isWithError = true;
-              }
+                <WITH> <ERROR> {
+                    isWithError = true;
+                }
             ]
 </#if>
             <RPAREN> {
 <#if parser.allowTranslateUsingCharSetWithError>
-                if(allowTranslateUsingCharSet){
-                  return new SqlTranslateUsingCharacterSet(s.end(this), args, isWithError);
+                if (allowTranslateUsingCharSet) {
+                    return new SqlTranslateUsingCharacterSet(s.end(this), args, isWithError);
                 }
 </#if>
                 return SqlStdOperatorTable.TRANSLATE.createCall(s.end(this),
