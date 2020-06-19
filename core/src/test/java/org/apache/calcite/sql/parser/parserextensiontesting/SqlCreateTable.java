@@ -37,6 +37,7 @@ import org.apache.calcite.schema.impl.AbstractTableQueryable;
 import org.apache.calcite.schema.impl.ViewTable;
 import org.apache.calcite.schema.impl.ViewTableMacro;
 import org.apache.calcite.sql.SqlCreate;
+import org.apache.calcite.sql.SqlCreateOrReplace;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlExecutableStatement;
 import org.apache.calcite.sql.SqlIdentifier;
@@ -90,7 +91,7 @@ public class SqlCreateTable extends SqlCreate
   /** Creates a SqlCreateTable. */
   public SqlCreateTable(SqlParserPos pos, SqlIdentifier name,
       SqlNodeList columnList, SqlNode query) {
-    super(OPERATOR, pos, false, false);
+    super(OPERATOR, pos, SqlCreateOrReplace.CREATE, false);
     this.name = Objects.requireNonNull(name);
     this.columnList = columnList; // may be null
     this.query = query; // for "CREATE TABLE ... AS query"; may be null

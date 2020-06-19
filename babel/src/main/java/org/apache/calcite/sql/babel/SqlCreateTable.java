@@ -18,6 +18,7 @@ package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.SqlCreate;
+import org.apache.calcite.sql.SqlCreateOrReplace;
 import org.apache.calcite.sql.SqlExecutableStatement;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
@@ -53,7 +54,9 @@ public class SqlCreateTable extends SqlCreate
   /** Creates a SqlCreateTable. */
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
       boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
-    this(pos, replace, setType, volatility, ifNotExists, name, /*tableAttributes=*/null,
+    this(pos,
+        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
+        setType, volatility, ifNotExists, name, /*tableAttributes=*/null,
         columnList, query, WithDataType.UNSPECIFIED,
         /*primaryIndex=*/ null, OnCommitType.UNSPECIFIED);
   }
@@ -61,7 +64,9 @@ public class SqlCreateTable extends SqlCreate
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
       boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query,
       WithDataType withData, OnCommitType onCommitType) {
-    this(pos, replace, setType, volatility, ifNotExists, name, /*tableAttributes=*/null,
+    this(pos,
+        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
+        setType, volatility, ifNotExists, name, /*tableAttributes=*/null,
         columnList, query, withData, /*primaryIndex=*/ null, onCommitType);
   }
 
@@ -69,13 +74,25 @@ public class SqlCreateTable extends SqlCreate
       boolean ifNotExists, SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
       SqlNodeList columnList, SqlNode query,
       WithDataType withData, OnCommitType onCommitType) {
-    this(pos, replace, setType, volatility, ifNotExists, name, tableAttributes,
+    this(pos,
+        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
+        setType, volatility, ifNotExists, name, tableAttributes,
         columnList, query, withData, /*primaryIndex=*/ null, onCommitType);
   }
 
   public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
       boolean ifNotExists, SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
       SqlNodeList columnList, SqlNode query,
+      WithDataType withData, SqlPrimaryIndex primaryIndex, OnCommitType onCommitType) {
+    this(pos,
+        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
+        setType, volatility, ifNotExists, name, tableAttributes,
+        columnList, query, withData, primaryIndex, onCommitType);
+  }
+
+  public SqlCreateTable(SqlParserPos pos, SqlCreateOrReplace replace, SetType setType,
+      Volatility volatility, boolean ifNotExists, SqlIdentifier name,
+      List<SqlCreateAttribute> tableAttributes, SqlNodeList columnList, SqlNode query,
       WithDataType withData, SqlPrimaryIndex primaryIndex, OnCommitType onCommitType) {
     super(OPERATOR, pos, replace, ifNotExists);
     this.name = Objects.requireNonNull(name);

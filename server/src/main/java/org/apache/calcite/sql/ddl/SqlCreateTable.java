@@ -48,6 +48,7 @@ import org.apache.calcite.schema.impl.AbstractTableQueryable;
 import org.apache.calcite.schema.impl.ViewTable;
 import org.apache.calcite.schema.impl.ViewTableMacro;
 import org.apache.calcite.sql.SqlCreate;
+import org.apache.calcite.sql.SqlCreateOrReplace;
 import org.apache.calcite.sql.SqlExecutableStatement;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
@@ -89,8 +90,18 @@ public class SqlCreateTable extends SqlCreate
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("CREATE TABLE", SqlKind.CREATE_TABLE);
 
-  /** Creates a SqlCreateTable. */
+  /** Creates a SqlCreateTable.
+   * Constructor accepts <code>replace</code> as a boolean for backward compatibility
+   * */
   SqlCreateTable(SqlParserPos pos, boolean replace, boolean ifNotExists,
+                 SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
+    this(pos,
+        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
+        ifNotExists, name, columnList, query);
+  }
+
+  /** Creates a SqlCreateTable. */
+  SqlCreateTable(SqlParserPos pos, SqlCreateOrReplace replace, boolean ifNotExists,
       SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
     super(OPERATOR, pos, replace, ifNotExists);
     this.name = Objects.requireNonNull(name);

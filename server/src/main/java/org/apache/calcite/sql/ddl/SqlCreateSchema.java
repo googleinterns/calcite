@@ -22,6 +22,7 @@ import org.apache.calcite.schema.Schema;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.impl.AbstractSchema;
 import org.apache.calcite.sql.SqlCreate;
+import org.apache.calcite.sql.SqlCreateOrReplace;
 import org.apache.calcite.sql.SqlExecutableStatement;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
@@ -49,8 +50,17 @@ public class SqlCreateSchema extends SqlCreate
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("CREATE SCHEMA", SqlKind.CREATE_SCHEMA);
 
+  /** Creates a SqlCreateSchema.
+   * Constructor accepts <code>replace</code> as a boolean for backward compatibility
+   * */
+  SqlCreateSchema(SqlParserPos pos, boolean replace, boolean ifNotExists, SqlIdentifier name) {
+    this(pos,
+        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
+        ifNotExists, name);
+  }
+
   /** Creates a SqlCreateSchema. */
-  SqlCreateSchema(SqlParserPos pos, boolean replace, boolean ifNotExists,
+  SqlCreateSchema(SqlParserPos pos, SqlCreateOrReplace replace, boolean ifNotExists,
       SqlIdentifier name) {
     super(OPERATOR, pos, replace, ifNotExists);
     this.name = Objects.requireNonNull(name);
@@ -61,11 +71,7 @@ public class SqlCreateSchema extends SqlCreate
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    if (getReplace()) {
-      writer.keyword("CREATE OR REPLACE");
-    } else {
-      writer.keyword("CREATE");
-    }
+    writer.keyword(getReplace().toString());
     writer.keyword("SCHEMA");
     if (ifNotExists) {
       writer.keyword("IF NOT EXISTS");
@@ -78,7 +84,7 @@ public class SqlCreateSchema extends SqlCreate
         SqlDdlNodes.schema(context, true, name);
     final SchemaPlus subSchema0 = pair.left.plus().getSubSchema(pair.right);
     if (subSchema0 != null) {
-      if (!getReplace() && !ifNotExists) {
+      if (getReplace() != SqlCreateOrReplace.CREATE_OR_REPLACE && !ifNotExists) {
         throw SqlUtil.newContextException(name.getParserPosition(),
             RESOURCE.schemaExists(pair.right));
       }

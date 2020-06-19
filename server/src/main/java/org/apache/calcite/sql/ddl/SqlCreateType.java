@@ -21,6 +21,7 @@ import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.sql.SqlCreate;
+import org.apache.calcite.sql.SqlCreateOrReplace;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlExecutableStatement;
 import org.apache.calcite.sql.SqlIdentifier;
@@ -50,8 +51,18 @@ public class SqlCreateType extends SqlCreate
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("CREATE TYPE", SqlKind.CREATE_TYPE);
 
-  /** Creates a SqlCreateType. */
+  /** Creates a SqlCreateType.
+   * Constructor accepts <code>replace</code> as a boolean for backward compatibility
+   * */
   SqlCreateType(SqlParserPos pos, boolean replace, SqlIdentifier name,
+                SqlNodeList attributeDefs, SqlDataTypeSpec dataType) {
+    this(pos,
+        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
+        name, attributeDefs, dataType);
+  }
+
+  /** Creates a SqlCreateType. */
+  SqlCreateType(SqlParserPos pos, SqlCreateOrReplace replace, SqlIdentifier name,
       SqlNodeList attributeDefs, SqlDataTypeSpec dataType) {
     super(OPERATOR, pos, replace, false);
     this.name = Objects.requireNonNull(name);
@@ -85,11 +96,7 @@ public class SqlCreateType extends SqlCreate
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    if (getReplace()) {
-      writer.keyword("CREATE OR REPLACE");
-    } else {
-      writer.keyword("CREATE");
-    }
+    writer.keyword(getReplace().toString());
     writer.keyword("TYPE");
     name.unparse(writer, leftPrec, rightPrec);
     writer.keyword("AS");

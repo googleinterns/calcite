@@ -28,6 +28,7 @@ import org.apache.calcite.schema.TranslatableTable;
 import org.apache.calcite.schema.impl.ViewTable;
 import org.apache.calcite.schema.impl.ViewTableMacro;
 import org.apache.calcite.sql.SqlCreate;
+import org.apache.calcite.sql.SqlCreateOrReplace;
 import org.apache.calcite.sql.SqlExecutableStatement;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
@@ -63,8 +64,19 @@ public class SqlCreateMaterializedView extends SqlCreate
       new SqlSpecialOperator("CREATE MATERIALIZED VIEW",
           SqlKind.CREATE_MATERIALIZED_VIEW);
 
-  /** Creates a SqlCreateView. */
+  /** Creates a SqlCreateMaterializedView.
+   * Constructor accepts <code>replace</code> as a boolean for backward compatibility
+   * */
   SqlCreateMaterializedView(SqlParserPos pos, boolean replace,
+                            boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList,
+                            SqlNode query) {
+    this(pos,
+        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
+        ifNotExists, name, columnList, query);
+  }
+
+  /** Creates a SqlCreateMaterializedView. */
+  SqlCreateMaterializedView(SqlParserPos pos, SqlCreateOrReplace replace,
       boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList,
       SqlNode query) {
     super(OPERATOR, pos, replace, ifNotExists);

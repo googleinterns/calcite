@@ -26,13 +26,13 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 public abstract class SqlCreate extends SqlDdl {
 
   /** Whether "OR REPLACE" was specified. */
-  boolean replace;
+  final SqlCreateOrReplace replace;
 
   /** Whether "IF NOT EXISTS" was specified. */
   public final boolean ifNotExists;
 
   /** Creates a SqlCreate. */
-  public SqlCreate(SqlOperator operator, SqlParserPos pos, boolean replace,
+  public SqlCreate(SqlOperator operator, SqlParserPos pos, SqlCreateOrReplace replace,
       boolean ifNotExists) {
     super(operator, pos);
     this.replace = replace;
@@ -40,16 +40,16 @@ public abstract class SqlCreate extends SqlDdl {
   }
 
   @Deprecated // to be removed before 2.0
-  public SqlCreate(SqlParserPos pos, boolean replace) {
+  public SqlCreate(SqlParserPos pos, SqlCreateOrReplace replace) {
     this(SqlDdl.DDL_OPERATOR, pos, replace, false);
   }
 
-  public boolean getReplace() {
+  public SqlCreateOrReplace getReplace() {
     return replace;
   }
 
-  public void setReplace(boolean replace) {
+  /*public void setReplace(boolean replace) {
     this.replace = replace;
-  }
+  }*/
 
 }

@@ -18,6 +18,7 @@ package org.apache.calcite.sql.ddl;
 
 import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.SqlCreate;
+import org.apache.calcite.sql.SqlCreateOrReplace;
 import org.apache.calcite.sql.SqlExecutableStatement;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
@@ -49,8 +50,19 @@ public class SqlCreateFunction extends SqlCreate
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("CREATE FUNCTION", SqlKind.CREATE_FUNCTION);
 
+  /** Creates a SqlCreateFunction.
+   * Constructor accepts <code>replace</code> as a boolean for backward compatibility
+   * */
+  SqlCreateFunction(SqlParserPos pos, boolean replace,
+                    boolean ifNotExists, SqlIdentifier name,
+                    SqlNode className, SqlNodeList usingList) {
+    this(pos,
+        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
+        ifNotExists, name, className, usingList);
+  }
+
   /** Creates a SqlCreateFunction. */
-  public SqlCreateFunction(SqlParserPos pos, boolean replace,
+  public SqlCreateFunction(SqlParserPos pos, SqlCreateOrReplace replace,
       boolean ifNotExists, SqlIdentifier name,
       SqlNode className, SqlNodeList usingList) {
     super(OPERATOR, pos, replace, ifNotExists);
@@ -62,7 +74,7 @@ public class SqlCreateFunction extends SqlCreate
 
   @Override public void unparse(SqlWriter writer, int leftPrec,
       int rightPrec) {
-    writer.keyword(getReplace() ? "CREATE OR REPLACE" : "CREATE");
+    writer.keyword(getReplace().toString());
     writer.keyword("FUNCTION");
     if (ifNotExists) {
       writer.keyword("IF NOT EXISTS");
