@@ -51,16 +51,6 @@ public class SqlCreateType extends SqlCreate
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("CREATE TYPE", SqlKind.CREATE_TYPE);
 
-  /** Creates a SqlCreateType.
-   * Constructor accepts <code>replace</code> as a boolean for backward compatibility
-   * */
-  SqlCreateType(SqlParserPos pos, boolean replace, SqlIdentifier name,
-                SqlNodeList attributeDefs, SqlDataTypeSpec dataType) {
-    this(pos,
-        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
-        name, attributeDefs, dataType);
-  }
-
   /** Creates a SqlCreateType. */
   SqlCreateType(SqlParserPos pos, SqlCreateOrReplace replace, SqlIdentifier name,
       SqlNodeList attributeDefs, SqlDataTypeSpec dataType) {

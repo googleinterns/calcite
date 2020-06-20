@@ -23,6 +23,7 @@ import org.apache.calcite.rel.RelRoot;
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCollation;
+import org.apache.calcite.sql.SqlCreateOrReplace;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDrop;
 import org.apache.calcite.sql.SqlIdentifier;
@@ -57,28 +58,28 @@ public class SqlDdlNodes {
   private SqlDdlNodes() {}
 
   /** Creates a CREATE SCHEMA. */
-  public static SqlCreateSchema createSchema(SqlParserPos pos, boolean replace,
+  public static SqlCreateSchema createSchema(SqlParserPos pos, SqlCreateOrReplace replace,
       boolean ifNotExists, SqlIdentifier name) {
     return new SqlCreateSchema(pos, replace, ifNotExists, name);
   }
 
   /** Creates a CREATE FOREIGN SCHEMA. */
   public static SqlCreateForeignSchema createForeignSchema(SqlParserPos pos,
-      boolean replace, boolean ifNotExists, SqlIdentifier name, SqlNode type,
+      SqlCreateOrReplace replace, boolean ifNotExists, SqlIdentifier name, SqlNode type,
       SqlNode library, SqlNodeList optionList) {
     return new SqlCreateForeignSchema(pos, replace, ifNotExists, name, type,
         library, optionList);
   }
 
   /** Creates a CREATE TYPE. */
-  public static SqlCreateType createType(SqlParserPos pos, boolean replace,
+  public static SqlCreateType createType(SqlParserPos pos, SqlCreateOrReplace replace,
       SqlIdentifier name, SqlNodeList attributeList,
       SqlDataTypeSpec dataTypeSpec) {
     return new SqlCreateType(pos, replace, name, attributeList, dataTypeSpec);
   }
 
   /** Creates a CREATE TABLE. */
-  public static SqlCreateTable createTable(SqlParserPos pos, boolean replace,
+  public static SqlCreateTable createTable(SqlParserPos pos, SqlCreateOrReplace replace,
       boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList,
       SqlNode query) {
     return new SqlCreateTable(pos, replace, ifNotExists, name, columnList,
@@ -86,14 +87,14 @@ public class SqlDdlNodes {
   }
 
   /** Creates a CREATE VIEW. */
-  public static SqlCreateView createView(SqlParserPos pos, boolean replace,
+  public static SqlCreateView createView(SqlParserPos pos, SqlCreateOrReplace replace,
       SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
     return new SqlCreateView(pos, replace, name, columnList, query);
   }
 
   /** Creates a CREATE MATERIALIZED VIEW. */
   public static SqlCreateMaterializedView createMaterializedView(
-      SqlParserPos pos, boolean replace, boolean ifNotExists,
+      SqlParserPos pos, SqlCreateOrReplace replace, boolean ifNotExists,
       SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
     return new SqlCreateMaterializedView(pos, replace, ifNotExists, name,
         columnList, query);
@@ -101,7 +102,7 @@ public class SqlDdlNodes {
 
   /** Creates a CREATE FUNCTION. */
   public static SqlCreateFunction createFunction(
-      SqlParserPos pos, boolean replace, boolean ifNotExists,
+      SqlParserPos pos, SqlCreateOrReplace replace, boolean ifNotExists,
       SqlIdentifier name, SqlNode className, SqlNodeList usingList) {
     return new SqlCreateFunction(pos, replace, ifNotExists, name,
         className, usingList);

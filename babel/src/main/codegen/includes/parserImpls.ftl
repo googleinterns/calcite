@@ -553,7 +553,7 @@ WithDataType WithDataOpt() :
     { return WithDataType.UNSPECIFIED; }
 }
 
-SqlCreate SqlCreateTable(Span s, boolean replace) :
+SqlCreate SqlCreateTable(Span s, SqlCreateOrReplace replace) :
 {
     SetType setType = SetType.UNSPECIFIED;
     Volatility volatility = Volatility.UNSPECIFIED;
@@ -616,7 +616,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     }
 }
 
-SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
+SqlCreate SqlCreateFunctionSqlForm(Span s, SqlCreateOrReplace replace) :
 {
     SqlIdentifier functionName = null;
     SqlNodeList fieldNames = new SqlNodeList(getPos());

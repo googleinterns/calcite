@@ -64,17 +64,6 @@ public class SqlCreateMaterializedView extends SqlCreate
       new SqlSpecialOperator("CREATE MATERIALIZED VIEW",
           SqlKind.CREATE_MATERIALIZED_VIEW);
 
-  /** Creates a SqlCreateMaterializedView.
-   * Constructor accepts <code>replace</code> as a boolean for backward compatibility
-   * */
-  SqlCreateMaterializedView(SqlParserPos pos, boolean replace,
-                            boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList,
-                            SqlNode query) {
-    this(pos,
-        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
-        ifNotExists, name, columnList, query);
-  }
-
   /** Creates a SqlCreateMaterializedView. */
   SqlCreateMaterializedView(SqlParserPos pos, SqlCreateOrReplace replace,
       boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList,

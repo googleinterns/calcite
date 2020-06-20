@@ -90,16 +90,6 @@ public class SqlCreateTable extends SqlCreate
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("CREATE TABLE", SqlKind.CREATE_TABLE);
 
-  /** Creates a SqlCreateTable.
-   * Constructor accepts <code>replace</code> as a boolean for backward compatibility
-   * */
-  SqlCreateTable(SqlParserPos pos, boolean replace, boolean ifNotExists,
-                 SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
-    this(pos,
-        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
-        ifNotExists, name, columnList, query);
-  }
-
   /** Creates a SqlCreateTable. */
   SqlCreateTable(SqlParserPos pos, SqlCreateOrReplace replace, boolean ifNotExists,
       SqlIdentifier name, SqlNodeList columnList, SqlNode query) {

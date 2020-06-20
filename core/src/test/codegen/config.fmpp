@@ -22,6 +22,7 @@ data: {
     # List of import statements.
     imports: [
       "org.apache.calcite.sql.SqlCreate",
+      "org.apache.calcite.sql.SqlCreateOrReplace",
       "org.apache.calcite.sql.parser.parserextensiontesting.SqlCreateTable",
       "org.apache.calcite.sql.parser.parserextensiontesting.SqlUploadJarNode"
     ]
@@ -390,7 +391,7 @@ data: {
     ]
 
     # List of methods for parsing extensions to "CREATE [OR REPLACE]" calls.
-    # Each must accept arguments "(SqlParserPos pos, boolean replace)".
+    # Each must accept arguments "(SqlParserPos pos, SqlCreateOrReplace replace)".
     createStatementParserMethods: [
       "SqlCreateTable"
     ]

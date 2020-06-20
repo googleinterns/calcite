@@ -59,16 +59,6 @@ public class SqlCreateView extends SqlCreate
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("CREATE VIEW", SqlKind.CREATE_VIEW);
 
-  /** Creates a SqlCreateView.
-   * Constructor accepts <code>replace</code> as a boolean for backward compatibility
-   * */
-  SqlCreateView(SqlParserPos pos, boolean replace, SqlIdentifier name,
-                SqlNodeList columnList, SqlNode query) {
-    this(pos,
-        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
-        name, columnList, query);
-  }
-
   /** Creates a SqlCreateView. */
   SqlCreateView(SqlParserPos pos, SqlCreateOrReplace replace, SqlIdentifier name,
       SqlNodeList columnList, SqlNode query) {

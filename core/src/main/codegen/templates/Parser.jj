@@ -4033,14 +4033,14 @@ String Scope() :
 SqlCreate SqlCreate() :
 {
     final Span s;
-    boolean replace = false;
+    SqlCreateOrReplace replace = SqlCreateOrReplace.CREATE;
     final SqlCreate create;
 }
 {
     <CREATE> { s = span(); }
     [
         <OR> <REPLACE> {
-            replace = true;
+            replace = SqlCreateOrReplace.CREATE_OR_REPLACE;
         }
     ]
     (

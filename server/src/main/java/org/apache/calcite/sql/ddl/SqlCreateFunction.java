@@ -50,17 +50,6 @@ public class SqlCreateFunction extends SqlCreate
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("CREATE FUNCTION", SqlKind.CREATE_FUNCTION);
 
-  /** Creates a SqlCreateFunction.
-   * Constructor accepts <code>replace</code> as a boolean for backward compatibility
-   * */
-  SqlCreateFunction(SqlParserPos pos, boolean replace,
-                    boolean ifNotExists, SqlIdentifier name,
-                    SqlNode className, SqlNodeList usingList) {
-    this(pos,
-        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
-        ifNotExists, name, className, usingList);
-  }
-
   /** Creates a SqlCreateFunction. */
   public SqlCreateFunction(SqlParserPos pos, SqlCreateOrReplace replace,
       boolean ifNotExists, SqlIdentifier name,

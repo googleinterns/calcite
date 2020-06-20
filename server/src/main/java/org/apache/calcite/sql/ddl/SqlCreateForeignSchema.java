@@ -68,16 +68,6 @@ public class SqlCreateForeignSchema extends SqlCreate
       new SqlSpecialOperator("CREATE FOREIGN SCHEMA",
           SqlKind.CREATE_FOREIGN_SCHEMA);
 
-  /** Creates a SqlCreateForeignSchema.
-   * Constructor accepts <code>replace</code> as a boolean for backward compatibility
-   * */
-  SqlCreateForeignSchema(SqlParserPos pos, boolean replace, boolean ifNotExists,
-      SqlIdentifier name, SqlNode type, SqlNode library, SqlNodeList optionList) {
-    this(pos,
-        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
-        ifNotExists, name, type, library, optionList);
-  }
-
   /** Creates a SqlCreateForeignSchema. */
   SqlCreateForeignSchema(SqlParserPos pos, SqlCreateOrReplace replace, boolean ifNotExists,
       SqlIdentifier name, SqlNode type, SqlNode library,

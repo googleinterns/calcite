@@ -49,36 +49,6 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
   /**
    * Creates a SqlCreateFunctionSqlForm.
    * @param pos position
-   * @param replace if "or replace" token occurred (boolean for backward compatibility)
-   * @param functionName the name of the function
-   * @param specificFunctionName an optional specific functionName
-   * @param fieldNames function parameter names
-   * @param fieldTypes function parameter types
-   * @param returnsDataType return type of the function
-   * @param isDeterministic if "deterministic" is specified
-   * @param canRunOnNullInput if "called on null input" or "returns null on null input"
-   *                          is specified
-   * @param hasSqlSecurityDefiner if "sql security definer" is specified
-   * @param typeInt integer value after inline type
-   * @param returnExpression the expression that is returned
-   */
-  public SqlCreateFunctionSqlForm(final SqlParserPos pos, final boolean replace,
-      final SqlIdentifier functionName,
-      final SqlIdentifier specificFunctionName, final SqlNodeList fieldNames,
-      final SqlNodeList fieldTypes,
-      final SqlDataTypeSpec returnsDataType, final DeterministicType isDeterministic,
-      final ReactToNullInputType canRunOnNullInput, final boolean hasSqlSecurityDefiner,
-      final int typeInt, final SqlNode returnExpression) {
-
-    this(pos,
-        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
-        functionName, specificFunctionName, fieldNames, fieldTypes, returnsDataType,
-        isDeterministic, canRunOnNullInput, hasSqlSecurityDefiner, typeInt, returnExpression);
-  }
-
-  /**
-   * Creates a SqlCreateFunctionSqlForm.
-   * @param pos position
    * @param replace enum to distinguish between "CREATE", "CREATE OR REPLACE", and "REPLACE"
    * @param functionName the name of the function
    * @param specificFunctionName an optional specific functionName

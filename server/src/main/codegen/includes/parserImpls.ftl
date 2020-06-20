@@ -33,7 +33,7 @@ boolean IfExistsOpt() :
     { return false; }
 }
 
-SqlCreate SqlCreateSchema(Span s, boolean replace) :
+SqlCreate SqlCreateSchema(Span s, SqlCreateOrReplace replace) :
 {
     final boolean ifNotExists;
     final SqlIdentifier id;
@@ -45,7 +45,7 @@ SqlCreate SqlCreateSchema(Span s, boolean replace) :
     }
 }
 
-SqlCreate SqlCreateForeignSchema(Span s, boolean replace) :
+SqlCreate SqlCreateForeignSchema(Span s, SqlCreateOrReplace replace) :
 {
     final boolean ifNotExists;
     final SqlIdentifier id;
@@ -222,7 +222,7 @@ void AttributeDef(List<SqlNode> list) :
     }
 }
 
-SqlCreate SqlCreateType(Span s, boolean replace) :
+SqlCreate SqlCreateType(Span s, SqlCreateOrReplace replace) :
 {
     final SqlIdentifier id;
     SqlNodeList attributeDefList = null;
@@ -242,7 +242,7 @@ SqlCreate SqlCreateType(Span s, boolean replace) :
     }
 }
 
-SqlCreate SqlCreateTable(Span s, boolean replace) :
+SqlCreate SqlCreateTable(Span s, SqlCreateOrReplace replace) :
 {
     final boolean ifNotExists;
     final SqlIdentifier id;
@@ -259,7 +259,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     }
 }
 
-SqlCreate SqlCreateView(Span s, boolean replace) :
+SqlCreate SqlCreateView(Span s, SqlCreateOrReplace replace) :
 {
     final SqlIdentifier id;
     SqlNodeList columnList = null;
@@ -274,7 +274,7 @@ SqlCreate SqlCreateView(Span s, boolean replace) :
     }
 }
 
-SqlCreate SqlCreateMaterializedView(Span s, boolean replace) :
+SqlCreate SqlCreateMaterializedView(Span s, SqlCreateOrReplace replace) :
 {
     final boolean ifNotExists;
     final SqlIdentifier id;
@@ -311,7 +311,7 @@ private void FunctionJarDef(SqlNodeList usingList) :
     }
 }
 
-SqlCreate SqlCreateFunction(Span s, boolean replace) :
+SqlCreate SqlCreateFunction(Span s, SqlCreateOrReplace replace) :
 {
     final boolean ifNotExists;
     final SqlIdentifier id;

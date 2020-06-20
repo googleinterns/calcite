@@ -36,7 +36,7 @@ SqlAlter SqlUploadJarNode(Span s, String scope) :
     }
 }
 
-SqlCreate SqlCreateTable(Span s, boolean replace) :
+SqlCreate SqlCreateTable(Span s, SqlCreateOrReplace replace) :
 {
     final SqlIdentifier id;
     final SqlNodeList columnList;

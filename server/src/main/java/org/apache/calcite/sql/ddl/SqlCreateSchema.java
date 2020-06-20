@@ -50,15 +50,6 @@ public class SqlCreateSchema extends SqlCreate
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("CREATE SCHEMA", SqlKind.CREATE_SCHEMA);
 
-  /** Creates a SqlCreateSchema.
-   * Constructor accepts <code>replace</code> as a boolean for backward compatibility
-   * */
-  SqlCreateSchema(SqlParserPos pos, boolean replace, boolean ifNotExists, SqlIdentifier name) {
-    this(pos,
-        replace ? SqlCreateOrReplace.CREATE_OR_REPLACE : SqlCreateOrReplace.CREATE,
-        ifNotExists, name);
-  }
-
   /** Creates a SqlCreateSchema. */
   SqlCreateSchema(SqlParserPos pos, SqlCreateOrReplace replace, boolean ifNotExists,
       SqlIdentifier name) {
