@@ -410,3 +410,22 @@ SqlDrop SqlDropFunction(Span s, boolean replace) :
         return SqlDdlNodes.dropFunction(s.end(this), ifExists, id);
     }
 }
+
+SqlCreate SqlReplace() :
+{
+    final Span s;
+    final SqlCreate create;
+}
+{
+    <REPLACE> { s = span(); }
+    (
+<#-- additional literal parser methods are included here -->
+<#list parser.replaceStatementParserMethods as method>
+        create = ${method}(s, SqlCreateOrReplace.REPLACE)
+        <#sep>| LOOKAHEAD(2) </#sep>
+</#list>
+    )
+    {
+        return create;
+    }
+}

@@ -413,6 +413,11 @@ data: {
     createStatementParserMethods: [
     ]
 
+    # List of methods for parsing extensions to "REPLACE" calls.
+    # Each must accept arguments "(SqlParserPos pos, SqlCreateOrReplace replace)".
+    replaceStatementParserMethods: [
+    ]
+
     # list of methods for parsing extensions to "SET TIME ZONE" calls
     setTimeZoneStatementParserMethods: [
     ]

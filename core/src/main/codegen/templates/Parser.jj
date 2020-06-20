@@ -1015,6 +1015,10 @@ SqlNode SqlStmt() :
         stmt = SqlCreate()
     |
 </#if>
+<#if parser.replaceStatementParserMethods?size != 0>
+        stmt = SqlReplace()
+    |
+</#if>
 <#if parser.renameStatementParserMethods?size != 0>
         stmt = SqlRename()
     |
