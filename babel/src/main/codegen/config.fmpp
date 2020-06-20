@@ -68,6 +68,8 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateFunctionSqlForm",
       "org.apache.calcite.sql.babel.SqlCreateFunctionSqlForm.DeterministicType",
       "org.apache.calcite.sql.babel.SqlCreateFunctionSqlForm.ReactToNullInputType",
+      "org.apache.calcite.sql.babel.SqlCharacterSetToCharacterSet",
+      "org.apache.calcite.sql.babel.SqlTranslateUsingCharacterSet",
     ]
 
     # List of keywords.
@@ -1056,6 +1058,7 @@ data: {
     allowUpdateFromTable: true
     allowUpsertFormOfUpdate: true
     allowAbbreviatedKeywords: true
+    allowTranslateUsingCharSetWithError: true
     includePosixOperators: true
     includeCastFormat: true
     includeCompoundIdentifier: true
