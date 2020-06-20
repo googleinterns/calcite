@@ -20,6 +20,10 @@
  */
 package org.apache.calcite.sql;
 
+/**
+ * Enum used by {@link org.apache.calcite.sql.SqlCreate} to indicate whether the query is a
+ * "CREATE", "CREATE OR REPLACE", or "REPLACE" query
+ */
 public enum SqlCreateOrReplace {
   CREATE("CREATE"),
   REPLACE("REPLACE"),
