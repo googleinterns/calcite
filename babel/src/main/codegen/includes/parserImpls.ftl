@@ -245,10 +245,13 @@ SqlColumnAttribute ColumnAttributeUpperCase() :
 
 SqlColumnAttribute ColumnAttributeCompress() :
 {
+    SqlNodeList values = null;
 }
 {
-    <COMPRESS> {
-        return new SqlColumnAttributeCompress(getPos());
+    <COMPRESS>
+    [ values = ParenthesizedQueryOrCommaList(ExprContext.ACCEPT_NONCURSOR) ]
+    {
+        return new SqlColumnAttributeCompress(getPos(), values);
     }
 }
 

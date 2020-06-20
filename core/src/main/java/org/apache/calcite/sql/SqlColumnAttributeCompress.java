@@ -23,16 +23,30 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public class SqlColumnAttributeCompress extends SqlColumnAttribute {
 
+  private final SqlNodeList values;
+
   /**
    * Creates a {@code SqlColumnAttributeCompress}.
    *
    * @param pos  Parser position, must not be null
+   * @param values  Values to be compressed in a particular column. These can be string literals,
+   *                numeric literals or DATEs.
    */
-  public SqlColumnAttributeCompress(SqlParserPos pos) {
+  public SqlColumnAttributeCompress(SqlParserPos pos, SqlNodeList values) {
     super(pos);
+    this.values = values;
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("COMPRESS");
+    if (values == null) {
+      return;
+    }
+    SqlWriter.Frame frame = writer.startList("(", ")");
+    for (SqlNode value : values) {
+      writer.sep(",", false);
+      value.unparse(writer, 0, 0);
+    }
+    writer.endList(frame);
   }
 }

@@ -736,6 +736,34 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableCompressWithIntegersColumnLevelAttribute() {
+    final String sql = "create table foo (bar int compress (1, 2))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER COMPRESS (1, 2))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableCompressWithStringsColumnLevelAttribute() {
+    final String sql = "create table foo (bar int compress ('a', 'b'))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER COMPRESS ('a', 'b'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableCompressWithDatesColumnLevelAttribute() {
+    final String sql = "create table foo (bar int compress ("
+        + "date '1972-02-28', date '1972-02-29'))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER COMPRESS ("
+        + "DATE '1972-02-28', DATE '1972-02-29'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableCompressWithTimestampsColumnLevelAttribute() {
+    final String sql = "create table foo (bar int compress ("
+        + "timestamp '2006-11-23 15:30:23', timestamp '2006-11-23 15:30:24'))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER COMPRESS ("
+        + "TIMESTAMP '2006-11-23 15:30:23', TIMESTAMP '2006-11-23 15:30:24'))";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTableNullColumnLevelAttribute() {
     final String sql = "create table foo (bar int null)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER)";
