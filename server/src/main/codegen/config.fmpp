@@ -23,7 +23,6 @@ data: {
     imports: [
       "org.apache.calcite.schema.ColumnStrategy"
       "org.apache.calcite.sql.SqlCreate"
-      "org.apache.calcite.sql.SqlCreateOrReplace"
       "org.apache.calcite.sql.SqlDrop"
       "org.apache.calcite.sql.ddl.SqlDdlNodes"
       "java.util.Map"
@@ -405,7 +404,8 @@ data: {
     ]
 
     # List of methods for parsing extensions to "CREATE [OR REPLACE]" calls.
-    # Each must accept arguments "(SqlParserPos pos, SqlCreateOrReplace replace)".
+    # Each must accept arguments:
+    # "(SqlParserPos pos, SqlCreate.SqlCreateSpecifier createSpecifier)".
     createStatementParserMethods: [
       "SqlCreateForeignSchema"
       "SqlCreateMaterializedView"
@@ -417,7 +417,8 @@ data: {
     ]
 
     # List of methods for parsing extensions to "REPLACE" calls.
-    # Each must accept arguments "(SqlParserPos pos, SqlCreateOrReplace replace)".
+    # Each must accept arguments:
+    # "(SqlParserPos pos, SqlCreate.SqlCreateSpecifier createSpecifier)".
     replaceStatementParserMethods: [
         "SqlCreateView"
     ]

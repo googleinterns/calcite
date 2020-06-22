@@ -409,12 +409,14 @@ data: {
     ]
 
     # List of methods for parsing extensions to "CREATE [OR REPLACE]" calls.
-    # Each must accept arguments "(SqlParserPos pos, SqlCreateOrReplace replace)".
+    # Each must accept arguments:
+    # "(SqlParserPos pos, SqlCreate.SqlCreateSpecifier createSpecifier)".
     createStatementParserMethods: [
     ]
 
     # List of methods for parsing extensions to "REPLACE" calls.
-    # Each must accept arguments "(SqlParserPos pos, SqlCreateOrReplace replace)".
+    # Each must accept arguments:
+    # "(SqlParserPos pos, SqlCreate.SqlCreateSpecifier createSpecifier)".
     replaceStatementParserMethods: [
     ]
 

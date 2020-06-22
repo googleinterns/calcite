@@ -26,30 +26,49 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 public abstract class SqlCreate extends SqlDdl {
 
   /** Whether "OR REPLACE" was specified. */
-  final SqlCreateOrReplace replace;
+  final SqlCreateSpecifier createSpecifier;
 
   /** Whether "IF NOT EXISTS" was specified. */
   public final boolean ifNotExists;
 
+  /**
+   * Enum to indicate whether the query is a "CREATE", "CREATE OR REPLACE",
+   * or "REPLACE" query
+   */
+  public enum SqlCreateSpecifier {
+    CREATE("CREATE"),
+    REPLACE("REPLACE"),
+    CREATE_OR_REPLACE("CREATE OR REPLACE");
+
+    private final String name;
+
+    SqlCreateSpecifier(String s) {
+      name = s;
+    }
+
+    public boolean equalsName(String otherName) {
+      return name.equals(otherName);
+    }
+
+    public String toString() {
+      return this.name;
+    }
+  }
+
   /** Creates a SqlCreate. */
-  public SqlCreate(SqlOperator operator, SqlParserPos pos, SqlCreateOrReplace replace,
+  public SqlCreate(SqlOperator operator, SqlParserPos pos, SqlCreateSpecifier createSpecifier,
       boolean ifNotExists) {
     super(operator, pos);
-    this.replace = replace;
+    this.createSpecifier = createSpecifier;
     this.ifNotExists = ifNotExists;
   }
 
   @Deprecated // to be removed before 2.0
-  public SqlCreate(SqlParserPos pos, SqlCreateOrReplace replace) {
-    this(SqlDdl.DDL_OPERATOR, pos, replace, false);
+  public SqlCreate(SqlParserPos pos, SqlCreateSpecifier createSpecifier) {
+    this(SqlDdl.DDL_OPERATOR, pos, createSpecifier, false);
   }
 
-  public SqlCreateOrReplace getReplace() {
-    return replace;
+  public SqlCreateSpecifier getCreateSpecifier() {
+    return createSpecifier;
   }
-
-  /*public void setReplace(boolean replace) {
-    this.replace = replace;
-  }*/
-
 }

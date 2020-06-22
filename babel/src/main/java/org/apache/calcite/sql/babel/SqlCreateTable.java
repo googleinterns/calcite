@@ -18,7 +18,6 @@ package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.SqlCreate;
-import org.apache.calcite.sql.SqlCreateOrReplace;
 import org.apache.calcite.sql.SqlExecutableStatement;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
@@ -51,11 +50,12 @@ public class SqlCreateTable extends SqlCreate
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("CREATE TABLE", SqlKind.CREATE_TABLE);
 
-  public SqlCreateTable(SqlParserPos pos, SqlCreateOrReplace replace, SetType setType,
-      Volatility volatility, boolean ifNotExists, SqlIdentifier name,
-      List<SqlCreateAttribute> tableAttributes, SqlNodeList columnList, SqlNode query,
-      WithDataType withData, SqlPrimaryIndex primaryIndex, OnCommitType onCommitType) {
-    super(OPERATOR, pos, replace, ifNotExists);
+  public SqlCreateTable(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
+      SetType setType, Volatility volatility, boolean ifNotExists,
+      SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
+      SqlNodeList columnList, SqlNode query, WithDataType withData,
+      SqlPrimaryIndex primaryIndex, OnCommitType onCommitType) {
+    super(OPERATOR, pos, createSpecifier, ifNotExists);
     this.name = Objects.requireNonNull(name);
     this.setType = setType;
     this.volatility = volatility;
