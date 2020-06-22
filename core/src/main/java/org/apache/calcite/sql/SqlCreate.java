@@ -56,8 +56,8 @@ public abstract class SqlCreate extends SqlDdl {
   }
 
   /** Creates a SqlCreate. */
-  public SqlCreate(SqlOperator operator, SqlParserPos pos, SqlCreateSpecifier createSpecifier,
-      boolean ifNotExists) {
+  public SqlCreate(SqlOperator operator, SqlParserPos pos,
+      SqlCreateSpecifier createSpecifier, boolean ifNotExists) {
     super(operator, pos);
     this.createSpecifier = createSpecifier;
     this.ifNotExists = ifNotExists;

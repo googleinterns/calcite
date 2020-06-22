@@ -63,7 +63,8 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
    * @param returnExpression the expression that is returned
    */
   public SqlCreateFunctionSqlForm(final SqlParserPos pos,
-      final SqlCreateSpecifier createSpecifier, final SqlIdentifier functionName,
+      final SqlCreateSpecifier createSpecifier,
+      final SqlIdentifier functionName,
       final SqlIdentifier specificFunctionName, final SqlNodeList fieldNames,
       final SqlNodeList fieldTypes, final SqlDataTypeSpec returnsDataType,
       final DeterministicType isDeterministic,
