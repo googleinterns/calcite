@@ -77,7 +77,7 @@ public class SqlTranslateUsingCharacterSet extends SqlCall implements SqlExecuta
     writer.print(")");
   }
 
-  // Intentionally leave empty
+  // Intentionally left empty.
   @Override public void execute(final CalcitePrepare.Context context) {
   }
 }
