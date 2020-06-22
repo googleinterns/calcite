@@ -4037,14 +4037,14 @@ String Scope() :
 SqlCreate SqlCreate() :
 {
     final Span s;
-    SqlCreate.SqlCreateSpecifier createSpecifier = SqlCreate.SqlCreateSpecifier.CREATE;
+    SqlCreateSpecifier createSpecifier = SqlCreateSpecifier.CREATE;
     final SqlCreate create;
 }
 {
     <CREATE> { s = span(); }
     [
         <OR> <REPLACE> {
-            createSpecifier = SqlCreate.SqlCreateSpecifier.CREATE_OR_REPLACE;
+            createSpecifier = SqlCreateSpecifier.CREATE_OR_REPLACE;
         }
     ]
     (

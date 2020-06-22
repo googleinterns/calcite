@@ -50,9 +50,8 @@ public class SqlCreateSchema extends SqlCreate
       new SqlSpecialOperator("CREATE SCHEMA", SqlKind.CREATE_SCHEMA);
 
   /** Creates a SqlCreateSchema. */
-  SqlCreateSchema(SqlParserPos pos,
-      SqlCreate.SqlCreateSpecifier createSpecifier, boolean ifNotExists,
-      SqlIdentifier name) {
+  SqlCreateSchema(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
+      boolean ifNotExists, SqlIdentifier name) {
     super(OPERATOR, pos, createSpecifier, ifNotExists);
     this.name = Objects.requireNonNull(name);
   }

@@ -23,7 +23,7 @@ import org.apache.calcite.rel.RelRoot;
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCollation;
-import org.apache.calcite.sql.SqlCreate;
+import org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDrop;
 import org.apache.calcite.sql.SqlIdentifier;
@@ -59,14 +59,14 @@ public class SqlDdlNodes {
 
   /** Creates a CREATE SCHEMA. */
   public static SqlCreateSchema createSchema(SqlParserPos pos,
-      SqlCreate.SqlCreateSpecifier createSpecifier, boolean ifNotExists,
+      SqlCreateSpecifier createSpecifier, boolean ifNotExists,
       SqlIdentifier name) {
     return new SqlCreateSchema(pos, createSpecifier, ifNotExists, name);
   }
 
   /** Creates a CREATE FOREIGN SCHEMA. */
   public static SqlCreateForeignSchema createForeignSchema(SqlParserPos pos,
-       SqlCreate.SqlCreateSpecifier createSpecifier, boolean ifNotExists,
+       SqlCreateSpecifier createSpecifier, boolean ifNotExists,
        SqlIdentifier name, SqlNode type, SqlNode library,
        SqlNodeList optionList) {
     return new SqlCreateForeignSchema(pos, createSpecifier, ifNotExists, name, type,
@@ -75,14 +75,14 @@ public class SqlDdlNodes {
 
   /** Creates a CREATE TYPE. */
   public static SqlCreateType createType(SqlParserPos pos,
-      SqlCreate.SqlCreateSpecifier createSpecifier, SqlIdentifier name,
+      SqlCreateSpecifier createSpecifier, SqlIdentifier name,
       SqlNodeList attributeList, SqlDataTypeSpec dataTypeSpec) {
     return new SqlCreateType(pos, createSpecifier, name, attributeList, dataTypeSpec);
   }
 
   /** Creates a CREATE TABLE. */
   public static SqlCreateTable createTable(SqlParserPos pos,
-      SqlCreate.SqlCreateSpecifier createSpecifier, boolean ifNotExists,
+      SqlCreateSpecifier createSpecifier, boolean ifNotExists,
       SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
     return new SqlCreateTable(pos, createSpecifier, ifNotExists, name, columnList,
         query);
@@ -90,14 +90,14 @@ public class SqlDdlNodes {
 
   /** Creates a CREATE VIEW. */
   public static SqlCreateView createView(SqlParserPos pos,
-      SqlCreate.SqlCreateSpecifier createSpecifier, SqlIdentifier name,
+      SqlCreateSpecifier createSpecifier, SqlIdentifier name,
       SqlNodeList columnList, SqlNode query) {
     return new SqlCreateView(pos, createSpecifier, name, columnList, query);
   }
 
   /** Creates a CREATE MATERIALIZED VIEW. */
   public static SqlCreateMaterializedView createMaterializedView(
-          SqlParserPos pos, SqlCreate.SqlCreateSpecifier createSpecifier,
+          SqlParserPos pos, SqlCreateSpecifier createSpecifier,
           boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList,
           SqlNode query) {
     return new SqlCreateMaterializedView(pos, createSpecifier, ifNotExists, name,
@@ -106,7 +106,7 @@ public class SqlDdlNodes {
 
   /** Creates a CREATE FUNCTION. */
   public static SqlCreateFunction createFunction(
-          SqlParserPos pos, SqlCreate.SqlCreateSpecifier createSpecifier,
+          SqlParserPos pos, SqlCreateSpecifier createSpecifier,
           boolean ifNotExists, SqlIdentifier name, SqlNode className,
           SqlNodeList usingList) {
     return new SqlCreateFunction(pos, createSpecifier, ifNotExists, name,

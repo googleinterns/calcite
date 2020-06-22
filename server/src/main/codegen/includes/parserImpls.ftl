@@ -33,7 +33,7 @@ boolean IfExistsOpt() :
     { return false; }
 }
 
-SqlCreate SqlCreateSchema(Span s, SqlCreate.SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateSchema(Span s, SqlCreateSpecifier createSpecifier) :
 {
     final boolean ifNotExists;
     final SqlIdentifier id;
@@ -45,7 +45,7 @@ SqlCreate SqlCreateSchema(Span s, SqlCreate.SqlCreateSpecifier createSpecifier) 
     }
 }
 
-SqlCreate SqlCreateForeignSchema(Span s, SqlCreate.SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateForeignSchema(Span s, SqlCreateSpecifier createSpecifier) :
 {
     final boolean ifNotExists;
     final SqlIdentifier id;
@@ -222,7 +222,7 @@ void AttributeDef(List<SqlNode> list) :
     }
 }
 
-SqlCreate SqlCreateType(Span s, SqlCreate.SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateType(Span s, SqlCreateSpecifier createSpecifier) :
 {
     final SqlIdentifier id;
     SqlNodeList attributeDefList = null;
@@ -242,7 +242,7 @@ SqlCreate SqlCreateType(Span s, SqlCreate.SqlCreateSpecifier createSpecifier) :
     }
 }
 
-SqlCreate SqlCreateTable(Span s, SqlCreate.SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
 {
     final boolean ifNotExists;
     final SqlIdentifier id;
@@ -259,7 +259,7 @@ SqlCreate SqlCreateTable(Span s, SqlCreate.SqlCreateSpecifier createSpecifier) :
     }
 }
 
-SqlCreate SqlCreateView(Span s, SqlCreate.SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateView(Span s, SqlCreateSpecifier createSpecifier) :
 {
     final SqlIdentifier id;
     SqlNodeList columnList = null;
@@ -274,7 +274,7 @@ SqlCreate SqlCreateView(Span s, SqlCreate.SqlCreateSpecifier createSpecifier) :
     }
 }
 
-SqlCreate SqlCreateMaterializedView(Span s, SqlCreate.SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateMaterializedView(Span s, SqlCreateSpecifier createSpecifier) :
 {
     final boolean ifNotExists;
     final SqlIdentifier id;
@@ -311,7 +311,7 @@ private void FunctionJarDef(SqlNodeList usingList) :
     }
 }
 
-SqlCreate SqlCreateFunction(Span s, SqlCreate.SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateFunction(Span s, SqlCreateSpecifier createSpecifier) :
 {
     final boolean ifNotExists;
     final SqlIdentifier id;
@@ -421,7 +421,7 @@ SqlCreate SqlReplace() :
     (
 <#-- additional literal parser methods are included here -->
 <#list parser.replaceStatementParserMethods as method>
-        create = ${method}(s, SqlCreate.SqlCreateSpecifier.REPLACE)
+        create = ${method}(s, SqlCreateSpecifier.REPLACE)
         <#sep>| LOOKAHEAD(2) </#sep>
 </#list>
     )

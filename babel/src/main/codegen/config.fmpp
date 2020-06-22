@@ -22,6 +22,7 @@ data: {
     # List of import statements.
     imports: [
       "org.apache.calcite.sql.SqlCreate",
+      "org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier",
       "org.apache.calcite.sql.SqlColumnAttribute",
       "org.apache.calcite.sql.SqlColumnAttributeUpperCase",
       "org.apache.calcite.sql.SqlColumnAttributeCaseSpecific",
@@ -986,7 +987,7 @@ data: {
 
     # List of methods for parsing extensions to "CREATE [OR REPLACE]" calls.
     # Each must accept arguments:
-    # "(SqlParserPos pos, SqlCreate.SqlCreateSpecifier createSpecifier)".
+    # "(SqlParserPos pos, SqlCreateSpecifier createSpecifier)".
     createStatementParserMethods: [
       "SqlCreateTable"
       "SqlCreateFunctionSqlForm"
@@ -994,7 +995,7 @@ data: {
 
     # List of methods for parsing extensions to "REPLACE" calls.
     # Each must accept arguments:
-    # "(SqlParserPos pos, SqlCreate.SqlCreateSpecifier createSpecifier)".
+    # "(SqlParserPos pos, SqlCreateSpecifier createSpecifier)".
     replaceStatementParserMethods: [
     ]
 

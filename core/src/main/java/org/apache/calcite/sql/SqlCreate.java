@@ -20,12 +20,14 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
  * Base class for an CREATE statements parse tree nodes. The portion of the
- * statement covered by this class is "CREATE [ OR REPLACE ]". Subclasses handle
- * whatever comes afterwards.
+ * statement covered by this class is "CREATE | REPLACE | CREATE OR REPLACE".
+ * Subclasses handle whatever comes afterwards.
+ * Support for REPLACE is included in this class for cases where REPLACE shares
+ * the same syntax as CREATE.
  */
 public abstract class SqlCreate extends SqlDdl {
 
-  /** Whether "OR REPLACE" was specified. */
+  /** Whether "CREATE", "REPLACE", or "CREATE OR REPLACE" was specified. */
   final SqlCreateSpecifier createSpecifier;
 
   /** Whether "IF NOT EXISTS" was specified. */
@@ -33,7 +35,7 @@ public abstract class SqlCreate extends SqlDdl {
 
   /**
    * Enum to indicate whether the query is a "CREATE", "CREATE OR REPLACE",
-   * or "REPLACE" query
+   * or "REPLACE" query.
    */
   public enum SqlCreateSpecifier {
     CREATE("CREATE"),
