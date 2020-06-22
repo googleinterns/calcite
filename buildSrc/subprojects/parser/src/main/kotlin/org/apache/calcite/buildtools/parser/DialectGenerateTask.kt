@@ -22,6 +22,7 @@ import java.util.Queue
 import javax.inject.Inject
 import kotlin.collections.HashMap
 import kotlin.collections.Map
+import kotlin.text.Regex
 import org.gradle.api.DefaultTask
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.Input
@@ -51,8 +52,9 @@ open class DialectGenerateTask @Inject constructor(
     fun extractFunctions(): Map<String, String> {
         val rootDirectoryFile = rootDirectory.get().asFile
         val queue = getTraversalPath()
-        traverse(queue, rootDirectoryFile)
-        return HashMap()
+        val functionMap: Map<String, String> = HashMap<String, String>()
+        traverse(queue, rootDirectoryFile, functionMap)
+        return functionMap
     }
 
     fun generateParserImpls(functions: Map<String, String>) {}
@@ -71,23 +73,34 @@ open class DialectGenerateTask @Inject constructor(
     /* Traverses the determined path given by the queue. Once the queue is
        empty, the dialect directory has been reached. In that case any *.ftl
        file should be processed and no further traversal should happen. */
-    private fun traverse(directories: Queue<String>, currentDirectory: File) {
+    private fun traverse(
+        directories: Queue<String>,
+        currentDirectory: File,
+        functionMap: Map<String, String>
+    ) {
         val files = currentDirectory.listFiles()
         files.sortBy { it.isDirectory }
         val nextDirectory = directories.peek()
         for (f in files) {
             if (f.isFile && f.extension == "ftl") {
-                processFile(f)
+                processFile(f, functionMap)
             }
             if (directories.isNotEmpty() && f.name == nextDirectory) {
                 println(f.name.toString())
                 directories.poll()
-                traverse(directories, f)
+                traverse(directories, f, functionMap)
             }
         }
     }
 
-    private fun processFile(f: File) {
+    private fun processFile(f: File, functionMap: Map<String, String>) {
         println("Found File: " + f.absolutePath.toString())
+        val fileText = f.readText(Charsets.UTF_8)
+        val declarationPattern =
+            Regex("(\\w+\\s+\\w+\\s*\\(\\w+\\s+\\w+\\s*(\\,\\s*\\w+\\s+\\w+\\s*)*\\)\\s*\\:\n)")
+        val matches = declarationPattern.findAll(fileText)
+        for (m in matches) {
+            println(m.value)
+        }
     }
 }
