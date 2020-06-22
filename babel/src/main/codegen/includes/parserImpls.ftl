@@ -611,12 +611,14 @@ SqlCreate SqlCreateTable(Span s, SqlCreate.SqlCreateSpecifier createSpecifier) :
     )*
     onCommitType = OnCommitTypeOpt()
     {
-        return new SqlCreateTable(s.end(this), createSpecifier, setType, volatility, ifNotExists, id,
-            tableAttributes, columnList, query, withData, primaryIndex, onCommitType);
+        return new SqlCreateTable(s.end(this), createSpecifier, setType,
+         volatility, ifNotExists, id, tableAttributes, columnList, query,
+         withData, primaryIndex, onCommitType);
     }
 }
 
-SqlCreate SqlCreateFunctionSqlForm(Span s, SqlCreate.SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateFunctionSqlForm(Span s,
+        SqlCreate.SqlCreateSpecifier createSpecifier) :
 {
     SqlIdentifier functionName = null;
     SqlNodeList fieldNames = new SqlNodeList(getPos());
