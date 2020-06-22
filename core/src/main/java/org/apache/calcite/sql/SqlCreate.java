@@ -52,13 +52,13 @@ public abstract class SqlCreate extends SqlDdl {
       return name.equals(otherName);
     }
 
-    public String toString() {
+    @Override public String toString() {
       return this.name;
     }
   }
 
   /** Creates a SqlCreate. */
-  public SqlCreate(SqlOperator operator, SqlParserPos pos,
+  protected SqlCreate(SqlOperator operator, SqlParserPos pos,
       SqlCreateSpecifier createSpecifier, boolean ifNotExists) {
     super(operator, pos);
     this.createSpecifier = createSpecifier;
@@ -66,7 +66,8 @@ public abstract class SqlCreate extends SqlDdl {
   }
 
   @Deprecated // to be removed before 2.0
-  public SqlCreate(SqlParserPos pos, SqlCreateSpecifier createSpecifier) {
+  @SuppressWarnings("deprecation")
+  protected SqlCreate(SqlParserPos pos, SqlCreateSpecifier createSpecifier) {
     this(SqlDdl.DDL_OPERATOR, pos, createSpecifier, false);
   }
 
