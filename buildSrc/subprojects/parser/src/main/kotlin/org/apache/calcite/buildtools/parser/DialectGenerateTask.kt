@@ -71,18 +71,18 @@ open class DialectGenerateTask @Inject constructor(
     /* Traverses the determined path given by the queue. Once the queue is
        empty, the dialect directory has been reached. In that case any *.ftl
        file should be processed and no further traversal should happen. */
-    private fun traverse(queue: Queue<String>, file: File) {
-        val files = file.listFiles()
+    private fun traverse(directories: Queue<String>, currentDirectory: File) {
+        val files = currentDirectory.listFiles()
         files.sortBy { it.isDirectory }
-        val name = queue.peek()
+        val nextDirectory = directories.peek()
         for (f in files) {
-            if (f.isFile) {
+            if (f.isFile && f.extension == "ftl") {
                 processFile(f)
             }
-            if (queue.isNotEmpty() && f.name == name) {
+            if (directories.isNotEmpty() && f.name == nextDirectory) {
                 println(f.name.toString())
-                queue.poll()
-                traverse(queue, f)
+                directories.poll()
+                traverse(directories, f)
             }
         }
     }
