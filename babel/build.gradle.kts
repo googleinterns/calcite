@@ -38,7 +38,9 @@ dependencies {
 }
 
 val dialectGenerate by tasks.registering(org.apache.calcite.buildtools.parser.DialectGenerateTask::class) {
-    dialectDirectory.set(file("/"))
+    rootDirectory.set(file("../temp"))
+    // TODO: make this file(".")
+    dialectDirectory.set(file("../temp/intermediate/dialect1/"))
     outputFile = "/"
 }
 

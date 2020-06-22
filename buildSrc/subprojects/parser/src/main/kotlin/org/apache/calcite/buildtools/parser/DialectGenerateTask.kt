@@ -17,6 +17,8 @@
 package org.apache.calcite.buildtools.parser
 
 import java.io.File
+import java.util.LinkedList
+import java.util.Queue
 import javax.inject.Inject
 import kotlin.collections.HashMap
 import kotlin.collections.Map
@@ -29,20 +31,63 @@ import org.gradle.api.tasks.TaskAction
 open class DialectGenerateTask @Inject constructor(
     objectFactory: ObjectFactory
 ) : DefaultTask() {
+
+    private val CALCITE_OFFSET = 8
+
     @InputDirectory
     val dialectDirectory = objectFactory.directoryProperty()
+
+    @InputDirectory
+    val rootDirectory = objectFactory.directoryProperty()
 
     @Input
     var outputFile = ""
 
     @TaskAction
     fun run() {
-        println("Running")
+        extractFunctions()
     }
 
-    fun extractFunctions(dialectDirectory: File): Map<String, String> {
+    fun extractFunctions(): Map<String, String> {
+        val rootDirectoryFile = rootDirectory.get().asFile
+        val queue = getTraversalPath()
+        traverse(queue, rootDirectoryFile)
         return HashMap()
     }
 
     fun generateParserImpls(functions: Map<String, String>) {}
+
+    private fun getTraversalPath(): Queue<String> {
+        val dialectDirectoryFile = dialectDirectory.get().asFile
+        var dialectPath = dialectDirectoryFile.absolutePath
+        val calciteIndex = dialectPath.lastIndexOf("calcite/")
+        dialectPath = dialectPath.substring(calciteIndex + CALCITE_OFFSET)
+        val queue: Queue<String> = LinkedList(dialectPath.split("/"))
+        // Remove the root directory.
+        queue.poll()
+        return queue
+    }
+
+    /* Traverses the determined path given by the queue. Once the queue is
+       empty, the dialect directory has been reached. In that case any *.ftl
+       file should be processed and no further traversal should happen. */
+    private fun traverse(queue: Queue<String>, file: File) {
+        val files = file.listFiles()
+        files.sortBy { it.isDirectory }
+        val name = queue.peek()
+        for (f in files) {
+            if (f.isFile) {
+                processFile(f)
+            }
+            if (queue.isNotEmpty() && f.name == name) {
+                println(f.name.toString())
+                queue.poll()
+                traverse(queue, f)
+            }
+        }
+    }
+
+    private fun processFile(f: File) {
+        println("Found File: " + f.absolutePath.toString())
+    }
 }
