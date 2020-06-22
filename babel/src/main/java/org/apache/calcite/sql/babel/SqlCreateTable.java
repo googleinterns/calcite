@@ -50,34 +50,12 @@ public class SqlCreateTable extends SqlCreate
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("CREATE TABLE", SqlKind.CREATE_TABLE);
 
-  /** Creates a SqlCreateTable. */
-  public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
-      boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
-    this(pos, replace, setType, volatility, ifNotExists, name, /*tableAttributes=*/null,
-        columnList, query, WithDataType.UNSPECIFIED,
-        /*primaryIndex=*/ null, OnCommitType.UNSPECIFIED);
-  }
-
-  public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
-      boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList, SqlNode query,
-      WithDataType withData, OnCommitType onCommitType) {
-    this(pos, replace, setType, volatility, ifNotExists, name, /*tableAttributes=*/null,
-        columnList, query, withData, /*primaryIndex=*/ null, onCommitType);
-  }
-
-  public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
-      boolean ifNotExists, SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
-      SqlNodeList columnList, SqlNode query,
-      WithDataType withData, OnCommitType onCommitType) {
-    this(pos, replace, setType, volatility, ifNotExists, name, tableAttributes,
-        columnList, query, withData, /*primaryIndex=*/ null, onCommitType);
-  }
-
-  public SqlCreateTable(SqlParserPos pos, boolean replace, SetType setType, Volatility volatility,
-      boolean ifNotExists, SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
-      SqlNodeList columnList, SqlNode query,
-      WithDataType withData, SqlPrimaryIndex primaryIndex, OnCommitType onCommitType) {
-    super(OPERATOR, pos, replace, ifNotExists);
+  public SqlCreateTable(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
+      SetType setType, Volatility volatility, boolean ifNotExists,
+      SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
+      SqlNodeList columnList, SqlNode query, WithDataType withData,
+      SqlPrimaryIndex primaryIndex, OnCommitType onCommitType) {
+    super(OPERATOR, pos, createSpecifier, ifNotExists);
     this.name = Objects.requireNonNull(name);
     this.setType = setType;
     this.volatility = volatility;

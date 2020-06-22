@@ -556,7 +556,7 @@ WithDataType WithDataOpt() :
     { return WithDataType.UNSPECIFIED; }
 }
 
-SqlCreate SqlCreateTable(Span s, boolean replace) :
+SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
 {
     SetType setType = SetType.UNSPECIFIED;
     Volatility volatility = Volatility.UNSPECIFIED;
@@ -614,12 +614,14 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     )*
     onCommitType = OnCommitTypeOpt()
     {
-        return new SqlCreateTable(s.end(this), replace, setType, volatility, ifNotExists, id,
-            tableAttributes, columnList, query, withData, primaryIndex, onCommitType);
+        return new SqlCreateTable(s.end(this), createSpecifier, setType,
+         volatility, ifNotExists, id, tableAttributes, columnList, query,
+         withData, primaryIndex, onCommitType);
     }
 }
 
-SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
+SqlCreate SqlCreateFunctionSqlForm(Span s,
+        SqlCreateSpecifier createSpecifier) :
 {
     SqlIdentifier functionName = null;
     SqlNodeList fieldNames = new SqlNodeList(getPos());
@@ -685,7 +687,7 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
     }
     <RETURN> returnExpression = Expression(ExprContext.ACCEPT_SUB_QUERY)
     {
-        return new SqlCreateFunctionSqlForm(s.end(this), replace,
+        return new SqlCreateFunctionSqlForm(s.end(this), createSpecifier,
             functionName, specificFunctionName, fieldNames, fieldTypes,
             returnsDataType, isDeterministic, canRunOnNullInput,
             hasSqlSecurityDefiner, typeInt, returnExpression);

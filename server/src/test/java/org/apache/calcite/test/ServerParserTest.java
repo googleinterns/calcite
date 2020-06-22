@@ -313,4 +313,11 @@ class ServerParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testReplaceView() {
+    final String sql = "replace view foo as select * from bar";
+    final String expected = "REPLACE VIEW `FOO` AS\n"
+        + "SELECT *\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
 }

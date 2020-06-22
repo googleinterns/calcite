@@ -59,9 +59,9 @@ public class SqlCreateView extends SqlCreate
       new SqlSpecialOperator("CREATE VIEW", SqlKind.CREATE_VIEW);
 
   /** Creates a SqlCreateView. */
-  SqlCreateView(SqlParserPos pos, boolean replace, SqlIdentifier name,
-      SqlNodeList columnList, SqlNode query) {
-    super(OPERATOR, pos, replace, false);
+  SqlCreateView(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
+      SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
+    super(OPERATOR, pos, createSpecifier, false);
     this.name = Objects.requireNonNull(name);
     this.columnList = columnList; // may be null
     this.query = Objects.requireNonNull(query);
@@ -72,11 +72,7 @@ public class SqlCreateView extends SqlCreate
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    if (getReplace()) {
-      writer.keyword("CREATE OR REPLACE");
-    } else {
-      writer.keyword("CREATE");
-    }
+    writer.keyword(getCreateSpecifier().toString());
     writer.keyword("VIEW");
     name.unparse(writer, leftPrec, rightPrec);
     if (columnList != null) {
@@ -98,7 +94,7 @@ public class SqlCreateView extends SqlCreate
     final SchemaPlus schemaPlus = pair.left.plus();
     for (Function function : schemaPlus.getFunctions(pair.right)) {
       if (function.getParameters().isEmpty()) {
-        if (!getReplace()) {
+        if (getCreateSpecifier() != SqlCreateSpecifier.CREATE_OR_REPLACE) {
           throw SqlUtil.newContextException(name.getParserPosition(),
               RESOURCE.viewExists(pair.right));
         }

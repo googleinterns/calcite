@@ -63,11 +63,11 @@ public class SqlCreateMaterializedView extends SqlCreate
       new SqlSpecialOperator("CREATE MATERIALIZED VIEW",
           SqlKind.CREATE_MATERIALIZED_VIEW);
 
-  /** Creates a SqlCreateView. */
-  SqlCreateMaterializedView(SqlParserPos pos, boolean replace,
-      boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList,
-      SqlNode query) {
-    super(OPERATOR, pos, replace, ifNotExists);
+  /** Creates a SqlCreateMaterializedView. */
+  SqlCreateMaterializedView(SqlParserPos pos,
+      SqlCreateSpecifier createSpecifier, boolean ifNotExists,
+      SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
+    super(OPERATOR, pos, createSpecifier, ifNotExists);
     this.name = Objects.requireNonNull(name);
     this.columnList = columnList; // may be null
     this.query = Objects.requireNonNull(query);
