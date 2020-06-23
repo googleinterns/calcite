@@ -137,7 +137,7 @@ public class SqlCreateTable extends SqlCreate
     if (primaryIndex != null) {
       allIndices.add(0, primaryIndex);
     }
-    if (allIndices.size()>0) {
+    if (allIndices.size() > 0) {
       SqlWriter.Frame frame = writer.startList("", "");
       for (SqlIndex index : allIndices) {
         writer.sep(",");

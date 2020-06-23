@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlIdentifier;
@@ -23,8 +22,13 @@ import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-public class SqlSecondaryIndex extends SqlIndex{
-  public SqlSecondaryIndex(SqlParserPos pos, SqlNodeList columns, SqlIdentifier name, boolean isUnique) {
+/**
+ * A <code>SqlSecondaryIndex</code> is a class that can be used to create a
+ * non-primary index, which is used by the SQL CREATE TABLE function.
+ */
+public class SqlSecondaryIndex extends SqlIndex {
+  public SqlSecondaryIndex(SqlParserPos pos, SqlNodeList columns,
+      SqlIdentifier name, boolean isUnique) {
     super(pos, columns, name, isUnique);
   }
 

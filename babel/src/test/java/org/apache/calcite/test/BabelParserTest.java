@@ -1733,45 +1733,45 @@ class BabelParserTest extends SqlParserTest {
   @Test void testIndexWithName() {
     final String sql = "create table foo (bar integer) index baz (bar)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) "
-      + "INDEX `BAZ` (`BAR`)";
+        + "INDEX `BAZ` (`BAR`)";
     sql(sql).ok(expected);
   }
 
   @Test void testUniqueIndexWithoutName() {
     final String sql = "create table foo (bar integer) unique index (bar)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) "
-      + "UNIQUE INDEX (`BAR`)";
+        + "UNIQUE INDEX (`BAR`)";
     sql(sql).ok(expected);
   }
 
   @Test void testUniqueIndexWithName() {
     final String sql = "create table foo (bar integer) unique index baz (bar)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) "
-      + "UNIQUE INDEX `BAZ` (`BAR`)";
+        + "UNIQUE INDEX `BAZ` (`BAR`)";
     sql(sql).ok(expected);
   }
 
   @Test void testMulticolumnIndex() {
     final String sql = "create table foo (bar integer, qux integer) "
-      + "index (bar, qux)";
+        + "index (bar, qux)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER, `QUX` INTEGER) "
-      + "INDEX (`BAR`, `QUX`)";
+        + "INDEX (`BAR`, `QUX`)";
     sql(sql).ok(expected);
   }
 
   @Test void testMultipleIndices() {
     final String sql = "create table foo (bar integer, qux integer) "
-      + "index (bar), unique index (qux)";
+        + "index (bar), unique index (qux)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER, `QUX` INTEGER) "
-      + "INDEX (`BAR`), UNIQUE INDEX (`QUX`)";
+        + "INDEX (`BAR`), UNIQUE INDEX (`QUX`)";
     sql(sql).ok(expected);
   }
 
   @Test void testPrimaryIndexWithSecondaryIndex() {
     final String sql = "create table foo (bar integer, qux integer) "
-        + "primary index (bar), index (qux)";
+          + "primary index (bar), index (qux)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER, `QUX` INTEGER) "
-        + "PRIMARY INDEX (`BAR`), INDEX (`QUX`)";
+          + "PRIMARY INDEX (`BAR`), INDEX (`QUX`)";
     sql(sql).ok(expected);
   }
 }
