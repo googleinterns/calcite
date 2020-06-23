@@ -38,7 +38,6 @@ dependencies {
 }
 
 val fmppMain by tasks.registering(org.apache.calcite.buildtools.fmpp.FmppTask::class) {
-    dependsOn(dialectGenerate)
     inputs.dir("src/main/codegen")
     config.set(file("src/main/codegen/config.fmpp"))
     templates.set(file("$rootDir/core/src/main/codegen/templates"))
