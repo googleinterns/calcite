@@ -37,8 +37,8 @@ public class SqlDateTimeAtTimeZone extends SqlCall implements SqlExecutableState
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("AT TIME ZONE", SqlKind.OTHER);
 
-  private final SqlNode dateTimePrimary;
-  private final SqlNode displacementValue;
+  public final SqlNode dateTimePrimary;
+  public final SqlNode displacementValue;
 
   /**
    * Creates a {@code SqlDateTimeAtTimeZone}.
