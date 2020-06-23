@@ -41,7 +41,7 @@ public class SqlDateTimeAtTimeZone extends SqlCall implements SqlExecutableState
   private final SqlNode displacementValue;
 
   /**
-   * Creates a {@code SqlTranslateUsingCharacterSet}.
+   * Creates a {@code SqlDateTimeAtTimeZone}.
    *
    * @param pos  Parser position, must not be null
    * @param dateTimePrimary  SqlNode, contains the time to be transformed

@@ -40,7 +40,7 @@ public class SqlDateTimeAtLocal extends SqlCall implements SqlExecutableStatemen
   private final SqlNode dateTimePrimary;
 
   /**
-   * Creates a {@code SqlTranslateUsingCharacterSet}.
+   * Creates a {@code SqlDateTimeAtLocal}.
    *
    * @param pos  Parser position, must not be null
    * @param dateTimePrimary  SqlNode, contains the DateTimePrimary to be transformed
