@@ -45,7 +45,7 @@ public class SqlDateTimeAtTimeZone extends SqlCall implements SqlExecutableState
    *
    * @param pos  Parser position, must not be null
    * @param dateTimePrimary  SqlNode, contains the time to be transformed
-   * @param displacementValue SqlNode, contains the Displacement to the time
+   * @param displacementValue SqlNode, contains the displacement to the time
    */
   public SqlDateTimeAtTimeZone(
       SqlParserPos pos,
