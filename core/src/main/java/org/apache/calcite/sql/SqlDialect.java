@@ -950,7 +950,6 @@ public class SqlDialect {
    * @param fetch Number of rows to fetch, or null
    */
   public void unparseFetchAsTopN(SqlWriter writer, SqlNode offset, SqlNode fetch) {
-    //fetch.unparse(writer, -1, -1);
   }
 
   /**

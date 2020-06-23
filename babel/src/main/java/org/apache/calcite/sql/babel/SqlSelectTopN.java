@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class SqlSelectTopN extends SqlCall {
   private static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("TOP", SqlKind.OTHER);
+      new SqlSpecialOperator("TOP", SqlKind.TOP_N);
   private final SqlNumericLiteral selectNum;
   private final SqlLiteral isPercent;
   private final SqlLiteral withTies;
