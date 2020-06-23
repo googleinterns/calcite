@@ -56,6 +56,16 @@ public class SqlCreateTable extends SqlCreate
       SetType setType, Volatility volatility, boolean ifNotExists,
       SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
       SqlNodeList columnList, SqlNode query, WithDataType withData,
+      SqlPrimaryIndex primaryIndex, OnCommitType onCommitType) {
+    this(pos, createSpecifier, setType, volatility, ifNotExists,
+        name, tableAttributes, columnList, query, withData,
+        primaryIndex, /*indices=*/ null, onCommitType);
+  }
+
+  public SqlCreateTable(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
+      SetType setType, Volatility volatility, boolean ifNotExists,
+      SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
+      SqlNodeList columnList, SqlNode query, WithDataType withData,
       SqlPrimaryIndex primaryIndex, List<SqlIndex> indices,
       OnCommitType onCommitType) {
     super(OPERATOR, pos, createSpecifier, ifNotExists);
@@ -133,7 +143,12 @@ public class SqlCreateTable extends SqlCreate
     default:
       break;
     }
-    List<SqlIndex> allIndices = new ArrayList<SqlIndex>(indices);
+    List<SqlIndex> allIndices;
+    if (indices != null) {
+      allIndices = new ArrayList<SqlIndex>(indices);
+    } else {
+      allIndices = new ArrayList<SqlIndex>();
+    }
     if (primaryIndex != null) {
       allIndices.add(0, primaryIndex);
     }
