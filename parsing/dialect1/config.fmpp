@@ -1024,7 +1024,7 @@ data: {
 
     # List of methods for parsing expressions to "USING" calls.
     usingStatementParserMethods: [
-        "SqlUsingRequestModifier"
+      "SqlUsingRequestModifier"
     ]
 
     # Binary operators tokens

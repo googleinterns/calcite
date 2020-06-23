@@ -139,22 +139,6 @@ void SourceTableAndAlias(SqlNodeList sourceTables, SqlNodeList sourceAliases) :
     )
 }
 
-boolean IsNullable() :
-{
-
-}
-{
-    (
-        <NOT> <NULL> {
-            return false;
-        }
-    |
-        <NULL> {
-            return true;
-        }
-    )
-}
-
 // The DateTime functions are singled out to allow for arguments to
 // be parsed, such as CURRENT_DATE(0).
 SqlColumnAttribute ColumnAttributeDefault() :
@@ -844,17 +828,6 @@ SqlNode LiteralRowConstructor() :
         return SqlStdOperatorTable.ROW.createCall(s.end(valueList),
             valueList.toArray());
     }
-}
-
-/* Extra operators */
-
-<DEFAULT, DQID, BTID> TOKEN :
-{
-    < DATE_PART: "DATE_PART" >
-|   < DATEADD: "DATEADD" >
-|   < DATEDIFF: "DATEDIFF" >
-|   < NEGATE: "!" >
-|   < TILDE: "~" >
 }
 
 // Parses inline MOD expression of form "x MOD y" where x, y must be numeric

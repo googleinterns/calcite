@@ -396,6 +396,8 @@ data: {
     # Return type of method implementation should be "SqlNode".
     # Example: DateFunctionCall().
     builtinFunctionCallMethods: [
+      "DateFunctionCall()"
+      "DateAddFunctionCall()"
     ]
 
     # List of methods for parsing extensions to "ALTER <scope>" calls.
@@ -452,10 +454,12 @@ data: {
 
     # Binary operators tokens
     binaryOperatorsTokens: [
+      "< INFIX_CAST: \"::\" >"
     ]
 
     # Binary operators initialization
     extraBinaryExpressions: [
+      "InfixCast"
     ]
 
     preAtomicRowMethods: [
