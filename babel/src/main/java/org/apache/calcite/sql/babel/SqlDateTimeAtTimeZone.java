@@ -29,6 +29,10 @@ import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 
+/**
+ * A {@code SqlDateTimeAtTimeZone} is an AST node that describes
+ * the date time expression of At Time Zone.
+ */
 public class SqlDateTimeAtTimeZone extends SqlCall implements SqlExecutableStatement {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("AT TIME ZONE", SqlKind.OTHER);
@@ -36,8 +40,17 @@ public class SqlDateTimeAtTimeZone extends SqlCall implements SqlExecutableState
   private final SqlNode dateTimePrimary;
   private final SqlNode displacementValue;
 
+  /**
+   * Creates a {@code SqlTranslateUsingCharacterSet}.
+   *
+   * @param pos  Parser position, must not be null
+   * @param dateTimePrimary  SqlNode, contains the time to be transformed
+   * @param displacementValue SqlNode, contains the Displacement to the time
+   */
   public SqlDateTimeAtTimeZone(
-      SqlParserPos pos, SqlNode dateTimePrimary, SqlNode displacementValue) {
+      SqlParserPos pos,
+      SqlNode dateTimePrimary,
+      SqlNode displacementValue) {
     super(pos);
     this.dateTimePrimary = dateTimePrimary;
     this.displacementValue = displacementValue;
@@ -51,7 +64,8 @@ public class SqlDateTimeAtTimeZone extends SqlCall implements SqlExecutableState
     return ImmutableNullableList.of(dateTimePrimary, displacementValue);
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+  @Override public void unparse(SqlWriter writer, int leftPrec,
+      int rightPrec) {
     dateTimePrimary.unparse(writer, leftPrec, rightPrec);
     writer.keyword("AT TIME ZONE");
     displacementValue.unparse(writer, leftPrec, rightPrec);
