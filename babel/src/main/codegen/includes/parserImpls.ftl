@@ -991,36 +991,36 @@ SqlNode CurrentDateFunction() :
 
 SqlNode DateTimeTerm() :
 {
-    final SqlNode e;
-    final SqlNode e2;
+    final SqlNode dateTimePrimary;
+    final SqlNode displacement;
 }
 {
     (
-        e = DateTimeLiteral()
+        dateTimePrimary = DateTimeLiteral()
     |
-        e = SimpleIdentifier()
+        dateTimePrimary = SimpleIdentifier()
     |
-        e = DateFunctionCall()
+        dateTimePrimary = DateFunctionCall()
     )
     (
         <AT>
         (
             <LOCAL>
             {
-                return new SqlDateTimeAtLocal(getPos(), e);
+                return new SqlDateTimeAtLocal(getPos(), dateTimePrimary);
             }
         |
             (
                 [<TIME> <ZONE>]
                 (
-                    e2 = SimpleIdentifier()
+                    displacement = SimpleIdentifier()
                 |
-                    e2 = IntervalLiteral()
+                    displacement = IntervalLiteral()
                 |
-                    e2 = NumericLiteral()
+                    displacement = NumericLiteral()
                 )
                 {
-                    return new SqlDateTimeAtTimeZone(getPos(), e, e2);
+                    return new SqlDateTimeAtTimeZone(getPos(), dateTimePrimary, displacement);
                 }
             )
         )

@@ -34,13 +34,13 @@ public class SqlDateTimeAtTimeZone extends SqlCall implements SqlExecutableState
       new SqlSpecialOperator("AT TIME ZONE", SqlKind.OTHER);
 
   private final SqlNode dateTimePrimary;
-  private final SqlNode timeZoneValue;
+  private final SqlNode displacementValue;
 
   public SqlDateTimeAtTimeZone(
-      SqlParserPos pos, SqlNode dateTimePrimary, SqlNode timeZoneValue) {
+      SqlParserPos pos, SqlNode dateTimePrimary, SqlNode displacementValue) {
     super(pos);
     this.dateTimePrimary = dateTimePrimary;
-    this.timeZoneValue = timeZoneValue;
+    this.displacementValue = displacementValue;
   }
 
   @Override public SqlOperator getOperator() {
@@ -48,13 +48,13 @@ public class SqlDateTimeAtTimeZone extends SqlCall implements SqlExecutableState
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(dateTimePrimary);
+    return ImmutableNullableList.of(dateTimePrimary, displacementValue);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     dateTimePrimary.unparse(writer, leftPrec, rightPrec);
     writer.keyword("AT TIME ZONE");
-    timeZoneValue.unparse(writer, leftPrec, rightPrec);
+    displacementValue.unparse(writer, leftPrec, rightPrec);
   }
 
   // Intentionally left empty.
