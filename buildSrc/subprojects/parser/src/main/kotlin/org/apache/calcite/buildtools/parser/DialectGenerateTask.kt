@@ -110,7 +110,7 @@ open class DialectGenerateTask @Inject constructor(
         println("Found File: " + f.absolutePath.toString())
         var fileText = f.readText(Charsets.UTF_8)
         val declarationPattern =
-            Regex("(\\w+\\s+\\w+\\s*\\(\\w+\\s+\\w+\\s*(\\,\\s*\\w+\\s+\\w+\\s*)*\\)\\s*\\:\n)")
+            Regex("(\\w+\\s+\\w+\\s*\\((\\w+\\s+\\w+\\s*(\\,\\s*\\w+\\s+\\w+\\s*)*)?\\)\\s*\\:\n)")
         val matches = declarationPattern.findAll(fileText)
         for (m in matches) {
             val functionDeclaration = m.value
