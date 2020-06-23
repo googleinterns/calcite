@@ -1068,6 +1068,52 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testAtTimeZoneDisplacementValidInterval() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone "
+        + "interval '1:20' minute to second";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
+        + "TIME ZONE INTERVAL '1:20' MINUTE TO SECOND";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAtTimeZoneDisplacementValidIntervalWithoutTimeZone() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at "
+        + "interval '1:20' minute to second";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
+        + "TIME ZONE INTERVAL '1:20' MINUTE TO SECOND";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAtTimeZoneDisplacementValidBigIntPrecisionZero() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at "
+        + "9223372036854775807";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
+        + "TIME ZONE 9223372036854775807";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAtTimeZoneDisplacementValidDecimalPrecisionZeroNegative() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone "
+        + "-2";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
+        + "TIME ZONE -2";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAtTimeZoneDisplacementValidDecimalPrecisionGreaterThanZero() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone "
+        + "1.5";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
+        + "TIME ZONE 1.5";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAtTimeZoneDisplacementNonUnicodeString() {
+    final String sql = "select foo at time zone \"Hădrĭa\"";
+    final String expected = "SELECT `FOO` AT TIME ZONE `Hădrĭa`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateFunctionSqlFormNoParameter() {
     final String sql =
         "create function foo() "
