@@ -1010,19 +1010,17 @@ SqlNode DateTimeTerm() :
                 return new SqlDateTimeAtLocal(getPos(), dateTimePrimary);
             }
         |
+            [<TIME> <ZONE>]
             (
-                [<TIME> <ZONE>]
-                (
-                    displacement = SimpleIdentifier()
-                |
-                    displacement = IntervalLiteral()
-                |
-                    displacement = NumericLiteral()
-                )
-                {
-                    return new SqlDateTimeAtTimeZone(getPos(), dateTimePrimary, displacement);
-                }
+                displacement = SimpleIdentifier()
+            |
+                displacement = IntervalLiteral()
+            |
+                displacement = NumericLiteral()
             )
+            {
+                return new SqlDateTimeAtTimeZone(getPos(), dateTimePrimary, displacement);
+            }
         )
     )
 }
