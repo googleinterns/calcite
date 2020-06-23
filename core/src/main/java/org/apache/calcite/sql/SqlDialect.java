@@ -957,7 +957,9 @@ public class SqlDialect {
    * @param topN
    */
   public void unparseTopN(SqlWriter writer, SqlNode topN) {
-    topN.unparse(writer, -1, -1);
+    if (topN != null) {
+      topN.unparse(writer, -1, -1);
+    }
   }
 
   /** Unparses offset/fetch using ANSI standard "OFFSET offset ROWS FETCH NEXT

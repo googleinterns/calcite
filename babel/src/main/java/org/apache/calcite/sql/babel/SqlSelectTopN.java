@@ -60,10 +60,10 @@ public class SqlSelectTopN extends SqlCall {
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("TOP");
     selectNum.unparse(writer, leftPrec, rightPrec);
-    if (isPercent.getValueAs(Boolean.class)) {
+    if (isPercent != null && isPercent.getValueAs(Boolean.class)) {
       writer.keyword("PERCENT");
     }
-    if (withTies.getValueAs(Boolean.class)) {
+    if (withTies != null && withTies.getValueAs(Boolean.class)) {
       writer.keyword("WITH TIES");
     }
   }
