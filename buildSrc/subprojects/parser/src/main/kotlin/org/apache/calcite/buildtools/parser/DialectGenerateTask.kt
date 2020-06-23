@@ -118,7 +118,7 @@ open class DialectGenerateTask @Inject constructor(
             val functionBuilder = StringBuilder(functionDeclaration)
             val declarationIndex = fileText.indexOf(functionDeclaration)
             fileText = fileText.substring(declarationIndex + functionDeclaration.length)
-            val delims = " \n"
+            val delims = " \n\""
             fileText = fileText.substring(fileText.indexOf("{"))
             val tokenizer = StringTokenizer(fileText, delims, /*returnDelims=*/ true)
             processCurlyBlock(functionBuilder, tokenizer)
@@ -129,15 +129,18 @@ open class DialectGenerateTask @Inject constructor(
 
     private fun processCurlyBlock(functionBuilder: StringBuilder, tokenizer: StringTokenizer) {
         var curlyCounter = 0
+        var insideString = false
         while (tokenizer.hasMoreTokens()) {
             val token = tokenizer.nextToken()
             functionBuilder.append(token)
             if (token == "\n") {
                 continue
             }
-            if (token == "{") {
+            if (token == "\"") {
+                insideString = !insideString
+            } else if (token == "{" && !insideString) {
                 curlyCounter++
-            } else if (token == "}") {
+            } else if (token == "}" && !insideString) {
                 curlyCounter--
             }
             if (curlyCounter == 0) {
