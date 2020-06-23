@@ -19,7 +19,6 @@ package org.apache.calcite.buildtools.parser
 import java.io.File
 import java.util.LinkedList
 import java.util.Queue
-import java.util.StringTokenizer
 import javax.inject.Inject
 import kotlin.collections.HashMap
 import kotlin.collections.MutableMap
@@ -47,7 +46,10 @@ open class DialectGenerateTask @Inject constructor(
     @TaskAction
     fun run() {
         val functionMap = extractFunctions()
-        println(functionMap)
+        functionMap.forEach {
+            k, v ->
+                println("$k = $v")
+            }
     }
 
     private fun extractFunctions(): Map<String, String> {
@@ -111,6 +113,8 @@ open class DialectGenerateTask @Inject constructor(
         var fileText = f.readText(Charsets.UTF_8)
         val declarationPattern =
             Regex("(\\w+\\s+\\w+\\s*\\((\\w+\\s+\\w+\\s*(\\,\\s*\\w+\\s+\\w+\\s*)*)?\\)\\s*\\:\n)")
+        val delims = "(\\s|\n|\")"
+        val splitRegex = Regex("((?<=%s)|(?=%s))".format(delims, delims))
         val matches = declarationPattern.findAll(fileText)
         for (m in matches) {
             val functionDeclaration = m.value
@@ -118,20 +122,20 @@ open class DialectGenerateTask @Inject constructor(
             val functionBuilder = StringBuilder(functionDeclaration)
             val declarationIndex = fileText.indexOf(functionDeclaration)
             fileText = fileText.substring(declarationIndex + functionDeclaration.length)
-            val delims = " \n\""
             fileText = fileText.substring(fileText.indexOf("{"))
-            val tokenizer = StringTokenizer(fileText, delims, /*returnDelims=*/ true)
-            processCurlyBlock(functionBuilder, tokenizer)
-            processCurlyBlock(functionBuilder, tokenizer)
+            val tokens: Queue<String> = LinkedList(splitRegex.split(fileText))
+            processCurlyBlock(functionBuilder, tokens)
+            processCurlyBlock(functionBuilder, tokens)
             functionMap.put(functionName, functionBuilder.toString())
         }
     }
 
-    private fun processCurlyBlock(functionBuilder: StringBuilder, tokenizer: StringTokenizer) {
+    private fun processCurlyBlock(functionBuilder: StringBuilder, tokens: Queue<String>) {
         var curlyCounter = 0
         var insideString = false
-        while (tokenizer.hasMoreTokens()) {
-            val token = tokenizer.nextToken()
+        var insideComment = false
+        while (tokens.isNotEmpty()) {
+            val token = tokens.poll()
             functionBuilder.append(token)
             if (token == "\n") {
                 continue
@@ -142,6 +146,8 @@ open class DialectGenerateTask @Inject constructor(
                 curlyCounter++
             } else if (token == "}" && !insideString) {
                 curlyCounter--
+            } else if (token == "//") {
+                println("found //")
             }
             if (curlyCounter == 0) {
                 return
