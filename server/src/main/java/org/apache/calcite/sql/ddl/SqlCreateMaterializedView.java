@@ -78,6 +78,7 @@ public class SqlCreateMaterializedView extends SqlCreate
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    // Validator does not allow CREATE OR REPLACE in materialized view statements.
     writer.keyword("CREATE");
     writer.keyword("MATERIALIZED VIEW");
     if (ifNotExists) {
