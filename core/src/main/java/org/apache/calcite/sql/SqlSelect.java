@@ -39,7 +39,7 @@ public class SqlSelect extends SqlCall {
   public static final int HAVING_OPERAND = 5;
 
   public SqlNodeList keywordList;
-  SqlNode topN;
+  public SqlNode topN;
   SqlNodeList selectList;
   SqlNode from;
   SqlNode where;
