@@ -385,7 +385,7 @@ data: {
     # Example: ParseJsonLiteral().
     literalParserMethods: [
     ]
-
+SqlParserTest
     # List of methods for parsing custom data types.
     # Return type of method implementation should be "SqlTypeNameSpec".
     # Example: SqlParseTimeStampZ().
