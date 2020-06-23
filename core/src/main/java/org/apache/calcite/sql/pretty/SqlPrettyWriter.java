@@ -1029,7 +1029,7 @@ public class SqlPrettyWriter implements SqlWriter {
     dialect.unparseFetchAsTopN(this, offset, fetch);
   }
 
-  public void topN(SqlNode topN) {
+  @Override public void topN(SqlNode topN) {
     if (topN == null) {
       return;
     }
