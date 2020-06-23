@@ -101,7 +101,7 @@ public class SqlCreateTable extends SqlCreate
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.keyword("CREATE");
+    writer.keyword(getCreateSpecifier().toString());
     writer.keyword("TABLE");
     name.unparse(writer, leftPrec, rightPrec);
     if (columnList != null) {
