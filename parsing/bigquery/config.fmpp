@@ -16,8 +16,8 @@
 data: {
   parser: {
     # Generated parser implementation class package and name
-    package: "org.apache.calcite.sql.parser.default",
-    class: "DefaultParserImpl",
+    package: "org.apache.calcite.sql.parser.bigquery",
+    class: "BigQueryParserImpl",
 
     # List of import statements.
     imports: [

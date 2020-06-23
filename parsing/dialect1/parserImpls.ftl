@@ -15,13 +15,6 @@
 // limitations under the License.
 -->
 
-JoinType LeftSemiJoin() :
-{
-}
-{
-    <LEFT> <SEMI> <JOIN> { return JoinType.LEFT_SEMI_JOIN; }
-}
-
 SqlNode DateFunctionCall() :
 {
     final SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;

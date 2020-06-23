@@ -16,8 +16,8 @@
 data: {
   parser: {
     # Generated parser implementation class package and name
-    package: "org.apache.calcite.sql.parser.mysql",
-    class: "MySQLParserImpl",
+    package: "org.apache.calcite.sql.parser.default",
+    class: "DefaultParserImpl",
 
     # List of import statements.
     imports: [
