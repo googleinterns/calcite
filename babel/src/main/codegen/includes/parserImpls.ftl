@@ -1016,6 +1016,8 @@ SqlNode DateTimeTerm() :
                     e2 = SimpleIdentifier()
                 |
                     e2 = IntervalLiteral()
+                |
+                    e2 = NumericLiteral()
                 )
                 {
                     return new SqlDateTimeAtTimeZone(getPos(), e, e2);
