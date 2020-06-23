@@ -992,7 +992,7 @@ SqlNode CurrentDateFunction() :
 SqlNode DateTimeTerm() :
 {
     final SqlNode e;
-    SqlIdentifier timeZoneValue;
+    final SqlNode e2;
 }
 {
     (
@@ -1010,11 +1010,17 @@ SqlNode DateTimeTerm() :
                 return new SqlDateTimeAtLocal(getPos(), e);
             }
         |
-            <TIME> <ZONE>
-            {
-                timeZoneValue = SimpleIdentifier();
-                return new SqlDateTimeAtTimeZone(getPos(), e, timeZoneValue);
-            }
+            (
+                <TIME> <ZONE>
+                (
+                    e2 = SimpleIdentifier()
+                |
+                    e2 = IntervalLiteral()
+                )
+                {
+                    return new SqlDateTimeAtTimeZone(getPos(), e, e2);
+                }
+            )
         )
     )
 }

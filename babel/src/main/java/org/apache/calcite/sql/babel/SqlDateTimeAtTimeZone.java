@@ -19,7 +19,6 @@ package org.apache.calcite.sql.babel;
 import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlExecutableStatement;
-import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlOperator;
@@ -35,10 +34,10 @@ public class SqlDateTimeAtTimeZone extends SqlCall implements SqlExecutableState
       new SqlSpecialOperator("AT TIME ZONE", SqlKind.OTHER);
 
   private final SqlNode dateTimePrimary;
-  private final SqlIdentifier timeZoneValue;
+  private final SqlNode timeZoneValue;
 
   public SqlDateTimeAtTimeZone(
-      SqlParserPos pos, SqlNode dateTimePrimary, SqlIdentifier timeZoneValue) {
+      SqlParserPos pos, SqlNode dateTimePrimary, SqlNode timeZoneValue) {
     super(pos);
     this.dateTimePrimary = dateTimePrimary;
     this.timeZoneValue = timeZoneValue;
