@@ -1198,6 +1198,10 @@ SqlNode RankFunctionCallWithParams() :
     }
 }
 
+/**
+ * Parses a TOP N statement in a SELECT query
+ * (for example SELECT TOP 5 * FROM FOO).
+ */
 SqlNode SqlSelectTopN(SqlParserPos pos) :
 {
     final SqlNumericLiteral selectNum;
