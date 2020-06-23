@@ -31,7 +31,7 @@ import org.apache.calcite.util.ImmutableNullableList;
 import java.util.List;
 
 /**
- * <code>SqlSelectTopN</code> is a class that handles the TOP n syntax in
+ * {@code SqlSelectTopN} is a class that handles the TOP n syntax in
  * SELECT statements. It is used by the {@link SqlSelect} class.
  */
 public class SqlSelectTopN extends SqlCall {
