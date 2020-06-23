@@ -1011,7 +1011,7 @@ SqlNode DateTimeTerm() :
             }
         |
             (
-                <TIME> <ZONE>
+                [<TIME> <ZONE>]
                 (
                     e2 = SimpleIdentifier()
                 |
