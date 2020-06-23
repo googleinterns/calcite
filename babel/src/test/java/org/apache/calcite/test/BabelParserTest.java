@@ -1698,7 +1698,8 @@ class BabelParserTest extends SqlParserTest {
 
   @Test void testTopNDecimalWithoutPercentFails() {
     final String sql = "select top ^5.2^ bar from foo";
-    final String expected = "(?s).*Cannot specify non-integer value.*without specifying PERCENT.*";
+    final String expected = "(?s).*Cannot specify non-integer value."
+        + "*without specifying PERCENT.*";
     sql(sql).fails(expected);
   }
 
