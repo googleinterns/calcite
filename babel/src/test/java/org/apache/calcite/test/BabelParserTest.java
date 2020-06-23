@@ -1062,6 +1062,14 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testAtTimeZoneDisplacementValidInterval() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone "
+        + "interval '1:20' minute to second";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
+        + "TIME ZONE INTERVAL '1:20' MINUTE TO SECOND";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateFunctionSqlFormNoParameter() {
     final String sql =
         "create function foo() "
