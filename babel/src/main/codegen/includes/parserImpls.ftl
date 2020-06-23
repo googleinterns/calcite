@@ -568,6 +568,7 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
     WithDataType withData = WithDataType.UNSPECIFIED;
     SqlPrimaryIndex primaryIndex = null;
     SqlIndex index;
+    List<SqlIndex> indices = new ArrayList<SqlIndex>();
     final OnCommitType onCommitType;
 }
 {
@@ -604,19 +605,33 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
     |
         { query = null; }
     )
-    (
-       index = SqlCreateTableIndex(s)
-       {
+    [
+        index = SqlCreateTableIndex(s)
+        {
            if (index instanceof SqlPrimaryIndex) {
                primaryIndex = (SqlPrimaryIndex) index;
            }
-       }
-    )*
+           else{
+               indices.add(index);
+           }
+        }
+        (
+           <COMMA> index = SqlCreateTableIndex(s)
+           {
+               if (index instanceof SqlPrimaryIndex) {
+                   primaryIndex = (SqlPrimaryIndex) index;
+               }
+               else{
+                   indices.add(index);
+               }
+           }
+        )*
+    ]
     onCommitType = OnCommitTypeOpt()
     {
         return new SqlCreateTable(s.end(this), createSpecifier, setType,
          volatility, ifNotExists, id, tableAttributes, columnList, query,
-         withData, primaryIndex, onCommitType);
+         withData, primaryIndex, indices, onCommitType);
     }
 }
 
@@ -724,8 +739,7 @@ void FieldNameTypeCommaListWithoutOptionalNull(
 }
 
 /**
-    Parses an index declaration. Currently only supports PRIMARY INDEX statements,
-    but can be extended to support non-primary indices.
+    Parses an index declaration (both PRIMARY and non-primary indices).
 */
 SqlIndex SqlCreateTableIndex(Span s) :
 {
@@ -752,6 +766,18 @@ SqlIndex SqlCreateTableIndex(Span s) :
        {
            return new SqlPrimaryIndex(s.end(this), columns, name, isUnique,
                 /*explicitNoPrimaryIndex=*/ false);
+       }
+   |
+       [
+            <UNIQUE> { isUnique = true; }
+       ]
+       <INDEX>
+       [
+            name = SimpleIdentifier()
+       ]
+       columns = ParenthesizedSimpleIdentifierList()
+       {
+           return new SqlSecondaryIndex(s.end(this), columns, name, isUnique);
        }
    )
 }

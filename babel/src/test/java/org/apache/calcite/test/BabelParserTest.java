@@ -1535,7 +1535,7 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testPrimaryIndexMultipleOverwritten() {
-    final String sql = "create table foo primary index bar (lname) primary index baz (fname)";
+    final String sql = "create table foo primary index bar (lname), primary index baz (fname)";
     final String expected = "CREATE TABLE `FOO` PRIMARY INDEX `BAZ` (`FNAME`)";
     sql(sql).ok(expected);
   }
@@ -1721,6 +1721,57 @@ class BabelParserTest extends SqlParserTest {
     final String sql = "select rank(foo asc, baz desc, x) from bar";
     final String expected = "SELECT (RANK() OVER (ORDER BY `FOO`, `BAZ` DESC, `X` DESC))\n"
         + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testIndexWithoutName() {
+    final String sql = "create table foo (bar integer) index (bar)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) INDEX (`BAR`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testIndexWithName() {
+    final String sql = "create table foo (bar integer) index baz (bar)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) "
+      + "INDEX `BAZ` (`BAR`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUniqueIndexWithoutName() {
+    final String sql = "create table foo (bar integer) unique index (bar)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) "
+      + "UNIQUE INDEX (`BAR`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUniqueIndexWithName() {
+    final String sql = "create table foo (bar integer) unique index baz (bar)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) "
+      + "UNIQUE INDEX `BAZ` (`BAR`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testMulticolumnIndex() {
+    final String sql = "create table foo (bar integer, qux integer) "
+      + "index (bar, qux)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER, `QUX` INTEGER) "
+      + "INDEX (`BAR`, `QUX`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testMultipleIndices() {
+    final String sql = "create table foo (bar integer, qux integer) "
+      + "index (bar), unique index (qux)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER, `QUX` INTEGER) "
+      + "INDEX (`BAR`), UNIQUE INDEX (`QUX`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testPrimaryIndexWithSecondaryIndex() {
+    final String sql = "create table foo (bar integer, qux integer) "
+        + "primary index (bar), index (qux)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER, `QUX` INTEGER) "
+        + "PRIMARY INDEX (`BAR`), INDEX (`QUX`)";
     sql(sql).ok(expected);
   }
 }

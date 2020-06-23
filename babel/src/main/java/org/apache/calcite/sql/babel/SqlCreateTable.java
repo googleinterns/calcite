@@ -29,6 +29,7 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,6 +46,7 @@ public class SqlCreateTable extends SqlCreate
   public final SqlNode query;
   public final WithDataType withData;
   public final SqlPrimaryIndex primaryIndex;
+  public final List<SqlIndex> indices;
   public final OnCommitType onCommitType;
 
   private static final SqlOperator OPERATOR =
@@ -54,7 +56,8 @@ public class SqlCreateTable extends SqlCreate
       SetType setType, Volatility volatility, boolean ifNotExists,
       SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
       SqlNodeList columnList, SqlNode query, WithDataType withData,
-      SqlPrimaryIndex primaryIndex, OnCommitType onCommitType) {
+      SqlPrimaryIndex primaryIndex, List<SqlIndex> indices,
+      OnCommitType onCommitType) {
     super(OPERATOR, pos, createSpecifier, ifNotExists);
     this.name = Objects.requireNonNull(name);
     this.setType = setType;
@@ -64,6 +67,7 @@ public class SqlCreateTable extends SqlCreate
     this.query = query; // for "CREATE TABLE ... AS query"; may be null
     this.withData = withData;
     this.primaryIndex = primaryIndex;
+    this.indices = indices;
     this.onCommitType = onCommitType;
   }
 
@@ -129,8 +133,17 @@ public class SqlCreateTable extends SqlCreate
     default:
       break;
     }
+    List<SqlIndex> allIndices = new ArrayList<SqlIndex>(indices);
     if (primaryIndex != null) {
-      primaryIndex.unparse(writer, leftPrec, rightPrec);
+      allIndices.add(0, primaryIndex);
+    }
+    if (allIndices.size()>0) {
+      SqlWriter.Frame frame = writer.startList("", "");
+      for (SqlIndex index : allIndices) {
+        writer.sep(",");
+        index.unparse(writer, 0, 0);
+      }
+      writer.endList(frame);
     }
     switch (onCommitType) {
     case PRESERVE:
