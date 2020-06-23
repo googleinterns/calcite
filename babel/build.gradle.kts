@@ -37,13 +37,6 @@ dependencies {
     testImplementation(project(":core", "testClasses"))
 }
 
-val dialectGenerate by tasks.registering(org.apache.calcite.buildtools.parser.DialectGenerateTask::class) {
-    rootDirectory.set(file("../temp"))
-    // TODO: make this file(".")
-    dialectDirectory.set(file("../temp/intermediate/dialect1/"))
-    outputFile = "/"
-}
-
 val fmppMain by tasks.registering(org.apache.calcite.buildtools.fmpp.FmppTask::class) {
     dependsOn(dialectGenerate)
     inputs.dir("src/main/codegen")

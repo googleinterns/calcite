@@ -136,7 +136,7 @@ open class DialectGenerateTask @Inject constructor(
             Regex("(%s\\s*\\(\\s*(%s\\s*(\\,\\s*%s\\s*)*)?\\)\\s*\\:\n)"
                     .format(typeAndName, typeAndName, typeAndName))
         val delims = "(\\s|\n|\"|(//)|(/\\*)|(\\*/))"
-        // Uses Lookahead and Lookbehind to ensure that the delims are added as tokens
+        // Uses Lookahead and Lookbehind to ensure that the delims are added as tokens.
         val splitRegex = Regex("((?<=%s)|(?=%s))".format(delims, delims))
         val declarationMatches = declarationPattern.findAll(fileText)
         for (m in declarationMatches) {
