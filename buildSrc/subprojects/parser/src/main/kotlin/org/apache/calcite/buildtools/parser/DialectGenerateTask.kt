@@ -19,10 +19,12 @@ package org.apache.calcite.buildtools.parser
 import java.io.File
 import java.util.LinkedList
 import java.util.Queue
+import java.util.StringTokenizer
 import javax.inject.Inject
 import kotlin.collections.HashMap
 import kotlin.collections.Map
 import kotlin.text.Regex
+import kotlin.text.StringBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.Input
@@ -32,8 +34,6 @@ import org.gradle.api.tasks.TaskAction
 open class DialectGenerateTask @Inject constructor(
     objectFactory: ObjectFactory
 ) : DefaultTask() {
-
-    private val CALCITE_OFFSET = 8
 
     @InputDirectory
     val dialectDirectory = objectFactory.directoryProperty()
@@ -49,30 +49,42 @@ open class DialectGenerateTask @Inject constructor(
         extractFunctions()
     }
 
-    fun extractFunctions(): Map<String, String> {
+    private fun extractFunctions(): Map<String, String> {
         val rootDirectoryFile = rootDirectory.get().asFile
-        val queue = getTraversalPath()
+        val queue = getTraversalPath(rootDirectoryFile)
         val functionMap: Map<String, String> = HashMap<String, String>()
         traverse(queue, rootDirectoryFile, functionMap)
         return functionMap
     }
 
-    fun generateParserImpls(functions: Map<String, String>) {}
+    private fun generateParserImpls(functions: Map<String, String>) {}
 
-    private fun getTraversalPath(): Queue<String> {
+    /**
+     * Gets the traversal path for the dialect by "subtracting" the root
+     * absolute path from the dialect directory absolute path.
+     *
+     * @param rootDirectoryFile The file for the root parsing directory
+     */
+    private fun getTraversalPath(rootDirectoryFile: File): Queue<String> {
         val dialectDirectoryFile = dialectDirectory.get().asFile
         var dialectPath = dialectDirectoryFile.absolutePath
-        val calciteIndex = dialectPath.lastIndexOf("calcite/")
-        dialectPath = dialectPath.substring(calciteIndex + CALCITE_OFFSET)
+        val rootPath = rootDirectoryFile.absolutePath
+        val rootIndex = dialectPath.indexOf(rootPath)
+        dialectPath = dialectPath.substring(rootIndex + rootPath.length + 1)
+
         val queue: Queue<String> = LinkedList(dialectPath.split("/"))
-        // Remove the root directory.
-        queue.poll()
         return queue
     }
 
-    /* Traverses the determined path given by the queue. Once the queue is
-       empty, the dialect directory has been reached. In that case any *.ftl
-       file should be processed and no further traversal should happen. */
+    /**
+     * Traverses the determined path given by the queue. Once the queue is
+     * empty, the dialect directory has been reached. In that case any *.ftl
+     * file should be processed and no further traversal should happen.
+     *
+     * @param directories The directories to traverse in topdown order
+     * @param currentDirectory The current directory the function is processing
+     * @param functionMap The map to which the parsing functions will be added to
+     */
     private fun traverse(
         directories: Queue<String>,
         currentDirectory: File,
@@ -95,12 +107,38 @@ open class DialectGenerateTask @Inject constructor(
 
     private fun processFile(f: File, functionMap: Map<String, String>) {
         println("Found File: " + f.absolutePath.toString())
-        val fileText = f.readText(Charsets.UTF_8)
+        var fileText = f.readText(Charsets.UTF_8)
         val declarationPattern =
             Regex("(\\w+\\s+\\w+\\s*\\(\\w+\\s+\\w+\\s*(\\,\\s*\\w+\\s+\\w+\\s*)*\\)\\s*\\:\n)")
         val matches = declarationPattern.findAll(fileText)
         for (m in matches) {
-            println(m.value)
+            val functionDeclaration = m.value
+            val functionBuilder = StringBuilder(functionDeclaration)
+            val declarationIndex = fileText.indexOf(functionDeclaration)
+            fileText = fileText.substring(declarationIndex + functionDeclaration.length)
+            val delims = " \n"
+            fileText = fileText.substring(fileText.indexOf("{"))
+            val tokenizer = StringTokenizer(fileText, delims, true)
+            processCurlyBlock(functionBuilder, tokenizer)
+            processCurlyBlock(functionBuilder, tokenizer)
+            println(functionBuilder.toString())
+            println("------------------")
+        }
+    }
+
+    private fun processCurlyBlock(functionBuilder: StringBuilder, tokenizer: StringTokenizer) {
+        var curlyCounter = 0
+        while (tokenizer.hasMoreTokens()) {
+            val token = tokenizer.nextToken()
+            functionBuilder.append(token)
+            if (token == "{") {
+                curlyCounter++
+            } else if (token == "}") {
+                curlyCounter--
+            }
+            if (curlyCounter == 0) {
+                return
+            }
         }
     }
 }
