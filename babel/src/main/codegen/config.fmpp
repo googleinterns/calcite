@@ -468,7 +468,6 @@ data: {
       "OFF"
       "RENAME"
       "SEMI"
-      "TOP"
       "UNICODE"
       "UPD"
 

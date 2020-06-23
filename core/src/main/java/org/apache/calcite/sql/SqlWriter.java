@@ -383,7 +383,7 @@ public interface SqlWriter {
   void fetchAsTopN(SqlNode fetch, SqlNode offset);
 
   /**
-   * Prints the TOP N clause
+   * Prints the TOP N clause.
    */
   void topN(SqlNode topN);
 

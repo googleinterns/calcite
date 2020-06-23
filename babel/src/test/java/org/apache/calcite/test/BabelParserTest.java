@@ -1710,6 +1710,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).fails(expected);
   }
 
+  @Test void testTopNNegativeFails() {
+    final String sql = "select ^top^ -5 * from foo";
+    final String expected = "(?s).*Encountered \"top -\".*";
+    sql(sql).fails(expected);
+  }
+
   @Test void testTopNPercentGreaterThan100Fails() {
     final String sql = "select top 200 ^percent^ bar from foo";
     final String expected = "(?s).*Numeric literal.*out of range.*";
