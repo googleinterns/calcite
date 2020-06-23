@@ -113,7 +113,7 @@ open class DialectGenerateTask @Inject constructor(
         var fileText = f.readText(Charsets.UTF_8)
         val declarationPattern =
             Regex("(\\w+\\s+\\w+\\s*\\((\\w+\\s+\\w+\\s*(\\,\\s*\\w+\\s+\\w+\\s*)*)?\\)\\s*\\:\n)")
-        val delims = "(\\s|\n|\")"
+        val delims = "(\\s|\n|\"|(//))"
         val splitRegex = Regex("((?<=%s)|(?=%s))".format(delims, delims))
         val matches = declarationPattern.findAll(fileText)
         for (m in matches) {
@@ -133,21 +133,26 @@ open class DialectGenerateTask @Inject constructor(
     private fun processCurlyBlock(functionBuilder: StringBuilder, tokens: Queue<String>) {
         var curlyCounter = 0
         var insideString = false
-        var insideComment = false
+        var insideSingleLineComment = false
+        var validBrace = true
         while (tokens.isNotEmpty()) {
             val token = tokens.poll()
             functionBuilder.append(token)
+            validBrace = !insideString && !insideSingleLineComment
             if (token == "\n") {
+                if (insideSingleLineComment) {
+                    insideSingleLineComment = false
+                }
                 continue
             }
-            if (token == "\"") {
+            if (token == "\"" && !insideSingleLineComment) {
                 insideString = !insideString
-            } else if (token == "{" && !insideString) {
-                curlyCounter++
-            } else if (token == "}" && !insideString) {
-                curlyCounter--
             } else if (token == "//") {
-                println("found //")
+                insideSingleLineComment = true
+            } else if (token == "{" && validBrace) {
+                curlyCounter++
+            } else if (token == "}" && validBrace) {
+                curlyCounter--
             }
             if (curlyCounter == 0) {
                 return
