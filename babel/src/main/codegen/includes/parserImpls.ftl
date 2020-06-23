@@ -1222,13 +1222,17 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
     {
         if (tempNum != Math.floor(tempNum) && !isPercent) {
             throw SqlUtil.newContextException(getPos(),
-                RESOURCE.nonIntegerRequiredWithoutPercent(String.valueOf(tempNum)));
+                RESOURCE.integerRequiredWhenNoPercent(
+                    String.valueOf(tempNum)
+                ));
         }
     }
     [
         <WITH> <TIES> { withTies = true; }
     ]
     {
-        return new SqlSelectTopN(pos, selectNum, SqlLiteral.createBoolean(isPercent, pos), SqlLiteral.createBoolean(withTies, pos));
+        return new SqlSelectTopN(pos, selectNum,
+            SqlLiteral.createBoolean(isPercent, pos),
+            SqlLiteral.createBoolean(withTies, pos));
     }
 }

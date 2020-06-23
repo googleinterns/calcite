@@ -31,11 +31,12 @@ import org.apache.calcite.util.ImmutableNullableList;
 import java.util.List;
 
 /**
- * <code>SqlSelectTopN</code> is a class that handles the TOP n syntax in SELECT statements,
- * and is used by the {@link SqlSelect} class
+ * <code>SqlSelectTopN</code> is a class that handles the TOP n syntax in
+ * SELECT statements. It is used by the {@link SqlSelect} class.
  */
 public class SqlSelectTopN extends SqlCall {
-  private static final SqlSpecialOperator OPERATOR = new SqlSpecialOperator("TOP", SqlKind.OTHER);
+  private static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("TOP", SqlKind.OTHER);
   private final SqlNumericLiteral selectNum;
   private final SqlLiteral isPercent;
   private final SqlLiteral withTies;

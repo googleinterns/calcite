@@ -920,5 +920,5 @@ public interface CalciteResource {
   ExInst<CalciteException> invalidInputForExtractValue(String xml, String xpath);
 
   @BaseMessage("Cannot specify non-integer value ''{0}'' without specifying PERCENT")
-  ExInst<CalciteException> nonIntegerRequiredWithoutPercent(String value);
+  ExInst<CalciteException> integerRequiredWhenNoPercent(String value);
 }

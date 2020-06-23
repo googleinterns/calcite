@@ -1339,7 +1339,8 @@ SqlSelect SqlSelect() :
     {
         return new SqlSelect(s.end(this), keywordList, topN,
             new SqlNodeList(selectList, Span.of(selectList).pos()),
-            fromClause, where, groupBy, having, qualify, windowDecls, null, null, null,
+            fromClause, where, groupBy, having, qualify, windowDecls,
+            /*orderBy=*/null, /*offset=*/null, /*fetch=*/null,
             new SqlNodeList(hints, getPos()));
     }
 }

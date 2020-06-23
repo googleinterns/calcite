@@ -66,8 +66,8 @@ public class SqlSelect extends SqlCall {
       SqlNode offset,
       SqlNode fetch,
       SqlNodeList hints) {
-    this(pos, keywordList, /*topN=*/ null, selectList, from, where, groupBy, having,
-        /*qualify=*/ null, windowDecls, orderBy, offset, fetch, hints);
+    this(pos, keywordList, /*topN=*/ null, selectList, from, where, groupBy,
+        having, /*qualify=*/ null, windowDecls, orderBy, offset, fetch, hints);
   }
 
   public SqlSelect(SqlParserPos pos,
@@ -83,8 +83,8 @@ public class SqlSelect extends SqlCall {
                    SqlNode offset,
                    SqlNode fetch,
                    SqlNodeList hints) {
-    this(pos, keywordList, /*topN=*/ null, selectList, from, where, groupBy, having,
-        qualify, windowDecls, orderBy, offset, fetch, hints);
+    this(pos, keywordList, /*topN=*/ null, selectList, from, where, groupBy,
+        having, qualify, windowDecls, orderBy, offset, fetch, hints);
   }
 
   public SqlSelect(SqlParserPos pos,
@@ -131,7 +131,8 @@ public class SqlSelect extends SqlCall {
 
   @Override public List<SqlNode> getOperandList() {
     return ImmutableNullableList.of(keywordList, selectList, from, where,
-        groupBy, having, qualify, windowDecls, orderBy, offset, fetch, hints, topN);
+        groupBy, having, qualify, windowDecls, orderBy, offset, fetch,
+        hints, topN);
   }
 
   @Override public void setOperand(int i, SqlNode operand) {
