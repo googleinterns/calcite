@@ -1102,6 +1102,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testAtTimeZoneDisplacementNonUnicodeString() {
+    final String sql = "select foo at time zone \"Hădrĭa\"";
+    final String expected = "SELECT `FOO` AT TIME ZONE `Hădrĭa`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateFunctionSqlFormNoParameter() {
     final String sql =
         "create function foo() "
