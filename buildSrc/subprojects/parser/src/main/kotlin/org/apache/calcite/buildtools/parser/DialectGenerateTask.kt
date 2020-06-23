@@ -22,7 +22,7 @@ import java.util.Queue
 import java.util.StringTokenizer
 import javax.inject.Inject
 import kotlin.collections.HashMap
-import kotlin.collections.Map
+import kotlin.collections.MutableMap
 import kotlin.text.Regex
 import kotlin.text.StringBuilder
 import org.gradle.api.DefaultTask
@@ -46,13 +46,14 @@ open class DialectGenerateTask @Inject constructor(
 
     @TaskAction
     fun run() {
-        extractFunctions()
+        val functionMap = extractFunctions()
+        println(functionMap)
     }
 
     private fun extractFunctions(): Map<String, String> {
         val rootDirectoryFile = rootDirectory.get().asFile
         val queue = getTraversalPath(rootDirectoryFile)
-        val functionMap: Map<String, String> = HashMap<String, String>()
+        val functionMap: MutableMap<String, String> = HashMap<String, String>()
         traverse(queue, rootDirectoryFile, functionMap)
         return functionMap
     }
@@ -88,7 +89,7 @@ open class DialectGenerateTask @Inject constructor(
     private fun traverse(
         directories: Queue<String>,
         currentDirectory: File,
-        functionMap: Map<String, String>
+        functionMap: MutableMap<String, String>
     ) {
         val files = currentDirectory.listFiles()
         files.sortBy { it.isDirectory }
@@ -105,7 +106,7 @@ open class DialectGenerateTask @Inject constructor(
         }
     }
 
-    private fun processFile(f: File, functionMap: Map<String, String>) {
+    private fun processFile(f: File, functionMap: MutableMap<String, String>) {
         println("Found File: " + f.absolutePath.toString())
         var fileText = f.readText(Charsets.UTF_8)
         val declarationPattern =
@@ -113,16 +114,16 @@ open class DialectGenerateTask @Inject constructor(
         val matches = declarationPattern.findAll(fileText)
         for (m in matches) {
             val functionDeclaration = m.value
+            val functionName = getFunctionName(functionDeclaration)
             val functionBuilder = StringBuilder(functionDeclaration)
             val declarationIndex = fileText.indexOf(functionDeclaration)
             fileText = fileText.substring(declarationIndex + functionDeclaration.length)
             val delims = " \n"
             fileText = fileText.substring(fileText.indexOf("{"))
-            val tokenizer = StringTokenizer(fileText, delims, true)
+            val tokenizer = StringTokenizer(fileText, delims, /*returnDelims=*/ true)
             processCurlyBlock(functionBuilder, tokenizer)
             processCurlyBlock(functionBuilder, tokenizer)
-            println(functionBuilder.toString())
-            println("------------------")
+            functionMap.put(functionName, functionBuilder.toString())
         }
     }
 
@@ -131,6 +132,9 @@ open class DialectGenerateTask @Inject constructor(
         while (tokenizer.hasMoreTokens()) {
             val token = tokenizer.nextToken()
             functionBuilder.append(token)
+            if (token == "\n") {
+                continue
+            }
             if (token == "{") {
                 curlyCounter++
             } else if (token == "}") {
@@ -140,5 +144,16 @@ open class DialectGenerateTask @Inject constructor(
                 return
             }
         }
+    }
+
+    /**
+     * Gets the function name from the declaration.
+     *
+     * @param functionDeclaration The function declaration of form <return_type> <name> (<args>) :
+     */
+    private fun getFunctionName(functionDeclaration: String): String {
+        val nameRegex = Regex("\\w+")
+        val matches = nameRegex.findAll(functionDeclaration)
+        return matches.elementAt(1).value
     }
 }
