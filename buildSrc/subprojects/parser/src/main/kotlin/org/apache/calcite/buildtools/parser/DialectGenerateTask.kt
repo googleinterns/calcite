@@ -46,13 +46,6 @@ open class DialectGenerateTask @Inject constructor(
         Regex("($typeAndName\\s*\\(\\s*($typeAndName\\s*(\\,\\s*$typeAndName\\s*)*)?\\)\\s*\\:\n?)")
     private val nameRegex = Regex("\\w+")
 
-    // Flags used when parsing.
-    private var validBrace = false
-    private var validDoubleQuote = false
-    private var validSingleQuote = false
-    private var validSingleComment = false
-    private var validMultiComment = false
-
     @InputDirectory
     val dialectDirectory = objectFactory.directoryProperty()
 
@@ -65,6 +58,10 @@ open class DialectGenerateTask @Inject constructor(
     @TaskAction
     fun run() {
         val functionMap = extractFunctions()
+        functionMap.forEach {
+            k, v ->
+                println("$k = $v\n")
+            }
     }
 
     /**
@@ -194,7 +191,8 @@ open class DialectGenerateTask @Inject constructor(
             functionBuilder.append(token)
             updatedCharIndex += token.length
         }
-        // Called twice as there are two curly blocks.
+        // Called twice as there are two curly blocks, one for initialization
+        // and one for the body.
         updatedCharIndex = processCurlyBlock(functionBuilder, tokens, updatedCharIndex)
         updatedCharIndex = processCurlyBlock(functionBuilder, tokens, updatedCharIndex)
 
@@ -209,8 +207,11 @@ open class DialectGenerateTask @Inject constructor(
      * curly braces within single-line comments, multi-line comments, and strings
      * are not counted for this.
      *
+     * The function is assumed to be in a valid format.
+     *
      * @param functionBuilder The builder unto which the tokens get added to once parsed
-     * @param tokens The tokens to be parsed
+     * @param tokens The tokens starting from the function declaration and
+     *               ending at EOF
      * @param charIndex The character index of the entire text of the file at which
      *                  the parsing is commencing at
      */
@@ -219,47 +220,15 @@ open class DialectGenerateTask @Inject constructor(
         tokens: Queue<String>,
         charIndex: Int
     ): Int {
-        var curlyCounter = 0
-        var insideString = false
-        var insideCharacter = false
-        var insideSingleComment = false
-        var insideMultiComment = false
         var updatedCharIndex = charIndex
+        val parser = CurlyParser()
         while (tokens.isNotEmpty()) {
             val token = tokens.poll()
             functionBuilder.append(token)
             updatedCharIndex += token.length
-            if (token == "\n" || token == " ") {
-                if (token == "\n") {
-                    if (insideSingleComment) {
-                        insideSingleComment = false
-                    }
-                }
-                // Since new lines and spaces between curly blocks are valid in calcite,
-                // we want to allow an arbitrary number of them before we start
-                // keeping track of curly braces.
-                continue
-            }
-            // The following checks ensure that curly braces inside of strings
-            // and comments do not affect curlyCounter.
-            determineTokenValidity(insideString, insideCharacter,
-                    insideSingleComment, insideMultiComment)
-            if (token == "\"" && validDoubleQuote) {
-                insideString = !insideString
-            } else if (token == "'" && validSingleQuote) {
-                insideCharacter = !insideCharacter
-            } else if (token == "//" && validSingleComment) {
-                insideSingleComment = true
-            } else if (token == "/*" && validMultiComment) {
-                insideMultiComment = true
-            } else if (token == "*/" && validMultiComment) {
-                insideMultiComment = false
-            } else if (token == "{" && validBrace) {
-                curlyCounter++
-            } else if (token == "}" && validBrace) {
-                curlyCounter--
-            }
-            if (curlyCounter == 0) {
+
+            val doneParsingBlock = parser.parseToken(token)
+            if (doneParsingBlock) {
                 return updatedCharIndex
             }
         }
@@ -277,40 +246,93 @@ open class DialectGenerateTask @Inject constructor(
         return matches.elementAt(1).value
     }
 
-    /**
-     * Sets the various flags which are used by processCurlyBloc() when
-     * parsing special characters.
-     *
-     * @param insideString Whether currently within a string " "
-     * @param insideCharacter Whether currently within a character ' '
-     * @param insideSingleLineComment Whether curently within single comment //
-     * @param insideMultiLineComment Whether currently within multi comment
-     */
-    private fun determineTokenValidity(
-        insideString: Boolean,
-        insideCharacter: Boolean,
-        insideSingleLineComment: Boolean,
-        insideMultiLineComment: Boolean
-    ) {
-        validBrace = !insideString &&
-                !insideSingleLineComment &&
-                !insideMultiLineComment &&
-                !insideCharacter
+    class CurlyParser() {
 
-        validDoubleQuote = !insideCharacter &&
-                !insideSingleLineComment &&
-                !insideMultiLineComment
+        enum class ValidState {
+            ANY
+            DOUBLE_QUOTE,
+            SINGLE_QUOTE,
+            SINGLE_COMMENT,
+            MULTI_COMMENT
+        }
 
-        validSingleQuote = !insideString &&
-                !insideSingleLineComment &&
-                !insideMultiLineComment
+        enum class InsideState {
+            NONE,
+            STRING,
+            CHARACTER,
+            SINGLE_COMMENT,
+            MULTI_COMMENT_CLOSED
+        }
+        private validState = ValidState.ANY
 
-        validSingleComment = !insideString &&
-                !insideCharacter &&
-                !insideMultiLineComment
+        private insideState = InsideState.NONE
 
-        validMultiComment = !insideString &&
-                !insideCharacter &&
-                !insideSingleLineComment
+        private var curlyCounter = 0
+
+        fun parseToken(token: String): Boolean {
+            if (token == " ") {
+                return false
+            }
+            if (token == "\n") {
+                if (insideSingleComment) {
+                    insideSingleComment = false
+                }
+                return false
+            }
+            determineTokenValidity()
+
+            when (validState) {
+                ValidState.DOUBLE_QUOTE, ValidState.ANY -> if (token == "\"") {
+                    insideState = if(insideState == InsideState.STRING) {
+                        InsideState.NONE
+                    } else {
+                        InsideState.STRING
+                    }
+                }
+                ValidState.SINGLE_QUOTE -> if (token == "'") {
+                    insideState = if(insideState == InsideState.CHARACTER) {
+                        InsideState.NONE
+                    } else {
+                        InsideState.CHARACTER
+                    }
+                }
+                ValidState.SINGLE_COMMENT -> if (token == "//") {
+                    insideState = InsideState.SINGLE_COMMENT
+                }
+                ValidState.MULTI_COMMENT -> {
+                    insideState = if (token == "/*") {
+                        InsideState.MULTI_COMMENT
+                    } else if (token == "*/") {
+                        InsideState.NONE
+                    }
+                }
+                ValidState.ANY -> {
+                    if (token == "{") {
+                        curlyCounter++
+                    } else if (token == "}") {
+                        curlyCounter--
+                    }
+                }
+            }
+            return curlyCounter == 0
+        }
+
+        /**
+         * Sets the various flags which are used by processCurlyBloc() when
+         * parsing special characters.
+         *
+         * @param insideString Whether currently within a string " "
+         * @param insideCharacter Whether currently within a character ' '
+         * @param insideSingleLineComment Whether curently within single comment //
+         * @param insideMultiLineComment Whether currently within multi comment
+         */
+        private fun determineTokenValidity() {
+            validState = when (insideState) {
+                InsideState.NONE -> ValidState.ANY
+                InsideState.STRING -> ValidState.DOUBLE_QUOTE
+                InsideState.CHARACTER -> ValidState.SINGLE_QUOTE
+                InsideState.SINGLE_COMMENT -> ValidState.SINGLE_COMMENT
+                InsideState.MULTI_COMMENT -> ValidState.MULTI_COMMENT_CLOSED
+        }
     }
 }
