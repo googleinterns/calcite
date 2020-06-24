@@ -65,10 +65,6 @@ open class DialectGenerateTask @Inject constructor(
     @TaskAction
     fun run() {
         val functionMap = extractFunctions()
-        functionMap.forEach {
-            k, v ->
-                println("$k = $v")
-            }
     }
 
     /**
