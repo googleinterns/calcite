@@ -325,4 +325,12 @@ class ServerParserTest extends SqlParserTest {
         + "FROM `BAR`";
     sql(sql).ok(expected);
   }
+
+  @Test void testReplaceViewWithCompoundIdentifiers() {
+    final String sql = "replace view foo (a.b, c.d) as select * from bar";
+    final String expected = "REPLACE VIEW `FOO` (`A`.`B`, `C`.`D`) AS\n"
+        + "SELECT *\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
 }
