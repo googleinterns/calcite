@@ -39,8 +39,6 @@ open class DialectGenerateTask @Inject constructor(
 ) : DefaultTask() {
 
     private val typeAndName = "\\w+\\s+\\w+"
-    private val space = "\\s"
-    private val newLine = "\n"
     private val splitDelims = "(\\s|\n|\"|//|/\\*|\\*/|')"
 
     private val tokenizer = Regex("((?<=$splitDelims)|(?=$splitDelims))")
