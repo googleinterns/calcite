@@ -99,7 +99,7 @@ public enum SqlConformanceEnum implements SqlConformance {
    * consistent with MySQL version 8.x. */
   MYSQL_8;
 
-  // TODO: change to isLeftSemiJoinAllowed, only place it's used. Remove babel
+  // TODO: change to isLeftSemiJoinAllowed, only place it's used. Remove BABEL.
   public boolean isLiberal() {
     switch (this) {
     case BABEL:
@@ -132,6 +132,12 @@ public enum SqlConformanceEnum implements SqlConformance {
     case LENIENT:
     case MYSQL_5:
     case PRESTO:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -144,6 +150,11 @@ public enum SqlConformanceEnum implements SqlConformance {
     case LENIENT:
     case BIG_QUERY:
     case MYSQL_5:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -180,6 +191,12 @@ public enum SqlConformanceEnum implements SqlConformance {
     case ORACLE_12:
     case STRICT_92:
     case SQL_SERVER_2008:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -211,6 +228,12 @@ public enum SqlConformanceEnum implements SqlConformance {
     case ORACLE_10:
     case ORACLE_12:
     case PRESTO:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -223,6 +246,12 @@ public enum SqlConformanceEnum implements SqlConformance {
     case LENIENT:
     case ORACLE_10:
     case ORACLE_12:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -235,6 +264,12 @@ public enum SqlConformanceEnum implements SqlConformance {
     case LENIENT:
     case MYSQL_5:
     case PRESTO:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -247,6 +282,12 @@ public enum SqlConformanceEnum implements SqlConformance {
     case LENIENT:
     case SQL_SERVER_2008:
     case ORACLE_12:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -260,6 +301,11 @@ public enum SqlConformanceEnum implements SqlConformance {
     case PRAGMATIC_99:
     case PRAGMATIC_2003:
     case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -271,6 +317,12 @@ public enum SqlConformanceEnum implements SqlConformance {
     case BABEL:
     case LENIENT:
     case MYSQL_5:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -282,6 +334,12 @@ public enum SqlConformanceEnum implements SqlConformance {
     case DEFAULT:
     case LENIENT:
     case PRESTO:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -292,6 +350,12 @@ public enum SqlConformanceEnum implements SqlConformance {
     switch (this) {
     case BABEL:
     case LENIENT:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -303,6 +367,12 @@ public enum SqlConformanceEnum implements SqlConformance {
     case BABEL:
     case LENIENT:
     case MYSQL_5:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -316,6 +386,12 @@ public enum SqlConformanceEnum implements SqlConformance {
     case MYSQL_5:
     case SQL_SERVER_2008:
     case PRESTO:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -332,6 +408,11 @@ public enum SqlConformanceEnum implements SqlConformance {
     case ORACLE_12:
     case SQL_SERVER_2008:
     case PRESTO:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -344,6 +425,12 @@ public enum SqlConformanceEnum implements SqlConformance {
     case LENIENT:
     case MYSQL_5:
     case SQL_SERVER_2008:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -354,6 +441,12 @@ public enum SqlConformanceEnum implements SqlConformance {
     switch (this) {
     case BABEL:
     case LENIENT:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
