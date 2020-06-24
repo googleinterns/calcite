@@ -61,6 +61,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlSelectTopN",
       "org.apache.calcite.sql.babel.SqlIndex",
       "org.apache.calcite.sql.babel.SqlPrimaryIndex",
+      "org.apache.calcite.sql.babel.SqlSecondaryIndex",
       "org.apache.calcite.sql.babel.SqlUpsert",
       "org.apache.calcite.sql.babel.SqlUsingRequestModifier",
       "org.apache.calcite.sql.babel.Volatility",
