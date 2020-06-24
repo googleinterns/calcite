@@ -613,7 +613,7 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
         {
             // Filter out any primary indices from index list.
             int i = 0;
-            while (i < indices.size() ) {
+            while (i < indices.size()) {
                 if (indices.get(i) instanceof SqlPrimaryIndex) {
                     primaryIndex = (SqlPrimaryIndex) indices.remove(i);
                 } else {
@@ -734,8 +734,8 @@ void FieldNameTypeCommaListWithoutOptionalNull(
 }
 
 /**
-    Parses an index declaration (both PRIMARY and non-primary indices).
-*/
+ *   Parses an index declaration (both PRIMARY and non-primary indices).
+ */
 SqlIndex SqlCreateTableIndex(Span s) :
 {
    SqlNodeList columns;
