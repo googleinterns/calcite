@@ -270,6 +270,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateOrReplaceTable() {
+    final String sql = "create or replace table foo (bar integer)";
+    final String expected = "CREATE OR REPLACE TABLE `FOO` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTableWithNoSetTypeSpecified() {
     final String sql = "create table foo (bar integer not null, baz varchar(30))";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER NOT NULL, `BAZ` VARCHAR(30))";
@@ -1062,6 +1068,52 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testAtTimeZoneDisplacementValidInterval() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone "
+        + "interval '1:20' minute to second";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
+        + "TIME ZONE INTERVAL '1:20' MINUTE TO SECOND";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAtTimeZoneDisplacementValidIntervalWithoutTimeZone() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at "
+        + "interval '1:20' minute to second";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
+        + "TIME ZONE INTERVAL '1:20' MINUTE TO SECOND";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAtTimeZoneDisplacementValidBigIntPrecisionZero() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at "
+        + "9223372036854775807";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
+        + "TIME ZONE 9223372036854775807";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAtTimeZoneDisplacementValidDecimalPrecisionZeroNegative() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone "
+        + "-2";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
+        + "TIME ZONE -2";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAtTimeZoneDisplacementValidDecimalPrecisionGreaterThanZero() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone "
+        + "1.5";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
+        + "TIME ZONE 1.5";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAtTimeZoneDisplacementNonUnicodeString() {
+    final String sql = "select foo at time zone \"Hădrĭa\"";
+    final String expected = "SELECT `FOO` AT TIME ZONE `Hădrĭa`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateFunctionSqlFormNoParameter() {
     final String sql =
         "create function foo() "
@@ -1773,5 +1825,58 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER, `QUX` INTEGER) "
           + "PRIMARY INDEX (`BAR`), INDEX (`QUX`)";
     sql(sql).ok(expected);
+
+  @Test void testTopNNoPercentNoTies() {
+    final String sql = "select top 5 bar from foo";
+    final String expected = "SELECT TOP 5 `BAR`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testTopNWithTies() {
+    final String sql = "select top 5 with ties bar from foo";
+    final String expected = "SELECT TOP 5 WITH TIES `BAR`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testTopNWithPercent() {
+    final String sql = "select top 5.2 percent bar from foo";
+    final String expected = "SELECT TOP 5.2 PERCENT `BAR`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testTopNWithPercentWithTies() {
+    final String sql = "select top 5 percent with ties bar from foo";
+    final String expected = "SELECT TOP 5 PERCENT WITH TIES `BAR`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testTopNGreaterThan100WithoutPercent() {
+    final String sql = "select top 500 bar from foo";
+    final String expected = "SELECT TOP 500 `BAR`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testTopNDecimalWithoutPercentFails() {
+    final String sql = "select top ^5.2^ bar from foo";
+    final String expected = "(?s).*Cannot specify non-integer value."
+        + "*without specifying PERCENT.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testTopNNegativeFails() {
+    final String sql = "select ^top^ -5 * from foo";
+    final String expected = "(?s).*Encountered \"top -\".*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testTopNPercentGreaterThan100Fails() {
+    final String sql = "select top 200 ^percent^ bar from foo";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
   }
 }

@@ -108,6 +108,11 @@ class ServerParserTest extends SqlParserTest {
         .ok("CREATE TABLE `X` (`I` INTEGER NOT NULL, `J` VARCHAR(5))");
   }
 
+  @Test void testCreateOrReplaceTable() {
+    sql("create or replace table x (i int)")
+        .ok("CREATE OR REPLACE TABLE `X` (`I` INTEGER)");
+  }
+
   @Test void testCreateTableAsSelect() {
     final String expected = "CREATE TABLE `X` AS\n"
         + "SELECT *\n"

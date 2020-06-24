@@ -86,7 +86,7 @@ public class SqlCreateTable extends SqlCreate
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.keyword("CREATE");
+    writer.keyword(getCreateSpecifier().toString());
     switch (setType) {
     case SET:
       writer.keyword("SET");

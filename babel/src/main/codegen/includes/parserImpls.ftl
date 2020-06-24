@@ -1012,31 +1012,35 @@ SqlNode CurrentDateFunction() :
 
 SqlNode DateTimeTerm() :
 {
-    final SqlNode e;
-    SqlIdentifier timeZoneValue;
+    final SqlNode dateTimePrimary;
+    final SqlNode displacement;
 }
 {
     (
-        e = DateTimeLiteral()
+        dateTimePrimary = DateTimeLiteral()
     |
-        e = SimpleIdentifier()
+        dateTimePrimary = SimpleIdentifier()
     |
-        e = DateFunctionCall()
+        dateTimePrimary = DateFunctionCall()
     )
+    <AT>
     (
-        <AT>
+        <LOCAL>
+        {
+            return new SqlDateTimeAtLocal(getPos(), dateTimePrimary);
+        }
+    |
+        [<TIME> <ZONE>]
         (
-            <LOCAL>
-            {
-                return new SqlDateTimeAtLocal(getPos(), e);
-            }
+            displacement = SimpleIdentifier()
         |
-            <TIME> <ZONE>
-            {
-                timeZoneValue = SimpleIdentifier();
-                return new SqlDateTimeAtTimeZone(getPos(), e, timeZoneValue);
-            }
+            displacement = IntervalLiteral()
+        |
+            displacement = NumericLiteral()
         )
+        {
+            return new SqlDateTimeAtTimeZone(getPos(), dateTimePrimary, displacement);
+        }
     )
 }
 
@@ -1221,5 +1225,48 @@ SqlNode RankFunctionCallWithParams() :
         over = SqlWindow.create(null, null, SqlNodeList.EMPTY, orderByList,
             SqlLiteral.createBoolean(false, SqlParserPos.ZERO), null, null, null, s1.end(this));
         return SqlStdOperatorTable.OVER.createCall(s.end(over), rankCall, over);
+    }
+}
+
+/**
+ * Parses a TOP N statement in a SELECT query
+ * (for example SELECT TOP 5 * FROM FOO).
+ */
+SqlNode SqlSelectTopN(SqlParserPos pos) :
+{
+    final SqlNumericLiteral selectNum;
+    final double tempNum;
+    boolean isPercent = false;
+    boolean withTies = false;
+}
+{
+    <TOP>
+    selectNum = UnsignedNumericLiteral()
+    { tempNum = selectNum.getValueAs(Double.class); }
+    [
+        <PERCENT>
+        {
+            isPercent = true;
+            if (tempNum > 100) {
+                throw SqlUtil.newContextException(getPos(),
+                    RESOURCE.numberLiteralOutOfRange(String.valueOf(tempNum)));
+            }
+        }
+    ]
+    {
+        if (tempNum != Math.floor(tempNum) && !isPercent) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.integerRequiredWhenNoPercent(
+                    String.valueOf(tempNum)
+                ));
+        }
+    }
+    [
+        <WITH> <TIES> { withTies = true; }
+    ]
+    {
+        return new SqlSelectTopN(pos, selectNum,
+            SqlLiteral.createBoolean(isPercent, pos),
+            SqlLiteral.createBoolean(withTies, pos));
     }
 }
