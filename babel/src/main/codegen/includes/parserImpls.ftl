@@ -606,26 +606,21 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
         { query = null; }
     )
     [
-        index = SqlCreateTableIndex(s)
-        {
-           if (index instanceof SqlPrimaryIndex) {
-               primaryIndex = (SqlPrimaryIndex) index;
-           }
-           else{
-               indices.add(index);
-           }
-        }
+        index = SqlCreateTableIndex(s) { indices.add(index); }
         (
-           <COMMA> index = SqlCreateTableIndex(s)
-           {
-               if (index instanceof SqlPrimaryIndex) {
-                   primaryIndex = (SqlPrimaryIndex) index;
-               }
-               else{
-                   indices.add(index);
-               }
-           }
+           <COMMA> index = SqlCreateTableIndex(s) { indices.add(index); }
         )*
+        {
+            //filter out any primary indices from index list
+            int i = 0;
+            while (i < indices.size() ) {
+                if (indices.get(i) instanceof SqlPrimaryIndex) {
+                    primaryIndex = (SqlPrimaryIndex) indices.remove(i);
+                } else {
+                    i++;
+                }
+            }
+        }
     ]
     onCommitType = OnCommitTypeOpt()
     {

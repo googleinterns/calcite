@@ -23,7 +23,7 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlSecondaryIndex</code> is a class that can be used to create a
+ * A {@code SqlSecondaryIndex} is a class that can be used to create a
  * non-primary index, which is used by the SQL CREATE TABLE function.
  */
 public class SqlSecondaryIndex extends SqlIndex {

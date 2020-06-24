@@ -143,16 +143,14 @@ public class SqlCreateTable extends SqlCreate
     default:
       break;
     }
-    List<SqlIndex> allIndices;
-    if (indices != null) {
-      allIndices = new ArrayList<SqlIndex>(indices);
-    } else {
-      allIndices = new ArrayList<SqlIndex>();
-    }
+    List<SqlIndex> allIndices = new ArrayList<SqlIndex>();
     if (primaryIndex != null) {
       allIndices.add(0, primaryIndex);
     }
-    if (allIndices.size() > 0) {
+    if (indices != null) {
+      allIndices.addAll(indices);
+    }
+    if (!allIndices.isEmpty()) {
       SqlWriter.Frame frame = writer.startList("", "");
       for (SqlIndex index : allIndices) {
         writer.sep(",");
