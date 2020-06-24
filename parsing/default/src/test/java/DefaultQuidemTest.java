@@ -22,19 +22,19 @@ import org.apache.calcite.util.TryThreadLocal;
 import java.util.Collection;
 
 /**
- * Test that runs every Quidem file in the Default parser folder as a test.
+ * Test that runs every Quidem file in the "core" module as a test.
  */
-class DefaultQuidemTest extends QuidemTest {
+class CoreQuidemTest extends QuidemTest {
   /** Runs a test from the command line.
    *
    * <p>For example:
    *
    * <blockquote>
-   *   <code>java DefaultQuidemTest sql/dummy.iq</code>
+   *   <code>java CoreQuidemTest sql/dummy.iq</code>
    * </blockquote> */
   public static void main(String[] args) throws Exception {
     for (String arg : args) {
-      new DefaultQuidemTest().test(arg);
+      new CoreQuidemTest().test(arg);
     }
   }
 

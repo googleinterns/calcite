@@ -77,11 +77,33 @@ public enum SqlConformanceEnum implements SqlConformance {
 
   /** Conformance value that instructs Calcite to use SQL semantics
    * consistent with Microsoft SQL Server version 2008. */
-  SQL_SERVER_2008;
+  SQL_SERVER_2008,
 
+  /** Conformance value that instructs Calcite to use SQL semantics
+   * consistent with Dialect1. */
+  DIALECT_1,
+
+  /** Conformance value that instructs Calcite to use SQL semantics
+   * consistent with Hive. */
+  HIVE,
+
+  /** Conformance value that instructs Calcite to use SQL semantics
+   * consistent with PostgreSQL. */
+  POSTGRESQL,
+
+  /** Conformance value that instructs Calcite to use SQL semantics
+   * consistent with Redshift. */
+  REDSHIFT,
+
+  /** Conformance value that instructs Calcite to use SQL semantics
+   * consistent with MySQL version 8.x. */
+  MYSQL_8;
+
+  // TODO: change to isLeftSemiJoinAllowed, only place it's used. Remove babel
   public boolean isLiberal() {
     switch (this) {
     case BABEL:
+    case HIVE:
       return true;
     default:
       return false;
@@ -94,6 +116,10 @@ public enum SqlConformanceEnum implements SqlConformance {
     case LENIENT:
     case BIG_QUERY:
     case MYSQL_5:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
