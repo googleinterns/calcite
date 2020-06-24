@@ -22,6 +22,7 @@ import java.util.Queue
 import javax.inject.Inject
 import kotlin.collections.HashMap
 import kotlin.collections.MutableMap
+import kotlin.text.MatchResult
 import kotlin.text.Regex
 import kotlin.text.StringBuilder
 import org.gradle.api.DefaultTask
@@ -46,12 +47,15 @@ open class DialectGenerateTask @Inject constructor(
     @TaskAction
     fun run() {
         val functionMap = extractFunctions()
+        functionMap.forEach {
+            k, v ->
+                println("$k = $v")
+            }
     }
 
     /**
      * Traverses the parsing directory structure and extracts all of the
-     * functions located in *.ftl files into a Map
-     *
+     * functions located in *.ftl files into a Map.
      */
     private fun extractFunctions(): Map<String, String> {
         val rootDirectoryFile = rootDirectory.get().asFile
@@ -104,8 +108,7 @@ open class DialectGenerateTask @Inject constructor(
         for (f in files) {
             if (f.isFile && f.extension == "ftl") {
                 processFile(f, functionMap)
-            }
-            if (directories.isNotEmpty() && f.name == nextDirectory) {
+            } else if (directories.isNotEmpty() && f.name == nextDirectory) {
                 directories.poll()
                 traverse(directories, f, functionMap)
             }
@@ -128,24 +131,66 @@ open class DialectGenerateTask @Inject constructor(
     private fun processFile(file: File, functionMap: MutableMap<String, String>) {
         var fileText = file.readText(Charsets.UTF_8)
         val typeAndName = "\\w+\\s+\\w+"
+        val delims = "(\\s|\n|\"|(//)|(/\\*)|(\\*/))"
         val declarationPattern =
             Regex("(%s\\s*\\(\\s*(%s\\s*(\\,\\s*%s\\s*)*)?\\)\\s*\\:\n)"
                     .format(typeAndName, typeAndName, typeAndName))
-        val delims = "(\\s|\n|\"|(//)|(/\\*)|(\\*/))"
         // Uses Lookahead and Lookbehind to ensure that the delims are added as tokens.
         val splitRegex = Regex("((?<=%s)|(?=%s))".format(delims, delims))
-        val declarationMatches = declarationPattern.findAll(fileText)
-        for (m in declarationMatches) {
+        val declarations: Queue<MatchResult> = LinkedList(declarationPattern.findAll(fileText).toList())
+        val tokens: Queue<String> = LinkedList(splitRegex.split(fileText))
+        var declaration = declarations.poll()
+        var charIndex = 0
+        if (declarations.isNotEmpty()) {
+            while (tokens.isNotEmpty()) {
+                if (charIndex == declaration.range.start) {
+                    charIndex = processFunction(tokens, functionMap, charIndex, declaration.range.endInclusive)
+                    if (declarations.isNotEmpty()) {
+                        declaration = declarations.poll()
+                    } else {
+                        return
+                    }
+                } else {
+                    val token = tokens.poll()
+                    charIndex += token.length
+                }
+            }
+        }
+        /*for (m in declarationMatches) {
             val functionDeclaration = m.value
             val functionName = getFunctionName(functionDeclaration)
             val functionBuilder = StringBuilder(functionDeclaration)
             val declarationIndex = fileText.indexOf(functionDeclaration)
             fileText = fileText.substring(declarationIndex + functionDeclaration.length)
-            val tokens: Queue<String> = LinkedList(splitRegex.split(fileText))
             processCurlyBlock(functionBuilder, tokens)
             processCurlyBlock(functionBuilder, tokens)
             functionMap.put(functionName, functionBuilder.toString())
+        }*/
+    }
+
+    private fun processFunction(
+        tokens: Queue<String>,
+        functionMap: MutableMap<String, String>,
+        charIndex: Int,
+        declarationEnd: Int
+    ): Int {
+        var updatedCharIndex = charIndex
+        val functionBuilder = StringBuilder()
+        // Process the declaration:
+        while (updatedCharIndex != declarationEnd && tokens.isNotEmpty()) {
+            val token = tokens.poll()
+            functionBuilder.append(token)
+            updatedCharIndex += token.length
         }
+
+        // Called twice as there are two curly blocks.
+        updatedCharIndex = processCurlyBlock(functionBuilder, tokens, updatedCharIndex)
+        updatedCharIndex = processCurlyBlock(functionBuilder, tokens, updatedCharIndex)
+
+        println("boi: $functionBuilder")
+        println()
+
+        return updatedCharIndex
     }
 
     /**
@@ -158,15 +203,17 @@ open class DialectGenerateTask @Inject constructor(
      * @param functionBuilder The builder unto which the tokens get added to once parsed
      * @param tokens The tokens to be parsed
      */
-    private fun processCurlyBlock(functionBuilder: StringBuilder, tokens: Queue<String>) {
+    private fun processCurlyBlock(functionBuilder: StringBuilder, tokens: Queue<String>, charIndex: Int): Int {
         var curlyCounter = 0
         var insideString = false
         var insideSingleLineComment = false
         var insideMultiLineComment = false
         var validBrace = true
+        var updatedCharIndex = charIndex
         while (tokens.isNotEmpty()) {
             val token = tokens.poll()
             functionBuilder.append(token)
+            updatedCharIndex += token.length
             validBrace = !insideString &&
                     !insideSingleLineComment &&
                     !insideMultiLineComment
@@ -191,9 +238,10 @@ open class DialectGenerateTask @Inject constructor(
                 curlyCounter--
             }
             if (curlyCounter == 0) {
-                return
+                return updatedCharIndex
             }
         }
+        return updatedCharIndex
     }
 
     /**
