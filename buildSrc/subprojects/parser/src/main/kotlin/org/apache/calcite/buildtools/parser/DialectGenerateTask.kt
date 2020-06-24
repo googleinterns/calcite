@@ -31,9 +31,27 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.TaskAction
 
+/* Gradle task that traverses the parsing directory and generates the parserImpls.ftl
+  file for the given dialect.
+ */
 open class DialectGenerateTask @Inject constructor(
     objectFactory: ObjectFactory
 ) : DefaultTask() {
+
+    private val TYPE_AND_NAME = "\\w+\\s+\\w+"
+    private val SPLIT_DELIMS = "(\\s|\n|\"|(//)|(/\\*)|(\\*/)|')"
+
+    private val tokenizer = Regex("((?<=$SPLIT_DELIMS)|(?=$SPLIT_DELIMS))")
+    private val declarationPattern =
+        Regex("($TYPE_AND_NAME\\s*\\(\\s*($TYPE_AND_NAME\\s*(\\,\\s*$TYPE_AND_NAME\\s*)*)?\\)\\s*\\:(\n)?)")
+    private val nameRegex = Regex("\\w+")
+
+    // Flags used when parsing.
+    private var validBrace = false
+    private var validDoubleQuote = false
+    private var validSingleQuote = false
+    private var validSingleComment = false
+    private var validMultiComment = false
 
     @InputDirectory
     val dialectDirectory = objectFactory.directoryProperty()
@@ -109,6 +127,8 @@ open class DialectGenerateTask @Inject constructor(
             if (f.isFile && f.extension == "ftl") {
                 processFile(f, functionMap)
             } else if (directories.isNotEmpty() && f.name == nextDirectory) {
+                // Remove the front element in the queue, the value is used above with
+                // directories.peek().
                 directories.poll()
                 traverse(directories, f, functionMap)
             }
@@ -130,66 +150,73 @@ open class DialectGenerateTask @Inject constructor(
      */
     private fun processFile(file: File, functionMap: MutableMap<String, String>) {
         var fileText = file.readText(Charsets.UTF_8)
-        val typeAndName = "\\w+\\s+\\w+"
-        val delims = "(\\s|\n|\"|(//)|(/\\*)|(\\*/))"
-        val declarationPattern =
-            Regex("(%s\\s*\\(\\s*(%s\\s*(\\,\\s*%s\\s*)*)?\\)\\s*\\:\n)"
-                    .format(typeAndName, typeAndName, typeAndName))
-        // Uses Lookahead and Lookbehind to ensure that the delims are added as tokens.
-        val splitRegex = Regex("((?<=%s)|(?=%s))".format(delims, delims))
         val declarations: Queue<MatchResult> = LinkedList(declarationPattern.findAll(fileText).toList())
-        val tokens: Queue<String> = LinkedList(splitRegex.split(fileText))
+        // In this case there aren't any functions in the file.
+        if (declarations.isEmpty()) {
+            return
+        }
+        val tokens: Queue<String> = LinkedList(tokenizer.split(fileText))
         var declaration = declarations.poll()
         var charIndex = 0
-        if (declarations.isNotEmpty()) {
-            while (tokens.isNotEmpty()) {
-                if (charIndex == declaration.range.start) {
-                    charIndex = processFunction(tokens, functionMap, charIndex, declaration.range.endInclusive)
-                    if (declarations.isNotEmpty()) {
-                        declaration = declarations.poll()
-                    } else {
-                        return
-                    }
+        while (tokens.isNotEmpty()) {
+            // Found a function declaration.
+            if (charIndex == declaration.range.start) {
+                charIndex = processFunction(tokens, functionMap, charIndex,
+                    declaration.range.endInclusive, getFunctionName(declaration.value))
+                if (declarations.isNotEmpty()) {
+                    declaration = declarations.poll()
                 } else {
-                    val token = tokens.poll()
-                    charIndex += token.length
+                    // Have parsed all functions.
+                    return
                 }
+            } else {
+                // Consume the token and update the character index.
+                val token = tokens.poll()
+                charIndex += token.length
             }
         }
-        /*for (m in declarationMatches) {
-            val functionDeclaration = m.value
-            val functionName = getFunctionName(functionDeclaration)
-            val functionBuilder = StringBuilder(functionDeclaration)
-            val declarationIndex = fileText.indexOf(functionDeclaration)
-            fileText = fileText.substring(declarationIndex + functionDeclaration.length)
-            processCurlyBlock(functionBuilder, tokens)
-            processCurlyBlock(functionBuilder, tokens)
-            functionMap.put(functionName, functionBuilder.toString())
-        }*/
     }
 
+    /**
+     * Parses a function of the form:
+     *
+     * <return_type> <name>(<args>) :
+     * {
+     *     <properties>
+     * }
+     * {
+     *     <body>
+     * }
+     *
+     * @param tokens The tokens starting from the function declaration and
+     *               ending at EOF
+     * @param functionMap The map to which the extracted functions will be added to
+     * @param charIndex The character index of the entire text of the file at which
+     *                  the parsing is commencing at
+     * @param declarationEnd The char index (of entire file text) at which the l
+     *                       function declaration ends
+     * @param functionName The name of the function being processed
+     */
     private fun processFunction(
         tokens: Queue<String>,
         functionMap: MutableMap<String, String>,
         charIndex: Int,
-        declarationEnd: Int
+        declarationEnd: Int,
+        functionName: String
     ): Int {
         var updatedCharIndex = charIndex
         val functionBuilder = StringBuilder()
         // Process the declaration:
-        while (updatedCharIndex != declarationEnd && tokens.isNotEmpty()) {
+        while (updatedCharIndex < declarationEnd && tokens.isNotEmpty()) {
             val token = tokens.poll()
             functionBuilder.append(token)
             updatedCharIndex += token.length
         }
-
         // Called twice as there are two curly blocks.
         updatedCharIndex = processCurlyBlock(functionBuilder, tokens, updatedCharIndex)
         updatedCharIndex = processCurlyBlock(functionBuilder, tokens, updatedCharIndex)
 
-        println("boi: $functionBuilder")
-        println()
-
+        functionMap.put(functionName, functionBuilder.toString())
         return updatedCharIndex
     }
 
@@ -202,36 +229,46 @@ open class DialectGenerateTask @Inject constructor(
      *
      * @param functionBuilder The builder unto which the tokens get added to once parsed
      * @param tokens The tokens to be parsed
+     * @param charIndex The character index of the entire text of the file at which
+     *                  the parsing is commencing at
      */
     private fun processCurlyBlock(functionBuilder: StringBuilder, tokens: Queue<String>, charIndex: Int): Int {
         var curlyCounter = 0
         var insideString = false
-        var insideSingleLineComment = false
-        var insideMultiLineComment = false
-        var validBrace = true
+        var insideCharacter = false
+        var insideSingleComment = false
+        var insideMultiComment = false
         var updatedCharIndex = charIndex
         while (tokens.isNotEmpty()) {
             val token = tokens.poll()
             functionBuilder.append(token)
             updatedCharIndex += token.length
-            validBrace = !insideString &&
-                    !insideSingleLineComment &&
-                    !insideMultiLineComment
-            if (token == "\n") {
-                if (insideSingleLineComment) {
-                    insideSingleLineComment = false
+            if (token == "\n" || token == " ") {
+                if (token == "\n") {
+                    if (insideSingleComment) {
+                        insideSingleComment = false
+                    }
+                    continue
                 }
-                // Allows for an abitrary amount of new lines to be parsed.
+                // Since new lines and spaces between curly blocks are valid in calcite,
+                // we want to allow an arbitrary number of them before we start
+                // keeping track of curly braces.
                 continue
             }
-            if (token == "\"" && !insideSingleLineComment && !insideMultiLineComment) {
+            // The following checks ensure that curly braces inside of strings
+            // and comments do not affect curlyCounter.
+            determineTokenValidity(insideString, insideCharacter,
+                    insideSingleComment, insideMultiComment)
+            if (token == "\"" && validDoubleQuote) {
                 insideString = !insideString
-            } else if (token == "//" && !insideMultiLineComment) {
-                insideSingleLineComment = true
-            } else if (token == "/*" && !insideString && !insideSingleLineComment) {
-                insideMultiLineComment = true
-            } else if (token == "*/" && !insideString && !insideSingleLineComment) {
-                insideMultiLineComment = false
+            } else if (token == "'" && validSingleQuote) {
+                insideCharacter = !insideCharacter
+            } else if (token == "//" && validSingleComment) {
+                insideSingleComment = true
+            } else if (token == "/*" && validMultiComment) {
+                insideMultiComment = true
+            } else if (token == "*/" && validMultiComment) {
+                insideMultiComment = false
             } else if (token == "{" && validBrace) {
                 curlyCounter++
             } else if (token == "}" && validBrace) {
@@ -251,8 +288,44 @@ open class DialectGenerateTask @Inject constructor(
      *                            <return_type> <name> (<args>) :
      */
     private fun getFunctionName(functionDeclaration: String): String {
-        val nameRegex = Regex("\\w+")
         val matches = nameRegex.findAll(functionDeclaration)
         return matches.elementAt(1).value
+    }
+
+    /**
+     * Sets the various flags which are used by processCurlyBloc() when
+     * parsing special characters.
+     *
+     * @param insideString Whether currently within a string " "
+     * @param insideCharacter Whether currently within a character ' '
+     * @param insideSingleLineComment Whether curently within single comment //
+     * @param insideMultiLineComment Whether currently within multi comment /*
+     */
+    private fun determineTokenValidity(
+        insideString: Boolean,
+        insideCharacter: Boolean,
+        insideSingleLineComment: Boolean,
+        insideMultiLineComment: Boolean
+    ) {
+        validBrace = !insideString &&
+                !insideSingleLineComment &&
+                !insideMultiLineComment &&
+                !insideCharacter
+
+        validDoubleQuote = !insideCharacter &&
+                !insideSingleLineComment &&
+                !insideMultiLineComment
+
+        validSingleQuote = !insideString &&
+                !insideSingleLineComment &&
+                !insideMultiLineComment
+
+        validSingleComment = !insideString &&
+                !insideCharacter &&
+                !insideMultiLineComment
+
+        validMultiComment = !insideString &&
+                !insideCharacter &&
+                !insideSingleLineComment
     }
 }
