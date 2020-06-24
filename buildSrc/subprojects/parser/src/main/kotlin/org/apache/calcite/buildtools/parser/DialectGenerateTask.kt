@@ -32,18 +32,20 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.TaskAction
 
 /* Gradle task that traverses the parsing directory and generates the parserImpls.ftl
-  file for the given dialect.
+   file for the given dialect.
  */
 open class DialectGenerateTask @Inject constructor(
     objectFactory: ObjectFactory
 ) : DefaultTask() {
 
     private val typeAndName = "\\w+\\s+\\w+"
-    private val splitDelims = "(\\s|\n|\"|(//)|(/\\*)|(\\*/)|')"
+    private val space = "\\s"
+    private val newLine = "\n"
+    private val splitDelims = "(\\s|\n|\"|//|/\\*|\\*/|')"
 
     private val tokenizer = Regex("((?<=$splitDelims)|(?=$splitDelims))")
     private val declarationPattern =
-        Regex("($typeAndName\\s*\\(\\s*($typeAndName\\s*(\\,\\s*$typeAndName\\s*)*)?\\)\\s*\\:(\n)?)")
+        Regex("($typeAndName\\s*\\(\\s*($typeAndName\\s*(\\,\\s*$typeAndName\\s*)*)?\\)\\s*\\:\n?)")
     private val nameRegex = Regex("\\w+")
 
     // Flags used when parsing.
@@ -147,29 +149,15 @@ open class DialectGenerateTask @Inject constructor(
     private fun processFile(file: File, functionMap: MutableMap<String, String>) {
         var fileText = file.readText(Charsets.UTF_8)
         val declarations: Queue<MatchResult> = LinkedList(declarationPattern.findAll(fileText).toList())
-        // In this case there aren't any functions in the file.
-        if (declarations.isEmpty()) {
-            return
-        }
         val tokens: Queue<String> = LinkedList(tokenizer.split(fileText))
-        var declaration = declarations.poll()
         var charIndex = 0
-        while (tokens.isNotEmpty() && charIndex < fileText.length) {
-            // Found a function declaration.
-            if (charIndex == declaration.range.start) {
-                charIndex = processFunction(tokens, functionMap, charIndex,
-                    declaration.range.endInclusive, getFunctionName(declaration.value))
-                if (declarations.isNotEmpty()) {
-                    declaration = declarations.poll()
-                } else {
-                    // Have parsed all functions.
-                    return
-                }
-            } else {
-                // Consume the token and update the character index.
-                val token = tokens.poll()
-                charIndex += token.length
+        while (declarations.isNotEmpty()) {
+            val declaration = declarations.poll()
+            while (charIndex < declaration.range.start) {
+                charIndex += tokens.poll().length
             }
+            charIndex = processFunction(tokens, functionMap, charIndex,
+                declaration.range.endInclusive, getFunctionName(declaration.value))
         }
     }
 
