@@ -262,12 +262,13 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
 SqlCreate SqlCreateView(Span s, SqlCreateSpecifier createSpecifier) :
 {
     final SqlIdentifier id;
+    final Pair<SqlNodeList, SqlNodeList> p;
     SqlNodeList columnList = null;
     final SqlNode query;
 }
 {
     <VIEW> id = CompoundIdentifier()
-    [ columnList = ParenthesizedSimpleIdentifierList() ]
+    [ p = ParenthesizedCompoundIdentifierList() { columnList = p.left; } ]
     <AS> query = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY) {
         return SqlDdlNodes.createView(s.end(this), createSpecifier, id, columnList,
             query);
