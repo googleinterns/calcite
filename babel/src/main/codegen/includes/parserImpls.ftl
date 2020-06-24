@@ -509,6 +509,17 @@ SqlCreateAttribute CreateTableAttributeLog() :
     }
 }
 
+SqlCreateAttribute CreateTableAttributeDateFormat() :
+{
+
+}
+{
+    <DATE>
+    {
+        return new SqlCreateAttributeDateFormat(getPos());
+    }
+}
+
 List<SqlCreateAttribute> CreateTableAttributes() :
 {
     final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
@@ -540,6 +551,8 @@ List<SqlCreateAttribute> CreateTableAttributes() :
             e = CreateTableAttributeLog()
         |
             e = CreateTableAttributeJournal()
+        |
+            e = CreateTableAttributeDateFormat()
         ) { list.add(e); }
     )+
     { return list; }

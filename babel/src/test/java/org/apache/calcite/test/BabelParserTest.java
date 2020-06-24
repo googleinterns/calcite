@@ -875,8 +875,8 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testCreateTableDateFormatDateOnly() {
-    final String sql = "select table foo (bar date)";
-    final String expected = "SELECT TABLE `FOO` (`BAR` DATE)";
+    final String sql = "create table foo (bar date)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` DATE)";
     sql(sql).ok(expected);
   }
 

@@ -41,6 +41,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize",
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockModifier",
       "org.apache.calcite.sql.babel.SqlCreateAttributeDataBlockSize.DataBlockUnitSize",
+      "org.apache.calcite.sql.babel.SqlCreateAttributeDateFormat",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFallback",
       "org.apache.calcite.sql.babel.SqlCreateAttributeFreeSpace",
       "org.apache.calcite.sql.babel.SqlCreateAttributeIsolatedLoading",
