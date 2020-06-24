@@ -143,7 +143,7 @@ public class SqlCreateTable extends SqlCreate
     default:
       break;
     }
-    List<SqlIndex> allIndices = new ArrayList<SqlIndex>();
+    List<SqlIndex> allIndices = new ArrayList<>();
     if (primaryIndex != null) {
       allIndices.add(0, primaryIndex);
     }
