@@ -248,91 +248,125 @@ open class DialectGenerateTask @Inject constructor(
 
     class CurlyParser() {
 
-        enum class ValidState {
-            ANY
-            DOUBLE_QUOTE,
-            SINGLE_QUOTE,
+        /**
+         * All of the possible important structures that a token can be inside of.
+         * This is tracked to ensure that when a curly brace is encountered,
+         * whether it is part of the syntax or not can be determined.
+         */
+        enum class InsideState {
+
+            /**
+             * Not inside anything.
+             */
+            NONE,
+
+            /**
+             * Inside of a string declaration (block of double quotes).
+             */
+            STRING,
+
+            /**
+             * Inside of a character declaration (block of single quotes)
+             */
+            CHARACTER,
+
+            /**
+             * Inside of a single line comment.
+             */
             SINGLE_COMMENT,
+
+            /**
+             * Inside of a multi line comment.
+             */
             MULTI_COMMENT
         }
 
-        enum class InsideState {
-            NONE,
-            STRING,
-            CHARACTER,
-            SINGLE_COMMENT,
-            MULTI_COMMENT_CLOSED
-        }
-        private validState = ValidState.ANY
+        private var insideState = InsideState.NONE
 
-        private insideState = InsideState.NONE
-
+        // Keeps track of the number of open curly braces that have been
+        // legally encountered.
         private var curlyCounter = 0
 
+        /**
+         * Parses the given token and updates the state.
+         *
+         * Spaces and new lines  between curly blocks are valid so an arbitrary
+         * amount of them are allowed to get parsed without the state changing.
+         *
+         * @param token The token to parse
+         * @return Whether or not the curly block has been fully parsed
+         */
         fun parseToken(token: String): Boolean {
             if (token == " ") {
                 return false
             }
             if (token == "\n") {
-                if (insideSingleComment) {
-                    insideSingleComment = false
+                if (insideState == InsideState.SINGLE_COMMENT) {
+                    insideState = InsideState.NONE
                 }
                 return false
             }
-            determineTokenValidity()
-
-            when (validState) {
-                ValidState.DOUBLE_QUOTE, ValidState.ANY -> if (token == "\"") {
-                    insideState = if(insideState == InsideState.STRING) {
-                        InsideState.NONE
-                    } else {
-                        InsideState.STRING
-                    }
-                }
-                ValidState.SINGLE_QUOTE -> if (token == "'") {
-                    insideState = if(insideState == InsideState.CHARACTER) {
-                        InsideState.NONE
-                    } else {
-                        InsideState.CHARACTER
-                    }
-                }
-                ValidState.SINGLE_COMMENT -> if (token == "//") {
-                    insideState = InsideState.SINGLE_COMMENT
-                }
-                ValidState.MULTI_COMMENT -> {
-                    insideState = if (token == "/*") {
-                        InsideState.MULTI_COMMENT
-                    } else if (token == "*/") {
-                        InsideState.NONE
-                    }
-                }
-                ValidState.ANY -> {
-                    if (token == "{") {
-                        curlyCounter++
-                    } else if (token == "}") {
-                        curlyCounter--
-                    }
-                }
-            }
-            return curlyCounter == 0
+            insideState = getUpdatedState(token)
+            val doneParsingCurlyBlock = curlyCounter == 0
+            return doneParsingCurlyBlock
         }
 
         /**
-         * Sets the various flags which are used by processCurlyBloc() when
-         * parsing special characters.
+         * Determines the updated state based on the token and current state.
          *
-         * @param insideString Whether currently within a string " "
-         * @param insideCharacter Whether currently within a character ' '
-         * @param insideSingleLineComment Whether curently within single comment //
-         * @param insideMultiLineComment Whether currently within multi comment
+         * @param token The token to parse
+         * @return The updated state
          */
-        private fun determineTokenValidity() {
-            validState = when (insideState) {
-                InsideState.NONE -> ValidState.ANY
-                InsideState.STRING -> ValidState.DOUBLE_QUOTE
-                InsideState.CHARACTER -> ValidState.SINGLE_QUOTE
-                InsideState.SINGLE_COMMENT -> ValidState.SINGLE_COMMENT
-                InsideState.MULTI_COMMENT -> ValidState.MULTI_COMMENT_CLOSED
+        private fun getUpdatedState(token: String): InsideState {
+            when (token) {
+                "\"" -> {
+                    if (insideState == InsideState.NONE) {
+                        return InsideState.STRING
+                    } else if (insideState == InsideState.STRING) {
+                        return InsideState.NONE
+                    }
+                    return insideState
+                }
+                "'" -> {
+                    if (insideState == InsideState.NONE) {
+                        return InsideState.CHARACTER
+                    } else if (insideState == InsideState.CHARACTER) {
+                        return InsideState.NONE
+                    }
+                    return insideState
+                }
+                "//" -> {
+                    if (insideState == InsideState.NONE) {
+                        return InsideState.SINGLE_COMMENT
+                    }
+                    return insideState
+                }
+                "/*" -> {
+                    if (insideState == InsideState.NONE) {
+                        return InsideState.MULTI_COMMENT
+                    }
+                    return insideState
+                }
+                "*/" -> {
+                    if (insideState == InsideState.MULTI_COMMENT) {
+                        return InsideState.NONE
+                    }
+                    return insideState
+                }
+                "{" -> {
+                    if (insideState == InsideState.NONE) {
+                        curlyCounter++
+                    }
+                    return insideState
+                }
+                "}" -> {
+                    if (insideState == InsideState.NONE) {
+                        curlyCounter--
+                    }
+                    return insideState
+                }
+                else -> return insideState
+            }
         }
     }
 }
