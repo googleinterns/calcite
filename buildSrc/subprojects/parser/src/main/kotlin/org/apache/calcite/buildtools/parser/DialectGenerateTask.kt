@@ -38,12 +38,12 @@ open class DialectGenerateTask @Inject constructor(
     objectFactory: ObjectFactory
 ) : DefaultTask() {
 
-    private val TYPE_AND_NAME = "\\w+\\s+\\w+"
-    private val SPLIT_DELIMS = "(\\s|\n|\"|(//)|(/\\*)|(\\*/)|')"
+    private val typeAndName = "\\w+\\s+\\w+"
+    private val splitDelims = "(\\s|\n|\"|(//)|(/\\*)|(\\*/)|')"
 
-    private val tokenizer = Regex("((?<=$SPLIT_DELIMS)|(?=$SPLIT_DELIMS))")
+    private val tokenizer = Regex("((?<=$splitDelims)|(?=$splitDelims))")
     private val declarationPattern =
-        Regex("($TYPE_AND_NAME\\s*\\(\\s*($TYPE_AND_NAME\\s*(\\,\\s*$TYPE_AND_NAME\\s*)*)?\\)\\s*\\:(\n)?)")
+        Regex("($typeAndName\\s*\\(\\s*($typeAndName\\s*(\\,\\s*$typeAndName\\s*)*)?\\)\\s*\\:(\n)?)")
     private val nameRegex = Regex("\\w+")
 
     // Flags used when parsing.
@@ -158,7 +158,7 @@ open class DialectGenerateTask @Inject constructor(
         val tokens: Queue<String> = LinkedList(tokenizer.split(fileText))
         var declaration = declarations.poll()
         var charIndex = 0
-        while (tokens.isNotEmpty()) {
+        while (tokens.isNotEmpty() && charIndex < fileText.length) {
             // Found a function declaration.
             if (charIndex == declaration.range.start) {
                 charIndex = processFunction(tokens, functionMap, charIndex,
@@ -232,7 +232,11 @@ open class DialectGenerateTask @Inject constructor(
      * @param charIndex The character index of the entire text of the file at which
      *                  the parsing is commencing at
      */
-    private fun processCurlyBlock(functionBuilder: StringBuilder, tokens: Queue<String>, charIndex: Int): Int {
+    private fun processCurlyBlock(
+        functionBuilder: StringBuilder,
+        tokens: Queue<String>,
+        charIndex: Int
+    ): Int {
         var curlyCounter = 0
         var insideString = false
         var insideCharacter = false
@@ -248,7 +252,6 @@ open class DialectGenerateTask @Inject constructor(
                     if (insideSingleComment) {
                         insideSingleComment = false
                     }
-                    continue
                 }
                 // Since new lines and spaces between curly blocks are valid in calcite,
                 // we want to allow an arbitrary number of them before we start
@@ -299,7 +302,7 @@ open class DialectGenerateTask @Inject constructor(
      * @param insideString Whether currently within a string " "
      * @param insideCharacter Whether currently within a character ' '
      * @param insideSingleLineComment Whether curently within single comment //
-     * @param insideMultiLineComment Whether currently within multi comment /*
+     * @param insideMultiLineComment Whether currently within multi comment
      */
     private fun determineTokenValidity(
         insideString: Boolean,
