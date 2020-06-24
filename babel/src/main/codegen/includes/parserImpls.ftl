@@ -611,7 +611,7 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
            <COMMA> index = SqlCreateTableIndex(s) { indices.add(index); }
         )*
         {
-            //filter out any primary indices from index list
+            //Filter out any primary indices from index list.
             int i = 0;
             while (i < indices.size() ) {
                 if (indices.get(i) instanceof SqlPrimaryIndex) {

@@ -1821,10 +1821,11 @@ class BabelParserTest extends SqlParserTest {
 
   @Test void testPrimaryIndexWithSecondaryIndex() {
     final String sql = "create table foo (bar integer, qux integer) "
-          + "primary index (bar), index (qux)";
+        + "primary index (bar), index (qux)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER, `QUX` INTEGER) "
-          + "PRIMARY INDEX (`BAR`), INDEX (`QUX`)";
+        + "PRIMARY INDEX (`BAR`), INDEX (`QUX`)";
     sql(sql).ok(expected);
+  }
 
   @Test void testTopNNoPercentNoTies() {
     final String sql = "select top 5 bar from foo";
