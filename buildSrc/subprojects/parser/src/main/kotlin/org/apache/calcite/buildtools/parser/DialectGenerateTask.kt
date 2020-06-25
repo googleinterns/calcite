@@ -222,8 +222,12 @@ open class DialectGenerateTask @Inject constructor(
         tokens: Queue<String>,
         charIndex: Int
     ): Int {
-        var updatedCharIndex = charIndex
         val parser = CurlyParser()
+        // Remove any preceeding spaces or new lines before the curly block starts.
+        var updatedCharIndex = consumeExtraSpacesAndLines(functionBuilder, tokens, charIndex)
+        if (tokens.peek() != "{") {
+            throw IllegalStateException("First token of curly block must be a curly brace.")
+        }
         while (tokens.isNotEmpty()) {
             val token = tokens.poll()
             functionBuilder.append(token)
@@ -232,6 +236,30 @@ open class DialectGenerateTask @Inject constructor(
             if (doneParsingBlock) {
                 return updatedCharIndex
             }
+        }
+        return updatedCharIndex
+    }
+
+    /**
+     * Consumes tokens while they are either a space or line break. This needs
+     * to be called before a curly block begins being parsed to remove any extra
+     * spaces or new lines that may preceed it.
+     *
+     * @param functionBuilder The builder unto which the tokens get added to once parsed
+     * @param tokens The tokens starting from charIndex until EOF
+     * @param charIndex The character index of the entire text of the file at which
+     *                  the parsing is commencing at
+     */
+    private fun consumeExtraSpacesAndLines(
+        functionBuilder: StringBuilder,
+        tokens: Queue<String>,
+        charIndex: Int
+    ): Int {
+        var updatedCharIndex = charIndex
+        while (tokens.peek() == " " || tokens.peek() == "\n") {
+            val token = tokens.poll()
+            updatedCharIndex += token.length
+            functionBuilder.append(token)
         }
         return updatedCharIndex
     }
@@ -249,9 +277,9 @@ open class DialectGenerateTask @Inject constructor(
 
     /**
      * Responsible for parsing a block of text surrounded by curly braces. It is
-     * assumed that parsing begins at the start of a curly block (with the exception
-     * of preceeding spaces or new lines). Maintains the state of which structure
-     * the parser is currently in to ensure that encountered curly braces are valid.
+     * assumed that parsing begins at the start of a curly block. Maintains the
+     * state of which structure the parser is currently in to ensure that
+     * encountered curly braces are valid.
      */
     class CurlyParser() {
 
@@ -263,7 +291,7 @@ open class DialectGenerateTask @Inject constructor(
         enum class InsideState {
 
             /**
-             * Not inside anything.
+             * Not inside of anything.
              */
             NONE,
 
@@ -303,23 +331,10 @@ open class DialectGenerateTask @Inject constructor(
          * if parseToken(token1) is called and parseToken(token2) is called right after,
          * then token2 comes directly after token1 in the stream of tokens.
          *
-         * Spaces and new lines between curly blocks are valid so an arbitrary
-         * amount of them are allowed to get parsed without the state changing.
-         *
          * @param token The token to parse
          * @return Whether or not the curly block has been fully parsed
          */
         fun parseToken(token: String): Boolean {
-            if (token == " ") {
-                return false
-            }
-            if (token == "\n") {
-                // Single line comments are ended by a new line.
-                if (insideState == InsideState.SINGLE_COMMENT) {
-                    insideState = InsideState.NONE
-                }
-                return false
-            }
             insideState = getUpdatedState(token)
             val doneParsingCurlyBlock = curlyCounter == 0
             return doneParsingCurlyBlock
@@ -333,6 +348,12 @@ open class DialectGenerateTask @Inject constructor(
          */
         private fun getUpdatedState(token: String): InsideState {
             when (token) {
+                "\n" -> {
+                    if (insideState == InsideState.SINGLE_COMMENT) {
+                        return InsideState.NONE
+                    }
+                    return insideState
+                }
                 "\"" -> {
                     if (insideState == InsideState.NONE) {
                         return InsideState.STRING
