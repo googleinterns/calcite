@@ -788,13 +788,30 @@ SqlIndex SqlCreateTableIndex(Span s) :
 SqlNode SqlExecMacro() :
 {
     SqlIdentifier macro;
+    SqlNodeList paramVals = new SqlNodeList(getPos());
     Span s;
 }
 {
     macro = CompoundIdentifier() { s = span(); }
+    [SqlExecMacroArgument(paramVals)]
     {
-        return new SqlExecMacro(s.end(this), macro);
+        return new SqlExecMacro(s.end(this), macro, paramVals);
     }
+}
+
+void SqlExecMacroArgument(SqlNodeList paramVals) :
+{
+    SqlNode e;
+}
+{
+    <LPAREN>
+    (
+        e = Literal()
+        {
+            paramVals.add(e);
+        }
+    )+
+    <RPAREN>
 }
 
 SqlNode SqlUsingRequestModifier(Span s) :

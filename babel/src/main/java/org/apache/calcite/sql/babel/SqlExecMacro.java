@@ -22,6 +22,7 @@ import org.apache.calcite.sql.SqlExecutableStatement;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlSpecialOperator;
 import org.apache.calcite.sql.SqlWriter;
@@ -39,11 +40,13 @@ public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
       new SqlSpecialOperator("EXECUTE", SqlKind.OTHER);
 
   private final SqlIdentifier name;
+  private final SqlNodeList paraVals;
 
   /** Creates a SqlExecMacro. */
-  public SqlExecMacro(SqlParserPos pos, SqlIdentifier name) {
+  public SqlExecMacro(SqlParserPos pos, SqlIdentifier name, SqlNodeList paramVals) {
     super(pos);
     this.name = Objects.requireNonNull(name);
+    this.paraVals = paramVals;
   }
 
   @Override public SqlOperator getOperator() {
@@ -57,6 +60,16 @@ public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("EXECUTE");
     name.unparse(writer, leftPrec, rightPrec);
+    if (paraVals.size() == 0) {
+      return;
+    }
+    SqlWriter.Frame frame = writer.startList("(", ")");
+    for (SqlNode e : paraVals) {
+      writer.sep(",", false);
+      e.unparse(writer, 0, 0);
+    }
+    writer.endList(frame);
+
   }
 
   // Intentionally left empty.

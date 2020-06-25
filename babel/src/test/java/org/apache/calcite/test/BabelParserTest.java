@@ -1009,8 +1009,8 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testExecuteMacroWithOneParamValue() {
-    final String sql = "execute foo(1)";
-    final String expected = "EXECUTE `FOO`(1)";
+    final String sql = "execute foo (1)";
+    final String expected = "EXECUTE `FOO` (1)";
     sql(sql).ok(expected);
   }
 
