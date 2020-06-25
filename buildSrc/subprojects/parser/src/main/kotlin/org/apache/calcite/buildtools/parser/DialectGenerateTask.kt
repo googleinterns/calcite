@@ -58,6 +58,7 @@ open class DialectGenerateTask @Inject constructor(
     @TaskAction
     fun run() {
         val functionMap = extractFunctions()
+        // Temporarily printing until generation done.
         functionMap.forEach {
             k, v ->
                 println("$k = $v\n")
