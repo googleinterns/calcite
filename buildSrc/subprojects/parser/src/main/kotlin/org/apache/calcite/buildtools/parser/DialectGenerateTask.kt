@@ -175,7 +175,7 @@ open class DialectGenerateTask @Inject constructor(
      * @param functionMap The map to which the extracted functions will be added to
      * @param charIndex The character index of the entire text of the file at which
      *                  the parsing is commencing at
-     * @param declarationEnd The char index (of entire file text) at which the l
+     * @param declarationEnd The char index (of entire file text) at which the
      *                       function declaration ends
      * @param functionName The name of the function being processed
      */
@@ -209,8 +209,6 @@ open class DialectGenerateTask @Inject constructor(
      * has been fully parsed or not. The current character index of the file text
      * is updated and returned once parsing is complete.
      *
-     * The function is assumed to be in a valid format.
-     *
      * @param functionBuilder The builder unto which the tokens get added to once parsed
      * @param tokens The tokens starting from the function declaration and
      *               ending at EOF
@@ -232,8 +230,7 @@ open class DialectGenerateTask @Inject constructor(
             val token = tokens.poll()
             functionBuilder.append(token)
             updatedCharIndex += token.length
-            val doneParsingBlock = parser.parseToken(token)
-            if (doneParsingBlock) {
+            if (parser.parseToken(token)) {
                 return updatedCharIndex
             }
         }
@@ -335,72 +332,61 @@ open class DialectGenerateTask @Inject constructor(
          * @return Whether or not the curly block has been fully parsed
          */
         fun parseToken(token: String): Boolean {
-            insideState = getUpdatedState(token)
-            val doneParsingCurlyBlock = curlyCounter == 0
-            return doneParsingCurlyBlock
+            updateState(token)
+            return curlyCounter == 0
         }
 
         /**
          * Determines the updated state based on the token and current state.
          *
          * @param token The token to parse
-         * @return The updated state
          */
-        private fun getUpdatedState(token: String): InsideState {
+        private fun updateState(token: String) {
             when (token) {
                 "\n" -> {
                     if (insideState == InsideState.SINGLE_COMMENT) {
-                        return InsideState.NONE
+                        insideState = InsideState.NONE
                     }
-                    return insideState
                 }
                 "\"" -> {
                     if (insideState == InsideState.NONE) {
-                        return InsideState.STRING
+                        insideState = InsideState.STRING
                     } else if (insideState == InsideState.STRING) {
-                        return InsideState.NONE
+                        insideState = InsideState.NONE
                     }
-                    return insideState
                 }
                 "'" -> {
                     if (insideState == InsideState.NONE) {
-                        return InsideState.CHARACTER
+                        insideState = InsideState.CHARACTER
                     } else if (insideState == InsideState.CHARACTER) {
-                        return InsideState.NONE
+                        insideState = InsideState.NONE
                     }
-                    return insideState
                 }
                 "//" -> {
                     if (insideState == InsideState.NONE) {
-                        return InsideState.SINGLE_COMMENT
+                        insideState = InsideState.SINGLE_COMMENT
                     }
-                    return insideState
                 }
                 "/*" -> {
                     if (insideState == InsideState.NONE) {
-                        return InsideState.MULTI_COMMENT
+                        insideState = InsideState.MULTI_COMMENT
                     }
-                    return insideState
                 }
                 "*/" -> {
                     if (insideState == InsideState.MULTI_COMMENT) {
-                        return InsideState.NONE
+                        insideState = InsideState.NONE
                     }
-                    return insideState
                 }
                 "{" -> {
                     if (insideState == InsideState.NONE) {
                         curlyCounter++
                     }
-                    return insideState
                 }
                 "}" -> {
                     if (insideState == InsideState.NONE) {
                         curlyCounter--
                     }
-                    return insideState
                 }
-                else -> return insideState
             }
         }
     }
