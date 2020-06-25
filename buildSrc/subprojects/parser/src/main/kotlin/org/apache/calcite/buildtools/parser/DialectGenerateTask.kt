@@ -222,12 +222,12 @@ open class DialectGenerateTask @Inject constructor(
         tokens: Queue<String>,
         charIndex: Int
     ): Int {
-        val parser = CurlyParser()
         // Remove any preceeding spaces or new lines before the curly block starts.
         var updatedCharIndex = consumeExtraSpacesAndLines(functionBuilder, tokens, charIndex)
         if (tokens.peek() != "{") {
             throw IllegalStateException("First token of curly block must be a curly brace.")
         }
+        val parser = CurlyParser()
         while (tokens.isNotEmpty()) {
             val token = tokens.poll()
             functionBuilder.append(token)
