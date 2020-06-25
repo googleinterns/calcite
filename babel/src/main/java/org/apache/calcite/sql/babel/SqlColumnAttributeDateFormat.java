@@ -23,17 +23,16 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
  * A {@code SqlColumnAttributeDateFormat} is an AST node that gives
- * a Date column of a specific format
+ * a Date column of a specific format.
  */
 public class SqlColumnAttributeDateFormat extends SqlColumnAttribute {
 
-  private SqlNode formatString = null;
+  private SqlNode formatString;
 
   /**
    * Creates a {@code SqlCharacterSetToCharacterSet}.
    *
    * @param pos  Parser position, must not be null
-   * @param formatString  The format string string literal
    */
   public SqlColumnAttributeDateFormat(SqlParserPos pos, SqlNode formatString) {
     super(pos);
@@ -42,9 +41,7 @@ public class SqlColumnAttributeDateFormat extends SqlColumnAttribute {
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
-    if (formatString != null) {
-      writer.keyword("FORMAT");
-      formatString.unparse(writer, 0, 0);
-    }
+    writer.keyword("FORMAT");
+    formatString.unparse(writer, 0, 0);
   }
 }

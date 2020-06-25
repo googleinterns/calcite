@@ -874,13 +874,13 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testCreateTableDateFormatDateOnlyColumnLevelAttributes() {
+  @Test public void testCreateTableDateFormatDateOnlyColumnLevelAttribute() {
     final String sql = "create table foo (bar date)";
     final String expected = "CREATE TABLE `FOO` (`BAR` DATE)";
     sql(sql).ok(expected);
   }
 
-  @Test public void testCreateTableDateFormatWithFormatStringColumnLevelAttributes() {
+  @Test public void testCreateTableDateFormatWithFormatStringColumnLevelAttribute() {
     final String sql = "create table foo (bar date format 'YYYY-MM-DD')";
     final String expected = "CREATE TABLE `FOO` (`BAR` DATE FORMAT 'YYYY-MM-DD')";
     sql(sql).ok(expected);
@@ -888,9 +888,9 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testCreateTableDateFormatWithOtherColumnLevelAttributes() {
     final String sql = "create table foo (bar date format 'YYYY-MM-DD'"
-        + ", a int default 1)";
+        + " default null)";
     final String expected = "CREATE TABLE `FOO` (`BAR` DATE FORMAT 'YYYY-MM-DD'"
-        + ", `A` INTEGER DEFAULT 1)";
+        + " DEFAULT NULL)";
     sql(sql).ok(expected);
   }
 
