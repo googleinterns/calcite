@@ -41,6 +41,9 @@ public class SqlColumnAttributeDateFormat extends SqlColumnAttribute {
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
+    if (formatString == null) {
+      return;
+    }
     writer.keyword("FORMAT");
     formatString.unparse(writer, 0, 0);
   }
