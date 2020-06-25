@@ -138,6 +138,7 @@ open class DialectGenerateTask @Inject constructor(
      * {
      *     <body>
      * }
+     *
      * @param file The file to process
      * @param functionMap The map to which the parsing functions will be added to
      */
@@ -201,11 +202,10 @@ open class DialectGenerateTask @Inject constructor(
     }
 
     /**
-     * Parses a block of text surrounded by curly braces. The function keeps track
-     * of the number of curly braces that have yet to be closed. Once this counter
-     * reaches 0 the block has been fully parsed. The function also ensures that
-     * curly braces within single-line comments, multi-line comments, and strings
-     * are not counted for this.
+     * Parses a block of text surrounded by curly braces. Creates an instance of
+     * CurlyParser() that is used keep track of whether or not the curly block
+     * has been fully parsed or not. The current character index of the file text
+     * is updated and returned once parsing is complete.
      *
      * The function is assumed to be in a valid format.
      *
@@ -226,7 +226,6 @@ open class DialectGenerateTask @Inject constructor(
             val token = tokens.poll()
             functionBuilder.append(token)
             updatedCharIndex += token.length
-
             val doneParsingBlock = parser.parseToken(token)
             if (doneParsingBlock) {
                 return updatedCharIndex
@@ -246,6 +245,13 @@ open class DialectGenerateTask @Inject constructor(
         return matches.elementAt(1).value
     }
 
+
+    /**
+     * Responsible for parsing a block of text surrounded by curly braces. It is
+     * assumed that parsing begins at the start of a curly block (with the exception
+     * of preceeding spaces or new lines). Maintains the state of which structure
+     * the parser is currently in to ensure that encountered curly braces are valid.
+     */
     class CurlyParser() {
 
         /**
@@ -281,10 +287,11 @@ open class DialectGenerateTask @Inject constructor(
             MULTI_COMMENT
         }
 
+        // Default state is that the parser is not within any structure.
         private var insideState = InsideState.NONE
 
         // Keeps track of the number of open curly braces that have been
-        // legally encountered.
+        // legally encountered (those that are not within any structure).
         private var curlyCounter = 0
 
         /**
@@ -301,6 +308,7 @@ open class DialectGenerateTask @Inject constructor(
                 return false
             }
             if (token == "\n") {
+                // Single line comments are ended by a new line.
                 if (insideState == InsideState.SINGLE_COMMENT) {
                     insideState = InsideState.NONE
                 }
