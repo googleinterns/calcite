@@ -16,16 +16,25 @@
  */
 package org.apache.calcite.sql.babel;
 
+import org.apache.calcite.sql.SqlColumnAttribute;
+import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-public class SqlCreateAttributeDateFormat extends SqlCreateAttribute {
-  public SqlCreateAttributeDateFormat(SqlParserPos pos) {
+public class SqlColumnAttributeDateFormat extends SqlColumnAttribute {
+
+  private SqlNode formatString = null;
+
+  public SqlColumnAttributeDateFormat(SqlParserPos pos, SqlNode formatString) {
     super(pos);
+    this.formatString = formatString;
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
-    writer.keyword("DATE");
+    if (formatString != null) {
+      writer.keyword("FORMAT");
+      formatString.unparse(writer, 0, 0);
+    }
   }
 }
