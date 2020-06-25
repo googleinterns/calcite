@@ -40,13 +40,16 @@ public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
       new SqlSpecialOperator("EXECUTE", SqlKind.OTHER);
 
   private final SqlIdentifier name;
-  private final SqlNodeList paraVals;
+  private final SqlNodeList paramNames;
+  private final SqlNodeList paramValues;
 
   /** Creates a SqlExecMacro. */
-  public SqlExecMacro(SqlParserPos pos, SqlIdentifier name, SqlNodeList paramVals) {
+  public SqlExecMacro(SqlParserPos pos, SqlIdentifier name,
+      SqlNodeList paramNames, SqlNodeList paramValues) {
     super(pos);
     this.name = Objects.requireNonNull(name);
-    this.paraVals = paramVals;
+    this.paramNames = paramNames;
+    this.paramValues = paramValues;
   }
 
   @Override public SqlOperator getOperator() {
@@ -60,13 +63,22 @@ public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("EXECUTE");
     name.unparse(writer, leftPrec, rightPrec);
-    if (paraVals.size() == 0) {
+    if (paramValues.size() == 0) {
       return;
     }
     SqlWriter.Frame frame = writer.startList("(", ")");
-    for (SqlNode e : paraVals) {
-      writer.sep(",", false);
-      e.unparse(writer, 0, 0);
+    if (paramNames.size() == 0) {
+      for (SqlNode e : paramValues) {
+        writer.sep(",", false);
+        e.unparse(writer, 0, 0);
+      }
+    } else {
+      for (int i = 0; i < paramNames.size(); i++) {
+        writer.sep(",", false);
+        paramNames.get(i).unparse(writer, 0, 0);
+        writer.keyword("=");
+        paramValues.get(i).unparse(writer, 0, 0);
+      }
     }
     writer.endList(frame);
 
