@@ -32,7 +32,7 @@ class BigQueryQuidemTest extends DialectQuidemTest {
    * <p>For example:
    *
    * <blockquote>
-   *   <code>java DefaultQuidemTest sql/table.iq</code>
+   *   <code>java BigQueryQuidemTest sql/table.iq</code>
    * </blockquote> */
   public static void main(String[] args) throws Exception {
     for (String arg : args) {
