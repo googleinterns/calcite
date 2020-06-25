@@ -62,6 +62,7 @@ open class DialectGenerateTask @Inject constructor(
             k, v ->
                 println("$k = $v\n")
             }
+        println(functionMap.size)
     }
 
     /**
@@ -244,7 +245,6 @@ open class DialectGenerateTask @Inject constructor(
         val matches = nameRegex.findAll(functionDeclaration)
         return matches.elementAt(1).value
     }
-
 
     /**
      * Responsible for parsing a block of text surrounded by curly braces. It is
