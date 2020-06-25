@@ -27,10 +27,10 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public class SqlColumnAttributeDateFormat extends SqlColumnAttribute {
 
-  private SqlNode formatString;
+  private final SqlNode formatString;
 
   /**
-   * Creates a {@code SqlCharacterSetToCharacterSet}.
+   * Creates a {@code SqlColumnAttributeDateFormat}.
    *
    * @param pos  Parser position, must not be null
    */
