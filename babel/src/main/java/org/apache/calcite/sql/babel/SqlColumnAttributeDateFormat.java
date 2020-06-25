@@ -27,7 +27,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public class SqlColumnAttributeDateFormat extends SqlColumnAttribute {
 
-  private final SqlNode formatString;
+  public final SqlNode formatString;
 
   /**
    * Creates a {@code SqlColumnAttributeDateFormat}.
