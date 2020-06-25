@@ -272,6 +272,8 @@ void ColumnAttributes(List<SqlColumnAttribute> list) :
             e = ColumnAttributeCompress()
         |
             e = ColumnAttributeDefault()
+        |
+            e = ColumnAttributeDateFormat()
         ) { list.add(e); }
     )+
 }
@@ -506,6 +508,18 @@ SqlCreateAttribute CreateTableAttributeLog() :
     [ <NO> { loggingEnabled = false; } ]
     <LOG> {
         return new SqlCreateAttributeLog(loggingEnabled, getPos());
+    }
+}
+
+SqlColumnAttribute ColumnAttributeDateFormat() :
+{
+    SqlNode formatString = null;
+}
+{
+    <FORMAT>
+    formatString = StringLiteral()
+    {
+        return new SqlColumnAttributeDateFormat(getPos(), formatString);
     }
 }
 

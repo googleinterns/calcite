@@ -73,6 +73,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateFunctionSqlForm.ReactToNullInputType",
       "org.apache.calcite.sql.babel.SqlCharacterSetToCharacterSet",
       "org.apache.calcite.sql.babel.SqlTranslateUsingCharacterSet",
+      "org.apache.calcite.sql.babel.SqlColumnAttributeDateFormat",
     ]
 
     # List of keywords.
