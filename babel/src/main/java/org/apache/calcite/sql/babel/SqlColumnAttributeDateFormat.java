@@ -21,10 +21,20 @@ import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
+/**
+ * A {@code SqlColumnAttributeDateFormat} is an AST node that gives
+ * a Date column of a specific format
+ */
 public class SqlColumnAttributeDateFormat extends SqlColumnAttribute {
 
   private SqlNode formatString = null;
 
+  /**
+   * Creates a {@code SqlCharacterSetToCharacterSet}.
+   *
+   * @param pos  Parser position, must not be null
+   * @param formatString  The format string string literal
+   */
   public SqlColumnAttributeDateFormat(SqlParserPos pos, SqlNode formatString) {
     super(pos);
     this.formatString = formatString;
