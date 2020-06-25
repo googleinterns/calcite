@@ -296,9 +296,14 @@ open class DialectGenerateTask @Inject constructor(
         private var curlyCounter = 0
 
         /**
-         * Parses the given token and updates the state.
+         * Parses the given token and updates the state. It is assumed that the
+         * tokens are provided as a sequence:
          *
-         * Spaces and new lines  between curly blocks are valid so an arbitrary
+         * for any token1, token2
+         * if parseToken(token1) is called and parseToken(token2) is called right after,
+         * then token2 comes directly after token1 in the stream of tokens.
+         *
+         * Spaces and new lines between curly blocks are valid so an arbitrary
          * amount of them are allowed to get parsed without the state changing.
          *
          * @param token The token to parse
