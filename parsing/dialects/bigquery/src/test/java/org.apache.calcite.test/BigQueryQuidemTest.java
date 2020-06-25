@@ -18,7 +18,7 @@
 package org.apache.calcite.test;
 
 import org.apache.calcite.config.CalciteConnectionProperty;
-import org.apache.calcite.sql.parser.babel.SqlBabelParserImpl;
+import org.apache.calcite.sql.bigquery.BigQueryParserImpl;
 import org.apache.calcite.sql.validate.SqlConformanceEnum;
 
 import net.hydromatic.quidem.Quidem;
@@ -32,7 +32,7 @@ class BigQueryQuidemTest extends DialectQuidemTest {
    * <p>For example:
    *
    * <blockquote>
-   *   <code>java BigQueryQuidemTest sql/table.iq</code>
+   *   <code>java DefaultQuidemTest sql/table.iq</code>
    * </blockquote> */
   public static void main(String[] args) throws Exception {
     for (String arg : args) {

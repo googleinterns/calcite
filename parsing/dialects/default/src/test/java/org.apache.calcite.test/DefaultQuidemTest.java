@@ -18,15 +18,18 @@
 package org.apache.calcite.test;
 
 import org.apache.calcite.config.CalciteConnectionProperty;
-import org.apache.calcite.sql.parser.babel.SqlBabelParserImpl;
-import org.apache.calcite.sql.validate.SqlConformanceEnum;
+import org.apache.calcite.sql.parser.defaultparser.DefaultParserImpl;
 
 import net.hydromatic.quidem.Quidem;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.Collection;
 
 class DefaultQuidemTest extends DialectQuidemTest {
+
+  static final String URL = "jdbc:calcite:";
+
   /** Runs a test from the command line.
    *
    * <p>For example:
