@@ -570,6 +570,7 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
     SqlIndex index;
     List<SqlIndex> indices = new ArrayList<SqlIndex>();
     final OnCommitType onCommitType;
+    String x = `x`;
 }
 {
     [
