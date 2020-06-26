@@ -582,7 +582,7 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     )*
     onCommitType = OnCommitTypeOpt()
     {
-        return new SqlCreateTableDialectA(s.end(this), replace, setType, volatility, ifNotExists, id,
+        return new SqlCreateTableDialect1(s.end(this), replace, setType, volatility, ifNotExists, id,
             tableAttributes, columnList, query, withData, primaryIndex, onCommitType);
     }
 }
