@@ -16,6 +16,9 @@
  */
 plugins {
     kotlin("jvm")
+    id("com.github.vlsi.ide")
+    calcite.fmpp
+    calcite.javacc
 }
 
 dependencies {
@@ -32,4 +35,52 @@ dependencies {
     testImplementation("org.slf4j:slf4j-log4j12")
     testImplementation(project(":core", "testClasses"))
     testImplementation(project(":parsing", "testClasses"))
+}
+
+val dialectGenerate by tasks.registering(org.apache.calcite.buildtools.parser.DialectGenerateTask::class) {
+  rootDirectory.set(file("$rootDir/parsing"))
+  dialectDirectory.set(file("."))
+  outputFile = "build/generated/templates/parserImpls.ftl"
+}
+
+// TODO remove these two tasks, temporary until generation task is finished
+tasks.register("asdf1") {
+    doLast {
+        mkdir("$buildDir/generated/templates")
+    }
+}
+tasks.register<Copy>("asdf2") {
+    from("$rootDir/parsing/parserImpls.ftl")
+    into("$buildDir/generated/templates")
+}
+
+val fmppMain by tasks.registering(org.apache.calcite.buildtools.fmpp.FmppTask::class) {
+    dependsOn(dialectGenerate)
+    dependsOn("asdf1")
+    dependsOn("asdf2")
+
+    inputs.dir(".")
+    config.set(file("config.fmpp"))
+    templates.set(file("$rootDir/parsing"))
+
+    // inputs.dir("src/main/codegen")
+    // config.set(file("src/main/codegen/config.fmpp"))
+    // templates.set(file("$rootDir/core/src/main/codegen/templates"))
+}
+
+val javaCCMain by tasks.registering(org.apache.calcite.buildtools.javacc.JavaCCTask::class) {
+    dependsOn(fmppMain)
+    lookAhead.set(2)
+    val parserFile = fmppMain.map {
+        it.output.asFileTree.matching { include("**/Parser.jj") }.singleFile
+    }
+    inputFile.set(parserFile)
+    packageName.set("org.apache.calcite.sql.parser.bigquery")
+}
+
+ide {
+    fun generatedSource(javacc: TaskProvider<org.apache.calcite.buildtools.javacc.JavaCCTask>, sourceSet: String) =
+        generatedJavaSources(javacc.get(), javacc.get().output.get().asFile, sourceSets.named(sourceSet))
+
+    generatedSource(javaCCMain, "main")
 }
