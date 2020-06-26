@@ -89,7 +89,6 @@ public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
       }
     }
     writer.endList(frame);
-
   }
 
   // Intentionally left empty.
