@@ -37,7 +37,7 @@ import java.util.Objects;
  */
 public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("EXECUTE", SqlKind.OTHER);
+      new SqlSpecialOperator("EXECUTE", SqlKind.EXECUTE);
 
   private final SqlIdentifier name;
   private final SqlNodeList paramNames;
