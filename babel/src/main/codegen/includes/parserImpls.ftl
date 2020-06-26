@@ -836,7 +836,7 @@ void SqlExecMacroArgument(SqlNodeList paramNames, SqlNodeList paramValues) :
     |
         <LPAREN>
         (
-            value = Literal()
+            value = Expression(ExprContext.ACCEPT_SUB_QUERY)
             {
                 paramValues.add(value);
             }
