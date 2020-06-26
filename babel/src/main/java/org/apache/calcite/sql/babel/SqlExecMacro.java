@@ -40,23 +40,20 @@ public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
       new SqlSpecialOperator("EXECUTE", SqlKind.EXECUTE);
 
   private final SqlIdentifier name;
-  private final SqlNodeList paramNames;
-  private final SqlNodeList paramValues;
+  private final SqlNodeList params;
 
   /**
    * Create an {@code SqlExecMacro}.
    *
    * @param pos  Parser position, must not be null
    * @param name  Name of the macro
-   * @param paramNames  List of parameter names
-   * @param paramValues  List of parameter values
+   * @param params  List of parameters
    */
   public SqlExecMacro(SqlParserPos pos, SqlIdentifier name,
-      SqlNodeList paramNames, SqlNodeList paramValues) {
+      SqlNodeList params) {
     super(pos);
     this.name = Objects.requireNonNull(name);
-    this.paramNames = paramNames;
-    this.paramValues = paramValues;
+    this.params = params;
   }
 
   @Override public SqlOperator getOperator() {
@@ -65,28 +62,19 @@ public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
 
   @Override public List<SqlNode> getOperandList() {
     // the list of paramNames could be empty
-    return ImmutableNullableList.of(name, paramValues, paramNames);
+    return ImmutableNullableList.of(name, params);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("EXECUTE");
     name.unparse(writer, leftPrec, rightPrec);
-    if (SqlNodeList.isEmptyList(paramValues)) {
+    if (SqlNodeList.isEmptyList(params)) {
       return;
     }
     SqlWriter.Frame frame = writer.startList("(", ")");
-    if (SqlNodeList.isEmptyList(paramNames)) {
-      for (SqlNode e : paramValues) {
-        writer.sep(",", false);
-        e.unparse(writer, 0, 0);
-      }
-    } else {
-      for (int i = 0; i < paramNames.size(); i++) {
-        writer.sep(",", false);
-        paramNames.get(i).unparse(writer, 0, 0);
-        writer.keyword("=");
-        paramValues.get(i).unparse(writer, 0, 0);
-      }
+    for (SqlNode e : params) {
+      writer.sep(",", false);
+      e.unparse(writer, 0, 0);
     }
     writer.endList(frame);
   }

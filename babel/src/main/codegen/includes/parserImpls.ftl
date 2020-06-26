@@ -788,21 +788,20 @@ SqlIndex SqlCreateTableIndex(Span s) :
 SqlNode SqlExecMacro() :
 {
     SqlIdentifier macro;
-    SqlNodeList paramNames = new SqlNodeList(getPos());
-    SqlNodeList paramValues = new SqlNodeList(getPos());
+    SqlNodeList params = new SqlNodeList(getPos());
     Span s;
 }
 {
     macro = CompoundIdentifier() { s = span(); }
     [
-        SqlExecMacroArgument(paramNames, paramValues)
+        SqlExecMacroArgument(params)
     ]
     {
-        return new SqlExecMacro(s.end(this), macro, paramNames, paramValues);
+        return new SqlExecMacro(s.end(this), macro, params);
     }
 }
 
-void SqlExecMacroArgument(SqlNodeList paramNames, SqlNodeList paramValues) :
+void SqlExecMacroArgument(SqlNodeList params) :
 {
     SqlNode name;
     SqlNode value;
@@ -812,24 +811,18 @@ void SqlExecMacroArgument(SqlNodeList paramNames, SqlNodeList paramValues) :
         (
             name = SimpleIdentifier()
             <EQ>
-            {
-                paramNames.add(name);
-            }
             value = Expression(ExprContext.ACCEPT_SUB_QUERY)
             {
-                paramValues.add(value);
+                params.add(new SqlExecMacroParam(getPos(), name, value));
             }
         )
         (
             <COMMA>
             name = SimpleIdentifier()
             <EQ>
-            {
-                paramNames.add(name);
-            }
             value = Expression(ExprContext.ACCEPT_SUB_QUERY)
             {
-                paramValues.add(value);
+                params.add(new SqlExecMacroParam(getPos(), name, value));
             }
         )*
         <RPAREN>
@@ -838,7 +831,7 @@ void SqlExecMacroArgument(SqlNodeList paramNames, SqlNodeList paramValues) :
         (
             value = Expression(ExprContext.ACCEPT_SUB_QUERY)
             {
-                paramValues.add(value);
+                params.add(new SqlExecMacroParam(getPos(), value));
             }
 
         )
@@ -846,7 +839,7 @@ void SqlExecMacroArgument(SqlNodeList paramNames, SqlNodeList paramValues) :
             <COMMA>
             value = Expression(ExprContext.ACCEPT_SUB_QUERY)
             {
-                paramValues.add(value);
+                params.add(new SqlExecMacroParam(getPos(), value));
             }
 
         )*
