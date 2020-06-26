@@ -807,15 +807,14 @@ void SqlExecMacroArgument(SqlNodeList params) :
     SqlNode value;
 }
 {
-        <LPAREN>
-        (
-            name = SimpleIdentifier()
-            <EQ>
-            value = Literal()
-            {
-                params.add(new SqlExecMacroParam(getPos(), name, value));
-            }
-        )
+    <LPAREN>
+    (
+        name = SimpleIdentifier()
+        <EQ>
+        value = Literal()
+        {
+            params.add(new SqlExecMacroParam(getPos(), name, value));
+        }
         (
             <COMMA>
             name = SimpleIdentifier()
@@ -825,25 +824,20 @@ void SqlExecMacroArgument(SqlNodeList params) :
                 params.add(new SqlExecMacroParam(getPos(), name, value));
             }
         )*
-        <RPAREN>
     |
-        <LPAREN>
-        (
-            value = Literal()
-            {
-                params.add(new SqlExecMacroParam(getPos(), value));
-            }
-
-        )
+        value = Literal()
+        {
+            params.add(new SqlExecMacroParam(getPos(), value));
+        }
         (
             <COMMA>
             value = Literal()
             {
                 params.add(new SqlExecMacroParam(getPos(), value));
             }
-
         )*
-        <RPAREN>
+    )
+    <RPAREN>
 }
 
 SqlNode SqlUsingRequestModifier(Span s) :
