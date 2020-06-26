@@ -813,7 +813,16 @@ void SqlExecMacroArgument(SqlNodeList paramNames, SqlNodeList paramValues) :
         {
             paramValues.add(value);
         }
-    )+
+
+    )
+    (
+        <COMMA>
+        value = Literal()
+        {
+            paramValues.add(value);
+        }
+
+    )*
     <RPAREN>
     |
     <LPAREN>
