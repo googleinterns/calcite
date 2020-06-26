@@ -36,7 +36,7 @@ import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
 /**
- * Contains the logic to extracts functions and generate the parserImpls.ftl
+ * Contains the logic to extract functions and generate the parserImpls.ftl file
  * for the given dialect. Used by the DialectGenerateTask.kt gradle task.
  */
 public class DialectGenerate {
