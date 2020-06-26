@@ -35,17 +35,32 @@ import java.util.regex.Matcher;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
+/**
+ * Contains the logic to extracts functions and generate the parserImpls.ftl
+ * for the given dialect. Used by the DialectGenerateTask.kt gradle task.
+ */
 public class DialectGenerate {
 
   private final String typeAndName = "\\w+\\s+\\w+";
   private final String splitDelims = "(\\s|\n|\"|//|/\\*|\\*/|'|\\}|\\{)";
 
+  // Used to split up a string into tokens by the specified deliminators
+  // while also keeping the deliminators as tokens.
   private final Pattern tokenizerPattern = Pattern.compile("((?<="
       + splitDelims + ")|(?=" + splitDelims + "))");
+
+  // Matches function declarations: <return_type> <name> (<args>) :
   private final Pattern declarationPattern =
     Pattern.compile("(" + typeAndName + "\\s*\\(\\s*(" + typeAndName + "\\s*(\\,\\s*"
         + typeAndName + "\\s*)*)?\\)\\s*\\:\n?)");
   private final Pattern namePattern = Pattern.compile("\\w+");
+
+  private final Comparator<File> fileComparator = new Comparator<File>() {
+    @Override
+    public int compare(File file1, File file2) {
+      return Boolean.compare(file1.isDirectory(), file2.isDirectory());
+    }
+  };
 
   private final File dialectDirectory;
   private final File rootDirectory;
@@ -58,10 +73,11 @@ public class DialectGenerate {
   }
 
   /**
-   * Extracts functions and generates parserImpls.ftl for the given dialect.
+   * Extracts functions and prints the results for the given dialect.
    */
   public void run() {
     Map<String, String> functions = extractFunctions();
+    // TODO(AndrewPochapsky): Remove this once generation logic added.
     for (Map.Entry<String, String> entry : functions.entrySet()) {
       String key = entry.getKey();
       String value = entry.getValue();
@@ -85,7 +101,9 @@ public class DialectGenerate {
    *
    * @param functions The functions to place into the output file
    */
-  public void generateParserImpls(Map<String, String> functions) {}
+  public void generateParserImpls(Map<String, String> functions) {
+    // TODO(AndrewPochapsky): Add generation logic.
+  }
 
   /**
    * Gets the traversal path for the dialect by "subtracting" the root
@@ -116,12 +134,7 @@ public class DialectGenerate {
       Map<String, String> functionMap) {
     File[] files = currentDirectory.listFiles();
     // Ensures that files are processed first.
-    Arrays.sort(files, new Comparator<File>() {
-      @Override
-      public int compare(File file1, File file2) {
-        return Boolean.compare(file1.isDirectory(), file2.isDirectory());
-      }
-    });
+    Arrays.sort(files, fileComparator);
     String nextDirectory = directories.peek();
     for (File f : files) {
       String extension = "";
