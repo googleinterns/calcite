@@ -71,11 +71,11 @@ public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("EXECUTE");
     name.unparse(writer, leftPrec, rightPrec);
-    if (paramValues.size() == 0) {
+    if (SqlNodeList.isEmptyList(paramValues)) {
       return;
     }
     SqlWriter.Frame frame = writer.startList("(", ")");
-    if (paramNames.size() == 0) {
+    if (SqlNodeList.isEmptyList(paramNames)) {
       for (SqlNode e : paramValues) {
         writer.sep(",", false);
         e.unparse(writer, 0, 0);
