@@ -39,6 +39,10 @@ data: {
       "JAR"
       "FILE"
       "ARCHIVE"
+      "DEL"
+      "INS"
+      "SEL"
+      "UPD"
     ]
 
     # List of keywords from "keywords" section that are not reserved.
@@ -483,7 +487,7 @@ data: {
 
     allowUpdateFromTable: false
     allowUpsertFormOfUpdate: false
-    allowAbbreviatedKeywords: false
+    allowAbbreviatedKeywords: true
     allowTranslateUsingCharSetWithError: false
     includePosixOperators: false
     includeCastFormat: false

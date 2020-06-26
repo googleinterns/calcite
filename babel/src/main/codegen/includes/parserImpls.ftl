@@ -622,7 +622,7 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
     [
         index = SqlCreateTableIndex(s) { indices.add(index); }
         (
-           <COMMA> index = SqlCreateTableIndex(s) { indices.add(index); }
+           [<COMMA>] index = SqlCreateTableIndex(s) { indices.add(index); }
         )*
         {
             // Filter out any primary indices from index list.
