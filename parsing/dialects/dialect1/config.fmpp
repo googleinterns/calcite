@@ -52,7 +52,7 @@ data: {
       "org.apache.calcite.sql.SqlCreateAttributeMap",
       "org.apache.calcite.sql.SqlCreateAttributeMergeBlockRatio",
       "org.apache.calcite.sql.SqlCreateAttributeMergeBlockRatio.MergeBlockRatioModifier",
-      "org.apache.calcite.sql.SqlCreateTableDialectA",
+      "org.apache.calcite.sql.SqlCreateTableDialect1",
       "org.apache.calcite.sql.SqlDdlNodes",
       "org.apache.calcite.sql.SqlExecMacro",
       "org.apache.calcite.sql.SqlRenameTable",
