@@ -808,7 +808,6 @@ void SqlExecMacroArgument(SqlNodeList paramNames, SqlNodeList paramValues) :
     SqlNode value;
 }
 {
-        LOOKAHEAD(2)
         <LPAREN>
         (
             value = Literal()
