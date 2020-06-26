@@ -1026,6 +1026,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testExecuteMacroWithMoreThanOneParamNameWithValue() {
+    final String sql = "execute foo (bar = 1.3, goo = DATE - 1)";
+    final String expected = "EXECUTE `FOO` (`BAR` = 1.3, `GOO` = (DATE - 1))";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testDateTimePrimaryLiteral() {
     final String sql = "select timestamp '2020-05-30 13:20:00'";
     final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00'";
