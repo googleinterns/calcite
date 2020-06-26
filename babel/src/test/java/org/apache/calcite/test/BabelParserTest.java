@@ -1027,22 +1027,24 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testExecuteMacroWithMoreThanOneParamNameWithValue() {
-    final String sql = "execute foo (bar = 1.3, goo = DATE - 1)";
-    final String expected = "EXECUTE `FOO` (`BAR` = 1.3, `GOO` = (DATE - 1))";
+    final String sql = "execute foo (bar = 1.3, "
+        + "goo = timestamp '2020-05-30 13:20:00')";
+    final String expected = "EXECUTE `FOO` (`BAR` = 1.3, "
+        + "`GOO` = TIMESTAMP '2020-05-30 13:20:00')";
     sql(sql).ok(expected);
   }
 
   @Test public void testExecuteMacroWithMoreThanOneParamValueWithNull() {
-    final String sql = "execute foo (1, null, 3 mod 2)";
-    final String expected = "EXECUTE `FOO` (1, NULL, MOD(3, 2))";
+    final String sql = "execute foo (1, null, 3)";
+    final String expected = "EXECUTE `FOO` (1, NULL, 3)";
     sql(sql).ok(expected);
   }
 
-  @Test public void testExecuteMacroWithMixedParamPattern() {
+  @Test public void testExecuteMacroWithMixedParamPatternFails() {
     // The parser would recognized the paraName = paramValue as an entity
-    final String sql = "execute foo (1, bar = '2')";
-    final String expected = "EXECUTE `FOO` (1, (`BAR` = '2'))";
-    sql(sql).ok(expected);
+    final String sql = "execute foo (1^,^ bar = '2')";
+    final String expected = "(?s).*Encountered \", bar\" at .*";
+    sql(sql).fails(expected);
   }
 
   @Test public void testDateTimePrimaryLiteral() {
