@@ -806,50 +806,50 @@ void SqlExecMacroArgument(SqlNodeList paramNames, SqlNodeList paramValues) :
     SqlNode value;
 }
 {
-    LOOKAHEAD(2)
-    <LPAREN>
-    (
-        value = Literal()
-        {
-            paramValues.add(value);
-        }
+        LOOKAHEAD(2)
+        <LPAREN>
+        (
+            value = Literal()
+            {
+                paramValues.add(value);
+            }
 
-    )
-    (
-        <COMMA>
-        value = Expression(ExprContext.ACCEPT_SUB_QUERY)
-        {
-            paramValues.add(value);
-        }
+        )
+        (
+            <COMMA>
+            value = Expression(ExprContext.ACCEPT_SUB_QUERY)
+            {
+                paramValues.add(value);
+            }
 
-    )*
-    <RPAREN>
+        )*
+        <RPAREN>
     |
-    <LPAREN>
-    (
-        name = SimpleIdentifier()
-        <EQ>
-        {
-            paramNames.add(name);
-        }
-        value = Expression(ExprContext.ACCEPT_SUB_QUERY)
-        {
-            paramValues.add(value);
-        }
-    )
-    (
-        <COMMA>
-        name = SimpleIdentifier()
-        <EQ>
-        {
-            paramNames.add(name);
-        }
-        value = Expression(ExprContext.ACCEPT_SUB_QUERY)
-        {
-            paramValues.add(value);
-        }
-    )*
-    <RPAREN>
+        <LPAREN>
+        (
+            name = SimpleIdentifier()
+            <EQ>
+            {
+                paramNames.add(name);
+            }
+            value = Expression(ExprContext.ACCEPT_SUB_QUERY)
+            {
+                paramValues.add(value);
+            }
+        )
+        (
+            <COMMA>
+            name = SimpleIdentifier()
+            <EQ>
+            {
+                paramNames.add(name);
+            }
+            value = Expression(ExprContext.ACCEPT_SUB_QUERY)
+            {
+                paramValues.add(value);
+            }
+        )*
+        <RPAREN>
 }
 
 SqlNode SqlUsingRequestModifier(Span s) :
