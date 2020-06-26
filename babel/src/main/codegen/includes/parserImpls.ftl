@@ -810,6 +810,32 @@ void SqlExecMacroArgument(SqlNodeList paramNames, SqlNodeList paramValues) :
 {
         <LPAREN>
         (
+            name = SimpleIdentifier()
+            <EQ>
+            {
+                paramNames.add(name);
+            }
+            value = Expression(ExprContext.ACCEPT_SUB_QUERY)
+            {
+                paramValues.add(value);
+            }
+        )
+        (
+            <COMMA>
+            name = SimpleIdentifier()
+            <EQ>
+            {
+                paramNames.add(name);
+            }
+            value = Expression(ExprContext.ACCEPT_SUB_QUERY)
+            {
+                paramValues.add(value);
+            }
+        )*
+        <RPAREN>
+    |
+        <LPAREN>
+        (
             value = Literal()
             {
                 paramValues.add(value);
@@ -823,32 +849,6 @@ void SqlExecMacroArgument(SqlNodeList paramNames, SqlNodeList paramValues) :
                 paramValues.add(value);
             }
 
-        )*
-        <RPAREN>
-    |
-        <LPAREN>
-        (
-            name = SimpleIdentifier()
-            <EQ>
-            {
-                paramNames.add(name);
-            }
-            value = Expression(ExprContext.ACCEPT_SUB_QUERY)
-            {
-                paramValues.add(value);
-            }
-        )
-        (
-            <COMMA>
-            name = SimpleIdentifier()
-            <EQ>
-            {
-                paramNames.add(name);
-            }
-            value = Expression(ExprContext.ACCEPT_SUB_QUERY)
-            {
-                paramValues.add(value);
-            }
         )*
         <RPAREN>
 }

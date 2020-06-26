@@ -1038,6 +1038,13 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testExecuteMacroWithMixedParamPattern() {
+    // The parser would recognized the paraName = paramValue as an entity
+    final String sql = "execute foo (1, bar = '2')";
+    final String expected = "EXECUTE `FOO` (1, (`BAR` = '2'))";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testDateTimePrimaryLiteral() {
     final String sql = "select timestamp '2020-05-30 13:20:00'";
     final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00'";
