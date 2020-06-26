@@ -27,6 +27,9 @@ import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 
+/**
+ * Parse tree for {@code SqlExecMacroParam} SqlCall.
+ */
 public class SqlExecMacroParam extends SqlCall {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("PARAM EQUAL", SqlKind.OTHER);
@@ -34,12 +37,25 @@ public class SqlExecMacroParam extends SqlCall {
   private final SqlNode name;
   private final SqlNode value;
 
+  /**
+   * Create an {@code SqlExecMacroParam} without name.
+   *
+   * @param pos  Parser position, must not be null
+   * @param value  Value of the parameter
+   */
   public SqlExecMacroParam(SqlParserPos pos, SqlNode value) {
     super(pos);
     this.name = null;
     this.value = value;
   }
 
+  /**
+   * Create an {@code SqlExecMacroParam}.
+   *
+   * @param pos  Parser position, must not be null
+   * @param name  Name of the parameter
+   * @param value  Value of the parameter
+   */
   public SqlExecMacroParam(SqlParserPos pos, SqlNode name, SqlNode value) {
     super(pos);
     this.name = name;

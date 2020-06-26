@@ -1041,7 +1041,6 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testExecuteMacroWithMixedParamPatternFails() {
-    // The parser would recognized the paraName = paramValue as an entity
     final String sql = "execute foo (1^,^ bar = '2')";
     final String expected = "(?s).*Encountered \", bar\" at .*";
     sql(sql).fails(expected);
