@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.calcite.sql.default;
+package org.apache.calcite.sql.redshift;
 
-/** Default SQL parser. */
+/** Redshift SQL parser. */
 @SuppressWarnings("unused")
-public class Default {
+public class Redshift {
   // This class is currently a place-holder to commit the src/main/java folder.
 }

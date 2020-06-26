@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.calcite.sql.bigquery;
+package org.apache.calcite.sql.defaultparser;
 
-/** PostgreSQLBase folder. */
+/** Default SQL parser. */
 @SuppressWarnings("unused")
-public class PostgreSQLBase {
+public class Default {
   // This class is currently a place-holder to commit the src/main/java folder.
 }

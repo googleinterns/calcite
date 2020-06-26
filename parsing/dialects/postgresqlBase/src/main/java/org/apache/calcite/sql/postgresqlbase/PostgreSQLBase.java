@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.calcite.sql.mysql;
+package org.apache.calcite.sql.postgresqlbase;
 
-/** Redshift SQL parser. */
+/** PostgreSQLBase folder. */
 @SuppressWarnings("unused")
-public class Redshift {
+public class PostgreSQLBase {
   // This class is currently a place-holder to commit the src/main/java folder.
 }

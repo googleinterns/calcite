@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.calcite.sql.mysql;
+package org.apache.calcite.sql.postgresql;
 
 /** PostgreSQL SQL parser. */
 @SuppressWarnings("unused")
