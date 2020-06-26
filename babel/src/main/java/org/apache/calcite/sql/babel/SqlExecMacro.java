@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Parse tree for {@code EXEC} statement.
+ * Parse tree for {@code SqlExecMacro} statement.
  */
 public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
   public static final SqlSpecialOperator OPERATOR =
@@ -43,7 +43,14 @@ public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
   private final SqlNodeList paramNames;
   private final SqlNodeList paramValues;
 
-  /** Creates a SqlExecMacro. */
+  /**
+   * Create an {@code SqlExecMacro}.
+   *
+   * @param pos  Parser position, must not be null
+   * @param name  Name of the macro
+   * @param paramNames  List of parameter names
+   * @param paramValues  List of parameter values
+   */
   public SqlExecMacro(SqlParserPos pos, SqlIdentifier name,
       SqlNodeList paramNames, SqlNodeList paramValues) {
     super(pos);
@@ -57,7 +64,8 @@ public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(name);
+    // the list of paramNames could be empty
+    return ImmutableNullableList.of(name, paramValues, paramNames);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
