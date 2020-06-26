@@ -285,7 +285,6 @@ public class DialectGenerate {
    */
   private String getFunctionName(String functionDeclaration) {
     Matcher m = namePattern.matcher(functionDeclaration);
-    int index = 0;
     // Name is the second match.
     m.find();
     m.find();
