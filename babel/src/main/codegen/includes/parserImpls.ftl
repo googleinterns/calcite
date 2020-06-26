@@ -806,15 +806,23 @@ void SqlExecMacroArgument(SqlNodeList paramNames, SqlNodeList paramValues) :
     SqlNode value;
 }
 {
+    LOOKAHEAD(2)
     <LPAREN>
     (
-        [
+        value = Literal()
+        {
+            paramValues.add(value);
+        }
+    )+
+    <RPAREN>
+    |
+    <LPAREN>
+    (
         name = SimpleIdentifier()
         <EQ>
-            {
-                paramNames.add(name);
-            }
-        ]
+        {
+            paramNames.add(name);
+        }
         value = Literal()
         {
             paramValues.add(value);
