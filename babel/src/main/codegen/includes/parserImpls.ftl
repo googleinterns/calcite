@@ -794,7 +794,9 @@ SqlNode SqlExecMacro() :
 }
 {
     macro = CompoundIdentifier() { s = span(); }
-    [SqlExecMacroArgument(paramNames, paramValues)]
+    [
+        SqlExecMacroArgument(paramNames, paramValues)
+    ]
     {
         return new SqlExecMacro(s.end(this), macro, paramNames, paramValues);
     }
