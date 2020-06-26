@@ -1841,6 +1841,14 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testPrimaryIndexWithSecondaryIndexWithoutComma() {
+    final String sql = "create table foo (bar integer, qux integer) "
+        + "primary index (bar) index (qux)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER, `QUX` INTEGER) "
+        + "PRIMARY INDEX (`BAR`), INDEX (`QUX`)";
+    sql(sql).ok(expected);
+  }
+
   @Test void testTopNNoPercentNoTies() {
     final String sql = "select top 5 bar from foo";
     final String expected = "SELECT TOP 5 `BAR`\n"
