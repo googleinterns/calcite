@@ -303,7 +303,7 @@ void ColumnWithType(List<SqlNode> list) :
     }
 }
 
-SqlCreateAttribute CreateTableAttributeFallback() :
+SqlTableAttribute CreateTableAttributeFallback() :
 {
     boolean no = false;
     boolean protection = false;
@@ -312,29 +312,29 @@ SqlCreateAttribute CreateTableAttributeFallback() :
     [ <NO>  { no = true; } ]
     <FALLBACK>
     [ <PROTECTION> { protection = true; } ]
-    { return new SqlCreateAttributeFallback(no, protection, getPos()); }
+    { return new SqlTableAttributeFallback(no, protection, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeJournalTable() :
+SqlTableAttribute CreateTableAttributeJournalTable() :
 {
     final SqlIdentifier id;
 }
 {
     <WITH> <JOURNAL> <TABLE> <EQ> id = CompoundIdentifier()
-    { return new SqlCreateAttributeJournalTable(id, getPos()); }
+    { return new SqlTableAttributeJournalTable(id, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeMap() :
+SqlTableAttribute CreateTableAttributeMap() :
 {
     final SqlIdentifier id;
 }
 {
     <MAP> <EQ> id = CompoundIdentifier()
-    { return new SqlCreateAttributeMap(id, getPos()); }
+    { return new SqlTableAttributeMap(id, getPos()); }
 }
 
 // FREESPACE attribute can take in decimals but should be truncated to an integer.
-SqlCreateAttribute CreateTableAttributeFreeSpace() :
+SqlTableAttribute CreateTableAttributeFreeSpace() :
 {
     SqlLiteral tempNumeric;
     int freeSpaceValue;
@@ -349,10 +349,10 @@ SqlCreateAttribute CreateTableAttributeFreeSpace() :
         }
     }
     [ <PERCENT> { percent = true; } ]
-    { return new SqlCreateAttributeFreeSpace(freeSpaceValue, percent, getPos()); }
+    { return new SqlTableAttributeFreeSpace(freeSpaceValue, percent, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeIsolatedLoading() :
+SqlTableAttribute CreateTableAttributeIsolatedLoading() :
 {
     boolean nonLoadIsolated = false;
     boolean concurrent = false;
@@ -373,10 +373,10 @@ SqlCreateAttribute CreateTableAttributeIsolatedLoading() :
             <NONE> { operationLevel = OperationLevel.NONE; }
         )
     ]
-    { return new SqlCreateAttributeIsolatedLoading(nonLoadIsolated, concurrent, operationLevel, getPos()); }
+    { return new SqlTableAttributeIsolatedLoading(nonLoadIsolated, concurrent, operationLevel, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeJournal() :
+SqlTableAttribute CreateTableAttributeJournal() :
 {
   JournalType journalType;
   JournalModifier journalModifier;
@@ -406,10 +406,10 @@ SqlCreateAttribute CreateTableAttributeJournal() :
         )
         <JOURNAL>
     )
-    { return new SqlCreateAttributeJournal(journalType, journalModifier, getPos()); }
+    { return new SqlTableAttributeJournal(journalType, journalModifier, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeDataBlockSize() :
+SqlTableAttribute CreateTableAttributeDataBlockSize() :
 {
     DataBlockModifier modifier = null;
     DataBlockUnitSize unitSize;
@@ -433,10 +433,10 @@ SqlCreateAttribute CreateTableAttributeDataBlockSize() :
             [ <BYTES> ] { unitSize = DataBlockUnitSize.BYTES; }
         )
     )
-    { return new SqlCreateAttributeDataBlockSize(modifier, unitSize, dataBlockSize, getPos()); }
+    { return new SqlTableAttributeDataBlockSize(modifier, unitSize, dataBlockSize, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeMergeBlockRatio() :
+SqlTableAttribute CreateTableAttributeMergeBlockRatio() :
 {
     MergeBlockRatioModifier modifier = MergeBlockRatioModifier.UNSPECIFIED;
     int ratio = 1;
@@ -456,7 +456,7 @@ SqlCreateAttribute CreateTableAttributeMergeBlockRatio() :
     )
     {
         if (ratio >= 1 && ratio <= 100) {
-            return new SqlCreateAttributeMergeBlockRatio(modifier, ratio, percent, getPos());
+            return new SqlTableAttributeMergeBlockRatio(modifier, ratio, percent, getPos());
         } else {
             throw SqlUtil.newContextException(getPos(),
                 RESOURCE.numberLiteralOutOfRange(String.valueOf(ratio)));
@@ -464,7 +464,7 @@ SqlCreateAttribute CreateTableAttributeMergeBlockRatio() :
     }
 }
 
-SqlCreateAttribute CreateTableAttributeChecksum() :
+SqlTableAttribute CreateTableAttributeChecksum() :
 {
     ChecksumEnabled checksumEnabled;
 }
@@ -477,10 +477,10 @@ SqlCreateAttribute CreateTableAttributeChecksum() :
     |
         <OFF> { checksumEnabled = ChecksumEnabled.OFF; }
     )
-    { return new SqlCreateAttributeChecksum(checksumEnabled, getPos()); }
+    { return new SqlTableAttributeChecksum(checksumEnabled, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeBlockCompression() :
+SqlTableAttribute CreateTableAttributeBlockCompression() :
 {
     BlockCompressionOption blockCompressionOption;
 }
@@ -495,24 +495,24 @@ SqlCreateAttribute CreateTableAttributeBlockCompression() :
     |
         <NEVER> { blockCompressionOption = BlockCompressionOption.NEVER; }
     )
-    { return new SqlCreateAttributeBlockCompression(blockCompressionOption, getPos()); }
+    { return new SqlTableAttributeBlockCompression(blockCompressionOption, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeLog() :
+SqlTableAttribute CreateTableAttributeLog() :
 {
     boolean loggingEnabled = true;
 }
 {
     [ <NO> { loggingEnabled = false; } ]
     <LOG> {
-        return new SqlCreateAttributeLog(loggingEnabled, getPos());
+        return new SqlTableAttributeLog(loggingEnabled, getPos());
     }
 }
 
-List<SqlCreateAttribute> CreateTableAttributes() :
+List<SqlTableAttribute> CreateTableAttributes() :
 {
-    final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
-    SqlCreateAttribute e;
+    final List<SqlTableAttribute> list = new ArrayList<SqlTableAttribute>();
+    SqlTableAttribute e;
     Span s;
 }
 {
@@ -562,7 +562,7 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
     Volatility volatility = Volatility.UNSPECIFIED;
     final boolean ifNotExists;
     final SqlIdentifier id;
-    final List<SqlCreateAttribute> tableAttributes;
+    final List<SqlTableAttribute> tableAttributes;
     final SqlNodeList columnList;
     final SqlNode query;
     WithDataType withData = WithDataType.UNSPECIFIED;

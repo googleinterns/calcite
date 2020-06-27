@@ -20,28 +20,34 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlCreateAttribute</code> is a base class that can be used
- * to create custom options for the SQL CREATE TABLE function.
- *
- * <p>To customize table option unparsing, override the method
- * {@link #unparse(SqlWriter, int, int)}.
+ * A <code>SqlTableAttributeFallback</code> is a CREATE TABLE option
+ * for the FALLBACK keyword.
  */
-public abstract class SqlCreateAttribute {
-  private final SqlParserPos pos;
+public class SqlTableAttributeFallback extends SqlTableAttribute {
+
+  private final boolean no;
+  private final boolean protection;
 
   /**
-   * Creates a {@code SqlCreateOption}.
+   * Creates a {@code SqlTableAttributeFallback}.
    *
+   * @param no  Optional NO keyword
+   * @param protection Optional PROTECTION keyword
    * @param pos  Parser position, must not be null
    */
-  public SqlCreateAttribute(SqlParserPos pos) {
-    this.pos = pos;
+  public SqlTableAttributeFallback(boolean no, boolean protection, SqlParserPos pos) {
+    super(pos);
+    this.no = no;
+    this.protection = protection;
   }
 
-  /** Writes a SQL representation of this table option to a writer. */
-  public abstract void unparse(SqlWriter writer, int leftPrec, int rightPrec);
-
-  public SqlParserPos getParserPos() {
-    return pos;
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    if (no) {
+      writer.keyword("NO");
+    }
+    writer.keyword("FALLBACK");
+    if (protection) {
+      writer.keyword("PROTECTION");
+    }
   }
 }

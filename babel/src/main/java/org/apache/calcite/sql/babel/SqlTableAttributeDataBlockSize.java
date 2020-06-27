@@ -21,24 +21,24 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlCreateAttributeDataBlockSize</code> is a CREATE TABLE option
+ * A <code>SqlTableAttributeDataBlockSize</code> is a CREATE TABLE option
  * for the DATABLOCKSIZE attribute.
  */
-public class SqlCreateAttributeDataBlockSize extends SqlCreateAttribute {
+public class SqlTableAttributeDataBlockSize extends SqlTableAttribute {
 
   private final DataBlockModifier modifier;
   private final DataBlockUnitSize unitSize;
   private final SqlLiteral dataBlockSize;
 
   /**
-   * Creates a {@code SqlCreateAttributeDataBlockSize}.
+   * Creates a {@code SqlTableAttributeDataBlockSize}.
    *
    * @param modifier  Data block size modifier, may be null
    * @param unitSize  Unit size of a data block size value
    * @param dataBlockSize  Size of data block, numeric value
    * @param pos  Parser position, must not be null
    */
-  public SqlCreateAttributeDataBlockSize(DataBlockModifier modifier,
+  public SqlTableAttributeDataBlockSize(DataBlockModifier modifier,
       DataBlockUnitSize unitSize, SqlLiteral dataBlockSize, SqlParserPos pos) {
     super(pos);
     this.modifier = modifier;

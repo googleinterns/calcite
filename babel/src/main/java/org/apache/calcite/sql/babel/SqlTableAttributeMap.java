@@ -16,38 +16,32 @@
  */
 package org.apache.calcite.sql.babel;
 
+import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlCreateAttributeFreeSpace</code> is a CREATE TABLE option
- * for the FREESPACE attribute.
+ * A <code>SqlTableAttributeMap</code> is a CREATE TABLE option
+ * for the MAP attribute.
  */
-public class SqlCreateAttributeFreeSpace extends SqlCreateAttribute {
+public class SqlTableAttributeMap extends SqlTableAttribute {
 
-  private final int freeSpaceValue;
-  private final boolean percent;
+  private final SqlIdentifier mapName;
 
   /**
-   * Creates a {@code SqlCreateAttributeFreeSpace}.
+   * Creates a {@code SqlTableAttributeMap}.
    *
-   * @param freeSpaceValue  The percentage of free space to reserve during loading operations
-   * @param percent  Optional keyword PERCENT
+   * @param mapName  Name of an existing contiguous map
    * @param pos  Parser position, must not be null
    */
-  public SqlCreateAttributeFreeSpace(int freeSpaceValue, boolean percent, SqlParserPos pos) {
+  public SqlTableAttributeMap(SqlIdentifier mapName, SqlParserPos pos) {
     super(pos);
-    this.freeSpaceValue = freeSpaceValue;
-    this.percent = percent;
+    this.mapName = mapName;
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
-    writer.keyword("FREESPACE");
+    writer.keyword("MAP");
     writer.sep("=");
-    writer.print(freeSpaceValue);
-    writer.print(" ");
-    if (percent) {
-      writer.keyword("PERCENT");
-    }
+    mapName.unparse(writer, 0, 0);
   }
 }

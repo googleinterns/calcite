@@ -16,34 +16,38 @@
  */
 package org.apache.calcite.sql.babel;
 
-import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlCreateAttributeJournalTable</code> is a CREATE TABLE option
- * for the WITH JOURNAL TABLE attribute.
+ * A <code>SqlTableAttributeFreeSpace</code> is a CREATE TABLE option
+ * for the FREESPACE attribute.
  */
-public class SqlCreateAttributeJournalTable extends SqlCreateAttribute {
+public class SqlTableAttributeFreeSpace extends SqlTableAttribute {
 
-  private final SqlIdentifier tableName;
+  private final int freeSpaceValue;
+  private final boolean percent;
 
   /**
-   * Creates a {@code SqlCreateAttributeJournalTable}.
+   * Creates a {@code SqlTableAttributeFreeSpace}.
    *
-   * @param tableName  Name of the permanent journal table to be used
+   * @param freeSpaceValue  The percentage of free space to reserve during loading operations
+   * @param percent  Optional keyword PERCENT
    * @param pos  Parser position, must not be null
    */
-  public SqlCreateAttributeJournalTable(SqlIdentifier tableName, SqlParserPos pos) {
+  public SqlTableAttributeFreeSpace(int freeSpaceValue, boolean percent, SqlParserPos pos) {
     super(pos);
-    this.tableName = tableName;
+    this.freeSpaceValue = freeSpaceValue;
+    this.percent = percent;
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
-    writer.keyword("WITH");
-    writer.keyword("JOURNAL");
-    writer.keyword("TABLE");
+    writer.keyword("FREESPACE");
     writer.sep("=");
-    tableName.unparse(writer, 0, 0);
+    writer.print(freeSpaceValue);
+    writer.print(" ");
+    if (percent) {
+      writer.keyword("PERCENT");
+    }
   }
 }
