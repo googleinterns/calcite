@@ -265,13 +265,18 @@ SqlCreate SqlCreateView(Span s, SqlCreateSpecifier createSpecifier) :
     final Pair<SqlNodeList, SqlNodeList> p;
     SqlNodeList columnList = null;
     final SqlNode query;
+    boolean withCheckOption = false;
 }
 {
     <VIEW> id = CompoundIdentifier()
     [ p = ParenthesizedCompoundIdentifierList() { columnList = p.left; } ]
-    <AS> query = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY) {
+    <AS> query = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+    [
+        <WITH> <CHECK> <OPTION> { withCheckOption = true; }
+    ]
+    {
         return SqlDdlNodes.createView(s.end(this), createSpecifier, id, columnList,
-            query);
+            query, withCheckOption);
     }
 }
 
