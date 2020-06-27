@@ -62,7 +62,7 @@ public class SqlCreateView extends SqlCreate
 
   /** Creates a SqlCreateView (withCheckOption not specified). */
   SqlCreateView(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
-                SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
+      SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
     this(pos, createSpecifier, name, columnList, query,
         /*withCheckOption=*/ false);
   }

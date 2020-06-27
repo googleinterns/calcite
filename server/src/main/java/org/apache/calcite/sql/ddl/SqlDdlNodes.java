@@ -105,9 +105,9 @@ public class SqlDdlNodes {
 
   /** Creates a CREATE MATERIALIZED VIEW. */
   public static SqlCreateMaterializedView createMaterializedView(
-      SqlParserPos pos, SqlCreateSpecifier createSpecifier,
-      boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList,
-      SqlNode query) {
+          SqlParserPos pos, SqlCreateSpecifier createSpecifier,
+          boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList,
+          SqlNode query) {
     return new SqlCreateMaterializedView(pos, createSpecifier, ifNotExists, name,
         columnList, query);
   }
