@@ -454,6 +454,7 @@ data: {
       "parserImpls.ftl"
     ]
 
+    allowAlterTable: false
     allowUpdateFromTable: false
     allowUpsertFormOfUpdate: false
     allowAbbreviatedKeywords: false

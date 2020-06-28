@@ -30,6 +30,11 @@ data: {
       "org.apache.calcite.sql.SqlColumnAttributeCharacterSet.CharacterSet",
       "org.apache.calcite.sql.SqlColumnAttributeCompress",
       "org.apache.calcite.sql.SqlColumnAttributeDefault",
+      "org.apache.calcite.sql.babel.SqlAlterTable",
+      "org.apache.calcite.sql.babel.SqlAlterTableAttributeChecksum",
+      "org.apache.calcite.sql.babel.SqlAlterTableAttributeDataBlockSize",
+      "org.apache.calcite.sql.babel.SqlAlterTableAttributeFreeSpace",
+      "org.apache.calcite.sql.babel.SqlAlterTableAttributeOnCommit",
       "org.apache.calcite.sql.babel.SqlSetTimeZone",
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
@@ -985,6 +990,7 @@ data: {
     # List of methods for parsing extensions to "ALTER <scope>" calls.
     # Each must accept arguments "(SqlParserPos pos, String scope)".
     alterStatementParserMethods: [
+      "SqlAlterTable"
     ]
 
     # List of methods for parsing extensions to "CREATE [OR REPLACE]" calls.
@@ -1063,6 +1069,7 @@ data: {
       "parserImpls.ftl"
     ]
 
+    allowAlterTable: true
     allowUpdateFromTable: true
     allowUpsertFormOfUpdate: true
     allowAbbreviatedKeywords: true

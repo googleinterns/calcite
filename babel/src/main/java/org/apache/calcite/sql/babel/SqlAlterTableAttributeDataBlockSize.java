@@ -14,40 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-/**
- * A <code>SqlTableAttributeFreeSpace</code> is a CREATE TABLE option
- * for the FREESPACE attribute.
- */
-public class SqlTableAttributeFreeSpace extends SqlTableAttribute {
+public class SqlAlterTableAttributeDataBlockSize extends SqlTableAttributeDataBlockSize {
 
-  private final SqlLiteral freeSpaceValue;
-  private final boolean percent;
+  final boolean immediate;
 
   /**
-   * Creates a {@code SqlTableAttributeFreeSpace}.
+   * Creates a {@code SqlTableAttributeDataBlockSize}.
    *
-   * @param freeSpaceValue  The percentage of free space to reserve during loading operations
-   * @param percent  Optional keyword PERCENT
-   * @param pos  Parser position, must not be null
+   * @param modifier      Data block size modifier, may be null
+   * @param unitSize      Unit size of a data block size value
+   * @param dataBlockSize Size of data block, numeric value
+   * @param pos           Parser position, must not be null
    */
-  public SqlTableAttributeFreeSpace(int freeSpaceValue, boolean percent, SqlParserPos pos) {
-    super(pos);
-    this.freeSpaceValue = SqlLiteral.createExactNumeric(String.valueOf(freeSpaceValue), pos);
-    this.percent = percent;
+  public SqlAlterTableAttributeDataBlockSize(DataBlockModifier modifier,
+      DataBlockUnitSize unitSize, SqlLiteral dataBlockSize,
+        SqlParserPos pos, boolean immediate) {
+    super(modifier, unitSize, dataBlockSize, pos);
+    this.immediate = immediate;
   }
 
-  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
-    writer.keyword("FREESPACE");
-    writer.sep("=");
-    this.freeSpaceValue.unparse(writer, leftPrec, rightPrec);
-    if (percent) {
-      writer.keyword("PERCENT");
+  public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    super.unparse(writer, leftPrec, rightPrec);
+    if (immediate) {
+      writer.keyword("IMMEDIATE");
     }
   }
 }
