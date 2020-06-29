@@ -1395,23 +1395,30 @@ SqlNode RankFunctionCallWithParams() :
 }
 
 /**
-  * Parses ALTER TABLE queries.
-  */
+ * Parses ALTER TABLE queries.
+ */
 SqlAlter SqlAlterTable(Span s, String scope) :
 {
      final SqlIdentifier tableName;
      final List<SqlTableAttribute> tableAttributes;
+     final List<SqlAlterTableOption> alterTableOptions;
 }
 {
     <TABLE>
     tableName = SimpleIdentifier()
     (
         tableAttributes = AlterTableAttributes()
+        (
+            alterTableOptions = AlterTableOptions()
+        |
+            { alterTableOptions = null; }
+        )
     |
+        alterTableOptions = AlterTableOptions()
         { tableAttributes = null; }
     )
     {
-        return new SqlAlterTable(getPos(), scope, tableName, tableAttributes);
+        return new SqlAlterTable(getPos(), scope, tableName, tableAttributes, alterTableOptions);
     }
 }
 
@@ -1468,6 +1475,66 @@ SqlTableAttribute AlterTableAttributeOnCommit() :
     )
     <ROWS>
     { return new SqlAlterTableAttributeOnCommit(getPos(), onCommitType); }
+}
+
+/**
+  * Parses a list of alter options (ex. ADD, DROP, RENAME) for
+  * ALTER TABLE queries.
+  */
+List<SqlAlterTableOption> AlterTableOptions() :
+{
+    final List<SqlAlterTableOption> alterTableOptions =
+        new ArrayList<SqlAlterTableOption>();
+    SqlAlterTableOption alterTableOption;
+}
+{
+    alterTableOption = AlterTableOption()
+    { alterTableOptions.add(alterTableOption); }
+    (
+        <COMMA>
+        alterTableOption = AlterTableOption()
+        { alterTableOptions.add(alterTableOption); }
+    )*
+    { return alterTableOptions; }
+}
+
+/**
+  * Parses a single alter option (ex. ADD, DROP, RENAME) for
+  * ALTER TABLE queries.
+  * Used by {@code AlterTableOptions}.
+  */
+SqlAlterTableOption AlterTableOption() :
+{
+    final SqlAlterTableOption option;
+}
+{
+    (
+        option = AlterTableAddColumn()
+    )
+    { return option; }
+}
+
+/**
+  * Parses an ADD column statement within an ALTER TABLE query.
+  */
+SqlAlterTableOption AlterTableAddColumn() :
+{
+    final List<SqlNode> columnList = new ArrayList<SqlNode>();
+    final SqlNodeList columns;
+    final Span s;
+}
+{
+    <ADD>
+    (
+        { s = span(); }
+        ColumnWithType(columnList)
+        {
+            columns = new SqlNodeList(columnList, s.end(this));
+        }
+    |
+        columns = ExtendColumnList()
+    )
+    { return new SqlAlterTableAddColumn(columns); }
 }
 
 /**
