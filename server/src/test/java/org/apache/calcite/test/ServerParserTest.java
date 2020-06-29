@@ -334,6 +334,33 @@ class ServerParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testReplaceViewWithCheckOption() {
+    final String sql = "replace view foo as select * from bar"
+        + " with check option";
+    final String expected = "REPLACE VIEW `FOO` AS\n"
+        + "SELECT *\n"
+        + "FROM `BAR` WITH CHECK OPTION";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testCreateViewWithCheckOption() {
+    final String sql = "create view foo as select * from bar"
+        + " with check option";
+    final String expected = "CREATE VIEW `FOO` AS\n"
+        + "SELECT *\n"
+        + "FROM `BAR` WITH CHECK OPTION";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testCreateOrReplaceViewWithCheckOption() {
+    final String sql = "create or replace view foo as select * from bar"
+        + " with check option";
+    final String expected = "CREATE OR REPLACE VIEW `FOO` AS\n"
+        + "SELECT *\n"
+        + "FROM `BAR` WITH CHECK OPTION";
+    sql(sql).ok(expected);
+  }
+
   @Test void testDel() {
     final String sql = "del from t";
     final String expected = "DELETE FROM `T`";

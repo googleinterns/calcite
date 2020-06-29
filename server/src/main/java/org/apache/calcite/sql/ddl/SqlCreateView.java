@@ -27,6 +27,7 @@ import org.apache.calcite.sql.SqlCreate;
 import org.apache.calcite.sql.SqlExecutableStatement;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
+import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlOperator;
@@ -54,21 +55,31 @@ public class SqlCreateView extends SqlCreate
   public final SqlIdentifier name;
   public final SqlNodeList columnList;
   public final SqlNode query;
+  public final SqlLiteral withCheckOption;
 
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("CREATE VIEW", SqlKind.CREATE_VIEW);
 
-  /** Creates a SqlCreateView. */
+  /** Creates a SqlCreateView (withCheckOption not specified). */
   SqlCreateView(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
       SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
+    this(pos, createSpecifier, name, columnList, query,
+        /*withCheckOption=*/ false);
+  }
+
+  /** Creates a SqlCreateView (withCheckOption specified). */
+  SqlCreateView(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
+      SqlIdentifier name, SqlNodeList columnList, SqlNode query,
+      boolean withCheckOption) {
     super(OPERATOR, pos, createSpecifier, false);
     this.name = Objects.requireNonNull(name);
     this.columnList = columnList; // may be null
     this.query = Objects.requireNonNull(query);
+    this.withCheckOption = SqlLiteral.createBoolean(withCheckOption, pos);
   }
 
   public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(name, columnList, query);
+    return ImmutableNullableList.of(name, columnList, query, withCheckOption);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
@@ -86,6 +97,9 @@ public class SqlCreateView extends SqlCreate
     writer.keyword("AS");
     writer.newlineAndIndent();
     query.unparse(writer, 0, 0);
+    if (withCheckOption.getValueAs(Boolean.class)) {
+      writer.keyword("WITH CHECK OPTION");
+    }
   }
 
   public void execute(CalcitePrepare.Context context) {
