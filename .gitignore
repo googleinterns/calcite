@@ -24,6 +24,7 @@
 /example/*/build
 /buildSrc/build
 /buildSrc/subprojects/*/build
+/parsing/dialects/*/build
 
 # IDEA
 /out
