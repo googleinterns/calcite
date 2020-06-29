@@ -1,4 +1,4 @@
-# select.iq - Babel test for non-standard clauses in SELECT
+# select.iq - MySQL test for non-standard clauses in SELECT
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with

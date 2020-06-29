@@ -472,7 +472,7 @@ data: {
 
       # The following keywords are reserved in core Calcite,
       # are reserved in some version of SQL,
-      # but are not reserved in Babel.
+      # but are not reserved in Dialect1.
       #
       # Words that are commented out (e.g. "AND") are still reserved.
       # These are the most important reserved words, and SQL cannot be

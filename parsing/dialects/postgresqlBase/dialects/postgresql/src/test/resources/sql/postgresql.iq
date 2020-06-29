@@ -1,4 +1,4 @@
-# redshift.iq - Babel test for Redshift dialect of SQL
+# postgresql.iq - Test for PostgreSQL dialect of SQL
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -2186,4 +2186,4 @@ select version();
 SELECT "VERSION"()
 !explain-validated-on calcite
 
-# End redshift.iq
+# End postgresql.iq
