@@ -30,7 +30,7 @@ public class SqlAlterTableAttributeDataBlockSize
   final boolean immediate;
 
   /**
-   * Creates a {@code SqlTableAttributeDataBlockSize}.
+   * Creates a {@code SqlAlterTableAttributeDataBlockSize}.
    *
    * @param modifier      Data block size modifier, may be null.
    * @param unitSize      Unit size of a data block size value.

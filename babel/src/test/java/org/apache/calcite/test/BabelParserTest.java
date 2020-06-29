@@ -343,7 +343,8 @@ class BabelParserTest extends SqlParserTest {
 
   @Test public void testCreateTableOnCommitDeleteRows() {
     final String sql = "create table foo (bar int) on commit delete rows";
-    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) ON COMMIT DELETE ROWS";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER)"
+        + " ON COMMIT DELETE ROWS";
     sql(sql).ok(expected);
   }
 

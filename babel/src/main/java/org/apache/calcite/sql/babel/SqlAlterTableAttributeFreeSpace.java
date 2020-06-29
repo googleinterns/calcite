@@ -29,7 +29,7 @@ public class SqlAlterTableAttributeFreeSpace
   final boolean isDefault;
 
   /**
-   * Creates a {@code SqlTableAttributeFreeSpace}.
+   * Creates a {@code SqlAlterTableAttributeFreeSpace}.
    *
    * @param freeSpaceValue The percentage of free space to reserve
    *                          during loading operations.

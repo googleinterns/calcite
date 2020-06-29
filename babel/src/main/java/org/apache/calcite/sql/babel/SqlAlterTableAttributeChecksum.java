@@ -28,7 +28,7 @@ public class SqlAlterTableAttributeChecksum extends SqlTableAttributeChecksum {
   final boolean immediate;
 
   /**
-   * Creates a {@code SqlTableAttributeChecksum}.
+   * Creates a {@code SqlAlterTableAttributeChecksum}.
    *
    * @param checksumEnabled Status of checksums enabled for this table type.
    * @param pos             Parser position, must not be null.

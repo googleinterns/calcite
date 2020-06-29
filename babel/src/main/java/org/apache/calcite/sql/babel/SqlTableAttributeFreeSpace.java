@@ -36,9 +36,11 @@ public class SqlTableAttributeFreeSpace extends SqlTableAttribute {
    * @param percent  Optional keyword PERCENT
    * @param pos  Parser position, must not be null
    */
-  public SqlTableAttributeFreeSpace(int freeSpaceValue, boolean percent, SqlParserPos pos) {
+  public SqlTableAttributeFreeSpace(int freeSpaceValue, boolean percent,
+      SqlParserPos pos) {
     super(pos);
-    this.freeSpaceValue = SqlLiteral.createExactNumeric(String.valueOf(freeSpaceValue), pos);
+    this.freeSpaceValue = SqlLiteral.createExactNumeric(
+        String.valueOf(freeSpaceValue), pos);
     this.percent = percent;
   }
 

@@ -28,7 +28,7 @@ public class SqlAlterTableAttributeOnCommit extends SqlTableAttribute {
   final OnCommitType onCommitType;
 
   /**
-   * Creates a {@code SqlCreateOption}.
+   * Creates a {@code SqlAlterTableAttributeOnCommit}.
    * @param pos           Parser position, must not be null.
    * @param onCommitType  ON COMMIT option specified.
    */
