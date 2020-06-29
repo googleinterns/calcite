@@ -1022,11 +1022,18 @@ public class SqlPrettyWriter implements SqlWriter {
     dialect.unparseOffsetFetch(this, offset, fetch);
   }
 
-  public void topN(SqlNode fetch, SqlNode offset) {
+  public void fetchAsTopN(SqlNode fetch, SqlNode offset) {
     if (fetch == null && offset == null) {
       return;
     }
-    dialect.unparseTopN(this, offset, fetch);
+    dialect.unparseFetchAsTopN(this, offset, fetch);
+  }
+
+  @Override public void topN(SqlNode topN) {
+    if (topN == null) {
+      return;
+    }
+    dialect.unparseTopN(this, topN);
   }
 
   public Frame startFunCall(String funName) {

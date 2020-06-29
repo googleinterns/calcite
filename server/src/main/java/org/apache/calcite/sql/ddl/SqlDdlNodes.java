@@ -88,11 +88,19 @@ public class SqlDdlNodes {
         query);
   }
 
-  /** Creates a CREATE VIEW. */
+  /** Creates a CREATE VIEW (withCheckOption not specified). */
   public static SqlCreateView createView(SqlParserPos pos,
       SqlCreateSpecifier createSpecifier, SqlIdentifier name,
       SqlNodeList columnList, SqlNode query) {
     return new SqlCreateView(pos, createSpecifier, name, columnList, query);
+  }
+
+  /** Creates a CREATE VIEW (withCheckOption specified). */
+  public static SqlCreateView createView(SqlParserPos pos,
+      SqlCreateSpecifier createSpecifier, SqlIdentifier name,
+      SqlNodeList columnList, SqlNode query, boolean withCheckOption) {
+    return new SqlCreateView(pos, createSpecifier, name, columnList,
+        query, withCheckOption);
   }
 
   /** Creates a CREATE MATERIALIZED VIEW. */

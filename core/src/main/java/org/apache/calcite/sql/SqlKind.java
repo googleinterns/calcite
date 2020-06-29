@@ -1007,6 +1007,9 @@ public enum SqlKind {
   /** The {@code TUMBLE} group function. */
   TUMBLE,
 
+  /** The {@code TOP N} function. */
+  TOP_N,
+
   // Group functions
   /** The {@code TUMBLE_START} auxiliary function of
    * the {@link #TUMBLE} group function. */

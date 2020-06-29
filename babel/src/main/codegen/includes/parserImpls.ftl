@@ -272,6 +272,8 @@ void ColumnAttributes(List<SqlColumnAttribute> list) :
             e = ColumnAttributeCompress()
         |
             e = ColumnAttributeDefault()
+        |
+            e = ColumnAttributeDateFormat()
         ) { list.add(e); }
     )+
 }
@@ -602,7 +604,19 @@ SqlTableAttribute TableAttributeLog() :
     }
 }
 
-List<SqlTableAttribute> CreateTableAttributes() :
+SqlColumnAttribute ColumnAttributeDateFormat() :
+{
+    SqlNode formatString = null;
+}
+{
+    <FORMAT>
+    formatString = StringLiteral()
+    {
+        return new SqlColumnAttributeDateFormat(getPos(), formatString);
+    }
+}
+
+List<SqlCreateAttribute> CreateTableAttributes() :
 {
     final List<SqlTableAttribute> list = new ArrayList<SqlTableAttribute>();
     SqlTableAttribute e;
@@ -661,6 +675,7 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
     WithDataType withData = WithDataType.UNSPECIFIED;
     SqlPrimaryIndex primaryIndex = null;
     SqlIndex index;
+    List<SqlIndex> indices = new ArrayList<SqlIndex>();
     final OnCommitType onCommitType;
 }
 {
@@ -697,19 +712,28 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
     |
         { query = null; }
     )
-    (
-       index = SqlCreateTableIndex(s)
-       {
-           if (index instanceof SqlPrimaryIndex) {
-               primaryIndex = (SqlPrimaryIndex) index;
-           }
-       }
-    )*
+    [
+        index = SqlCreateTableIndex(s) { indices.add(index); }
+        (
+           [<COMMA>] index = SqlCreateTableIndex(s) { indices.add(index); }
+        )*
+        {
+            // Filter out any primary indices from index list.
+            int i = 0;
+            while (i < indices.size()) {
+                if (indices.get(i) instanceof SqlPrimaryIndex) {
+                    primaryIndex = (SqlPrimaryIndex) indices.remove(i);
+                } else {
+                    i++;
+                }
+            }
+        }
+    ]
     onCommitType = OnCommitTypeOpt()
     {
         return new SqlCreateTable(s.end(this), createSpecifier, setType,
          volatility, ifNotExists, id, tableAttributes, columnList, query,
-         withData, primaryIndex, onCommitType);
+         withData, primaryIndex, indices, onCommitType);
     }
 }
 
@@ -817,9 +841,8 @@ void FieldNameTypeCommaListWithoutOptionalNull(
 }
 
 /**
-    Parses an index declaration. Currently only supports PRIMARY INDEX statements,
-    but can be extended to support non-primary indices.
-*/
+ *   Parses an index declaration (both PRIMARY and non-primary indices).
+ */
 SqlIndex SqlCreateTableIndex(Span s) :
 {
    SqlNodeList columns;
@@ -845,6 +868,18 @@ SqlIndex SqlCreateTableIndex(Span s) :
        {
            return new SqlPrimaryIndex(s.end(this), columns, name, isUnique,
                 /*explicitNoPrimaryIndex=*/ false);
+       }
+   |
+       [
+            <UNIQUE> { isUnique = true; }
+       ]
+       <INDEX>
+       [
+            name = SimpleIdentifier()
+       ]
+       columns = ParenthesizedSimpleIdentifierList()
+       {
+           return new SqlSecondaryIndex(s.end(this), columns, name, isUnique);
        }
    )
 }
@@ -1084,31 +1119,35 @@ SqlNode CurrentDateFunction() :
 
 SqlNode DateTimeTerm() :
 {
-    final SqlNode e;
-    SqlIdentifier timeZoneValue;
+    final SqlNode dateTimePrimary;
+    final SqlNode displacement;
 }
 {
     (
-        e = DateTimeLiteral()
+        dateTimePrimary = DateTimeLiteral()
     |
-        e = SimpleIdentifier()
+        dateTimePrimary = SimpleIdentifier()
     |
-        e = DateFunctionCall()
+        dateTimePrimary = DateFunctionCall()
     )
+    <AT>
     (
-        <AT>
+        <LOCAL>
+        {
+            return new SqlDateTimeAtLocal(getPos(), dateTimePrimary);
+        }
+    |
+        [<TIME> <ZONE>]
         (
-            <LOCAL>
-            {
-                return new SqlDateTimeAtLocal(getPos(), e);
-            }
+            displacement = SimpleIdentifier()
         |
-            <TIME> <ZONE>
-            {
-                timeZoneValue = SimpleIdentifier();
-                return new SqlDateTimeAtTimeZone(getPos(), e, timeZoneValue);
-            }
+            displacement = IntervalLiteral()
+        |
+            displacement = NumericLiteral()
         )
+        {
+            return new SqlDateTimeAtTimeZone(getPos(), dateTimePrimary, displacement);
+        }
     )
 }
 
@@ -1370,4 +1409,47 @@ SqlTableAttribute AlterTableAttributeOnCommit() :
     )
     <ROWS>
     { return new SqlAlterTableAttributeOnCommit(getPos(), onCommitType); }
+}
+
+/**
+ * Parses a TOP N statement in a SELECT query
+ * (for example SELECT TOP 5 * FROM FOO).
+ */
+SqlNode SqlSelectTopN(SqlParserPos pos) :
+{
+    final SqlNumericLiteral selectNum;
+    final double tempNum;
+    boolean isPercent = false;
+    boolean withTies = false;
+}
+{
+    <TOP>
+    selectNum = UnsignedNumericLiteral()
+    { tempNum = selectNum.getValueAs(Double.class); }
+    [
+        <PERCENT>
+        {
+            isPercent = true;
+            if (tempNum > 100) {
+                throw SqlUtil.newContextException(getPos(),
+                    RESOURCE.numberLiteralOutOfRange(String.valueOf(tempNum)));
+            }
+        }
+    ]
+    {
+        if (tempNum != Math.floor(tempNum) && !isPercent) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.integerRequiredWhenNoPercent(
+                    String.valueOf(tempNum)
+                ));
+        }
+    }
+    [
+        <WITH> <TIES> { withTies = true; }
+    ]
+    {
+        return new SqlSelectTopN(pos, selectNum,
+            SqlLiteral.createBoolean(isPercent, pos),
+            SqlLiteral.createBoolean(withTies, pos));
+    }
 }
