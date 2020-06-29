@@ -66,7 +66,7 @@ val fmppMain by tasks.registering(org.apache.calcite.buildtools.fmpp.FmppTask::c
 
 val javaCCMain by tasks.registering(org.apache.calcite.buildtools.javacc.JavaCCTask::class) {
     dependsOn(fmppMain)
-    lookAhead.set(2)
+    lookAhead.set(1)
     val parserFile = fmppMain.map {
         it.output.asFileTree.matching { include("**/Parser.jj") }.singleFile
     }

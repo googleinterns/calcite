@@ -23,7 +23,7 @@ import java.util.Locale;
 /**
  * Tests the "PostgreSQL" SQL parser.
  */
-abstract class PostgreSQLBaseParserTest extends SqlParserTest {
+abstract class PostgreSQLBaseParserTest extends SqlDialectParserTest {
 
   /** PostgreSQL and Redshift allow TIMESTAMP literals that contain only a
    * date part. */

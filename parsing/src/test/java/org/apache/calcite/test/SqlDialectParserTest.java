@@ -37,7 +37,6 @@ import org.apache.calcite.sql.pretty.SqlPrettyWriter;
 import org.apache.calcite.sql.test.SqlTests;
 import org.apache.calcite.sql.validate.SqlConformance;
 import org.apache.calcite.sql.validate.SqlConformanceEnum;
-import org.apache.calcite.test.DiffTestCase;
 import org.apache.calcite.util.Bug;
 import org.apache.calcite.util.ConversionUtil;
 import org.apache.calcite.util.Pair;
@@ -90,7 +89,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * {@link #parserImplFactory()} method to return the extension parser
  * implementation.
  */
-public abstract class SqlParserTest {
+public abstract class SqlDialectParserTest {
   /**
    * List of reserved keywords.
    *
@@ -8946,7 +8945,7 @@ public abstract class SqlParserTest {
   }
 
   private boolean isNotSubclass() {
-    return this.getClass().equals(SqlParserTest.class);
+    return this.getClass().equals(SqlDialectParserTest.class);
   }
 
   /**

@@ -19,7 +19,6 @@ package org.apache.calcite.test;
 import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.parser.SqlAbstractParserImpl;
 import org.apache.calcite.sql.parser.SqlParserImplFactory;
-import org.apache.calcite.sql.parser.SqlParserTest;
 import org.apache.calcite.sql.parser.SqlParserUtil;
 import org.apache.calcite.sql.parser.dialect1.Dialect1ParserImpl;
 
@@ -38,7 +37,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * Tests the Dialect1 SQL parser.
  */
-final class Dialect1ParserTest extends SqlParserTest {
+final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Override protected SqlParserImplFactory parserImplFactory() {
     return Dialect1ParserImpl.FACTORY;
@@ -209,10 +208,10 @@ final class Dialect1ParserTest extends SqlParserTest {
    * Babel parser's global {@code LOOKAHEAD} is larger than the core
    * parser's. This causes different parse error message between these two
    * parsers. Here we define a looser error checker for Babel, so that we can
-   * reuse failure testing codes from {@link SqlParserTest}.
+   * reuse failure testing codes from {@link SqlDialectParserTest}.
    *
    * <p>If a test case is written in this file -- that is, not inherited -- it
-   * is still checked by {@link SqlParserTest}'s checker.
+   * is still checked by {@link SqlDialectParserTest}'s checker.
    */
   @Override protected Tester getTester() {
     return new TesterImpl() {
@@ -230,7 +229,7 @@ final class Dialect1ParserTest extends SqlParserTest {
         StackTraceElement[] stackTrace = rootCause.getStackTrace();
         for (StackTraceElement stackTraceElement : stackTrace) {
           String className = stackTraceElement.getClassName();
-          if (Objects.equals(className, BabelParserTest.class.getName())) {
+          if (Objects.equals(className, Dialect1ParserTest.class.getName())) {
             return true;
           }
         }

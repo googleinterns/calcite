@@ -1080,7 +1080,6 @@ SqlNode SqlStmtEof() :
     <#include "/@templates/"+file />
 </#list>
 
-
 SqlNodeList ParenthesizedKeyValueOptionCommaList() :
 {
     final Span s;

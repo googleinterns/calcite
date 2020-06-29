@@ -22,7 +22,7 @@ import org.apache.calcite.sql.parser.redshift.RedshiftParserImpl;
 /**
  * Tests the "Redshift" SQL parser.
  */
-final class RedshiftParserTest extends PostgreSQLBaseTest {
+final class RedshiftParserTest extends PostgreSQLBaseParserTest {
 
   @Override protected SqlParserImplFactory parserImplFactory() {
     return RedshiftParserImpl.FACTORY;

@@ -18,7 +18,7 @@
 package org.apache.calcite.test;
 
 import org.apache.calcite.config.CalciteConnectionProperty;
-import org.apache.calcite.sql.parser.dialect1.Dialect1ParserImpl;
+import org.apache.calcite.sql.parser.Dialect1ParserImpl;
 import org.apache.calcite.sql.validate.SqlConformanceEnum;
 
 import net.hydromatic.quidem.Quidem;
