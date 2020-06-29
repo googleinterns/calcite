@@ -69,7 +69,8 @@ public class SqlCreateView extends SqlCreate
 
   /** Creates a SqlCreateView (withCheckOption specified). */
   SqlCreateView(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
-      SqlIdentifier name, SqlNodeList columnList, SqlNode query, boolean withCheckOption) {
+      SqlIdentifier name, SqlNodeList columnList, SqlNode query,
+      boolean withCheckOption) {
     super(OPERATOR, pos, createSpecifier, false);
     this.name = Objects.requireNonNull(name);
     this.columnList = columnList; // may be null
@@ -96,7 +97,7 @@ public class SqlCreateView extends SqlCreate
     writer.keyword("AS");
     writer.newlineAndIndent();
     query.unparse(writer, 0, 0);
-    if (withCheckOption != null && withCheckOption.getValueAs(Boolean.class)) {
+    if (withCheckOption.getValueAs(Boolean.class)) {
       writer.keyword("WITH CHECK OPTION");
     }
   }
