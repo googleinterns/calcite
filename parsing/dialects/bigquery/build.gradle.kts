@@ -61,14 +61,14 @@ val fmppMain by tasks.registering(org.apache.calcite.buildtools.fmpp.FmppTask::c
 
     inputs.dir(".")
     config.set(file("config.fmpp"))
-    templates.set(file("$rootDir/parsing"))
+    templates.set(file("$rootDir/parsing/src/main/resources"))
 }
 
 val javaCCMain by tasks.registering(org.apache.calcite.buildtools.javacc.JavaCCTask::class) {
     dependsOn(fmppMain)
     lookAhead.set(2)
     val parserFile = fmppMain.map {
-        it.output.asFileTree.matching { include("*/Parser.jj") }.singleFile
+        it.output.asFileTree.matching { include("**/Parser.jj") }.singleFile
     }
     inputFile.set(parserFile)
     packageName.set("org.apache.calcite.sql.parser.bigquery")
