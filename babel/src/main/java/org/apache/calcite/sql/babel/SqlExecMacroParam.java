@@ -16,13 +16,10 @@
  */
 package org.apache.calcite.sql.babel;
 
-import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.SqlCall;
-import org.apache.calcite.sql.SqlExecutableStatement;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlSpecialOperator;
 import org.apache.calcite.sql.SqlWriter;
@@ -30,30 +27,38 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
- * Parse tree for {@code SqlExecMacro} statement.
+ * Parse tree for {@code SqlExecMacroParam} SqlCall.
  */
-public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("EXECUTE", SqlKind.EXECUTE);
+public class SqlExecMacroParam extends SqlCall {
+  private static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("PARAM EQUAL", SqlKind.OTHER);
 
   private final SqlIdentifier name;
-  private final SqlNodeList params;
+  private final SqlNode value;
 
   /**
-   * Create an {@code SqlExecMacro}.
+   * Create an {@code SqlExecMacroParam} without name.
    *
    * @param pos  Parser position, must not be null
-   * @param name  Name of the macro
-   * @param params  List of parameters
+   * @param value  Value of the parameter
    */
-  public SqlExecMacro(SqlParserPos pos, SqlIdentifier name,
-      SqlNodeList params) {
+  public SqlExecMacroParam(SqlParserPos pos, SqlNode value) {
+    this(pos, /*name=*/null, value);
+  }
+
+  /**
+   * Create an {@code SqlExecMacroParam}.
+   *
+   * @param pos  Parser position, must not be null
+   * @param name  Name of the parameter
+   * @param value  Value of the parameter
+   */
+  public SqlExecMacroParam(SqlParserPos pos, SqlIdentifier name, SqlNode value) {
     super(pos);
-    this.name = Objects.requireNonNull(name);
-    this.params = params;
+    this.name = name;
+    this.value = value;
   }
 
   @Override public SqlOperator getOperator() {
@@ -61,24 +66,15 @@ public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    // the list of paramNames could be empty
-    return ImmutableNullableList.of(name, params);
+    return ImmutableNullableList.of(name, value);
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.keyword("EXECUTE");
-    name.unparse(writer, leftPrec, rightPrec);
-    if (SqlNodeList.isEmptyList(params)) {
-      return;
+  @Override public void unparse(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
+    if (this.name != null) {
+      name.unparse(writer, 0, 0);
+      writer.keyword("=");
     }
-    SqlWriter.Frame frame = writer.startList("(", ")");
-    for (SqlNode e : params) {
-      writer.sep(",", false);
-      e.unparse(writer, 0, 0);
-    }
-    writer.endList(frame);
+    value.unparse(writer, 0, 0);
   }
-
-  // Intentionally left empty.
-  @Override public void execute(CalcitePrepare.Context context) {}
 }

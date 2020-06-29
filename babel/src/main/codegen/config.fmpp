@@ -56,6 +56,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlCreateTable",
       "org.apache.calcite.sql.ddl.SqlDdlNodes",
       "org.apache.calcite.sql.babel.SqlExecMacro",
+      "org.apache.calcite.sql.babel.SqlExecMacroParam",
       "org.apache.calcite.sql.babel.SqlRenameTable",
       "org.apache.calcite.sql.babel.SqlRenameTable.RenameOption",
       "org.apache.calcite.sql.babel.SqlSelectTopN",
