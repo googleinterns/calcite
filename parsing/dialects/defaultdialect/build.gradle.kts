@@ -75,8 +75,9 @@ val javaCCMain by tasks.registering(org.apache.calcite.buildtools.javacc.JavaCCT
 }
 
 ide {
-    fun generatedSource(javacc: TaskProvider<org.apache.calcite.buildtools.javacc.JavaCCTask>, sourceSet: String) =
-        generatedJavaSources(javacc.get(), javacc.get().output.get().asFile, sourceSets.named(sourceSet))
+    fun generatedSource(javacc: TaskProvider<org.apache.calcite.buildtools.javacc.JavaCCTask>,
+        sourceSet: String) = generatedJavaSources(javacc.get(), javacc.get().output.get().asFile,
+            sourceSets.named(sourceSet))
 
     generatedSource(javaCCMain, "main")
 }
