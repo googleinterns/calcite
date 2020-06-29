@@ -1067,3 +1067,7 @@ data: {
     includeRankWithSortingExpressions: true
   }
 }
+
+freemarkerLinks: {
+  templates: build/generated/templates/
+}

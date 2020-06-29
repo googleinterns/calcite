@@ -487,3 +487,7 @@ data: {
     includeRankWithSortingExpressions: false
   }
 }
+
+freemarkerLinks: {
+  templates: build/generated/templates/
+}
