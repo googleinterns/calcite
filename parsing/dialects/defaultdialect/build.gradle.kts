@@ -71,7 +71,7 @@ val javaCCMain by tasks.registering(org.apache.calcite.buildtools.javacc.JavaCCT
         it.output.asFileTree.matching { include("**/Parser.jj") }.singleFile
     }
     inputFile.set(parserFile)
-    packageName.set("org.apache.calcite.sql.parser.defaultparser")
+    packageName.set("org.apache.calcite.sql.parser.defaultdialect")
 }
 
 ide {
