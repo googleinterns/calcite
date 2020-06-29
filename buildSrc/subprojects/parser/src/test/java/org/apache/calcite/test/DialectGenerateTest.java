@@ -148,6 +148,7 @@ public class DialectGenerateTest {
     assertEquals(res.size(), expected.size(),
         "Resultant map size doesn't match expected map size");
     for (String key : expected.keySet()) {
+      assertTrue(res.containsKey(key), "Resultant map doesn't contain expected key: " + key);
       assertEquals(expected.get(key), res.get(key));
     }
   }

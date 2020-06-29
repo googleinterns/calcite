@@ -79,9 +79,7 @@ public class DialectGenerate {
     Map<String, String> functions = extractFunctions();
     // TODO(AndrewPochapsky): Remove this once generation logic added.
     for (Map.Entry<String, String> entry : functions.entrySet()) {
-      String key = entry.getKey();
-      String value = entry.getValue();
-      System.out.println(key + "=" + value + "\n");
+      System.out.println(entry.getKey() + "=" + entry.getValue() + "\n");
     }
   }
 
@@ -90,9 +88,8 @@ public class DialectGenerate {
    * functions located in *.ftl files into a Map.
    */
   public Map<String, String> extractFunctions() {
-    Queue<String> queue = getTraversalPath(rootDirectory);
     Map<String, String> functionMap = new LinkedHashMap<String, String>();
-    traverse(queue, rootDirectory, functionMap);
+    traverse(getTraversalPath(rootDirectory), rootDirectory, functionMap);
     return functionMap;
   }
 
@@ -120,7 +117,7 @@ public class DialectGenerate {
   }
 
   /**
-   * Traverses the determined path given by the queue. Once the queue is
+   * Traverses the determined path given by the directories queue. Once the queue is
    * empty, the dialect directory has been reached. In that case any *.ftl
    * file should be processed and no further traversal should happen.
    *
@@ -141,19 +138,21 @@ public class DialectGenerate {
       String fileName = f.getName();
       int i = fileName.lastIndexOf('.');
       if (i > 0) {
-        extension = fileName.substring(i+1);
+        extension = fileName.substring(i + 1);
       }
       if (f.isFile() && extension.equals("ftl")) {
         try {
           String fileText = new String(Files.readAllBytes(Paths.get(f.getAbsolutePath())),
               StandardCharsets.UTF_8);
           processFile(fileText, functionMap);
-        } catch(IOException e) {
+        } catch (IOException e) {
+          e.printStackTrace();
+        } catch (IllegalStateException e) {
           e.printStackTrace();
         }
       } else if (!directories.isEmpty() && fileName.equals(nextDirectory)) {
-        // Remove the front element in the queue, the value is used above with
-        // directories.peek().
+        // Remove the front element in the queue, the value is referneced above with
+        // directories.peek() and is used in the next recursive call to this function .
         directories.poll();
         traverse(directories, f, functionMap);
       }
@@ -249,7 +248,7 @@ public class DialectGenerate {
   private int processCurlyBlock(
       StringBuilder functionBuilder,
       Queue<String> tokens,
-      int charIndex) {
+      int charIndex) throws IllegalStateException {
     // Remove any preceeding spaces or new lines before the curly block starts.
     charIndex = consumeExtraSpacesAndLines(functionBuilder, tokens, charIndex);
     if (!tokens.peek().equals("{")) {
@@ -320,7 +319,7 @@ public class DialectGenerate {
     enum InsideState {
 
       /**
-       * Not inside of anything.
+       * Not inside of anything except for possibly curly braces.
        */
       NONE,
 
