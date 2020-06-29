@@ -58,7 +58,7 @@ include(
     "mongodb",
     "parsing",
     "parsing:dialects:bigquery",
-    "parsing:dialects:default",
+    "parsing:dialects:defaultdialect",
     "parsing:dialects:dialect1",
     "parsing:dialects:hive",
     "parsing:dialects:mysql",
