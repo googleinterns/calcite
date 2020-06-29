@@ -39,8 +39,8 @@ public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("EXECUTE", SqlKind.EXECUTE);
 
-  private final SqlIdentifier name;
-  private final SqlNodeList params;
+  public final SqlIdentifier name;
+  public final SqlNodeList params;
 
   /**
    * Create an {@code SqlExecMacro}.
