@@ -113,7 +113,7 @@ public class DialectGenerate {
     String rootPath = rootDirectory.getAbsolutePath();
     int rootIndex = dialectPath.indexOf(rootPath);
     dialectPath = dialectPath.substring(rootIndex + rootPath.length() + 1);
-    return new LinkedList(Arrays.asList(dialectPath.split("/")));
+    return new LinkedList(Arrays.asList(dialectPath.split(File.separator)));
   }
 
   /**
