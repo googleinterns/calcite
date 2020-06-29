@@ -117,7 +117,7 @@ public class MssqlSqlDialect extends SqlDialect {
     }
   }
 
-  @Override public void unparseTopN(SqlWriter writer, SqlNode offset,
+  @Override public void unparseFetchAsTopN(SqlWriter writer, SqlNode offset,
       SqlNode fetch) {
     if (top) {
       // Per Microsoft:

@@ -16,12 +16,13 @@
  */
 package org.apache.calcite.sql.babel;
 
-import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.SqlCall;
-import org.apache.calcite.sql.SqlExecutableStatement;
 import org.apache.calcite.sql.SqlKind;
+import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlNumericLiteral;
 import org.apache.calcite.sql.SqlOperator;
+import org.apache.calcite.sql.SqlSelect;
 import org.apache.calcite.sql.SqlSpecialOperator;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
@@ -30,25 +31,22 @@ import org.apache.calcite.util.ImmutableNullableList;
 import java.util.List;
 
 /**
- * A {@code SqlDateTimeAtLocal} is an AST node that describes
- * the date time expression of At Local.
+ * {@code SqlSelectTopN} is a class that handles the TOP n syntax in
+ * SELECT statements. It is used by the {@link SqlSelect} class.
  */
-public class SqlDateTimeAtLocal extends SqlCall implements SqlExecutableStatement {
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("AT LOCAL", SqlKind.OTHER);
+public class SqlSelectTopN extends SqlCall {
+  private static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("TOP", SqlKind.TOP_N);
+  private final SqlNumericLiteral selectNum;
+  private final SqlLiteral isPercent;
+  private final SqlLiteral withTies;
 
-  private final SqlNode dateTimePrimary;
-
-  /**
-   * Creates a {@code SqlDateTimeAtLocal}.
-   *
-   * @param pos  Parser position, must not be null
-   * @param dateTimePrimary  SqlNode, contains the DateTimePrimary to be transformed
-   */
-  public SqlDateTimeAtLocal(
-      SqlParserPos pos, SqlNode dateTimePrimary) {
+  public SqlSelectTopN(SqlParserPos pos, SqlNumericLiteral selectNum,
+      SqlLiteral isPercent, SqlLiteral withTies) {
     super(pos);
-    this.dateTimePrimary = dateTimePrimary;
+    this.selectNum = selectNum;
+    this.isPercent = isPercent;
+    this.withTies = withTies;
   }
 
   @Override public SqlOperator getOperator() {
@@ -56,15 +54,17 @@ public class SqlDateTimeAtLocal extends SqlCall implements SqlExecutableStatemen
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(dateTimePrimary);
+    return ImmutableNullableList.of(selectNum, isPercent, withTies);
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec,
-      int rightPrec) {
-    dateTimePrimary.unparse(writer, leftPrec, rightPrec);
-    writer.keyword("AT LOCAL");
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    writer.keyword("TOP");
+    selectNum.unparse(writer, leftPrec, rightPrec);
+    if (isPercent != null && isPercent.getValueAs(Boolean.class)) {
+      writer.keyword("PERCENT");
+    }
+    if (withTies != null && withTies.getValueAs(Boolean.class)) {
+      writer.keyword("WITH TIES");
+    }
   }
-
-  // Intentionally left empty.
-  @Override public void execute(CalcitePrepare.Context context) {}
 }
