@@ -40,8 +40,9 @@ public class DialectGenerateTest {
   private DialectGenerate setupDialectGenerate() {
     Path currentRelativePath = Paths.get("");
     String s = currentRelativePath.toAbsolutePath().toString();
-    Path rootPath = Paths.get("../../../parsingTest");
-    Path dialectPath = Paths.get(rootPath.toAbsolutePath().toString() + "/intermediate/testDialect/");
+    Path rootPath = Paths.get(".." + File.separator + ".." + File.separator + ".." + File.separator + "parsingTest");
+    Path dialectPath = Paths.get(rootPath.toAbsolutePath().toString()
+        + File.separator + "intermediate" + File.separator + "testDialect" + File.separator);
     File rootFile = rootPath.toFile();
     File dialectFile = dialectPath.toFile();
     return new DialectGenerate(dialectFile, rootFile, "");

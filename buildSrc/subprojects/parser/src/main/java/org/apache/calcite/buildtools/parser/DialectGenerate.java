@@ -252,7 +252,6 @@ public class DialectGenerate {
     // Remove any preceeding spaces or new lines before the curly block starts.
     charIndex = consumeExtraSpacesAndLines(functionBuilder, tokens, charIndex);
     if (!tokens.peek().equals("{")) {
-      System.out.println(tokens);
       throw new IllegalStateException("First token of curly block must be a curly brace.");
     }
     CurlyParser parser = new CurlyParser();
