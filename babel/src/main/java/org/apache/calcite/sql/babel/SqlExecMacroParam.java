@@ -44,7 +44,7 @@ public class SqlExecMacroParam extends SqlCall {
    * @param value  Value of the parameter
    */
   public SqlExecMacroParam(SqlParserPos pos, SqlNode value) {
-    this(pos, null, value);
+    this(pos, /*name=*/null, value);
   }
 
   /**
