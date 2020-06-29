@@ -76,12 +76,10 @@ public class SqlExecMacroParam extends SqlCall {
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
-    if (this.name == null) {
-      value.unparse(writer, 0, 0);
-      return;
+    if (this.name != null) {
+      name.unparse(writer, 0, 0);
+      writer.keyword("=");
     }
-    name.unparse(writer, 0, 0);
-    writer.keyword("=");
     value.unparse(writer, 0, 0);
   }
 }
