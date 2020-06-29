@@ -2,13 +2,12 @@ void quux(int arg1,
     int arg2
 ) :
 {
-	char x = ' } '
-	String y;
+    char x = ' } '
+    String y;
 }
 {
-	/*
-		All invalid curly braces:
-     }
+    /* All invalid curly braces:
+    }
     // }
     " } "
     ' } '
@@ -17,7 +16,7 @@ void quux(int arg1,
         y = " { } } "
     }
 
-    // Not a string: “
+    // Not a string: "
 }
 void baz() : {x}
 {

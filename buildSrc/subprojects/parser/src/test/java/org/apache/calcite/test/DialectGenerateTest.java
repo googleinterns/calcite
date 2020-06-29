@@ -47,6 +47,10 @@ public class DialectGenerateTest {
     return new DialectGenerate(dialectFile, rootFile, "");
   }
 
+  /**
+   * Returns the expected extraction results after calling DialectGenerate.extractFunctions
+   * onto the parsingTest directory structure.
+   */
   private Map<String, String> getExpectedExtractionResults() {
     String foo = "void foo() :\n"
       + "{\n"
@@ -60,8 +64,32 @@ public class DialectGenerateTest {
       + "{\n"
       + "    // overridden by intermediate\n"
       + "}";
-    String qux = "";
-    String quux = "";
+    String qux = "void qux(int arg1, int arg2) :\n"
+      + "{\n"
+      + "    String x = \" } \"\n"
+      + "}\n"
+      + "{\n"
+      + "    // Below is a }\n"
+      + "}";
+    String quux = "void quux(int arg1,\n"
+      + "    int arg2\n"
+      + ") :\n"
+      + "{\n"
+      + "    char x = ' } '\n"
+      + "    String y;\n"
+      + "}\n"
+      + "{\n"
+      + "    /* All invalid curly braces:\n"
+      + "    }\n"
+      + "    // }\n"
+      + "    \" } \"\n"
+      + "    ' } '\n"
+      + "    */\n"
+      + "    <TOKEN> {\n"
+      + "        y = \" { } } \"\n"
+      + "    }\n\n"
+      + "    // Not a string: \"\n"
+      + "}";
     return new LinkedHashMap<String, String>() {{
       put("foo", foo);
       put("bar", bar);
@@ -117,7 +145,8 @@ public class DialectGenerateTest {
     DialectGenerate dialectGenerate = setupDialectGenerate();
     Map<String, String> res = dialectGenerate.extractFunctions();
     Map<String, String> expected = getExpectedExtractionResults();
-    assertEquals(res.size(), expected.size());
+    assertEquals(res.size(), expected.size(),
+        "Resultant map size doesn't match expected map size");
     for (String key : expected.keySet()) {
       assertEquals(expected.get(key), res.get(key));
     }
