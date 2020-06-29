@@ -369,7 +369,8 @@ SqlTableAttribute AlterTableAttributeFreeSpace() :
             freeSpaceValue = tempNumeric.getValueAs(Integer.class);
             if (freeSpaceValue < 0 || freeSpaceValue > 75) {
                 throw SqlUtil.newContextException(getPos(),
-                    RESOURCE.numberLiteralOutOfRange(String.valueOf(freeSpaceValue)));
+                    RESOURCE.numberLiteralOutOfRange(
+                        String.valueOf(freeSpaceValue)));
             }
         }
         [ <PERCENT> { percent = true; } ]
@@ -468,7 +469,10 @@ SqlTableAttribute TableAttributeDataBlockSize() :
             [ <BYTES> ] { unitSize = DataBlockUnitSize.BYTES; }
         )
     )
-    { return new SqlTableAttributeDataBlockSize(modifier, unitSize, dataBlockSize, getPos()); }
+    {
+        return new SqlTableAttributeDataBlockSize(modifier, unitSize,
+            dataBlockSize, getPos());
+    }
 }
 
 /**
@@ -501,7 +505,10 @@ SqlTableAttribute AlterTableAttributeDataBlockSize() :
         )
     )
     [ <IMMEDIATE> { immediate = true; } ]
-    { return new SqlAlterTableAttributeDataBlockSize(modifier, unitSize, dataBlockSize, getPos(), immediate); }
+    {
+        return new SqlAlterTableAttributeDataBlockSize(modifier, unitSize,
+            dataBlockSize, getPos(), immediate);
+    }
 }
 
 SqlTableAttribute TableAttributeMergeBlockRatio() :
@@ -1330,6 +1337,8 @@ List<SqlTableAttribute> AlterTableAttributes() :
     (
         <COMMA>
         (
+            e = AlterTableAttributeOnCommit()
+        |
             e = TableAttributeFallback()
         |
             e = TableAttributeJournalTable()
@@ -1345,8 +1354,6 @@ List<SqlTableAttribute> AlterTableAttributes() :
             e = TableAttributeBlockCompression()
         |
             e = TableAttributeLog()
-        |
-            e = AlterTableAttributeOnCommit()
         |
             e = TableAttributeJournal()
         ) { list.add(e); }
