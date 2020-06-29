@@ -112,7 +112,7 @@ public class DialectGenerate {
     String dialectPath = dialectDirectory.getAbsolutePath();
     String rootPath = rootDirectory.getAbsolutePath();
     int rootIndex = dialectPath.indexOf(rootPath);
-    dialectPath = dialectPath.substring(rootIndex + rootPath.length() + 1);
+    dialectPath = dialectPath.substring(rootIndex + rootPath.length());
     Queue<String> pathElements = new LinkedList<>();
     Paths.get(dialectPath).forEach(p -> pathElements.add(p.toString()));
     return pathElements;
