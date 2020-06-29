@@ -21,6 +21,12 @@ data: {
 
     # List of import statements.
     imports: [
+      "org.apache.calcite.schema.ColumnStrategy"
+      "org.apache.calcite.sql.SqlCreate"
+      "org.apache.calcite.sql.SqlDrop"
+      "org.apache.calcite.sql.SqlDdlNodes"
+      "java.util.Map"
+      "java.util.HashMap"
       "org.apache.calcite.sql.SqlCreate",
       "org.apache.calcite.sql.SqlColumnAttribute",
       "org.apache.calcite.sql.SqlColumnAttributeUpperCase",
@@ -74,6 +80,7 @@ data: {
 
     # List of keywords.
     keywords: [
+      "ARCHIVE"
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
       "BYTES"
@@ -85,6 +92,7 @@ data: {
       "DEL"
       "DUAL"
       "FALLBACK"
+      "FILE"
       "FREESPACE"
       "GRAPHIC"
       "IF"
@@ -92,6 +100,7 @@ data: {
       "INLINE"
       "INS"
       "ISOLATED"
+      "JAR"
       "JOURNAL"
       "KANJI"
       "KANJISJIS"
@@ -101,6 +110,7 @@ data: {
       "LOADING"
       "LOG"
       "MANUAL"
+      "MATERIALIZED"
       "MAXIMUM"
       "MERGEBLOCKRATIO"
       "MINIMUM"
@@ -112,11 +122,13 @@ data: {
       "RENAME"
       "SEL"
       "SEMI"
+      "STORED"
       "SUBSTR"
       "TEMP"
       "UNICODE"
       "UPD"
       "UPPERCASE"
+      "VIRTUAL"
       "VOLATILE"
     ]
 
@@ -436,6 +448,7 @@ data: {
     # List of non-reserved keywords to add;
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
+      "ARCHIVE"
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
       "BYTES"
@@ -443,6 +456,7 @@ data: {
       "CONCURRENT"
       "DATABLOCKSIZE"
       "DUAL"
+      "FILE"
       "FREESPACE"
       "GRAPHIC"
       "IF"
@@ -450,6 +464,7 @@ data: {
       "INLINE"
       "INS"
       "ISOLATED"
+      "JAR"
       "JOURNAL"
       "KANJI"
       "KANJISJIS"
@@ -459,6 +474,7 @@ data: {
       "LOADING"
       "LOG"
       "MANUAL"
+      "MATERIALIZED"
       "MAXIMUM"
       "MERGEBLOCKRATIO"
       "MINIMUM"
@@ -467,8 +483,10 @@ data: {
       "OFF"
       "RENAME"
       "SEMI"
+      "STORED"
       "UNICODE"
       "UPD"
+      "VIRTUAL"
 
       # The following keywords are reserved in core Calcite,
       # are reserved in some version of SQL,
@@ -987,18 +1005,30 @@ data: {
     # List of methods for parsing extensions to "CREATE [OR REPLACE]" calls.
     # Each must accept arguments "(SqlParserPos pos, boolean replace)".
     createStatementParserMethods: [
+      "SqlCreateForeignSchema"
+      "SqlCreateMaterializedView"
+      "SqlCreateSchema"
       "SqlCreateTable"
+      "SqlCreateType"
+      "SqlCreateView"
+      "SqlCreateFunction"
       "SqlCreateFunctionSqlForm"
     ]
 
     # list of methods for parsing extensions to "SET" calls
     setTimeZoneStatementParserMethods: [
-        "SqlSetTimeZoneValue"
+      "SqlSetTimeZoneValue"
     ]
 
     # List of methods for parsing extensions to "DROP" calls.
     # Each must accept arguments "(SqlParserPos pos)".
     dropStatementParserMethods: [
+      "SqlDropMaterializedView"
+      "SqlDropSchema"
+      "SqlDropTable"
+      "SqlDropType"
+      "SqlDropView"
+      "SqlDropFunction"
     ]
 
     # List of methods for parsing extensions to "INSERT" calls.
