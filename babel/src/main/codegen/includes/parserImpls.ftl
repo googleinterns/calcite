@@ -623,7 +623,7 @@ SqlColumnAttribute ColumnAttributeDateFormat() :
     }
 }
 
-List<SqlCreateAttribute> CreateTableAttributes() :
+List<SqlTableAttribute> CreateTableAttributes() :
 {
     final List<SqlTableAttribute> list = new ArrayList<SqlTableAttribute>();
     SqlTableAttribute e;

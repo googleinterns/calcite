@@ -64,7 +64,7 @@ public class SqlCreateTable extends SqlCreate
 
   public SqlCreateTable(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
       SetType setType, Volatility volatility, boolean ifNotExists,
-      SqlIdentifier name, List<SqlCreateAttribute> tableAttributes,
+      SqlIdentifier name, List<SqlTableAttribute> tableAttributes,
       SqlNodeList columnList, SqlNode query, WithDataType withData,
       SqlPrimaryIndex primaryIndex, List<SqlIndex> indices,
       OnCommitType onCommitType) {
