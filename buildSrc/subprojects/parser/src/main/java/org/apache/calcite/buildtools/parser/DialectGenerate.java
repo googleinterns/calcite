@@ -113,7 +113,9 @@ public class DialectGenerate {
     String rootPath = rootDirectory.getAbsolutePath();
     int rootIndex = dialectPath.indexOf(rootPath);
     dialectPath = dialectPath.substring(rootIndex + rootPath.length() + 1);
-    return new LinkedList(Arrays.asList(dialectPath.split(File.separator)));
+    Queue<String> pathElements = new LinkedList<>();
+    Paths.get(dialectPath).forEach(p -> pathElements.add(p.toString()));
+    return pathElements;
   }
 
   /**
@@ -170,7 +172,7 @@ public class DialectGenerate {
    *     <body>
    * }
    *
-   * @param file The file to process
+   * @param fileText The contents of the file to process
    * @param functionMap The map to which the parsing functions will be added to
    */
   private void processFile(String fileText, Map<String, String> functionMap) {
