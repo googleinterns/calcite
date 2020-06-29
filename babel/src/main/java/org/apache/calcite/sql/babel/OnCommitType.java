@@ -33,5 +33,5 @@ public enum OnCommitType {
   /**
    * Discard the contents of a materialized global temporary table across transactions.
    */
-  RELEASE,
+  DELETE,
 }

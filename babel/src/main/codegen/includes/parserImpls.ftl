@@ -111,7 +111,7 @@ OnCommitType OnCommitTypeOpt() :
         (
             <PRESERVE> { onCommitType = OnCommitType.PRESERVE; }
         |
-            <RELEASE> { onCommitType = OnCommitType.RELEASE; }
+            <DELETE> { onCommitType = OnCommitType.DELETE; }
         )
         <ROWS>
     |
@@ -305,7 +305,7 @@ void ColumnWithType(List<SqlNode> list) :
     }
 }
 
-SqlCreateAttribute CreateTableAttributeFallback() :
+SqlTableAttribute TableAttributeFallback() :
 {
     boolean no = false;
     boolean protection = false;
@@ -314,29 +314,29 @@ SqlCreateAttribute CreateTableAttributeFallback() :
     [ <NO>  { no = true; } ]
     <FALLBACK>
     [ <PROTECTION> { protection = true; } ]
-    { return new SqlCreateAttributeFallback(no, protection, getPos()); }
+    { return new SqlTableAttributeFallback(no, protection, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeJournalTable() :
+SqlTableAttribute TableAttributeJournalTable() :
 {
     final SqlIdentifier id;
 }
 {
     <WITH> <JOURNAL> <TABLE> <EQ> id = CompoundIdentifier()
-    { return new SqlCreateAttributeJournalTable(id, getPos()); }
+    { return new SqlTableAttributeJournalTable(id, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeMap() :
+SqlTableAttribute TableAttributeMap() :
 {
     final SqlIdentifier id;
 }
 {
     <MAP> <EQ> id = CompoundIdentifier()
-    { return new SqlCreateAttributeMap(id, getPos()); }
+    { return new SqlTableAttributeMap(id, getPos()); }
 }
 
 // FREESPACE attribute can take in decimals but should be truncated to an integer.
-SqlCreateAttribute CreateTableAttributeFreeSpace() :
+SqlTableAttribute TableAttributeFreeSpace() :
 {
     SqlLiteral tempNumeric;
     int freeSpaceValue;
@@ -351,10 +351,46 @@ SqlCreateAttribute CreateTableAttributeFreeSpace() :
         }
     }
     [ <PERCENT> { percent = true; } ]
-    { return new SqlCreateAttributeFreeSpace(freeSpaceValue, percent, getPos()); }
+    { return new SqlTableAttributeFreeSpace(freeSpaceValue, percent, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeIsolatedLoading() :
+/**
+ * Parses FREESPACE attribute in ALTER TABLE queries.
+ * Can either specify a value, or DEFAULT FREESPACE.
+ */
+SqlTableAttribute AlterTableAttributeFreeSpace() :
+{
+    SqlLiteral tempNumeric;
+    int freeSpaceValue;
+    boolean percent = false;
+    boolean isDefault = false;
+}
+{
+    (
+        <FREESPACE> <EQ> tempNumeric = UnsignedNumericLiteral() {
+            freeSpaceValue = tempNumeric.getValueAs(Integer.class);
+            if (freeSpaceValue < 0 || freeSpaceValue > 75) {
+                throw SqlUtil.newContextException(getPos(),
+                    RESOURCE.numberLiteralOutOfRange(
+                        String.valueOf(freeSpaceValue)));
+            }
+        }
+        [ <PERCENT> { percent = true; } ]
+
+    |
+        <DEFAULT_> <FREESPACE>
+        {
+            freeSpaceValue = 0;
+            isDefault = true;
+        }
+    )
+    {
+        return new SqlAlterTableAttributeFreeSpace(freeSpaceValue, percent,
+            getPos(), isDefault);
+    }
+}
+
+SqlTableAttribute TableAttributeIsolatedLoading() :
 {
     boolean nonLoadIsolated = false;
     boolean concurrent = false;
@@ -375,10 +411,10 @@ SqlCreateAttribute CreateTableAttributeIsolatedLoading() :
             <NONE> { operationLevel = OperationLevel.NONE; }
         )
     ]
-    { return new SqlCreateAttributeIsolatedLoading(nonLoadIsolated, concurrent, operationLevel, getPos()); }
+    { return new SqlTableAttributeIsolatedLoading(nonLoadIsolated, concurrent, operationLevel, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeJournal() :
+SqlTableAttribute TableAttributeJournal() :
 {
   JournalType journalType;
   JournalModifier journalModifier;
@@ -408,10 +444,10 @@ SqlCreateAttribute CreateTableAttributeJournal() :
         )
         <JOURNAL>
     )
-    { return new SqlCreateAttributeJournal(journalType, journalModifier, getPos()); }
+    { return new SqlTableAttributeJournal(journalType, journalModifier, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeDataBlockSize() :
+SqlTableAttribute TableAttributeDataBlockSize() :
 {
     DataBlockModifier modifier = null;
     DataBlockUnitSize unitSize;
@@ -435,10 +471,49 @@ SqlCreateAttribute CreateTableAttributeDataBlockSize() :
             [ <BYTES> ] { unitSize = DataBlockUnitSize.BYTES; }
         )
     )
-    { return new SqlCreateAttributeDataBlockSize(modifier, unitSize, dataBlockSize, getPos()); }
+    {
+        return new SqlTableAttributeDataBlockSize(modifier, unitSize,
+            dataBlockSize, getPos());
+    }
 }
 
-SqlCreateAttribute CreateTableAttributeMergeBlockRatio() :
+/**
+ * Parses DATABLOCKSIZE attribute in ALTER TABLE queries,
+ * including IMMEDIATE option.
+ */
+SqlTableAttribute AlterTableAttributeDataBlockSize() :
+{
+    DataBlockModifier modifier = null;
+    DataBlockUnitSize unitSize;
+    SqlLiteral dataBlockSize = null;
+    boolean immediate = false;
+}
+{
+    (
+        (
+            ( <MINIMUM> | <MIN> ) { modifier = DataBlockModifier.MINIMUM; }
+        |
+            ( <MAXIMUM> | <MAX> ) { modifier = DataBlockModifier.MAXIMUM; }
+        |
+            <DEFAULT_> { modifier = DataBlockModifier.DEFAULT; }
+        )
+        <DATABLOCKSIZE> { unitSize = DataBlockUnitSize.BYTES; }
+    |
+        <DATABLOCKSIZE> <EQ> dataBlockSize = UnsignedNumericLiteral()
+        (
+            ( <KILOBYTES> | <KBYTES> ) { unitSize = DataBlockUnitSize.KILOBYTES; }
+        |
+            [ <BYTES> ] { unitSize = DataBlockUnitSize.BYTES; }
+        )
+    )
+    [ <IMMEDIATE> { immediate = true; } ]
+    {
+        return new SqlAlterTableAttributeDataBlockSize(modifier, unitSize,
+            dataBlockSize, getPos(), immediate);
+    }
+}
+
+SqlTableAttribute TableAttributeMergeBlockRatio() :
 {
     MergeBlockRatioModifier modifier = MergeBlockRatioModifier.UNSPECIFIED;
     int ratio = 1;
@@ -458,7 +533,7 @@ SqlCreateAttribute CreateTableAttributeMergeBlockRatio() :
     )
     {
         if (ratio >= 1 && ratio <= 100) {
-            return new SqlCreateAttributeMergeBlockRatio(modifier, ratio, percent, getPos());
+            return new SqlTableAttributeMergeBlockRatio(modifier, ratio, percent, getPos());
         } else {
             throw SqlUtil.newContextException(getPos(),
                 RESOURCE.numberLiteralOutOfRange(String.valueOf(ratio)));
@@ -466,7 +541,7 @@ SqlCreateAttribute CreateTableAttributeMergeBlockRatio() :
     }
 }
 
-SqlCreateAttribute CreateTableAttributeChecksum() :
+SqlTableAttribute TableAttributeChecksum() :
 {
     ChecksumEnabled checksumEnabled;
 }
@@ -479,10 +554,35 @@ SqlCreateAttribute CreateTableAttributeChecksum() :
     |
         <OFF> { checksumEnabled = ChecksumEnabled.OFF; }
     )
-    { return new SqlCreateAttributeChecksum(checksumEnabled, getPos()); }
+    { return new SqlTableAttributeChecksum(checksumEnabled, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeBlockCompression() :
+/**
+ * Parses CHECKSUM attribute in ALTER TABLE queries,
+ * including IMMEDIATE option.
+ */
+SqlTableAttribute AlterTableAttributeChecksum() :
+{
+    ChecksumEnabled checksumEnabled;
+    boolean immediate = false;
+}
+{
+    <CHECKSUM> <EQ>
+    (
+        <DEFAULT_> { checksumEnabled = ChecksumEnabled.DEFAULT; }
+    |
+        <ON> { checksumEnabled = ChecksumEnabled.ON; }
+    |
+        <OFF> { checksumEnabled = ChecksumEnabled.OFF; }
+    )
+    [ <IMMEDIATE> { immediate = true; } ]
+    {
+        return new SqlAlterTableAttributeChecksum(checksumEnabled,
+            getPos(), immediate);
+    }
+}
+
+SqlTableAttribute TableAttributeBlockCompression() :
 {
     BlockCompressionOption blockCompressionOption;
 }
@@ -497,17 +597,17 @@ SqlCreateAttribute CreateTableAttributeBlockCompression() :
     |
         <NEVER> { blockCompressionOption = BlockCompressionOption.NEVER; }
     )
-    { return new SqlCreateAttributeBlockCompression(blockCompressionOption, getPos()); }
+    { return new SqlTableAttributeBlockCompression(blockCompressionOption, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeLog() :
+SqlTableAttribute TableAttributeLog() :
 {
     boolean loggingEnabled = true;
 }
 {
     [ <NO> { loggingEnabled = false; } ]
     <LOG> {
-        return new SqlCreateAttributeLog(loggingEnabled, getPos());
+        return new SqlTableAttributeLog(loggingEnabled, getPos());
     }
 }
 
@@ -523,37 +623,37 @@ SqlColumnAttribute ColumnAttributeDateFormat() :
     }
 }
 
-List<SqlCreateAttribute> CreateTableAttributes() :
+List<SqlTableAttribute> CreateTableAttributes() :
 {
-    final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
-    SqlCreateAttribute e;
+    final List<SqlTableAttribute> list = new ArrayList<SqlTableAttribute>();
+    SqlTableAttribute e;
     Span s;
 }
 {
     (
         <COMMA>
         (
-            e = CreateTableAttributeMap()
+            e = TableAttributeMap()
         |
-            e = CreateTableAttributeFallback()
+            e = TableAttributeFallback()
         |
-            e = CreateTableAttributeJournalTable()
+            e = TableAttributeJournalTable()
         |
-            e = CreateTableAttributeFreeSpace()
+            e = TableAttributeFreeSpace()
         |
-            e = CreateTableAttributeIsolatedLoading()
+            e = TableAttributeIsolatedLoading()
         |
-            e = CreateTableAttributeDataBlockSize()
+            e = TableAttributeDataBlockSize()
         |
-            e = CreateTableAttributeMergeBlockRatio()
+            e = TableAttributeMergeBlockRatio()
         |
-            e = CreateTableAttributeChecksum()
+            e = TableAttributeChecksum()
         |
-            e = CreateTableAttributeBlockCompression()
+            e = TableAttributeBlockCompression()
         |
-            e = CreateTableAttributeLog()
+            e = TableAttributeLog()
         |
-            e = CreateTableAttributeJournal()
+            e = TableAttributeJournal()
         ) { list.add(e); }
     )+
     { return list; }
@@ -576,7 +676,7 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
     Volatility volatility = Volatility.UNSPECIFIED;
     final boolean ifNotExists;
     final SqlIdentifier id;
-    final List<SqlCreateAttribute> tableAttributes;
+    final List<SqlTableAttribute> tableAttributes;
     final SqlNodeList columnList;
     final SqlNode query;
     WithDataType withData = WithDataType.UNSPECIFIED;
@@ -1292,6 +1392,82 @@ SqlNode RankFunctionCallWithParams() :
             SqlLiteral.createBoolean(false, SqlParserPos.ZERO), null, null, null, s1.end(this));
         return SqlStdOperatorTable.OVER.createCall(s.end(over), rankCall, over);
     }
+}
+
+/**
+  * Parses ALTER TABLE queries.
+  */
+SqlAlter SqlAlterTable(Span s, String scope) :
+{
+     final SqlIdentifier tableName;
+     final List<SqlTableAttribute> tableAttributes;
+}
+{
+    <TABLE>
+    tableName = SimpleIdentifier()
+    (
+        tableAttributes = AlterTableAttributes()
+    |
+        { tableAttributes = null; }
+    )
+    {
+        return new SqlAlterTable(getPos(), scope, tableName, tableAttributes);
+    }
+}
+
+/**
+  * Parses table attributes for ALTER TABLE queries.
+  */
+List<SqlTableAttribute> AlterTableAttributes() :
+{
+    final List<SqlTableAttribute> list = new ArrayList<SqlTableAttribute>();
+    SqlTableAttribute e;
+    Span s;
+}
+{
+    (
+        <COMMA>
+        (
+            e = AlterTableAttributeOnCommit()
+        |
+            e = TableAttributeFallback()
+        |
+            e = TableAttributeJournalTable()
+        |
+            e = AlterTableAttributeFreeSpace()
+        |
+            e = AlterTableAttributeDataBlockSize()
+        |
+            e = TableAttributeMergeBlockRatio()
+        |
+            e = AlterTableAttributeChecksum()
+        |
+            e = TableAttributeBlockCompression()
+        |
+            e = TableAttributeLog()
+        |
+            e = TableAttributeJournal()
+        ) { list.add(e); }
+    )+
+    { return list; }
+}
+
+/**
+  * Parses the ON COMMIT attribute for ALTER TABLE queries.
+  */
+SqlTableAttribute AlterTableAttributeOnCommit() :
+{
+    final OnCommitType onCommitType;
+}
+{
+    <ON> <COMMIT>
+    (
+        <PRESERVE> { onCommitType = OnCommitType.PRESERVE; }
+    |
+        <DELETE> { onCommitType = OnCommitType.DELETE; }
+    )
+    <ROWS>
+    { return new SqlAlterTableAttributeOnCommit(getPos(), onCommitType); }
 }
 
 /**

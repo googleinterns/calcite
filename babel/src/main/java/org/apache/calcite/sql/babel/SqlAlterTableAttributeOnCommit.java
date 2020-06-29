@@ -14,45 +14,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.calcite.sql;
+package org.apache.calcite.sql.babel;
 
+import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * Base class for an ALTER statements parse tree nodes. The portion of the
- * statement covered by this class is "ALTER &lt;SCOPE&gt;. Subclasses handle
- * whatever comes after the scope.
+ * A {@code SqlAlterTableAttributeOnCommit} is a ALTER TABLE attribute
+ * for the ON COMMIT attribute.
  */
-public abstract class SqlAlter extends SqlCall {
+public class SqlAlterTableAttributeOnCommit extends SqlTableAttribute {
 
-  /** Scope of the operation. Values "SYSTEM" and "SESSION" are typical. */
-  String scope;
+  final OnCommitType onCommitType;
 
-  public SqlAlter(SqlParserPos pos) {
-    this(pos, null);
-  }
-
-  public SqlAlter(SqlParserPos pos, String scope) {
+  /**
+   * Creates a {@code SqlAlterTableAttributeOnCommit}.
+   * @param pos           Parser position, must not be null.
+   * @param onCommitType  ON COMMIT option specified.
+   */
+  public SqlAlterTableAttributeOnCommit(SqlParserPos pos,
+      OnCommitType onCommitType) {
     super(pos);
-    this.scope = scope;
+    this.onCommitType = onCommitType;
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    if (scope != null) {
-      writer.keyword("ALTER");
-      writer.keyword(scope);
+    writer.keyword("ON COMMIT");
+    switch (onCommitType) {
+    case DELETE:
+      writer.keyword("DELETE");
+      break;
+    case PRESERVE:
+      writer.keyword("PRESERVE");
+      break;
+    default:
+      break;
     }
-    unparseAlterOperation(writer, leftPrec, rightPrec);
+    writer.keyword("ROWS");
   }
-
-  protected abstract void unparseAlterOperation(SqlWriter writer, int leftPrec, int rightPrec);
-
-  public String getScope() {
-    return scope;
-  }
-
-  public void setScope(String scope) {
-    this.scope = scope;
-  }
-
 }

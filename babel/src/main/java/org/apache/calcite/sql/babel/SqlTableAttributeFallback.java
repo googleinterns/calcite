@@ -20,28 +20,34 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlCreateAttributeLog</code> is a CREATE TABLE option
- * for the LOG attribute.
+ * A <code>SqlTableAttributeFallback</code> is a table option
+ * for the FALLBACK keyword.
  */
-public class SqlCreateAttributeLog extends SqlCreateAttribute {
+public class SqlTableAttributeFallback extends SqlTableAttribute {
 
-  private final boolean loggingEnabled;
+  private final boolean no;
+  private final boolean protection;
 
   /**
-   * Creates a {@code SqlCreateAttributeLog}.
+   * Creates a {@code SqlTableAttributeFallback}.
    *
-   * @param loggingEnabled  Transient journal logging is enabled
+   * @param no  Optional NO keyword
+   * @param protection Optional PROTECTION keyword
    * @param pos  Parser position, must not be null
    */
-  public SqlCreateAttributeLog(boolean loggingEnabled, SqlParserPos pos) {
+  public SqlTableAttributeFallback(boolean no, boolean protection, SqlParserPos pos) {
     super(pos);
-    this.loggingEnabled = loggingEnabled;
+    this.no = no;
+    this.protection = protection;
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    if (!loggingEnabled) {
+    if (no) {
       writer.keyword("NO");
     }
-    writer.keyword("LOG");
+    writer.keyword("FALLBACK");
+    if (protection) {
+      writer.keyword("PROTECTION");
+    }
   }
 }

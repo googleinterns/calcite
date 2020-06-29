@@ -4014,7 +4014,11 @@ SqlAlter SqlAlter() :
 }
 {
     <ALTER> { s = span(); }
-    scope = Scope()
+    (
+        scope = Scope()
+    |
+        { scope = null; }
+    )
     (
 <#-- additional literal parser methods are included here -->
 <#list parser.alterStatementParserMethods as method>

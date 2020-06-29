@@ -21,20 +21,20 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlCreateAttributeMap</code> is a CREATE TABLE option
+ * A <code>SqlTableAttributeMap</code> is a table option
  * for the MAP attribute.
  */
-public class SqlCreateAttributeMap extends SqlCreateAttribute {
+public class SqlTableAttributeMap extends SqlTableAttribute {
 
   private final SqlIdentifier mapName;
 
   /**
-   * Creates a {@code SqlCreateAttributeMap}.
+   * Creates a {@code SqlTableAttributeMap}.
    *
    * @param mapName  Name of an existing contiguous map
    * @param pos  Parser position, must not be null
    */
-  public SqlCreateAttributeMap(SqlIdentifier mapName, SqlParserPos pos) {
+  public SqlTableAttributeMap(SqlIdentifier mapName, SqlParserPos pos) {
     super(pos);
     this.mapName = mapName;
   }
