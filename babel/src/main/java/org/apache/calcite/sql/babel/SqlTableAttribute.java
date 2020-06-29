@@ -30,7 +30,7 @@ public abstract class SqlTableAttribute {
   private final SqlParserPos pos;
 
   /**
-   * Creates a {@code SqlCreateOption}.
+   * Creates a {@code SqlTableAttribute}.
    *
    * @param pos  Parser position, must not be null
    */
