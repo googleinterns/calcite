@@ -21,5 +21,5 @@ void quux(int arg1,
 }
 void baz() : {x}
 {
-    // overridden by intermidiate
+    // overridden by intermediate
 }

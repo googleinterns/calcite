@@ -16,13 +16,110 @@
  */
 package org.apache.calcite.test;
 
+import java.nio.file.Path;
+import java.io.File;
+import java.nio.file.Paths;
+import java.util.Queue;
+import java.util.LinkedList;
+import java.lang.StringBuilder;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.LinkedHashMap;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Assertions;
 import org.apache.calcite.buildtools.parser.DialectGenerate;
+import org.apache.calcite.buildtools.parser.DialectGenerate.CurlyParser;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DialectGenerateTest {
-  @Test public void test() {
 
-    assert false;
+  private DialectGenerate setupDialectGenerate() {
+    Path currentRelativePath = Paths.get("");
+    String s = currentRelativePath.toAbsolutePath().toString();
+    Path rootPath = Paths.get("../../../parsingTest");
+    Path dialectPath = Paths.get(rootPath.toAbsolutePath().toString() + "/intermediate/testDialect/");
+    File rootFile = rootPath.toFile();
+    File dialectFile = dialectPath.toFile();
+    return new DialectGenerate(dialectFile, rootFile, "");
+  }
+
+  private Map<String, String> getExpectedExtractionResults() {
+    String foo = "void foo() :\n"
+      + "{\n"
+      + "    String x = \" '}' \";\n"
+      + "}\n"
+      + "{\n"
+      + "    // overidden by testDialect\n"
+      + "}";
+    String bar = "void bar  (   )  : {} {}";
+    String baz = "void baz() : {x}\n"
+      + "{\n"
+      + "    // overridden by intermediate\n"
+      + "}";
+    String qux = "";
+    String quux = "";
+    return new LinkedHashMap<String, String>() {{
+      put("foo", foo);
+      put("bar", bar);
+      put("baz", baz);
+      put("qux", qux);
+      put("quux", quux);
+    }};
+  }
+
+  private Queue<String> getTokens(String str) {
+    return new LinkedList(Arrays.asList(DialectGenerate.tokenizerPattern.split(str)));
+  }
+
+  private void assertCurlyParserSucceeds(String input) {
+    CurlyParser parser = new CurlyParser();
+    Queue<String> tokens = getTokens(input);
+    boolean doneParsing = false;
+    while (!tokens.isEmpty()) {
+      if (doneParsing) {
+        assertTrue(false, "Failed to parse curly block");
+      }
+      doneParsing = parser.parseToken(tokens.poll());
+    }
+    assertTrue(doneParsing);
+  }
+
+  @Test public void testCurlyParserParsesEmpty() {
+    String input = "{  }";
+    assertCurlyParserSucceeds(input);
+  }
+
+  @Test public void testCurlyParserParsesString() {
+    String input = "{ \" } \"  }";
+    assertCurlyParserSucceeds(input);
+  }
+
+  @Test public void testCurlyParserParsesCharacter() {
+    String input = "{ ' } '  }";
+    assertCurlyParserSucceeds(input);
+  }
+
+  @Test public void testCurlyParserParsesSingleComment() {
+    String input = "{ //  } \n  }";
+    assertCurlyParserSucceeds(input);
+  }
+
+  @Test public void testCurlyParserParsesMultiComment() {
+    String input = "{ /*  } */  }";
+    assertCurlyParserSucceeds(input);
+  }
+
+  @Test public void testExtractFunctions() {
+    DialectGenerate dialectGenerate = setupDialectGenerate();
+    Map<String, String> res = dialectGenerate.extractFunctions();
+    Map<String, String> expected = getExpectedExtractionResults();
+    assertEquals(res.size(), expected.size());
+    for (String key : expected.keySet()) {
+      assertEquals(expected.get(key), res.get(key));
+    }
   }
 }
-

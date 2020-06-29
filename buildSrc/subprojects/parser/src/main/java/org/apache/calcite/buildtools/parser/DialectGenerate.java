@@ -41,21 +41,21 @@ import java.util.regex.Pattern;
  */
 public class DialectGenerate {
 
-  private final String typeAndName = "\\w+\\s+\\w+";
-  private final String splitDelims = "(\\s|\n|\"|//|/\\*|\\*/|'|\\}|\\{)";
+  private static final String typeAndName = "\\w+\\s+\\w+";
+  private static final String splitDelims = "(\\s|\n|\"|//|/\\*|\\*/|'|\\}|\\{)";
 
   // Used to split up a string into tokens by the specified deliminators
   // while also keeping the deliminators as tokens.
-  private final Pattern tokenizerPattern = Pattern.compile("((?<="
+  public static final Pattern tokenizerPattern = Pattern.compile("((?<="
       + splitDelims + ")|(?=" + splitDelims + "))");
 
   // Matches function declarations: <return_type> <name> (<args>) :
-  private final Pattern declarationPattern =
+  private static final Pattern declarationPattern =
     Pattern.compile("(" + typeAndName + "\\s*\\(\\s*(" + typeAndName + "\\s*(\\,\\s*"
         + typeAndName + "\\s*)*)?\\)\\s*\\:\n?)");
-  private final Pattern namePattern = Pattern.compile("\\w+");
+  private static final Pattern namePattern = Pattern.compile("\\w+");
 
-  private final Comparator<File> fileComparator = new Comparator<File>() {
+  private static final Comparator<File> fileComparator = new Comparator<File>() {
     @Override
     public int compare(File file1, File file2) {
       return Boolean.compare(file1.isDirectory(), file2.isDirectory());
@@ -145,7 +145,9 @@ public class DialectGenerate {
       }
       if (f.isFile() && extension.equals("ftl")) {
         try {
-          processFile(f, functionMap);
+          String fileText = new String(Files.readAllBytes(Paths.get(f.getAbsolutePath())),
+              StandardCharsets.UTF_8);
+          processFile(fileText, functionMap);
         } catch(IOException e) {
           e.printStackTrace();
         }
@@ -172,9 +174,7 @@ public class DialectGenerate {
    * @param file The file to process
    * @param functionMap The map to which the parsing functions will be added to
    */
-  private void processFile(File file, Map<String, String> functionMap) throws IOException {
-    String fileText = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())),
-        StandardCharsets.UTF_8);
+  private void processFile(String fileText, Map<String, String> functionMap) {
     Queue<MatchResult> declarations = new LinkedList();
     Matcher matcher = declarationPattern.matcher(fileText);
     while (matcher.find()) {
@@ -188,7 +188,7 @@ public class DialectGenerate {
         charIndex += tokens.poll().length();
       }
       charIndex = processFunction(tokens, functionMap, charIndex,
-          declaration.end() - 1,  getFunctionName(declaration.group()));
+          declaration.end(),  getFunctionName(declaration.group()));
     }
   }
 
@@ -310,7 +310,7 @@ public class DialectGenerate {
    * state of which structure the parser is currently in to ensure that
    * encountered curly braces are valid.
    */
-  static class CurlyParser {
+  public static class CurlyParser {
 
     /**
      * All of the possible important structures that a token can be inside of.
@@ -363,7 +363,7 @@ public class DialectGenerate {
      * @param token The token to parse
      * @return Whether or not the curly block has been fully parsed
      */
-    boolean parseToken(String token) {
+    public boolean parseToken(String token) {
       updateState(token);
       return curlyCounter == 0;
     }
