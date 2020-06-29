@@ -1885,13 +1885,15 @@ class BabelParserTest extends SqlParserTest {
 
   @Test void testAlterAddMultiColumns() {
     final String sql = "alter table foo add (bar integer, baz integer)";
-    final String expected = "ALTER TABLE `FOO` ADD (`BAR` INTEGER, `BAZ` INTEGER)";
+    final String expected = "ALTER TABLE `FOO` ADD"
+        + " (`BAR` INTEGER, `BAZ` INTEGER)";
     sql(sql).ok(expected);
   }
 
   @Test void testAlterAddColumnWithTableAttribute() {
     final String sql = "alter table foo, no fallback add bar integer";
-    final String expected = "ALTER TABLE `FOO`, NO FALLBACK ADD (`BAR` INTEGER)";
+    final String expected = "ALTER TABLE `FOO`, NO FALLBACK ADD"
+        + " (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
 

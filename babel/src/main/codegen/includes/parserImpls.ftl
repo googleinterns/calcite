@@ -1418,7 +1418,8 @@ SqlAlter SqlAlterTable(Span s, String scope) :
         { tableAttributes = null; }
     )
     {
-        return new SqlAlterTable(getPos(), scope, tableName, tableAttributes, alterTableOptions);
+        return new SqlAlterTable(getPos(), scope, tableName,
+            tableAttributes, alterTableOptions);
     }
 }
 
