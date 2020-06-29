@@ -20,7 +20,7 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlTableAttributeMergeBlockRatio</code> is a CREATE TABLE option
+ * A <code>SqlTableAttributeMergeBlockRatio</code> is a table option
  * for the MERGEBLOCKRATIO attribute.
  */
 public class SqlTableAttributeMergeBlockRatio extends SqlTableAttribute {

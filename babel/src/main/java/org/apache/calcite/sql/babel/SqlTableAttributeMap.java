@@ -21,7 +21,7 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlTableAttributeMap</code> is a CREATE TABLE option
+ * A <code>SqlTableAttributeMap</code> is a table option
  * for the MAP attribute.
  */
 public class SqlTableAttributeMap extends SqlTableAttribute {

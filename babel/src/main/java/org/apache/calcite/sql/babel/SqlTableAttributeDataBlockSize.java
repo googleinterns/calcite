@@ -21,7 +21,7 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlTableAttributeDataBlockSize</code> is a CREATE TABLE option
+ * A <code>SqlTableAttributeDataBlockSize</code> is a table option
  * for the DATABLOCKSIZE attribute.
  */
 public class SqlTableAttributeDataBlockSize extends SqlTableAttribute {

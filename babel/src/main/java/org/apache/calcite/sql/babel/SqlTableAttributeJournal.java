@@ -20,7 +20,7 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlTableAttributeJournal</code> is a CREATE TABLE option
+ * A <code>SqlTableAttributeJournal</code> is a table option
  * for the JOURNAL attribute.
  */
 public class SqlTableAttributeJournal extends SqlTableAttribute {

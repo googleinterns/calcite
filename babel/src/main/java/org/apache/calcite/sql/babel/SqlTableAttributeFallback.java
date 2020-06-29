@@ -20,7 +20,7 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlTableAttributeFallback</code> is a CREATE TABLE option
+ * A <code>SqlTableAttributeFallback</code> is a table option
  * for the FALLBACK keyword.
  */
 public class SqlTableAttributeFallback extends SqlTableAttribute {

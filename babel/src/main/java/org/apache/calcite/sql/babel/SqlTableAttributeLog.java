@@ -20,7 +20,7 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlTableAttributeLog</code> is a CREATE TABLE option
+ * A <code>SqlTableAttributeLog</code> is a table option
  * for the LOG attribute.
  */
 public class SqlTableAttributeLog extends SqlTableAttribute {

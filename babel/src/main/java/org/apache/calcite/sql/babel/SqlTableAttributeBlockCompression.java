@@ -20,7 +20,7 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlTableAttributeBlockCompression</code> is a CREATE TABLE option
+ * A <code>SqlTableAttributeBlockCompression</code> is a table option
  * for the BLOCKCOMPRESSION attribute.
  */
 public class SqlTableAttributeBlockCompression extends SqlTableAttribute {

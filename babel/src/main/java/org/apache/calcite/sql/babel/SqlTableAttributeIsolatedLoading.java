@@ -20,7 +20,7 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlTableAttributeIsolatedLoading</code> is a CREATE TABLE option
+ * A <code>SqlTableAttributeIsolatedLoading</code> is a table option
  * for the WITH ISOLATED LOADING attribute.
  */
 public class SqlTableAttributeIsolatedLoading extends SqlTableAttribute {

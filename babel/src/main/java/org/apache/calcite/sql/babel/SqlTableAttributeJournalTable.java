@@ -21,7 +21,7 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlTableAttributeJournalTable</code> is a CREATE TABLE option
+ * A <code>SqlTableAttributeJournalTable</code> is a table option
  * for the WITH JOURNAL TABLE attribute.
  */
 public class SqlTableAttributeJournalTable extends SqlTableAttribute {
