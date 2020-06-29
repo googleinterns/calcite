@@ -14,22 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-public class SqlAlterTableAttributeFreeSpace extends SqlTableAttributeFreeSpace {
+/**
+ * A {@code SqlTableAttributeFreeSpace} is a ALTER TABLE attribute
+ * for the FREESPACE attribute.
+ */
+public class SqlAlterTableAttributeFreeSpace
+    extends SqlTableAttributeFreeSpace {
 
   final boolean isDefault;
 
   /**
    * Creates a {@code SqlTableAttributeFreeSpace}.
    *
-   * @param freeSpaceValue The percentage of free space to reserve during loading operations
-   * @param percent        Optional keyword PERCENT
-   * @param pos            Parser position, must not be null
+   * @param freeSpaceValue The percentage of free space to reserve
+   *                          during loading operations.
+   * @param percent        Optional keyword PERCENT.
+   * @param pos            Parser position, must not be null.
+   * @param isDefault      Whether DEFAULT FREESPACE option was specified.
    */
   public SqlAlterTableAttributeFreeSpace(int freeSpaceValue, boolean percent,
       SqlParserPos pos, boolean isDefault) {

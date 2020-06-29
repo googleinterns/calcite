@@ -4008,7 +4008,11 @@ SqlAlter SqlAlter() :
 }
 {
     <ALTER> { s = span(); }
-    scope = Scope()
+    (
+        scope = Scope()
+    |
+        { scope = null; }
+    )
     (
 <#-- additional literal parser methods are included here -->
 <#list parser.alterStatementParserMethods as method>
@@ -4027,15 +4031,7 @@ String Scope() :
 {
 }
 {
-    (
-        <SYSTEM>
-    |
-        <SESSION>
-<#if parser.allowAlterTable>
-    |
-        <TABLE>
-</#if>
-    ) { return token.image.toUpperCase(Locale.ROOT); }
+    ( <SYSTEM> | <SESSION> ) { return token.image.toUpperCase(Locale.ROOT); }
 }
 
 <#if parser.createStatementParserMethods?size != 0>

@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlWriter;
@@ -33,7 +32,8 @@ public class SqlAlterTableAttributeOnCommit extends SqlTableAttribute {
    * @param pos           Parser position, must not be null.
    * @param onCommitType  ON COMMIT option specified.
    */
-  public SqlAlterTableAttributeOnCommit(SqlParserPos pos, OnCommitType onCommitType) {
+  public SqlAlterTableAttributeOnCommit(SqlParserPos pos,
+      OnCommitType onCommitType) {
     super(pos);
     this.onCommitType = onCommitType;
   }

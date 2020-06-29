@@ -14,24 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-public class SqlAlterTableAttributeDataBlockSize extends SqlTableAttributeDataBlockSize {
+/**
+ * A {@code SqlAlterTableAttributeDataBlockSize} is a ALTER TABLE attribute
+ * for the DATABLOCKSIZE attribute.
+ */
+public class SqlAlterTableAttributeDataBlockSize
+    extends SqlTableAttributeDataBlockSize {
 
   final boolean immediate;
 
   /**
    * Creates a {@code SqlTableAttributeDataBlockSize}.
    *
-   * @param modifier      Data block size modifier, may be null
-   * @param unitSize      Unit size of a data block size value
-   * @param dataBlockSize Size of data block, numeric value
-   * @param pos           Parser position, must not be null
+   * @param modifier      Data block size modifier, may be null.
+   * @param unitSize      Unit size of a data block size value.
+   * @param dataBlockSize Size of data block, numeric value.
+   * @param pos           Parser position, must not be null.
+   * @param immediate     Whether or not IMMEDIATE option was specified.
    */
   public SqlAlterTableAttributeDataBlockSize(DataBlockModifier modifier,
       DataBlockUnitSize unitSize, SqlLiteral dataBlockSize,

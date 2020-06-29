@@ -1771,4 +1771,10 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "ALTER TABLE `FOO`, DEFAULT FREESPACE";
     sql(sql).ok(expected);
   }
+
+  @Test void testAlterOnCommit() {
+    final String sql = "alter table foo, on commit delete rows";
+    final String expected = "ALTER TABLE `FOO`, ON COMMIT DELETE ROWS";
+    sql(sql).ok(expected);
+  }
 }

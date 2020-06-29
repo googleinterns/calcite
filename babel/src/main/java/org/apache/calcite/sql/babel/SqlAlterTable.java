@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlAlter;
@@ -44,6 +43,11 @@ public class SqlAlterTable extends SqlAlter {
     super(pos, scope);
     this.tableName = tableName;
     this.tableAttributes = tableAttributes;
+  }
+
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    writer.keyword("ALTER TABLE");
+    unparseAlterOperation(writer, leftPrec, rightPrec);
   }
 
   @Override protected void unparseAlterOperation(SqlWriter writer,
