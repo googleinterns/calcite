@@ -17,6 +17,7 @@
 package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlCall;
+import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlOperator;
@@ -34,7 +35,7 @@ public class SqlExecMacroParam extends SqlCall {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("PARAM EQUAL", SqlKind.OTHER);
 
-  private final SqlNode name;
+  private final SqlIdentifier name;
   private final SqlNode value;
 
   /**
@@ -54,7 +55,7 @@ public class SqlExecMacroParam extends SqlCall {
    * @param name  Name of the parameter
    * @param value  Value of the parameter
    */
-  public SqlExecMacroParam(SqlParserPos pos, SqlNode name, SqlNode value) {
+  public SqlExecMacroParam(SqlParserPos pos, SqlIdentifier name, SqlNode value) {
     super(pos);
     this.name = name;
     this.value = value;

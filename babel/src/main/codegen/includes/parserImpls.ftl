@@ -837,7 +837,7 @@ void SqlExecMacroArgument(SqlNodeList params) :
 
 SqlNode SqlSimpleIdentifierEqualLiteral() :
 {
-    SqlNode name;
+    SqlIdentifier name;
     SqlNode value;
 }
 {
