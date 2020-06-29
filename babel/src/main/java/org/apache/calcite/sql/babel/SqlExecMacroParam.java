@@ -67,11 +67,7 @@ public class SqlExecMacroParam extends SqlCall {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    if (this.name == null) {
-      return ImmutableNullableList.of(value);
-    } else {
-      return ImmutableNullableList.of(name, value);
-    }
+    return ImmutableNullableList.of(name, value);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
