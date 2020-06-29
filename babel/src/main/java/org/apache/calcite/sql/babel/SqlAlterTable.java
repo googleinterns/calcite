@@ -40,20 +40,22 @@ public class SqlAlterTable extends SqlAlter {
       new SqlSpecialOperator("ALTER TABLE", SqlKind.ALTER_TABLE);
 
   public SqlAlterTable(SqlParserPos pos, String scope, SqlIdentifier tableName,
-      List<SqlTableAttribute> tableAttributes, List<SqlAlterTableOption> alterTableOptions) {
+      List<SqlTableAttribute> tableAttributes,
+      List<SqlAlterTableOption> alterTableOptions) {
     super(pos, scope);
     this.tableName = tableName;
     this.tableAttributes = tableAttributes;
     this.alterTableOptions = alterTableOptions;
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+  @Override public void unparse(SqlWriter writer,
+      int leftPrec, int rightPrec) {
     writer.keyword("ALTER TABLE");
     unparseAlterOperation(writer, leftPrec, rightPrec);
   }
 
   @Override protected void unparseAlterOperation(SqlWriter writer,
-                                                 int leftPrec, int rightPrec) {
+      int leftPrec, int rightPrec) {
     tableName.unparse(writer, leftPrec, rightPrec);
     if (tableAttributes != null) {
       SqlWriter.Frame tableAttributeFrame = writer.startList("", "");

@@ -32,7 +32,8 @@ public class SqlAlterTableAddColumn extends SqlAlterTableOption {
     this.columns = columns;
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+  @Override public void unparse(SqlWriter writer,
+      int leftPrec, int rightPrec) {
     writer.keyword("ADD");
     if (columns != null) {
       SqlWriter.Frame frame = writer.startList("(", ")");
