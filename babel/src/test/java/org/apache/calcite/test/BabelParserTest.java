@@ -1893,6 +1893,7 @@ class BabelParserTest extends SqlParserTest {
     final String sql = "alter table foo, no fallback add bar integer";
     final String expected = "ALTER TABLE `FOO`, NO FALLBACK ADD (`BAR` INTEGER)";
     sql(sql).ok(expected);
+  }
 
   @Test void testIndexWithoutName() {
     final String sql = "create table foo (bar integer) index (bar)";
