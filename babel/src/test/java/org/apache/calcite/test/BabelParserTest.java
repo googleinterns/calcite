@@ -270,6 +270,12 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateOrReplaceTable() {
+    final String sql = "create or replace table foo (bar integer)";
+    final String expected = "CREATE OR REPLACE TABLE `FOO` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTableWithNoSetTypeSpecified() {
     final String sql = "create table foo (bar integer not null, baz varchar(30))";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER NOT NULL, `BAZ` VARCHAR(30))";
@@ -335,9 +341,10 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testCreateTableOnCommitReleaseRows() {
-    final String sql = "create table foo (bar int) on commit release rows";
-    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) ON COMMIT RELEASE ROWS";
+  @Test public void testCreateTableOnCommitDeleteRows() {
+    final String sql = "create table foo (bar int) on commit delete rows";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER)"
+        + " ON COMMIT DELETE ROWS";
     sql(sql).ok(expected);
   }
 
@@ -868,6 +875,20 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableWithDateFormatStringColumnLevelAttribute() {
+    final String sql = "create table foo (bar date format 'YYYY-MM-DD')";
+    final String expected = "CREATE TABLE `FOO` (`BAR` DATE FORMAT 'YYYY-MM-DD')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableWithDateFormatStringAndOtherColumnLevelAttributes() {
+    final String sql = "create table foo (bar date format 'YYYY-MM-DD'"
+        + " default null)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` DATE FORMAT 'YYYY-MM-DD'"
+        + " DEFAULT NULL)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testInsertWithSelectInParens() {
     final String sql = "insert into foo (SELECT * FROM bar)";
     final String expected = "INSERT INTO `FOO`\n"
@@ -1002,6 +1023,44 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testExecuteMacroWithOneParamValue() {
+    final String sql = "execute foo (1)";
+    final String expected = "EXECUTE `FOO` (1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testExecuteMacroWithOneParamNameWithValue() {
+    final String sql = "execute foo (bar = 1)";
+    final String expected = "EXECUTE `FOO` (`BAR` = 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testExecuteMacroWithMoreThanOneParamValue() {
+    final String sql = "execute foo (1, 'Hello')";
+    final String expected = "EXECUTE `FOO` (1, 'Hello')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testExecuteMacroWithMoreThanOneParamNameWithValue() {
+    final String sql = "execute foo (bar = 1.3, "
+        + "goo = timestamp '2020-05-30 13:20:00')";
+    final String expected = "EXECUTE `FOO` (`BAR` = 1.3, "
+        + "`GOO` = TIMESTAMP '2020-05-30 13:20:00')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testExecuteMacroWithMoreThanOneParamValueWithNull() {
+    final String sql = "execute foo (1, null, 3)";
+    final String expected = "EXECUTE `FOO` (1, NULL, 3)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testExecuteMacroWithMixedParamPatternFails() {
+    final String sql = "execute foo (1^,^ bar = '2')";
+    final String expected = "(?s).*Encountered \", bar\" at .*";
+    sql(sql).fails(expected);
+  }
+
   @Test public void testDateTimePrimaryLiteral() {
     final String sql = "select timestamp '2020-05-30 13:20:00'";
     final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00'";
@@ -1059,6 +1118,52 @@ class BabelParserTest extends SqlParserTest {
         "SELECT `FOO`\n"
         + "FROM `FOOTABLE`\n"
         + "WHERE (TIMESTAMP '2020-05-30 13:20:00' AT LOCAL = TIMESTAMP '2020-05-30 20:20:00')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAtTimeZoneDisplacementValidInterval() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone "
+        + "interval '1:20' minute to second";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
+        + "TIME ZONE INTERVAL '1:20' MINUTE TO SECOND";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAtTimeZoneDisplacementValidIntervalWithoutTimeZone() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at "
+        + "interval '1:20' minute to second";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
+        + "TIME ZONE INTERVAL '1:20' MINUTE TO SECOND";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAtTimeZoneDisplacementValidBigIntPrecisionZero() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at "
+        + "9223372036854775807";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
+        + "TIME ZONE 9223372036854775807";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAtTimeZoneDisplacementValidDecimalPrecisionZeroNegative() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone "
+        + "-2";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
+        + "TIME ZONE -2";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAtTimeZoneDisplacementValidDecimalPrecisionGreaterThanZero() {
+    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone "
+        + "1.5";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
+        + "TIME ZONE 1.5";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAtTimeZoneDisplacementNonUnicodeString() {
+    final String sql = "select foo at time zone \"Hădrĭa\"";
+    final String expected = "SELECT `FOO` AT TIME ZONE `Hădrĭa`";
     sql(sql).ok(expected);
   }
 
@@ -1535,7 +1640,7 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testPrimaryIndexMultipleOverwritten() {
-    final String sql = "create table foo primary index bar (lname) primary index baz (fname)";
+    final String sql = "create table foo primary index bar (lname), primary index baz (fname)";
     final String expected = "CREATE TABLE `FOO` PRIMARY INDEX `BAZ` (`FNAME`)";
     sql(sql).ok(expected);
   }
@@ -1722,5 +1827,166 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "SELECT (RANK() OVER (ORDER BY `FOO`, `BAZ` DESC, `X` DESC))\n"
         + "FROM `BAR`";
     sql(sql).ok(expected);
+  }
+
+  @Test void testAlterSingleTableOption() {
+    final String sql = "alter table foo, no fallback";
+    final String expected = "ALTER TABLE `FOO`, NO FALLBACK";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterSingleTableOptionWithValue() {
+    final String sql = "alter table foo, freespace = 5";
+    final String expected = "ALTER TABLE `FOO`, FREESPACE = 5";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterMultipleTableOptions() {
+    final String sql = "alter table foo, no fallback, no before journal";
+    final String expected = "ALTER TABLE `FOO`, NO FALLBACK, NO BEFORE JOURNAL";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterChecksumWithImmediate() {
+    final String sql = "alter table foo, checksum = default immediate";
+    final String expected = "ALTER TABLE `FOO`, CHECKSUM = DEFAULT IMMEDIATE";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterDataBlockSizeWithImmediate() {
+    final String sql = "alter table foo, minimum datablocksize immediate";
+    final String expected = "ALTER TABLE `FOO`, MINIMUM DATABLOCKSIZE IMMEDIATE";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterDataBlockSizeWithValueAndImmediate() {
+    final String sql = "alter table foo, datablocksize = 5 immediate";
+    final String expected = "ALTER TABLE `FOO`, DATABLOCKSIZE = 5 BYTES IMMEDIATE";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterFreespaceDefault() {
+    final String sql = "alter table foo, default freespace";
+    final String expected = "ALTER TABLE `FOO`, DEFAULT FREESPACE";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterOnCommit() {
+    final String sql = "alter table foo, on commit delete rows";
+    final String expected = "ALTER TABLE `FOO`, ON COMMIT DELETE ROWS";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testIndexWithoutName() {
+    final String sql = "create table foo (bar integer) index (bar)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) INDEX (`BAR`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testIndexWithName() {
+    final String sql = "create table foo (bar integer) index baz (bar)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) "
+        + "INDEX `BAZ` (`BAR`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUniqueIndexWithoutName() {
+    final String sql = "create table foo (bar integer) unique index (bar)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) "
+        + "UNIQUE INDEX (`BAR`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUniqueIndexWithName() {
+    final String sql = "create table foo (bar integer) unique index baz (bar)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) "
+        + "UNIQUE INDEX `BAZ` (`BAR`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testMulticolumnIndex() {
+    final String sql = "create table foo (bar integer, qux integer) "
+        + "index (bar, qux)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER, `QUX` INTEGER) "
+        + "INDEX (`BAR`, `QUX`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testMultipleIndices() {
+    final String sql = "create table foo (bar integer, qux integer) "
+        + "index (bar), unique index (qux)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER, `QUX` INTEGER) "
+        + "INDEX (`BAR`), UNIQUE INDEX (`QUX`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testPrimaryIndexWithSecondaryIndex() {
+    final String sql = "create table foo (bar integer, qux integer) "
+        + "primary index (bar), index (qux)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER, `QUX` INTEGER) "
+        + "PRIMARY INDEX (`BAR`), INDEX (`QUX`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testPrimaryIndexWithSecondaryIndexWithoutComma() {
+    final String sql = "create table foo (bar integer, qux integer) "
+        + "primary index (bar) index (qux)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER, `QUX` INTEGER) "
+        + "PRIMARY INDEX (`BAR`), INDEX (`QUX`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testTopNNoPercentNoTies() {
+    final String sql = "select top 5 bar from foo";
+    final String expected = "SELECT TOP 5 `BAR`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testTopNWithTies() {
+    final String sql = "select top 5 with ties bar from foo";
+    final String expected = "SELECT TOP 5 WITH TIES `BAR`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testTopNWithPercent() {
+    final String sql = "select top 5.2 percent bar from foo";
+    final String expected = "SELECT TOP 5.2 PERCENT `BAR`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testTopNWithPercentWithTies() {
+    final String sql = "select top 5 percent with ties bar from foo";
+    final String expected = "SELECT TOP 5 PERCENT WITH TIES `BAR`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testTopNGreaterThan100WithoutPercent() {
+    final String sql = "select top 500 bar from foo";
+    final String expected = "SELECT TOP 500 `BAR`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testTopNDecimalWithoutPercentFails() {
+    final String sql = "select top ^5.2^ bar from foo";
+    final String expected = "(?s).*Cannot specify non-integer value."
+        + "*without specifying PERCENT.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testTopNNegativeFails() {
+    final String sql = "select ^top^ -5 * from foo";
+    final String expected = "(?s).*Encountered \"top -\".*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testTopNPercentGreaterThan100Fails() {
+    final String sql = "select top 200 ^percent^ bar from foo";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
   }
 }

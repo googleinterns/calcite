@@ -16,38 +16,35 @@
  */
 package org.apache.calcite.sql.babel;
 
+import org.apache.calcite.sql.SqlColumnAttribute;
+import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlCreateAttributeFallback</code> is a CREATE TABLE option
- * for the FALLBACK keyword.
+ * A {@code SqlColumnAttributeDateFormat} is an AST node that gives
+ * a Date column of a specific format.
  */
-public class SqlCreateAttributeFallback extends SqlCreateAttribute {
+public class SqlColumnAttributeDateFormat extends SqlColumnAttribute {
 
-  private final boolean no;
-  private final boolean protection;
+  public final SqlNode formatString;
 
   /**
-   * Creates a {@code SqlCreateAttributeFallback}.
+   * Creates a {@code SqlColumnAttributeDateFormat}.
    *
-   * @param no  Optional NO keyword
-   * @param protection Optional PROTECTION keyword
    * @param pos  Parser position, must not be null
    */
-  public SqlCreateAttributeFallback(boolean no, boolean protection, SqlParserPos pos) {
+  public SqlColumnAttributeDateFormat(SqlParserPos pos, SqlNode formatString) {
     super(pos);
-    this.no = no;
-    this.protection = protection;
+    this.formatString = formatString;
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    if (no) {
-      writer.keyword("NO");
+  @Override public void unparse(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
+    if (formatString == null) {
+      return;
     }
-    writer.keyword("FALLBACK");
-    if (protection) {
-      writer.keyword("PROTECTION");
-    }
+    writer.keyword("FORMAT");
+    formatString.unparse(writer, 0, 0);
   }
 }

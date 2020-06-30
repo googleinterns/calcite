@@ -90,7 +90,7 @@ public class SqlCreateTable extends SqlCreate
   /** Creates a SqlCreateTable. */
   public SqlCreateTable(SqlParserPos pos, SqlIdentifier name,
       SqlNodeList columnList, SqlNode query) {
-    super(OPERATOR, pos, false, false);
+    super(OPERATOR, pos, SqlCreateSpecifier.CREATE, false);
     this.name = Objects.requireNonNull(name);
     this.columnList = columnList; // may be null
     this.query = query; // for "CREATE TABLE ... AS query"; may be null
@@ -101,7 +101,7 @@ public class SqlCreateTable extends SqlCreate
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.keyword("CREATE");
+    writer.keyword(getCreateSpecifier().toString());
     writer.keyword("TABLE");
     name.unparse(writer, leftPrec, rightPrec);
     if (columnList != null) {

@@ -20,27 +20,28 @@ import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 /**
- * A {@code SqlCharacterSetToCharacterSet} is an AST node that contains
- * the structure of CharacterSet to CharacterSet token.
+ * A <code>SqlTableAttributeMap</code> is a table option
+ * for the MAP attribute.
  */
-public class SqlCharacterSetToCharacterSet extends SqlIdentifier {
+public class SqlTableAttributeMap extends SqlTableAttribute {
+
+  private final SqlIdentifier mapName;
+
   /**
-   * Creates a {@code SqlCharacterSetToCharacterSet}.
+   * Creates a {@code SqlTableAttributeMap}.
    *
-   * @param charSetNamesPrimitiveArr  Primitive string array of two character sets
+   * @param mapName  Name of an existing contiguous map
    * @param pos  Parser position, must not be null
    */
-  public SqlCharacterSetToCharacterSet(
-      final String[] charSetNamesPrimitiveArr,
-      final SqlParserPos pos) {
-    super(new ArrayList<>(Arrays.asList(charSetNamesPrimitiveArr)), pos);
+  public SqlTableAttributeMap(SqlIdentifier mapName, SqlParserPos pos) {
+    super(pos);
+    this.mapName = mapName;
   }
 
-  @Override public void unparse(final SqlWriter writer,
-      final int leftPrec, final int rightPrec) {
-    writer.print(names.get(0) + "_TO_" + names.get(1));
+  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
+    writer.keyword("MAP");
+    writer.sep("=");
+    mapName.unparse(writer, 0, 0);
   }
 }

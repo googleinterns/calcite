@@ -16,32 +16,38 @@
  */
 package org.apache.calcite.sql.babel;
 
-import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlCreateAttributeMap</code> is a CREATE TABLE option
- * for the MAP attribute.
+ * A <code>SqlTableAttributeFallback</code> is a table option
+ * for the FALLBACK keyword.
  */
-public class SqlCreateAttributeMap extends SqlCreateAttribute {
+public class SqlTableAttributeFallback extends SqlTableAttribute {
 
-  private final SqlIdentifier mapName;
+  private final boolean no;
+  private final boolean protection;
 
   /**
-   * Creates a {@code SqlCreateAttributeMap}.
+   * Creates a {@code SqlTableAttributeFallback}.
    *
-   * @param mapName  Name of an existing contiguous map
+   * @param no  Optional NO keyword
+   * @param protection Optional PROTECTION keyword
    * @param pos  Parser position, must not be null
    */
-  public SqlCreateAttributeMap(SqlIdentifier mapName, SqlParserPos pos) {
+  public SqlTableAttributeFallback(boolean no, boolean protection, SqlParserPos pos) {
     super(pos);
-    this.mapName = mapName;
+    this.no = no;
+    this.protection = protection;
   }
 
-  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
-    writer.keyword("MAP");
-    writer.sep("=");
-    mapName.unparse(writer, 0, 0);
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    if (no) {
+      writer.keyword("NO");
+    }
+    writer.keyword("FALLBACK");
+    if (protection) {
+      writer.keyword("PROTECTION");
+    }
   }
 }

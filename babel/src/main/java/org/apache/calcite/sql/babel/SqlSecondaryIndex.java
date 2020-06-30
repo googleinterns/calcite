@@ -17,30 +17,36 @@
 package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 /**
- * A {@code SqlCharacterSetToCharacterSet} is an AST node that contains
- * the structure of CharacterSet to CharacterSet token.
+ * A {@code SqlSecondaryIndex} is a class that can be used to create a
+ * non-primary index, which is used by the SQL CREATE TABLE function.
  */
-public class SqlCharacterSetToCharacterSet extends SqlIdentifier {
-  /**
-   * Creates a {@code SqlCharacterSetToCharacterSet}.
-   *
-   * @param charSetNamesPrimitiveArr  Primitive string array of two character sets
-   * @param pos  Parser position, must not be null
-   */
-  public SqlCharacterSetToCharacterSet(
-      final String[] charSetNamesPrimitiveArr,
-      final SqlParserPos pos) {
-    super(new ArrayList<>(Arrays.asList(charSetNamesPrimitiveArr)), pos);
+public class SqlSecondaryIndex extends SqlIndex {
+  public SqlSecondaryIndex(SqlParserPos pos, SqlNodeList columns,
+      SqlIdentifier name, boolean isUnique) {
+    super(pos, columns, name, isUnique);
   }
 
-  @Override public void unparse(final SqlWriter writer,
-      final int leftPrec, final int rightPrec) {
-    writer.print(names.get(0) + "_TO_" + names.get(1));
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    if (isUnique) {
+      writer.keyword("UNIQUE");
+    }
+    writer.keyword("INDEX");
+    if (name != null) {
+      name.unparse(writer, leftPrec, rightPrec);
+    }
+    if (columns != null) {
+      SqlWriter.Frame frame = writer.startList("(", ")");
+      for (SqlNode c : columns) {
+        writer.sep(",");
+        c.unparse(writer, 0, 0);
+      }
+      writer.endList(frame);
+    }
   }
 }

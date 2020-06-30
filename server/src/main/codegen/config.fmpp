@@ -23,6 +23,7 @@ data: {
     imports: [
       "org.apache.calcite.schema.ColumnStrategy"
       "org.apache.calcite.sql.SqlCreate"
+      "org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier",
       "org.apache.calcite.sql.SqlDrop"
       "org.apache.calcite.sql.ddl.SqlDdlNodes"
       "java.util.Map"
@@ -38,6 +39,10 @@ data: {
       "JAR"
       "FILE"
       "ARCHIVE"
+      "DEL"
+      "INS"
+      "SEL"
+      "UPD"
     ]
 
     # List of keywords from "keywords" section that are not reserved.
@@ -404,7 +409,8 @@ data: {
     ]
 
     # List of methods for parsing extensions to "CREATE [OR REPLACE]" calls.
-    # Each must accept arguments "(SqlParserPos pos, boolean replace)".
+    # Each must accept arguments:
+    # "(SqlParserPos pos, SqlCreateSpecifier createSpecifier)".
     createStatementParserMethods: [
       "SqlCreateForeignSchema"
       "SqlCreateMaterializedView"
@@ -413,6 +419,13 @@ data: {
       "SqlCreateType"
       "SqlCreateView"
       "SqlCreateFunction"
+    ]
+
+    # List of methods for parsing extensions to "REPLACE" calls.
+    # Each must accept arguments:
+    # "(SqlParserPos pos, SqlCreateSpecifier createSpecifier)".
+    replaceStatementParserMethods: [
+        "SqlCreateView"
     ]
 
     # list of methods for parsing extensions to "SET" calls
@@ -474,7 +487,7 @@ data: {
 
     allowUpdateFromTable: false
     allowUpsertFormOfUpdate: false
-    allowAbbreviatedKeywords: false
+    allowAbbreviatedKeywords: true
     allowTranslateUsingCharSetWithError: false
     includePosixOperators: false
     includeCastFormat: false
@@ -485,6 +498,7 @@ data: {
     includeQualifyClause: false
     includeAlternativeTypeConversionQuery: false
     includeRankWithSortingExpressions: false
+    includeTopN: false
   }
 }
 
