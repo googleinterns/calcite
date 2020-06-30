@@ -22,7 +22,6 @@ import org.apache.calcite.sql.SqlExecutableStatement;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlSpecialOperator;
 import org.apache.calcite.sql.SqlWriter;
@@ -33,27 +32,18 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Parse tree for {@code SqlExecMacro} statement.
+ * Parse tree for {@code EXEC} statement.
  */
 public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("EXECUTE", SqlKind.EXECUTE);
+      new SqlSpecialOperator("EXECUTE", SqlKind.OTHER);
 
-  public final SqlIdentifier name;
-  public final SqlNodeList params;
+  private final SqlIdentifier name;
 
-  /**
-   * Create an {@code SqlExecMacro}.
-   *
-   * @param pos  Parser position, must not be null
-   * @param name  Name of the macro
-   * @param params  List of parameters
-   */
-  public SqlExecMacro(SqlParserPos pos, SqlIdentifier name,
-      SqlNodeList params) {
+  /** Creates a SqlExecMacro. */
+  public SqlExecMacro(SqlParserPos pos, SqlIdentifier name) {
     super(pos);
     this.name = Objects.requireNonNull(name);
-    this.params = params;
   }
 
   @Override public SqlOperator getOperator() {
@@ -61,22 +51,12 @@ public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    // the list of paramNames could be empty
-    return ImmutableNullableList.of(name, params);
+    return ImmutableNullableList.of(name);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("EXECUTE");
     name.unparse(writer, leftPrec, rightPrec);
-    if (SqlNodeList.isEmptyList(params)) {
-      return;
-    }
-    SqlWriter.Frame frame = writer.startList("(", ")");
-    for (SqlNode e : params) {
-      writer.sep(",", false);
-      e.unparse(writer, 0, 0);
-    }
-    writer.endList(frame);
   }
 
   // Intentionally left empty.

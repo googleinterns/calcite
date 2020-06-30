@@ -19,6 +19,7 @@ package org.apache.calcite.sql.babel;
 import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlExecutableStatement;
+import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlOperator;
@@ -29,31 +30,18 @@ import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 
-/**
- * A {@code SqlDateTimeAtTimeZone} is an AST node that describes
- * the date time expression of At Time Zone.
- */
 public class SqlDateTimeAtTimeZone extends SqlCall implements SqlExecutableStatement {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("AT TIME ZONE", SqlKind.OTHER);
 
-  public final SqlNode dateTimePrimary;
-  public final SqlNode displacementValue;
+  private final SqlNode dateTimePrimary;
+  private final SqlIdentifier timeZoneValue;
 
-  /**
-   * Creates a {@code SqlDateTimeAtTimeZone}.
-   *
-   * @param pos  Parser position, must not be null
-   * @param dateTimePrimary  SqlNode, contains the time to be transformed
-   * @param displacementValue  SqlNode, contains the displacement to the time
-   */
   public SqlDateTimeAtTimeZone(
-      SqlParserPos pos,
-      SqlNode dateTimePrimary,
-      SqlNode displacementValue) {
+      SqlParserPos pos, SqlNode dateTimePrimary, SqlIdentifier timeZoneValue) {
     super(pos);
     this.dateTimePrimary = dateTimePrimary;
-    this.displacementValue = displacementValue;
+    this.timeZoneValue = timeZoneValue;
   }
 
   @Override public SqlOperator getOperator() {
@@ -61,14 +49,13 @@ public class SqlDateTimeAtTimeZone extends SqlCall implements SqlExecutableState
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(dateTimePrimary, displacementValue);
+    return ImmutableNullableList.of(dateTimePrimary);
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec,
-      int rightPrec) {
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     dateTimePrimary.unparse(writer, leftPrec, rightPrec);
     writer.keyword("AT TIME ZONE");
-    displacementValue.unparse(writer, leftPrec, rightPrec);
+    timeZoneValue.unparse(writer, leftPrec, rightPrec);
   }
 
   // Intentionally left empty.

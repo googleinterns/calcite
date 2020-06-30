@@ -1015,10 +1015,6 @@ SqlNode SqlStmt() :
         stmt = SqlCreate()
     |
 </#if>
-<#if parser.replaceStatementParserMethods?size != 0>
-        stmt = SqlReplace()
-    |
-</#if>
 <#if parser.renameStatementParserMethods?size != 0>
         stmt = SqlRename()
     |
@@ -1272,7 +1268,6 @@ SqlSelect SqlSelect() :
 {
     final List<SqlLiteral> keywords = new ArrayList<SqlLiteral>();
     final SqlNodeList keywordList;
-    SqlNode topN = null;
     List<SqlNode> selectList;
     final SqlNode fromClause;
     final SqlNode where;
@@ -1312,10 +1307,6 @@ SqlSelect SqlSelect() :
     |   <ALL> {
             keywords.add(SqlSelectKeyword.ALL.symbol(getPos()));
         }
-<#if parser.includeTopN>
-    |
-        topN = SqlSelectTopN(getPos())
-</#if>
     )?
     {
         keywordList = new SqlNodeList(keywords, s.addAll(keywords).pos());
@@ -1341,10 +1332,9 @@ SqlSelect SqlSelect() :
         }
     )
     {
-        return new SqlSelect(s.end(this), keywordList, topN,
+        return new SqlSelect(s.end(this), keywordList,
             new SqlNodeList(selectList, Span.of(selectList).pos()),
-            fromClause, where, groupBy, having, qualify, windowDecls,
-            /*orderBy=*/ null, /*offset=*/ null, /*fetch=*/ null,
+            fromClause, where, groupBy, having, qualify, windowDecls, null, null, null,
             new SqlNodeList(hints, getPos()));
     }
 }
@@ -4014,11 +4004,7 @@ SqlAlter SqlAlter() :
 }
 {
     <ALTER> { s = span(); }
-    (
-        scope = Scope()
-    |
-        { scope = null; }
-    )
+    scope = Scope()
     (
 <#-- additional literal parser methods are included here -->
 <#list parser.alterStatementParserMethods as method>
@@ -4047,20 +4033,20 @@ String Scope() :
 SqlCreate SqlCreate() :
 {
     final Span s;
-    SqlCreateSpecifier createSpecifier = SqlCreateSpecifier.CREATE;
+    boolean replace = false;
     final SqlCreate create;
 }
 {
     <CREATE> { s = span(); }
     [
         <OR> <REPLACE> {
-            createSpecifier = SqlCreateSpecifier.CREATE_OR_REPLACE;
+            replace = true;
         }
     ]
     (
 <#-- additional literal parser methods are included here -->
 <#list parser.createStatementParserMethods as method>
-        create = ${method}(s, createSpecifier)
+        create = ${method}(s, replace)
         <#sep>| LOOKAHEAD(2) </#sep>
 </#list>
     )

@@ -555,11 +555,6 @@ public enum SqlKind {
   PROCEDURE_CALL,
 
   /**
-   * Execute
-   */
-  EXECUTE,
-
-  /**
    * NewSpecification
    */
   NEW_SPECIFICATION,
@@ -1012,9 +1007,6 @@ public enum SqlKind {
   /** The {@code TUMBLE} group function. */
   TUMBLE,
 
-  /** The {@code TOP N} function. */
-  TOP_N,
-
   // Group functions
   /** The {@code TUMBLE_START} auxiliary function of
    * the {@link #TUMBLE} group function. */
@@ -1189,7 +1181,6 @@ public enum SqlKind {
    * {@link #DELETE},
    * {@link #MERGE},
    * {@link #PROCEDURE_CALL}.
-   * {@link #EXECUTE}.
    *
    * <p>NOTE jvs 1-June-2006: For now we treat procedure calls as DML;
    * this makes it easy for JDBC clients to call execute or
@@ -1198,7 +1189,7 @@ public enum SqlKind {
    * we'll need to refine this.
    */
   public static final EnumSet<SqlKind> DML =
-      EnumSet.of(INSERT, DELETE, UPDATE, MERGE, PROCEDURE_CALL, EXECUTE);
+      EnumSet.of(INSERT, DELETE, UPDATE, MERGE, PROCEDURE_CALL);
 
   /**
    * Category consisting of all DDL operators.

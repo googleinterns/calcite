@@ -48,8 +48,7 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
   /**
    * Creates a SqlCreateFunctionSqlForm.
    * @param pos position
-   * @param createSpecifier enum to distinguish between
-   *                "CREATE", "CREATE OR REPLACE", and "REPLACE"
+   * @param replace if "or replace" token occurred
    * @param functionName the name of the function
    * @param specificFunctionName an optional specific functionName
    * @param fieldNames function parameter names
@@ -62,17 +61,15 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
    * @param typeInt integer value after inline type
    * @param returnExpression the expression that is returned
    */
-  public SqlCreateFunctionSqlForm(final SqlParserPos pos,
-      final SqlCreateSpecifier createSpecifier,
+  public SqlCreateFunctionSqlForm(final SqlParserPos pos, final boolean replace,
       final SqlIdentifier functionName,
       final SqlIdentifier specificFunctionName, final SqlNodeList fieldNames,
-      final SqlNodeList fieldTypes, final SqlDataTypeSpec returnsDataType,
-      final DeterministicType isDeterministic,
-      final ReactToNullInputType canRunOnNullInput,
-      final boolean hasSqlSecurityDefiner,
+      final SqlNodeList fieldTypes,
+      final SqlDataTypeSpec returnsDataType, final DeterministicType isDeterministic,
+      final ReactToNullInputType canRunOnNullInput, final boolean hasSqlSecurityDefiner,
       final int typeInt, final SqlNode returnExpression) {
 
-    super(OPERATOR, pos, createSpecifier, false);
+    super(OPERATOR, pos, replace, false);
     this.functionName = functionName;
     this.fieldNames = fieldNames;
     this.fieldTypes = fieldTypes;

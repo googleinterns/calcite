@@ -20,20 +20,20 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlTableAttributeBlockCompression</code> is a table option
+ * A <code>SqlCreateAttributeBlockCompression</code> is a CREATE TABLE option
  * for the BLOCKCOMPRESSION attribute.
  */
-public class SqlTableAttributeBlockCompression extends SqlTableAttribute {
+public class SqlCreateAttributeBlockCompression extends SqlCreateAttribute {
 
   private final BlockCompressionOption blockCompressionOption;
 
   /**
-   * Creates a {@code SqlTableAttributeBlockCompression}.
+   * Creates a {@code SqlCreateAttributeBlockCompression}.
    *
    * @param blockCompressionOption  The block-level compression option for a table
    * @param pos  Parser position, must not be null
    */
-  public SqlTableAttributeBlockCompression(BlockCompressionOption blockCompressionOption,
+  public SqlCreateAttributeBlockCompression(BlockCompressionOption blockCompressionOption,
       SqlParserPos pos) {
     super(pos);
     this.blockCompressionOption = blockCompressionOption;

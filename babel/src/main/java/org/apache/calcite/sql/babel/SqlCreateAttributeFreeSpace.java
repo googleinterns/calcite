@@ -20,34 +20,34 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A {@code SqlTableAttributeFreeSpace} is a ALTER TABLE attribute
+ * A <code>SqlCreateAttributeFreeSpace</code> is a CREATE TABLE option
  * for the FREESPACE attribute.
  */
-public class SqlAlterTableAttributeFreeSpace
-    extends SqlTableAttributeFreeSpace {
+public class SqlCreateAttributeFreeSpace extends SqlCreateAttribute {
 
-  final boolean isDefault;
+  private final int freeSpaceValue;
+  private final boolean percent;
 
   /**
-   * Creates a {@code SqlAlterTableAttributeFreeSpace}.
+   * Creates a {@code SqlCreateAttributeFreeSpace}.
    *
-   * @param freeSpaceValue The percentage of free space to reserve
-   *                          during loading operations.
-   * @param percent        Optional keyword PERCENT.
-   * @param pos            Parser position, must not be null.
-   * @param isDefault      Whether DEFAULT FREESPACE option was specified.
+   * @param freeSpaceValue  The percentage of free space to reserve during loading operations
+   * @param percent  Optional keyword PERCENT
+   * @param pos  Parser position, must not be null
    */
-  public SqlAlterTableAttributeFreeSpace(int freeSpaceValue, boolean percent,
-      SqlParserPos pos, boolean isDefault) {
-    super(freeSpaceValue, percent, pos);
-    this.isDefault = isDefault;
+  public SqlCreateAttributeFreeSpace(int freeSpaceValue, boolean percent, SqlParserPos pos) {
+    super(pos);
+    this.freeSpaceValue = freeSpaceValue;
+    this.percent = percent;
   }
 
-  public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    if (isDefault) {
-      writer.keyword("DEFAULT FREESPACE");
-    } else {
-      super.unparse(writer, leftPrec, rightPrec);
+  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
+    writer.keyword("FREESPACE");
+    writer.sep("=");
+    writer.print(freeSpaceValue);
+    writer.print(" ");
+    if (percent) {
+      writer.keyword("PERCENT");
     }
   }
 }

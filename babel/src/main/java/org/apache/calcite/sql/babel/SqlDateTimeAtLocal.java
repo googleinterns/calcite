@@ -29,24 +29,13 @@ import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 
-/**
- * A {@code SqlDateTimeAtLocal} is an AST node that describes
- * the date time expression of At Local.
- */
 public class SqlDateTimeAtLocal extends SqlCall implements SqlExecutableStatement {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("AT LOCAL", SqlKind.OTHER);
 
   private final SqlNode dateTimePrimary;
 
-  /**
-   * Creates a {@code SqlDateTimeAtLocal}.
-   *
-   * @param pos  Parser position, must not be null
-   * @param dateTimePrimary  SqlNode, contains the DateTimePrimary to be transformed
-   */
-  public SqlDateTimeAtLocal(
-      SqlParserPos pos, SqlNode dateTimePrimary) {
+  public SqlDateTimeAtLocal(SqlParserPos pos, SqlNode dateTimePrimary) {
     super(pos);
     this.dateTimePrimary = dateTimePrimary;
   }
@@ -59,8 +48,7 @@ public class SqlDateTimeAtLocal extends SqlCall implements SqlExecutableStatemen
     return ImmutableNullableList.of(dateTimePrimary);
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec,
-      int rightPrec) {
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     dateTimePrimary.unparse(writer, leftPrec, rightPrec);
     writer.keyword("AT LOCAL");
   }

@@ -20,22 +20,22 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlTableAttributeJournal</code> is a table option
+ * A <code>SqlCreateAttributeJournal</code> is a CREATE TABLE option
  * for the JOURNAL attribute.
  */
-public class SqlTableAttributeJournal extends SqlTableAttribute {
+public class SqlCreateAttributeJournal extends SqlCreateAttribute {
 
   private final JournalType journalType;
   private final JournalModifier journalModifier;
 
   /**
-   * Creates a {@code SqlTableAttributeJournal}.
+   * Creates a {@code SqlCreateAttributeJournal}.
    *
    * @param journalType  Type of journal image to be maintained
    * @param journalModifier  Journal image modifier
    * @param pos  Parser position, must not be null
    */
-  public SqlTableAttributeJournal(JournalType journalType,
+  public SqlCreateAttributeJournal(JournalType journalType,
       JournalModifier journalModifier,
       SqlParserPos pos) {
     super(pos);

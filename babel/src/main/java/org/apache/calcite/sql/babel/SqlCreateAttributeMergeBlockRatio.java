@@ -20,24 +20,24 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlTableAttributeMergeBlockRatio</code> is a table option
+ * A <code>SqlCreateAttributeMergeBlockRatio</code> is a CREATE TABLE option
  * for the MERGEBLOCKRATIO attribute.
  */
-public class SqlTableAttributeMergeBlockRatio extends SqlTableAttribute {
+public class SqlCreateAttributeMergeBlockRatio extends SqlCreateAttribute {
 
   private final MergeBlockRatioModifier modifier;
   private final int ratio;
   private final boolean percent;
 
   /**
-   * Creates a {@code SqlTableAttributeMergeBlockRatio}.
+   * Creates a {@code SqlCreateAttributeMergeBlockRatio}.
    *
    * @param modifier  Type of merge block ratio to be used
    * @param ratio  The merge block ratio
    * @param percent  Indicates that the integer value is a percentage
    * @param pos  Parser position, must not be null
    */
-  public SqlTableAttributeMergeBlockRatio(MergeBlockRatioModifier modifier,
+  public SqlCreateAttributeMergeBlockRatio(MergeBlockRatioModifier modifier,
       int ratio, boolean percent, SqlParserPos pos) {
     super(pos);
     this.modifier = modifier;

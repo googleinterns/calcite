@@ -20,24 +20,24 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlTableAttributeIsolatedLoading</code> is a table option
+ * A <code>SqlCreateAttributeIsolatedLoading</code> is a CREATE TABLE option
  * for the WITH ISOLATED LOADING attribute.
  */
-public class SqlTableAttributeIsolatedLoading extends SqlTableAttribute {
+public class SqlCreateAttributeIsolatedLoading extends SqlCreateAttribute {
 
   private final boolean nonLoadIsolated;
   private final boolean concurrent;
   private final OperationLevel operationLevel;
 
   /**
-   * Creates a {@code SqlTableAttributeIsolatedLoading}.
+   * Creates a {@code SqlCreateAttributeIsolatedLoading}.
    *
    * @param nonLoadIsolated  Defines table as non-load isolated
    * @param concurrent  Allows concurrent read operations while table is being modified
    * @param operationLevel  Specifies types of operations allowed to be concurrent, may be null
    * @param pos  Parser position, must not be null
    */
-  public SqlTableAttributeIsolatedLoading(boolean nonLoadIsolated, boolean concurrent,
+  public SqlCreateAttributeIsolatedLoading(boolean nonLoadIsolated, boolean concurrent,
       OperationLevel operationLevel, SqlParserPos pos) {
     super(pos);
     this.nonLoadIsolated = nonLoadIsolated;

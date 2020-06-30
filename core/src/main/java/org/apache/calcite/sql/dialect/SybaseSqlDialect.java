@@ -36,11 +36,11 @@ public class SybaseSqlDialect extends SqlDialect {
 
   @Override public void unparseOffsetFetch(SqlWriter writer, SqlNode offset,
       SqlNode fetch) {
-    // No-op; see unparseFetchAsTopN.
+    // No-op; see unparseTopN.
     // Sybase uses "SELECT TOP (n)" rather than "FETCH NEXT n ROWS".
   }
 
-  @Override public void unparseFetchAsTopN(SqlWriter writer, SqlNode offset,
+  @Override public void unparseTopN(SqlWriter writer, SqlNode offset,
       SqlNode fetch) {
     // Parentheses are not required, but we use them to be consistent with
     // Microsoft SQL Server, which recommends them but does not require them.

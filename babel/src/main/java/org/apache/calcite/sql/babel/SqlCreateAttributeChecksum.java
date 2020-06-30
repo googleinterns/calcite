@@ -20,20 +20,20 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlTableAttributeChecksum</code> is a table option
+ * A <code>SqlCreateAttributeChecksum</code> is a CREATE TABLE option
  * for the CHECKSUM attribute.
  */
-public class SqlTableAttributeChecksum extends SqlTableAttribute {
+public class SqlCreateAttributeChecksum extends SqlCreateAttribute {
 
   private final ChecksumEnabled checksumEnabled;
 
   /**
-   * Creates a {@code SqlTableAttributeChecksum}.
+   * Creates a {@code SqlCreateAttributeChecksum}.
    *
    * @param checksumEnabled  Status of checksums enabled for this table type
    * @param pos  Parser position, must not be null
    */
-  public SqlTableAttributeChecksum(ChecksumEnabled checksumEnabled, SqlParserPos pos) {
+  public SqlCreateAttributeChecksum(ChecksumEnabled checksumEnabled, SqlParserPos pos) {
     super(pos);
     this.checksumEnabled = checksumEnabled;
   }

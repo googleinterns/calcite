@@ -108,11 +108,6 @@ class ServerParserTest extends SqlParserTest {
         .ok("CREATE TABLE `X` (`I` INTEGER NOT NULL, `J` VARCHAR(5))");
   }
 
-  @Test void testCreateOrReplaceTable() {
-    sql("create or replace table x (i int)")
-        .ok("CREATE OR REPLACE TABLE `X` (`I` INTEGER)");
-  }
-
   @Test void testCreateTableAsSelect() {
     final String expected = "CREATE TABLE `X` AS\n"
         + "SELECT *\n"
@@ -318,72 +313,4 @@ class ServerParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testReplaceView() {
-    final String sql = "replace view foo as select * from bar";
-    final String expected = "REPLACE VIEW `FOO` AS\n"
-        + "SELECT *\n"
-        + "FROM `BAR`";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testReplaceViewWithCompoundIdentifiers() {
-    final String sql = "replace view foo (a.b, c.d) as select * from bar";
-    final String expected = "REPLACE VIEW `FOO` (`A`.`B`, `C`.`D`) AS\n"
-        + "SELECT *\n"
-        + "FROM `BAR`";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testReplaceViewWithCheckOption() {
-    final String sql = "replace view foo as select * from bar"
-        + " with check option";
-    final String expected = "REPLACE VIEW `FOO` AS\n"
-        + "SELECT *\n"
-        + "FROM `BAR` WITH CHECK OPTION";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testCreateViewWithCheckOption() {
-    final String sql = "create view foo as select * from bar"
-        + " with check option";
-    final String expected = "CREATE VIEW `FOO` AS\n"
-        + "SELECT *\n"
-        + "FROM `BAR` WITH CHECK OPTION";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testCreateOrReplaceViewWithCheckOption() {
-    final String sql = "create or replace view foo as select * from bar"
-        + " with check option";
-    final String expected = "CREATE OR REPLACE VIEW `FOO` AS\n"
-        + "SELECT *\n"
-        + "FROM `BAR` WITH CHECK OPTION";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testDel() {
-    final String sql = "del from t";
-    final String expected = "DELETE FROM `T`";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testIns() {
-    final String sql = "ins into foo (a, b) values (1,'hi')";
-    final String expected = "INSERT INTO `FOO` (`A`, `B`)\n"
-        + "VALUES (ROW(1, 'hi'))";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testSel() {
-    final String sql = "sel 1 from t";
-    final String expected = "SELECT 1\n"
-        + "FROM `T`";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testUpd() {
-    final String sql = "upd foo set x = 1";
-    final String expected = "UPDATE `FOO` SET `X` = 1";
-    sql(sql).ok(expected);
-  }
 }

@@ -20,28 +20,28 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlTableAttribute</code> is a base class that can be used
- * to create custom options for the SQL CREATE TABLE function.
- *
- * <p>To customize table option unparsing, override the method
- * {@link #unparse(SqlWriter, int, int)}.
+ * A <code>SqlCreateAttributeLog</code> is a CREATE TABLE option
+ * for the LOG attribute.
  */
-public abstract class SqlTableAttribute {
-  private final SqlParserPos pos;
+public class SqlCreateAttributeLog extends SqlCreateAttribute {
+
+  private final boolean loggingEnabled;
 
   /**
-   * Creates a {@code SqlTableAttribute}.
+   * Creates a {@code SqlCreateAttributeLog}.
    *
+   * @param loggingEnabled  Transient journal logging is enabled
    * @param pos  Parser position, must not be null
    */
-  public SqlTableAttribute(SqlParserPos pos) {
-    this.pos = pos;
+  public SqlCreateAttributeLog(boolean loggingEnabled, SqlParserPos pos) {
+    super(pos);
+    this.loggingEnabled = loggingEnabled;
   }
 
-  /** Writes a SQL representation of this table option to a writer. */
-  public abstract void unparse(SqlWriter writer, int leftPrec, int rightPrec);
-
-  public SqlParserPos getParserPos() {
-    return pos;
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    if (!loggingEnabled) {
+      writer.keyword("NO");
+    }
+    writer.keyword("LOG");
   }
 }

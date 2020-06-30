@@ -20,58 +20,36 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
  * Base class for an CREATE statements parse tree nodes. The portion of the
- * statement covered by this class is "CREATE | REPLACE | CREATE OR REPLACE".
- * Subclasses handle whatever comes afterwards.
- * Support for REPLACE is included in this class for cases where REPLACE shares
- * the same syntax as CREATE.
+ * statement covered by this class is "CREATE [ OR REPLACE ]". Subclasses handle
+ * whatever comes afterwards.
  */
 public abstract class SqlCreate extends SqlDdl {
 
-  /** Whether "CREATE", "REPLACE", or "CREATE OR REPLACE" was specified. */
-  final SqlCreateSpecifier createSpecifier;
+  /** Whether "OR REPLACE" was specified. */
+  boolean replace;
 
   /** Whether "IF NOT EXISTS" was specified. */
   public final boolean ifNotExists;
 
-  /**
-   * Enum to indicate whether the query is a "CREATE", "CREATE OR REPLACE",
-   * or "REPLACE" query.
-   */
-  public enum SqlCreateSpecifier {
-    CREATE("CREATE"),
-    REPLACE("REPLACE"),
-    CREATE_OR_REPLACE("CREATE OR REPLACE");
-
-    private final String name;
-
-    SqlCreateSpecifier(String s) {
-      name = s;
-    }
-
-    public boolean equalsName(String otherName) {
-      return name.equals(otherName);
-    }
-
-    @Override public String toString() {
-      return this.name;
-    }
-  }
-
   /** Creates a SqlCreate. */
-  protected SqlCreate(SqlOperator operator, SqlParserPos pos,
-      SqlCreateSpecifier createSpecifier, boolean ifNotExists) {
+  public SqlCreate(SqlOperator operator, SqlParserPos pos, boolean replace,
+      boolean ifNotExists) {
     super(operator, pos);
-    this.createSpecifier = createSpecifier;
+    this.replace = replace;
     this.ifNotExists = ifNotExists;
   }
 
   @Deprecated // to be removed before 2.0
-  @SuppressWarnings("deprecation")
-  protected SqlCreate(SqlParserPos pos, SqlCreateSpecifier createSpecifier) {
-    this(SqlDdl.DDL_OPERATOR, pos, createSpecifier, false);
+  public SqlCreate(SqlParserPos pos, boolean replace) {
+    this(SqlDdl.DDL_OPERATOR, pos, replace, false);
   }
 
-  public SqlCreateSpecifier getCreateSpecifier() {
-    return createSpecifier;
+  public boolean getReplace() {
+    return replace;
   }
+
+  public void setReplace(boolean replace) {
+    this.replace = replace;
+  }
+
 }

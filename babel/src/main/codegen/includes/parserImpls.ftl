@@ -111,7 +111,7 @@ OnCommitType OnCommitTypeOpt() :
         (
             <PRESERVE> { onCommitType = OnCommitType.PRESERVE; }
         |
-            <DELETE> { onCommitType = OnCommitType.DELETE; }
+            <RELEASE> { onCommitType = OnCommitType.RELEASE; }
         )
         <ROWS>
     |
@@ -272,8 +272,6 @@ void ColumnAttributes(List<SqlColumnAttribute> list) :
             e = ColumnAttributeCompress()
         |
             e = ColumnAttributeDefault()
-        |
-            e = ColumnAttributeDateFormat()
         ) { list.add(e); }
     )+
 }
@@ -305,7 +303,7 @@ void ColumnWithType(List<SqlNode> list) :
     }
 }
 
-SqlTableAttribute TableAttributeFallback() :
+SqlCreateAttribute CreateTableAttributeFallback() :
 {
     boolean no = false;
     boolean protection = false;
@@ -314,29 +312,29 @@ SqlTableAttribute TableAttributeFallback() :
     [ <NO>  { no = true; } ]
     <FALLBACK>
     [ <PROTECTION> { protection = true; } ]
-    { return new SqlTableAttributeFallback(no, protection, getPos()); }
+    { return new SqlCreateAttributeFallback(no, protection, getPos()); }
 }
 
-SqlTableAttribute TableAttributeJournalTable() :
+SqlCreateAttribute CreateTableAttributeJournalTable() :
 {
     final SqlIdentifier id;
 }
 {
     <WITH> <JOURNAL> <TABLE> <EQ> id = CompoundIdentifier()
-    { return new SqlTableAttributeJournalTable(id, getPos()); }
+    { return new SqlCreateAttributeJournalTable(id, getPos()); }
 }
 
-SqlTableAttribute TableAttributeMap() :
+SqlCreateAttribute CreateTableAttributeMap() :
 {
     final SqlIdentifier id;
 }
 {
     <MAP> <EQ> id = CompoundIdentifier()
-    { return new SqlTableAttributeMap(id, getPos()); }
+    { return new SqlCreateAttributeMap(id, getPos()); }
 }
 
 // FREESPACE attribute can take in decimals but should be truncated to an integer.
-SqlTableAttribute TableAttributeFreeSpace() :
+SqlCreateAttribute CreateTableAttributeFreeSpace() :
 {
     SqlLiteral tempNumeric;
     int freeSpaceValue;
@@ -351,46 +349,10 @@ SqlTableAttribute TableAttributeFreeSpace() :
         }
     }
     [ <PERCENT> { percent = true; } ]
-    { return new SqlTableAttributeFreeSpace(freeSpaceValue, percent, getPos()); }
+    { return new SqlCreateAttributeFreeSpace(freeSpaceValue, percent, getPos()); }
 }
 
-/**
- * Parses FREESPACE attribute in ALTER TABLE queries.
- * Can either specify a value, or DEFAULT FREESPACE.
- */
-SqlTableAttribute AlterTableAttributeFreeSpace() :
-{
-    SqlLiteral tempNumeric;
-    int freeSpaceValue;
-    boolean percent = false;
-    boolean isDefault = false;
-}
-{
-    (
-        <FREESPACE> <EQ> tempNumeric = UnsignedNumericLiteral() {
-            freeSpaceValue = tempNumeric.getValueAs(Integer.class);
-            if (freeSpaceValue < 0 || freeSpaceValue > 75) {
-                throw SqlUtil.newContextException(getPos(),
-                    RESOURCE.numberLiteralOutOfRange(
-                        String.valueOf(freeSpaceValue)));
-            }
-        }
-        [ <PERCENT> { percent = true; } ]
-
-    |
-        <DEFAULT_> <FREESPACE>
-        {
-            freeSpaceValue = 0;
-            isDefault = true;
-        }
-    )
-    {
-        return new SqlAlterTableAttributeFreeSpace(freeSpaceValue, percent,
-            getPos(), isDefault);
-    }
-}
-
-SqlTableAttribute TableAttributeIsolatedLoading() :
+SqlCreateAttribute CreateTableAttributeIsolatedLoading() :
 {
     boolean nonLoadIsolated = false;
     boolean concurrent = false;
@@ -411,10 +373,10 @@ SqlTableAttribute TableAttributeIsolatedLoading() :
             <NONE> { operationLevel = OperationLevel.NONE; }
         )
     ]
-    { return new SqlTableAttributeIsolatedLoading(nonLoadIsolated, concurrent, operationLevel, getPos()); }
+    { return new SqlCreateAttributeIsolatedLoading(nonLoadIsolated, concurrent, operationLevel, getPos()); }
 }
 
-SqlTableAttribute TableAttributeJournal() :
+SqlCreateAttribute CreateTableAttributeJournal() :
 {
   JournalType journalType;
   JournalModifier journalModifier;
@@ -444,10 +406,10 @@ SqlTableAttribute TableAttributeJournal() :
         )
         <JOURNAL>
     )
-    { return new SqlTableAttributeJournal(journalType, journalModifier, getPos()); }
+    { return new SqlCreateAttributeJournal(journalType, journalModifier, getPos()); }
 }
 
-SqlTableAttribute TableAttributeDataBlockSize() :
+SqlCreateAttribute CreateTableAttributeDataBlockSize() :
 {
     DataBlockModifier modifier = null;
     DataBlockUnitSize unitSize;
@@ -471,49 +433,10 @@ SqlTableAttribute TableAttributeDataBlockSize() :
             [ <BYTES> ] { unitSize = DataBlockUnitSize.BYTES; }
         )
     )
-    {
-        return new SqlTableAttributeDataBlockSize(modifier, unitSize,
-            dataBlockSize, getPos());
-    }
+    { return new SqlCreateAttributeDataBlockSize(modifier, unitSize, dataBlockSize, getPos()); }
 }
 
-/**
- * Parses DATABLOCKSIZE attribute in ALTER TABLE queries,
- * including IMMEDIATE option.
- */
-SqlTableAttribute AlterTableAttributeDataBlockSize() :
-{
-    DataBlockModifier modifier = null;
-    DataBlockUnitSize unitSize;
-    SqlLiteral dataBlockSize = null;
-    boolean immediate = false;
-}
-{
-    (
-        (
-            ( <MINIMUM> | <MIN> ) { modifier = DataBlockModifier.MINIMUM; }
-        |
-            ( <MAXIMUM> | <MAX> ) { modifier = DataBlockModifier.MAXIMUM; }
-        |
-            <DEFAULT_> { modifier = DataBlockModifier.DEFAULT; }
-        )
-        <DATABLOCKSIZE> { unitSize = DataBlockUnitSize.BYTES; }
-    |
-        <DATABLOCKSIZE> <EQ> dataBlockSize = UnsignedNumericLiteral()
-        (
-            ( <KILOBYTES> | <KBYTES> ) { unitSize = DataBlockUnitSize.KILOBYTES; }
-        |
-            [ <BYTES> ] { unitSize = DataBlockUnitSize.BYTES; }
-        )
-    )
-    [ <IMMEDIATE> { immediate = true; } ]
-    {
-        return new SqlAlterTableAttributeDataBlockSize(modifier, unitSize,
-            dataBlockSize, getPos(), immediate);
-    }
-}
-
-SqlTableAttribute TableAttributeMergeBlockRatio() :
+SqlCreateAttribute CreateTableAttributeMergeBlockRatio() :
 {
     MergeBlockRatioModifier modifier = MergeBlockRatioModifier.UNSPECIFIED;
     int ratio = 1;
@@ -533,7 +456,7 @@ SqlTableAttribute TableAttributeMergeBlockRatio() :
     )
     {
         if (ratio >= 1 && ratio <= 100) {
-            return new SqlTableAttributeMergeBlockRatio(modifier, ratio, percent, getPos());
+            return new SqlCreateAttributeMergeBlockRatio(modifier, ratio, percent, getPos());
         } else {
             throw SqlUtil.newContextException(getPos(),
                 RESOURCE.numberLiteralOutOfRange(String.valueOf(ratio)));
@@ -541,7 +464,7 @@ SqlTableAttribute TableAttributeMergeBlockRatio() :
     }
 }
 
-SqlTableAttribute TableAttributeChecksum() :
+SqlCreateAttribute CreateTableAttributeChecksum() :
 {
     ChecksumEnabled checksumEnabled;
 }
@@ -554,35 +477,10 @@ SqlTableAttribute TableAttributeChecksum() :
     |
         <OFF> { checksumEnabled = ChecksumEnabled.OFF; }
     )
-    { return new SqlTableAttributeChecksum(checksumEnabled, getPos()); }
+    { return new SqlCreateAttributeChecksum(checksumEnabled, getPos()); }
 }
 
-/**
- * Parses CHECKSUM attribute in ALTER TABLE queries,
- * including IMMEDIATE option.
- */
-SqlTableAttribute AlterTableAttributeChecksum() :
-{
-    ChecksumEnabled checksumEnabled;
-    boolean immediate = false;
-}
-{
-    <CHECKSUM> <EQ>
-    (
-        <DEFAULT_> { checksumEnabled = ChecksumEnabled.DEFAULT; }
-    |
-        <ON> { checksumEnabled = ChecksumEnabled.ON; }
-    |
-        <OFF> { checksumEnabled = ChecksumEnabled.OFF; }
-    )
-    [ <IMMEDIATE> { immediate = true; } ]
-    {
-        return new SqlAlterTableAttributeChecksum(checksumEnabled,
-            getPos(), immediate);
-    }
-}
-
-SqlTableAttribute TableAttributeBlockCompression() :
+SqlCreateAttribute CreateTableAttributeBlockCompression() :
 {
     BlockCompressionOption blockCompressionOption;
 }
@@ -597,63 +495,51 @@ SqlTableAttribute TableAttributeBlockCompression() :
     |
         <NEVER> { blockCompressionOption = BlockCompressionOption.NEVER; }
     )
-    { return new SqlTableAttributeBlockCompression(blockCompressionOption, getPos()); }
+    { return new SqlCreateAttributeBlockCompression(blockCompressionOption, getPos()); }
 }
 
-SqlTableAttribute TableAttributeLog() :
+SqlCreateAttribute CreateTableAttributeLog() :
 {
     boolean loggingEnabled = true;
 }
 {
     [ <NO> { loggingEnabled = false; } ]
     <LOG> {
-        return new SqlTableAttributeLog(loggingEnabled, getPos());
+        return new SqlCreateAttributeLog(loggingEnabled, getPos());
     }
 }
 
-SqlColumnAttribute ColumnAttributeDateFormat() :
+List<SqlCreateAttribute> CreateTableAttributes() :
 {
-    SqlNode formatString = null;
-}
-{
-    <FORMAT>
-    formatString = StringLiteral()
-    {
-        return new SqlColumnAttributeDateFormat(getPos(), formatString);
-    }
-}
-
-List<SqlTableAttribute> CreateTableAttributes() :
-{
-    final List<SqlTableAttribute> list = new ArrayList<SqlTableAttribute>();
-    SqlTableAttribute e;
+    final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
+    SqlCreateAttribute e;
     Span s;
 }
 {
     (
         <COMMA>
         (
-            e = TableAttributeMap()
+            e = CreateTableAttributeMap()
         |
-            e = TableAttributeFallback()
+            e = CreateTableAttributeFallback()
         |
-            e = TableAttributeJournalTable()
+            e = CreateTableAttributeJournalTable()
         |
-            e = TableAttributeFreeSpace()
+            e = CreateTableAttributeFreeSpace()
         |
-            e = TableAttributeIsolatedLoading()
+            e = CreateTableAttributeIsolatedLoading()
         |
-            e = TableAttributeDataBlockSize()
+            e = CreateTableAttributeDataBlockSize()
         |
-            e = TableAttributeMergeBlockRatio()
+            e = CreateTableAttributeMergeBlockRatio()
         |
-            e = TableAttributeChecksum()
+            e = CreateTableAttributeChecksum()
         |
-            e = TableAttributeBlockCompression()
+            e = CreateTableAttributeBlockCompression()
         |
-            e = TableAttributeLog()
+            e = CreateTableAttributeLog()
         |
-            e = TableAttributeJournal()
+            e = CreateTableAttributeJournal()
         ) { list.add(e); }
     )+
     { return list; }
@@ -670,19 +556,18 @@ WithDataType WithDataOpt() :
     { return WithDataType.UNSPECIFIED; }
 }
 
-SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateTable(Span s, boolean replace) :
 {
     SetType setType = SetType.UNSPECIFIED;
     Volatility volatility = Volatility.UNSPECIFIED;
     final boolean ifNotExists;
     final SqlIdentifier id;
-    final List<SqlTableAttribute> tableAttributes;
+    final List<SqlCreateAttribute> tableAttributes;
     final SqlNodeList columnList;
     final SqlNode query;
     WithDataType withData = WithDataType.UNSPECIFIED;
     SqlPrimaryIndex primaryIndex = null;
     SqlIndex index;
-    List<SqlIndex> indices = new ArrayList<SqlIndex>();
     final OnCommitType onCommitType;
 }
 {
@@ -719,33 +604,22 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
     |
         { query = null; }
     )
-    [
-        index = SqlCreateTableIndex(s) { indices.add(index); }
-        (
-           [<COMMA>] index = SqlCreateTableIndex(s) { indices.add(index); }
-        )*
-        {
-            // Filter out any primary indices from index list.
-            int i = 0;
-            while (i < indices.size()) {
-                if (indices.get(i) instanceof SqlPrimaryIndex) {
-                    primaryIndex = (SqlPrimaryIndex) indices.remove(i);
-                } else {
-                    i++;
-                }
-            }
-        }
-    ]
+    (
+       index = SqlCreateTableIndex(s)
+       {
+           if (index instanceof SqlPrimaryIndex) {
+               primaryIndex = (SqlPrimaryIndex) index;
+           }
+       }
+    )*
     onCommitType = OnCommitTypeOpt()
     {
-        return new SqlCreateTable(s.end(this), createSpecifier, setType,
-         volatility, ifNotExists, id, tableAttributes, columnList, query,
-         withData, primaryIndex, indices, onCommitType);
+        return new SqlCreateTable(s.end(this), replace, setType, volatility, ifNotExists, id,
+            tableAttributes, columnList, query, withData, primaryIndex, onCommitType);
     }
 }
 
-SqlCreate SqlCreateFunctionSqlForm(Span s,
-        SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
 {
     SqlIdentifier functionName = null;
     SqlNodeList fieldNames = new SqlNodeList(getPos());
@@ -811,7 +685,7 @@ SqlCreate SqlCreateFunctionSqlForm(Span s,
     }
     <RETURN> returnExpression = Expression(ExprContext.ACCEPT_SUB_QUERY)
     {
-        return new SqlCreateFunctionSqlForm(s.end(this), createSpecifier,
+        return new SqlCreateFunctionSqlForm(s.end(this), replace,
             functionName, specificFunctionName, fieldNames, fieldTypes,
             returnsDataType, isDeterministic, canRunOnNullInput,
             hasSqlSecurityDefiner, typeInt, returnExpression);
@@ -848,8 +722,9 @@ void FieldNameTypeCommaListWithoutOptionalNull(
 }
 
 /**
- *   Parses an index declaration (both PRIMARY and non-primary indices).
- */
+    Parses an index declaration. Currently only supports PRIMARY INDEX statements,
+    but can be extended to support non-primary indices.
+*/
 SqlIndex SqlCreateTableIndex(Span s) :
 {
    SqlNodeList columns;
@@ -876,18 +751,6 @@ SqlIndex SqlCreateTableIndex(Span s) :
            return new SqlPrimaryIndex(s.end(this), columns, name, isUnique,
                 /*explicitNoPrimaryIndex=*/ false);
        }
-   |
-       [
-            <UNIQUE> { isUnique = true; }
-       ]
-       <INDEX>
-       [
-            name = SimpleIdentifier()
-       ]
-       columns = ParenthesizedSimpleIdentifierList()
-       {
-           return new SqlSecondaryIndex(s.end(this), columns, name, isUnique);
-       }
    )
 }
 
@@ -902,64 +765,12 @@ SqlIndex SqlCreateTableIndex(Span s) :
 SqlNode SqlExecMacro() :
 {
     SqlIdentifier macro;
-    SqlNodeList params = new SqlNodeList(getPos());
     Span s;
 }
 {
     macro = CompoundIdentifier() { s = span(); }
-    [
-        SqlExecMacroArgument(params)
-    ]
     {
-        return new SqlExecMacro(s.end(this), macro, params);
-    }
-}
-
-void SqlExecMacroArgument(SqlNodeList params) :
-{
-    SqlNode e;
-}
-{
-    <LPAREN>
-    (
-        e = SqlSimpleIdentifierEqualLiteral()
-        {
-            params.add(e);
-        }
-        (
-            <COMMA>
-            e = SqlSimpleIdentifierEqualLiteral()
-            {
-                params.add(e);
-            }
-        )*
-    |
-        e = Literal()
-        {
-            params.add(new SqlExecMacroParam(getPos(), e));
-        }
-        (
-            <COMMA>
-            e = Literal()
-            {
-                params.add(new SqlExecMacroParam(getPos(), e));
-            }
-        )*
-    )
-    <RPAREN>
-}
-
-SqlNode SqlSimpleIdentifierEqualLiteral() :
-{
-    SqlIdentifier name;
-    SqlNode value;
-}
-{
-    name = SimpleIdentifier()
-    <EQ>
-    value = Literal()
-    {
-        return new SqlExecMacroParam(getPos(), name, value);
+        return new SqlExecMacro(s.end(this), macro);
     }
 }
 
@@ -1178,35 +989,31 @@ SqlNode CurrentDateFunction() :
 
 SqlNode DateTimeTerm() :
 {
-    final SqlNode dateTimePrimary;
-    final SqlNode displacement;
+    final SqlNode e;
+    SqlIdentifier timeZoneValue;
 }
 {
     (
-        dateTimePrimary = DateTimeLiteral()
+        e = DateTimeLiteral()
     |
-        dateTimePrimary = SimpleIdentifier()
+        e = SimpleIdentifier()
     |
-        dateTimePrimary = DateFunctionCall()
+        e = DateFunctionCall()
     )
-    <AT>
     (
-        <LOCAL>
-        {
-            return new SqlDateTimeAtLocal(getPos(), dateTimePrimary);
-        }
-    |
-        [<TIME> <ZONE>]
+        <AT>
         (
-            displacement = SimpleIdentifier()
+            <LOCAL>
+            {
+                return new SqlDateTimeAtLocal(getPos(), e);
+            }
         |
-            displacement = IntervalLiteral()
-        |
-            displacement = NumericLiteral()
+            <TIME> <ZONE>
+            {
+                timeZoneValue = SimpleIdentifier();
+                return new SqlDateTimeAtTimeZone(getPos(), e, timeZoneValue);
+            }
         )
-        {
-            return new SqlDateTimeAtTimeZone(getPos(), dateTimePrimary, displacement);
-        }
     )
 }
 
@@ -1391,124 +1198,5 @@ SqlNode RankFunctionCallWithParams() :
         over = SqlWindow.create(null, null, SqlNodeList.EMPTY, orderByList,
             SqlLiteral.createBoolean(false, SqlParserPos.ZERO), null, null, null, s1.end(this));
         return SqlStdOperatorTable.OVER.createCall(s.end(over), rankCall, over);
-    }
-}
-
-/**
-  * Parses ALTER TABLE queries.
-  */
-SqlAlter SqlAlterTable(Span s, String scope) :
-{
-     final SqlIdentifier tableName;
-     final List<SqlTableAttribute> tableAttributes;
-}
-{
-    <TABLE>
-    tableName = SimpleIdentifier()
-    (
-        tableAttributes = AlterTableAttributes()
-    |
-        { tableAttributes = null; }
-    )
-    {
-        return new SqlAlterTable(getPos(), scope, tableName, tableAttributes);
-    }
-}
-
-/**
-  * Parses table attributes for ALTER TABLE queries.
-  */
-List<SqlTableAttribute> AlterTableAttributes() :
-{
-    final List<SqlTableAttribute> list = new ArrayList<SqlTableAttribute>();
-    SqlTableAttribute e;
-    Span s;
-}
-{
-    (
-        <COMMA>
-        (
-            e = AlterTableAttributeOnCommit()
-        |
-            e = TableAttributeFallback()
-        |
-            e = TableAttributeJournalTable()
-        |
-            e = AlterTableAttributeFreeSpace()
-        |
-            e = AlterTableAttributeDataBlockSize()
-        |
-            e = TableAttributeMergeBlockRatio()
-        |
-            e = AlterTableAttributeChecksum()
-        |
-            e = TableAttributeBlockCompression()
-        |
-            e = TableAttributeLog()
-        |
-            e = TableAttributeJournal()
-        ) { list.add(e); }
-    )+
-    { return list; }
-}
-
-/**
-  * Parses the ON COMMIT attribute for ALTER TABLE queries.
-  */
-SqlTableAttribute AlterTableAttributeOnCommit() :
-{
-    final OnCommitType onCommitType;
-}
-{
-    <ON> <COMMIT>
-    (
-        <PRESERVE> { onCommitType = OnCommitType.PRESERVE; }
-    |
-        <DELETE> { onCommitType = OnCommitType.DELETE; }
-    )
-    <ROWS>
-    { return new SqlAlterTableAttributeOnCommit(getPos(), onCommitType); }
-}
-
-/**
- * Parses a TOP N statement in a SELECT query
- * (for example SELECT TOP 5 * FROM FOO).
- */
-SqlNode SqlSelectTopN(SqlParserPos pos) :
-{
-    final SqlNumericLiteral selectNum;
-    final double tempNum;
-    boolean isPercent = false;
-    boolean withTies = false;
-}
-{
-    <TOP>
-    selectNum = UnsignedNumericLiteral()
-    { tempNum = selectNum.getValueAs(Double.class); }
-    [
-        <PERCENT>
-        {
-            isPercent = true;
-            if (tempNum > 100) {
-                throw SqlUtil.newContextException(getPos(),
-                    RESOURCE.numberLiteralOutOfRange(String.valueOf(tempNum)));
-            }
-        }
-    ]
-    {
-        if (tempNum != Math.floor(tempNum) && !isPercent) {
-            throw SqlUtil.newContextException(getPos(),
-                RESOURCE.integerRequiredWhenNoPercent(
-                    String.valueOf(tempNum)
-                ));
-        }
-    }
-    [
-        <WITH> <TIES> { withTies = true; }
-    ]
-    {
-        return new SqlSelectTopN(pos, selectNum,
-            SqlLiteral.createBoolean(isPercent, pos),
-            SqlLiteral.createBoolean(withTies, pos));
     }
 }

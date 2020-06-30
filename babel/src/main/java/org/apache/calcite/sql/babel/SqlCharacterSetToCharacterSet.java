@@ -30,7 +30,7 @@ public class SqlCharacterSetToCharacterSet extends SqlIdentifier {
   /**
    * Creates a {@code SqlCharacterSetToCharacterSet}.
    *
-   * @param charSetNamesPrimitiveArr  Primitive string array of two character sets
+   * @param charSetNamesPrimitiveArr Primitive string array of two character sets
    * @param pos  Parser position, must not be null
    */
   public SqlCharacterSetToCharacterSet(

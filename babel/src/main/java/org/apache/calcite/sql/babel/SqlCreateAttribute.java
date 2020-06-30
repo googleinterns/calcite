@@ -20,30 +20,28 @@ import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A {@code SqlAlterTableAttributeChecksum} is a ALTER TABLE attribute
- * for the CHECKSUM attribute.
+ * A <code>SqlCreateAttribute</code> is a base class that can be used
+ * to create custom options for the SQL CREATE TABLE function.
+ *
+ * <p>To customize table option unparsing, override the method
+ * {@link #unparse(SqlWriter, int, int)}.
  */
-public class SqlAlterTableAttributeChecksum extends SqlTableAttributeChecksum {
-
-  final boolean immediate;
+public abstract class SqlCreateAttribute {
+  private final SqlParserPos pos;
 
   /**
-   * Creates a {@code SqlAlterTableAttributeChecksum}.
+   * Creates a {@code SqlCreateOption}.
    *
-   * @param checksumEnabled Status of checksums enabled for this table type.
-   * @param pos             Parser position, must not be null.
-   * @param immediate       Whether or not IMMEDIATE option was specified.
+   * @param pos  Parser position, must not be null
    */
-  public SqlAlterTableAttributeChecksum(ChecksumEnabled checksumEnabled,
-      SqlParserPos pos, boolean immediate) {
-    super(checksumEnabled, pos);
-    this.immediate = immediate;
+  public SqlCreateAttribute(SqlParserPos pos) {
+    this.pos = pos;
   }
 
-  public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    super.unparse(writer, leftPrec, rightPrec);
-    if (immediate) {
-      writer.keyword("IMMEDIATE");
-    }
+  /** Writes a SQL representation of this table option to a writer. */
+  public abstract void unparse(SqlWriter writer, int leftPrec, int rightPrec);
+
+  public SqlParserPos getParserPos() {
+    return pos;
   }
 }

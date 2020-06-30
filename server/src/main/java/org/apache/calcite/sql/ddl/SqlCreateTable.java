@@ -90,10 +90,9 @@ public class SqlCreateTable extends SqlCreate
       new SqlSpecialOperator("CREATE TABLE", SqlKind.CREATE_TABLE);
 
   /** Creates a SqlCreateTable. */
-  SqlCreateTable(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
-      boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList,
-      SqlNode query) {
-    super(OPERATOR, pos, createSpecifier, ifNotExists);
+  SqlCreateTable(SqlParserPos pos, boolean replace, boolean ifNotExists,
+      SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
+    super(OPERATOR, pos, replace, ifNotExists);
     this.name = Objects.requireNonNull(name);
     this.columnList = columnList; // may be null
     this.query = query; // for "CREATE TABLE ... AS query"; may be null
@@ -104,7 +103,7 @@ public class SqlCreateTable extends SqlCreate
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.keyword(getCreateSpecifier().toString());
+    writer.keyword("CREATE");
     writer.keyword("TABLE");
     if (ifNotExists) {
       writer.keyword("IF NOT EXISTS");
