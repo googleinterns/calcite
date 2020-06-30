@@ -136,13 +136,7 @@ public class DialectGenerate {
     Arrays.sort(files, fileComparator);
     String nextDirectory = directories.peek();
     for (File f : files) {
-      String extension = "";
-      String fileName = f.getName();
-      int i = fileName.lastIndexOf('.');
-      if (i > 0) {
-        extension = fileName.substring(i + 1);
-      }
-      if (f.isFile() && extension.equals("ftl")) {
+      if (fileName.endsWith(".ftl")) {
         try {
           String fileText = new String(Files.readAllBytes(f.toPath()),
               StandardCharsets.UTF_8);
