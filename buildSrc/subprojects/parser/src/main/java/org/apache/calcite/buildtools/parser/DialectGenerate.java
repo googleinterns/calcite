@@ -113,7 +113,6 @@ public class DialectGenerate {
     Path dialectPath = dialectDirectory.toPath();
     Path rootPath = rootDirectory.toPath();
     dialectPath = dialectPath.subpath(rootPath.getNameCount(), dialectPath.getNameCount());
-
     Queue<String> pathElements = new LinkedList<>();
     dialectPath.forEach(p -> pathElements.add(p.toString()));
     return pathElements;
@@ -145,7 +144,7 @@ public class DialectGenerate {
       }
       if (f.isFile() && extension.equals("ftl")) {
         try {
-          String fileText = new String(Files.readAllBytes(Paths.get(f.getAbsolutePath())),
+          String fileText = new String(Files.readAllBytes(f.toPath()),
               StandardCharsets.UTF_8);
           processFile(fileText, functionMap);
         } catch (IOException e) {
