@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-void foo() :
+void foo(int a) :
 {
     String x = "}";
 }
@@ -23,7 +23,7 @@ void foo() :
         // }
     */
 }
-void bar() :
+void bar( int a, int b ) :
 {
     String x = " ' } ' ";
 }
