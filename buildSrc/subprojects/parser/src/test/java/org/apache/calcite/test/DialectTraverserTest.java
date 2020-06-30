@@ -43,4 +43,7 @@ public class DialectTraverserTest {
     File dialectFile = dialectPath.toFile();
     return new DialectTraverser(dialectFile, rootFile, "");
   }
+
+  // TODO(AndrewPochapsky) Add integration tests once generation logic has been
+  // added.
 }

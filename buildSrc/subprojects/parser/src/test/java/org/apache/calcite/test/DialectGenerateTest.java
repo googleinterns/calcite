@@ -58,13 +58,16 @@ public class DialectGenerateTest {
     Path basePath = Paths.get("src", "test", "processFileTests", testName);
     Path testPath = basePath.resolve(testName + ".txt");
     Path expectedPath = basePath.resolve(testName + "_expected.txt");
+    Path licensePath = Paths.get("src", "test", "processFileTests", "license.txt");
 
     String fileText = readFile(testPath);
     Map<String, String> functionMap = new LinkedHashMap<String, String>();
     dialectGenerate.processFile(fileText, functionMap);
 
     String expectedText = readFile(expectedPath);
+    String licenseText = readFile(licensePath);
     StringBuilder actualText = new StringBuilder();
+    actualText.append(licenseText);
     for (String value : functionMap.values()) {
       actualText.append(value + "\n");
     }
