@@ -43,7 +43,7 @@ open class DialectGenerateTask @Inject constructor(
     fun run() {
         val rootDirectoryFile = rootDirectory.get().asFile
         val dialectDirectoryFile = dialectDirectory.get().asFile
-        val generateDialect = DialectGenerate(dialectDirectoryFile, rootDirectoryFile, outputFile)
-        generateDialect.run()
+        val dialectTraverser = DialectTraverser(dialectDirectoryFile, rootDirectoryFile, outputFile)
+        dialectTraverser.run()
     }
 }

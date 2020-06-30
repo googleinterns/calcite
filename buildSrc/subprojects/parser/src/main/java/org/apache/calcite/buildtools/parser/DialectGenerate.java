@@ -16,12 +16,6 @@
  */
 package org.apache.calcite.buildtools.parser;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.lang.StringBuilder;
 import java.lang.IllegalStateException;
 import java.util.Arrays;
@@ -56,110 +50,8 @@ public class DialectGenerate {
         + typeAndName + "\\s*)*)?\\)\\s*\\:\n?)");
   private static final Pattern namePattern = Pattern.compile("\\w+");
 
-  private static final Comparator<File> fileComparator = new Comparator<File>() {
-    @Override
-    public int compare(File file1, File file2) {
-      return Boolean.compare(file1.isDirectory(), file2.isDirectory());
-    }
-  };
-
-  private final File dialectDirectory;
-  private final File rootDirectory;
-  private final String outputFile;
-
-  public DialectGenerate(File dialectDirectory, File rootDirectory, String outputFile) {
-    this.dialectDirectory = dialectDirectory;
-    this.rootDirectory = rootDirectory;
-    this.outputFile = outputFile;
-  }
-
   public static Queue<String> getTokens(String input) {
     return new LinkedList(Arrays.asList(tokenizerPattern.split(input)));
-  }
-
-  /**
-   * Extracts functions and prints the results for the given dialect.
-   */
-  public void run() {
-    Map<String, String> functions = extractFunctions();
-    // TODO(AndrewPochapsky): Remove this once generation logic added.
-    for (Map.Entry<String, String> entry : functions.entrySet()) {
-      System.out.println(entry.getKey() + "=" + entry.getValue() + "\n");
-    }
-  }
-
-  /**
-   * Traverses the parsing directory structure and extracts all of the
-   * functions located in *.ftl files into a Map.
-   */
-  public Map<String, String> extractFunctions() {
-    Map<String, String> functionMap = new LinkedHashMap<String, String>();
-    traverse(getTraversalPath(rootDirectory), rootDirectory, functionMap);
-    return functionMap;
-  }
-
-  /**
-   * Generates the parserImpls.ftl file for the dialect.
-   *
-   * @param functions The functions to place into the output file
-   */
-  public void generateParserImpls(Map<String, String> functions) {
-    // TODO(AndrewPochapsky): Add generation logic.
-  }
-
-  /**
-   * Gets the traversal path for the dialect by "subtracting" the root
-   * absolute path from the dialect directory absolute path.
-   *
-   * @param rootDirectoryFile The file for the root parsing directory
-   */
-  private Queue<String> getTraversalPath(File rootDirectoryFile) {
-    Path dialectPath = dialectDirectory.toPath();
-    Path rootPath = rootDirectory.toPath();
-    dialectPath = dialectPath.subpath(rootPath.getNameCount(),
-        dialectPath.getNameCount());
-    Queue<String> pathElements = new LinkedList<>();
-    dialectPath.forEach(p -> pathElements.add(p.toString()));
-    return pathElements;
-  }
-
-  /**
-   * Traverses the determined path given by the directories queue. Once the
-   * queue is empty, the dialect directory has been reached. In that case any
-   * *.ftl file should be processed and no further traversal should happen.
-   *
-   * @param directories The directories to traverse in topdown order
-   * @param currentDirectory The current directory the function is processing
-   * @param functionMap The map to which the parsing functions will be added to
-   */
-  private void traverse(
-      Queue<String> directories,
-      File currentDirectory,
-      Map<String, String> functionMap) {
-    File[] files = currentDirectory.listFiles();
-    // Ensures that files are processed first.
-    Arrays.sort(files, fileComparator);
-    String nextDirectory = directories.peek();
-    for (File f : files) {
-      String fileName = f.getName();
-      if (fileName.endsWith(".ftl")) {
-        try {
-          String fileText = new String(Files.readAllBytes(f.toPath()),
-              StandardCharsets.UTF_8);
-          processFile(fileText, functionMap);
-        } catch (IOException e) {
-          e.printStackTrace();
-        } catch (IllegalStateException e) {
-          e.printStackTrace();
-        }
-      } else if (!directories.isEmpty() && fileName.equals(nextDirectory)) {
-        // Remove the front element in the queue, the value is referenced above
-        // with directories.peek() and is used in the next recursive call to
-        // this function.
-        directories.poll();
-        traverse(directories, f, functionMap);
-      }
-    }
   }
 
   /**
@@ -176,7 +68,7 @@ public class DialectGenerate {
    * @param fileText The contents of the file to process
    * @param functionMap The map to which the parsing functions will be added to
    */
-  private void processFile(String fileText, Map<String, String> functionMap) {
+  public void processFile(String fileText, Map<String, String> functionMap) {
     // For windows line endings.
     fileText = fileText.replaceAll("\\r\\n", "\n");
     fileText = fileText.replaceAll("\\r", "\n");
@@ -217,7 +109,7 @@ public class DialectGenerate {
    *                       function declaration ends
    * @param functionName The name of the function being processed
    */
-  private int processFunction(
+  public int processFunction(
       Queue<String> tokens,
       Map<String, String> functionMap,
       int charIndex,
@@ -257,7 +149,7 @@ public class DialectGenerate {
       int charIndex) throws IllegalStateException {
     // Remove any preceeding spaces or new lines before the curly block starts.
     charIndex = consumeExtraSpacesAndLines(functionBuilder, tokens, charIndex);
-    if (!tokens.peek().equals("{")) {
+    if (tokens.isEmpty() || !tokens.peek().equals("{")) {
       throw new IllegalStateException("First token of curly block must be a curly brace.");
     }
     CurlyParser parser = new CurlyParser();
@@ -286,7 +178,8 @@ public class DialectGenerate {
       StringBuilder functionBuilder,
       Queue<String> tokens,
       int charIndex) {
-    while (tokens.peek().equals(" ") || tokens.peek().equals("\n")) {
+    while (!tokens.isEmpty() && (tokens.peek().equals(" ")
+        || tokens.peek().equals("\n"))) {
       String token = tokens.poll();
       charIndex += token.length();
       functionBuilder.append(token);

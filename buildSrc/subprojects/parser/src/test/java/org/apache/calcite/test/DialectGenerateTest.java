@@ -29,89 +29,89 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.apache.calcite.buildtools.parser.DialectGenerate;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DialectGenerateTest {
 
-  /**
-   * Returns a DialectGenerate with root path of calcite/parsingTest and
-   * dialect path of calcite/parsingTest/intermediate/testDialect.
-   */
-  private DialectGenerate setupDialectGenerate() {
-    Path rootPath = Paths.get("..", "..", "..", "parsingTest");
-    // Adds the path /intermediate/testDialect/ to the end of rootPath.
-    Path dialectPath = rootPath.resolve(Paths.get("intermediate",
-          "testDialect"));
-    File rootFile = rootPath.toFile();
-    File dialectFile = dialectPath.toFile();
-    return new DialectGenerate(dialectFile, rootFile, "");
+  private void assertFunctionIsParsed(String declaration, String function) {
+    DialectGenerate dialectGenerate = new DialectGenerate();
+    int charIndex = dialectGenerate.processFunction(
+        DialectGenerate.getTokens(function), new LinkedHashMap<String,String>(),
+        0, declaration.length(), "foo");
+    assertEquals(function.length(), charIndex);
   }
 
-  /**
-   * Returns the expected extraction results after calling
-   * DialectGenerate.extractFunctions onto the parsingTest directory structure.
-   */
-  private Map<String, String> getExpectedExtractionResults() {
-    String foo = "void foo() :\n"
+  @Test public void processFunctionEmptyMultipleLines() {
+    String declaration = "void foo() :\n";
+    String function = declaration
       + "{\n"
-      + "    String x = \" '}' \";\n"
       + "}\n"
       + "{\n"
-      + "    // overidden by testDialect\n"
       + "}";
-    String bar = "void bar  (   )  : {} {}";
-    String baz = "void baz() : {x}\n"
+    assertFunctionIsParsed(declaration, function);
+  }
+
+  @Test public void processFunctionEmptySameLineWithSpaces() {
+    String declaration = "void foo() :";
+    String function = declaration + " {} {}";
+    assertFunctionIsParsed(declaration, function);
+  }
+
+  @Test public void processFunctionEmptyLinesBetweenCurlyBlocks() {
+    String declaration = "void foo() :\n";
+    String function = declaration
+      + "\n"
       + "{\n"
-      + "    // overridden by intermediate\n"
+      + "}\n"
+      + "\n"
+      + "{\n"
       + "}";
-    String qux = "void qux(int arg1, int arg2) :\n"
+    assertFunctionIsParsed(declaration, function);
+  }
+
+  @Test public void processFunctionStringDeclaration() {
+    String declaration = "void foo() :\n";
+    String function = declaration
       + "{\n"
-      + "    String x = \" } \"\n"
+      + "    String x = \" } \";\n"
       + "}\n"
       + "{\n"
-      + "    // Below is a }\n"
       + "}";
-    String quux = "void quux(int arg1,\n"
-      + "    int arg2\n"
-      + ") :\n"
+    assertFunctionIsParsed(declaration, function);
+  }
+
+  @Test public void processFunctionCharacterDeclaration() {
+    String declaration = "void foo() :\n";
+    String function = declaration
       + "{\n"
-      + "    char x = ' } '\n"
-      + "    String y;\n"
+      + "    Character x = ' } ';\n"
       + "}\n"
       + "{\n"
-      + "    /* All invalid curly braces:\n"
-      + "    }\n"
+      + "}";
+    assertFunctionIsParsed(declaration, function);
+  }
+
+  @Test public void processFunctionContainsComments() {
+    String declaration = "void foo() :\n";
+    String function = declaration
+      + "{\n"
       + "    // }\n"
-      + "    \" } \"\n"
-      + "    ' } '\n"
-      + "    */\n"
-      + "    <TOKEN> {\n"
-      + "        y = \" { } } \"\n"
-      + "    }\n\n"
-      + "    // Not a string: \"\n"
+      + "}\n"
+      + "{\n"
+      + "    /* } */\n"
       + "}";
-    return new LinkedHashMap<String, String>() {{
-      put("foo", foo);
-      put("bar", bar);
-      put("baz", baz);
-      put("qux", qux);
-      put("quux", quux);
-    }};
+    assertFunctionIsParsed(declaration, function);
   }
 
-  @Test public void testExtractFunctions() {
-    DialectGenerate dialectGenerate = setupDialectGenerate();
-    Map<String, String> result = dialectGenerate.extractFunctions();
-    Map<String, String> expected = getExpectedExtractionResults();
-    assertEquals(expected.size(), result.size(),
-        "Resultant map size doesn't match expected map size");
-    for (String key : expected.keySet()) {
-      assertTrue(result.containsKey(key),
-          "Resultant map doesn't contain expected key: " + key);
-      assertEquals(expected.get(key), result.get(key));
-    }
+  @Test public void processFunctionMissingCurlyBlockFails() {
+    String declaration = "void foo() :\n";
+    String function = declaration
+      + "{\n"
+      + "}";
+    assertThrows(IllegalStateException.class,
+        () -> assertFunctionIsParsed(declaration, function));
   }
 }

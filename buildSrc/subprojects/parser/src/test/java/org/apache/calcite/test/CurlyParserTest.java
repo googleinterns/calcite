@@ -80,4 +80,19 @@ public class CurlyParserTest {
     String input = "{ }}";
     assertThrows(AssertionError.class, () -> assertCurlyParserSucceeds(input));
   }
+
+  @Test public void testCurlyParserThrowsExceptionNeverClosed() {
+    String input = "{{}";
+    assertThrows(AssertionError.class, () -> assertCurlyParserSucceeds(input));
+  }
+
+  @Test public void testCurlyParserThrowsExceptionSingleOpen() {
+    String input = "{";
+    assertThrows(AssertionError.class, () -> assertCurlyParserSucceeds(input));
+  }
+
+  @Test public void testCurlyParserThrowsExceptionSingleCLosed() {
+    String input = "}";
+    assertThrows(AssertionError.class, () -> assertCurlyParserSucceeds(input));
+  }
 }
