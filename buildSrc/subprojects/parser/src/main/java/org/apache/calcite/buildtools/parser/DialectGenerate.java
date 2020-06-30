@@ -176,6 +176,8 @@ public class DialectGenerate {
    * @param functionMap The map to which the parsing functions will be added to
    */
   private void processFile(String fileText, Map<String, String> functionMap) {
+    fileText = fileText.replaceAll("\\r\\n", "\n");
+    fileText = fileText.replaceAll("\\r", "\n");
     Queue<MatchResult> declarations = new LinkedList();
     Matcher matcher = declarationPattern.matcher(fileText);
     while (matcher.find()) {
