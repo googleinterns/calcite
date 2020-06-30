@@ -148,7 +148,7 @@ public class DialectGenerate {
         }
       } else if (!directories.isEmpty() && fileName.equals(nextDirectory)) {
         // Remove the front element in the queue, the value is referneced above with
-        // directories.peek() and is used in the next recursive call to this function .
+        // directories.peek() and is used in the next recursive call to this function.
         directories.poll();
         traverse(directories, f, functionMap);
       }
@@ -327,7 +327,7 @@ public class DialectGenerate {
       STRING,
 
       /**
-       * Inside of a character declaration (block of single quotes)
+       * Inside of a character declaration (block of single quotes).
        */
       CHARACTER,
 
