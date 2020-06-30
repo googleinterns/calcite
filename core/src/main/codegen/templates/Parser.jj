@@ -798,6 +798,11 @@ SqlNodeList ParenthesizedQueryOrCommaListWithDefault(
         e = OrderedQueryOrExpr(firstExprContext)
     |
         e = Default()
+<#if parser.includeInsertWithOmittedValues>
+    |
+        LOOKAHEAD({ getToken(1).kind != RPAREN })
+        { e = SqlLiteral.createNull(getPos()); }
+</#if>
     )
     {
         list = startList(e);
@@ -812,6 +817,10 @@ SqlNodeList ParenthesizedQueryOrCommaListWithDefault(
             e = Expression(exprContext)
         |
             e = Default()
+<#if parser.includeInsertWithOmittedValues>
+        |
+            { e = SqlLiteral.createNull(getPos()); }
+</#if>
         )
         {
             list.add(e);
@@ -1625,6 +1634,7 @@ SqlNode SqlInsert() :
     (
 <#-- additional literal parser methods are included here -->
 <#list parser.insertStatementParserMethods as method>
+        LOOKAHEAD(${method}())
         source = ${method}()
     |
 </#list>

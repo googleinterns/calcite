@@ -1989,4 +1989,32 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "(?s).*Numeric literal.*out of range.*";
     sql(sql).fails(expected);
   }
+
+  @Test public void testInsertOneOmittedValue() {
+    final String sql = "insert into foo values (1,,'hi')";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(1, NULL, 'hi'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInsertAllOmittedValues() {
+    final String sql = "insert into foo values (,,)";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(NULL, NULL, NULL))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInsertOneOmittedValueNoValueKeyword() {
+    final String sql = "insert into foo (1,,'hi')";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(1, NULL, 'hi'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInsertAllOmittedValuesNoValueKeyword() {
+    final String sql = "insert into foo (,,)";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(NULL, NULL, NULL))";
+    sql(sql).ok(expected);
+  }
 }

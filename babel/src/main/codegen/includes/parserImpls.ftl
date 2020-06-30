@@ -1039,10 +1039,24 @@ SqlNode LiteralRowConstructor() :
 }
 {
     <LPAREN>
-    e = AtomicRowExpression() { valueList.add(e); }
     (
-        LOOKAHEAD(2)
-        <COMMA> e = AtomicRowExpression() { valueList.add(e); }
+        e = AtomicRowExpression()
+    |
+        { e = SqlLiteral.createNull(getPos()); }
+    )
+    {
+        valueList.add(e);
+    }
+    (
+        <COMMA>
+        (
+            e = AtomicRowExpression()
+        |
+            { e = SqlLiteral.createNull(getPos()); }
+        )
+        {
+            valueList.add(e);
+        }
     )*
     <RPAREN>
     {

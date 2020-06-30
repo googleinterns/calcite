@@ -1088,6 +1088,7 @@ data: {
     includeAlternativeTypeConversionQuery: true
     includeRankWithSortingExpressions: true
     includeTopN: true
+    includeInsertWithOmittedValues: true
   }
 }
 
