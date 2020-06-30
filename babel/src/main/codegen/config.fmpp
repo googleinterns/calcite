@@ -31,7 +31,7 @@ data: {
       "org.apache.calcite.sql.SqlColumnAttributeCompress",
       "org.apache.calcite.sql.SqlColumnAttributeDefault",
       "org.apache.calcite.sql.babel.SqlAlterTable",
-      "org.apache.calcite.sql.babel.SqlAlterTableAddColumn",
+      "org.apache.calcite.sql.babel.SqlAlterTableAddColumns",
       "org.apache.calcite.sql.babel.SqlAlterTableAttributeChecksum",
       "org.apache.calcite.sql.babel.SqlAlterTableAttributeDataBlockSize",
       "org.apache.calcite.sql.babel.SqlAlterTableAttributeFreeSpace",

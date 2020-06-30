@@ -1424,8 +1424,8 @@ SqlAlter SqlAlterTable(Span s, String scope) :
 }
 
 /**
-  * Parses table attributes for ALTER TABLE queries.
-  */
+ * Parses table attributes for ALTER TABLE queries.
+ */
 List<SqlTableAttribute> AlterTableAttributes() :
 {
     final List<SqlTableAttribute> list = new ArrayList<SqlTableAttribute>();
@@ -1461,8 +1461,8 @@ List<SqlTableAttribute> AlterTableAttributes() :
 }
 
 /**
-  * Parses the ON COMMIT attribute for ALTER TABLE queries.
-  */
+ * Parses the ON COMMIT attribute for ALTER TABLE queries.
+ */
 SqlTableAttribute AlterTableAttributeOnCommit() :
 {
     final OnCommitType onCommitType;
@@ -1479,9 +1479,9 @@ SqlTableAttribute AlterTableAttributeOnCommit() :
 }
 
 /**
-  * Parses a list of alter options (ex. ADD, DROP, RENAME) for
-  * ALTER TABLE queries.
-  */
+ * Parses a list of alter options (ex. ADD, DROP, RENAME) for
+ * ALTER TABLE queries.
+ */
 List<SqlAlterTableOption> AlterTableOptions() :
 {
     final List<SqlAlterTableOption> alterTableOptions =
@@ -1500,25 +1500,28 @@ List<SqlAlterTableOption> AlterTableOptions() :
 }
 
 /**
-  * Parses a single alter option (ex. ADD, DROP, RENAME) for
-  * ALTER TABLE queries.
-  * Used by {@code AlterTableOptions}.
-  */
+ * Parses a single alter option (ex. ADD, DROP, RENAME) for
+ * ALTER TABLE queries.
+ * Used by {@code AlterTableOptions}.
+ */
 SqlAlterTableOption AlterTableOption() :
 {
     final SqlAlterTableOption option;
 }
 {
     (
-        option = AlterTableAddColumn()
+        option = AlterTableAddColumns()
     )
     { return option; }
 }
 
 /**
-  * Parses an ADD column statement within an ALTER TABLE query.
-  */
-SqlAlterTableOption AlterTableAddColumn() :
+ * Parses an ADD column statement within an ALTER TABLE query.
+ * Handles both the case where there is a single column not enclosed in
+ * parentheses, and the case where there are one or more columns enclosed
+ * in parentheses.
+ */
+SqlAlterTableOption AlterTableAddColumns() :
 {
     final List<SqlNode> columnList = new ArrayList<SqlNode>();
     final SqlNodeList columns;
@@ -1535,7 +1538,7 @@ SqlAlterTableOption AlterTableAddColumn() :
     |
         columns = ExtendColumnList()
     )
-    { return new SqlAlterTableAddColumn(columns); }
+    { return new SqlAlterTableAddColumns(columns); }
 }
 
 /**

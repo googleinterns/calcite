@@ -32,9 +32,9 @@ import java.util.List;
  * Parse tree for {@code ALTER TABLE} statement.
  */
 public class SqlAlterTable extends SqlAlter {
-  final SqlIdentifier tableName;
-  final List<SqlTableAttribute> tableAttributes;
-  final List<SqlAlterTableOption> alterTableOptions;
+  public final SqlIdentifier tableName;
+  public final List<SqlTableAttribute> tableAttributes;
+  public final List<SqlAlterTableOption> alterTableOptions;
 
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("ALTER TABLE", SqlKind.ALTER_TABLE);

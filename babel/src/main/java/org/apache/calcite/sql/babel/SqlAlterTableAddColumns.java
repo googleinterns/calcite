@@ -20,28 +20,28 @@ import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlWriter;
 
+import java.util.Objects;
+
 /**
- * A {@code SqlAlterTableAddColumn} represents
- * an ADD column statement within an ALTER TABLE query.
+ * A {@code SqlAlterTableAddColumn} represents an ADD column statement within
+ * an ALTER TABLE query.
  */
-public class SqlAlterTableAddColumn extends SqlAlterTableOption {
+public class SqlAlterTableAddColumns extends SqlAlterTableOption {
 
   public final SqlNodeList columns;
 
-  public SqlAlterTableAddColumn(SqlNodeList columns) {
-    this.columns = columns;
+  public SqlAlterTableAddColumns(SqlNodeList columns) {
+    this.columns = Objects.requireNonNull(columns);
   }
 
   @Override public void unparse(SqlWriter writer,
       int leftPrec, int rightPrec) {
     writer.keyword("ADD");
-    if (columns != null) {
-      SqlWriter.Frame frame = writer.startList("(", ")");
-      for (SqlNode c : columns) {
-        writer.sep(",");
-        c.unparse(writer, 0, 0);
-      }
-      writer.endList(frame);
+    SqlWriter.Frame frame = writer.startList("(", ")");
+    for (SqlNode c : columns) {
+      writer.sep(",");
+      c.unparse(writer, 0, 0);
     }
+    writer.endList(frame);
   }
 }

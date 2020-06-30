@@ -1897,6 +1897,18 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testAlterAddColumnEmptyFails() {
+    final String sql = "alter table foo ^add^";
+    final String expected = "(?s).*Encountered \"add <EOF>\".*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testAlterAddColumnEmptyParenthesesFails() {
+    final String sql = "alter table foo add ^(^)";
+    final String expected = "(?s).*Encountered \"\\( \\)\".*";
+    sql(sql).fails(expected);
+  }
+
   @Test void testIndexWithoutName() {
     final String sql = "create table foo (bar integer) index (bar)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) INDEX (`BAR`)";
