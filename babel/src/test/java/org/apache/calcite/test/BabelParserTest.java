@@ -1909,6 +1909,19 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).fails(expected);
   }
 
+  @Test void testAlterRename() {
+    final String sql = "alter table foo rename bar to baz";
+    final String expected = "ALTER TABLE `FOO` RENAME `BAR` TO `BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterRenameWithTableAttribute() {
+    final String sql = "alter table foo, no fallback rename bar to baz";
+    final String expected = "ALTER TABLE `FOO`, NO FALLBACK"
+        + " RENAME `BAR` TO `BAZ`";
+    sql(sql).ok(expected);
+  }
+
   @Test void testIndexWithoutName() {
     final String sql = "create table foo (bar integer) index (bar)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) INDEX (`BAR`)";

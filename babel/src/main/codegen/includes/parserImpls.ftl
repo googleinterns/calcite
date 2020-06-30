@@ -1511,6 +1511,8 @@ SqlAlterTableOption AlterTableOption() :
 {
     (
         option = AlterTableAddColumns()
+    |
+        option = AlterTableRename()
     )
     { return option; }
 }
@@ -1539,6 +1541,22 @@ SqlAlterTableOption AlterTableAddColumns() :
         columns = ExtendColumnList()
     )
     { return new SqlAlterTableAddColumns(columns); }
+}
+
+/**
+ * Parses a RENAME statement within an ALTER TABLE query.
+ */
+SqlAlterTableOption AlterTableRename() :
+{
+    final SqlIdentifier origName;
+    final SqlIdentifier newName;
+}
+{
+    <RENAME>
+    origName = SimpleIdentifier()
+    <TO>
+    newName = SimpleIdentifier()
+    { return new SqlAlterTableRename(origName, newName); }
 }
 
 /**
