@@ -37,6 +37,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlAlterTableAttributeFreeSpace",
       "org.apache.calcite.sql.babel.SqlAlterTableAttributeOnCommit",
       "org.apache.calcite.sql.babel.SqlAlterTableOption",
+      "org.apache.calcite.sql.babel.SqlAlterTableRename",
       "org.apache.calcite.sql.babel.SqlSetTimeZone",
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
