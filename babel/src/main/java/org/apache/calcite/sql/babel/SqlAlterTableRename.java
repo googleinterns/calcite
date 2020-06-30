@@ -27,8 +27,8 @@ import java.util.Objects;
  */
 public class SqlAlterTableRename extends SqlAlterTableOption {
 
-  final SqlIdentifier origName;
-  final SqlIdentifier newName;
+  public final SqlIdentifier origName;
+  public final SqlIdentifier newName;
 
   /**
    * Creates a {@code SqlAlterTableRename}.
