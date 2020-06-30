@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.lang.StringBuilder;
 import java.lang.IllegalStateException;
@@ -109,12 +110,12 @@ public class DialectGenerate {
    * @param rootDirectoryFile The file for the root parsing directory
    */
   private Queue<String> getTraversalPath(File rootDirectoryFile) {
-    String dialectPath = dialectDirectory.getAbsolutePath();
-    String rootPath = rootDirectory.getAbsolutePath();
-    int rootIndex = dialectPath.indexOf(rootPath);
-    dialectPath = dialectPath.substring(rootIndex + rootPath.length());
+    Path dialectPath = dialectDirectory.toPath();
+    Path rootPath = rootDirectory.toPath();
+    dialectPath = dialectPath.subpath(rootPath.getNameCount(), dialectPath.getNameCount());
+
     Queue<String> pathElements = new LinkedList<>();
-    Paths.get(dialectPath).forEach(p -> pathElements.add(p.toString()));
+    dialectPath.forEach(p -> pathElements.add(p.toString()));
     return pathElements;
   }
 

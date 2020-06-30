@@ -39,13 +39,12 @@ public class DialectGenerateTest {
 
   /**
    * Retrns a DialectGenerate with root path of calcite/parsingTest and
-   * dialect path of calcite/parsingTest/intermediate/testDialect
+   * dialect path of calcite/parsingTest/intermediate/testDialect.
    */
   private DialectGenerate setupDialectGenerate() {
-    Path currentRelativePath = Paths.get("");
-    String s = currentRelativePath.toAbsolutePath().toString();
     Path rootPath = Paths.get("..", "..", "..", "parsingTest");
-    Path dialectPath = Paths.get(rootPath.toAbsolutePath().toString(), "intermediate", "testDialect");
+    // Adds the path /intermediate/testDialect/ to the end of rootPath.
+    Path dialectPath = rootPath.resolve(Paths.get("intermediate", "testDialect"));
     File rootFile = rootPath.toFile();
     File dialectFile = dialectPath.toFile();
     return new DialectGenerate(dialectFile, rootFile, "");
@@ -149,7 +148,7 @@ public class DialectGenerateTest {
     DialectGenerate dialectGenerate = setupDialectGenerate();
     Map<String, String> res = dialectGenerate.extractFunctions();
     Map<String, String> expected = getExpectedExtractionResults();
-    assertEquals(res.size(), expected.size(),
+    assertEquals(expected.size(), res.size(),
         "Resultant map size doesn't match expected map size");
     for (String key : expected.keySet()) {
       assertTrue(res.containsKey(key), "Resultant map doesn't contain expected key: " + key);
