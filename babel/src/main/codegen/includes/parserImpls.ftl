@@ -1513,6 +1513,8 @@ SqlAlterTableOption AlterTableOption() :
         option = AlterTableAddColumns()
     |
         option = AlterTableRename()
+    |
+        option = AlterTableDrop()
     )
     { return option; }
 }
@@ -1557,6 +1559,23 @@ SqlAlterTableOption AlterTableRename() :
     <TO>
     newName = SimpleIdentifier()
     { return new SqlAlterTableRename(origName, newName); }
+}
+
+/**
+ * Parses a DROP statement within an ALTER TABLE query.
+ */
+SqlAlterTableOption AlterTableDrop() :
+{
+    final SqlIdentifier dropObj;
+    boolean identity = false;
+}
+{
+    <DROP>
+    dropObj = SimpleIdentifier()
+    [
+        <IDENTITY> { identity = true; }
+    ]
+    { return new SqlAlterTableDrop(dropObj, identity); }
 }
 
 /**

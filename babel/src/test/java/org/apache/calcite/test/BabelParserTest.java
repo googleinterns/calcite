@@ -1922,6 +1922,24 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testAlterDrop() {
+    final String sql = "alter table foo drop bar";
+    final String expected = "ALTER TABLE `FOO` DROP `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterDropWithIdentity() {
+    final String sql = "alter table foo drop bar identity";
+    final String expected = "ALTER TABLE `FOO` DROP `BAR` IDENTITY";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterDropWithTableAttribute() {
+    final String sql = "alter table foo, no fallback drop bar";
+    final String expected = "ALTER TABLE `FOO`, NO FALLBACK DROP `BAR`";
+    sql(sql).ok(expected);
+  }
+
   @Test void testIndexWithoutName() {
     final String sql = "create table foo (bar integer) index (bar)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) INDEX (`BAR`)";
