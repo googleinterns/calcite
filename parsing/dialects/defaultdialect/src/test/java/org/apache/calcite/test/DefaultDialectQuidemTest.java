@@ -91,21 +91,4 @@ class DefaultDialectQuidemTest extends DialectQuidemTest {
       checkRun(path);
     }
   }
-
-  /** Override settings for "sql/scalar.iq". */
-  public void testSqlScalar(String path) throws Exception {
-    try (TryThreadLocal.Memo ignored = Prepare.THREAD_EXPAND.push(true)) {
-      checkRun(path);
-    }
-  }
-
-  /** Runs the dummy script "sql/dummy.iq", which is checked in empty but
-   * which you may use as scratch space during development. */
-
-  // Do not disable this test; just remember not to commit changes to dummy.iq
-  public void testSqlDummy(String path) throws Exception {
-    try (TryThreadLocal.Memo ignored = Prepare.THREAD_EXPAND.push(true)) {
-      checkRun(path);
-    }
-  }
 }
