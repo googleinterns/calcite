@@ -32,20 +32,24 @@ import java.util.List;
  * Parse tree for {@code ALTER TABLE} statement.
  */
 public class SqlAlterTable extends SqlAlter {
-  final SqlIdentifier tableName;
-  final List<SqlTableAttribute> tableAttributes;
+  public final SqlIdentifier tableName;
+  public final List<SqlTableAttribute> tableAttributes;
+  public final List<SqlAlterTableOption> alterTableOptions;
 
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("ALTER TABLE", SqlKind.ALTER_TABLE);
 
   public SqlAlterTable(SqlParserPos pos, String scope, SqlIdentifier tableName,
-      List<SqlTableAttribute> tableAttributes) {
+      List<SqlTableAttribute> tableAttributes,
+      List<SqlAlterTableOption> alterTableOptions) {
     super(pos, scope);
     this.tableName = tableName;
     this.tableAttributes = tableAttributes;
+    this.alterTableOptions = alterTableOptions;
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+  @Override public void unparse(SqlWriter writer,
+      int leftPrec, int rightPrec) {
     writer.keyword("ALTER TABLE");
     unparseAlterOperation(writer, leftPrec, rightPrec);
   }
@@ -54,12 +58,20 @@ public class SqlAlterTable extends SqlAlter {
       int leftPrec, int rightPrec) {
     tableName.unparse(writer, leftPrec, rightPrec);
     if (tableAttributes != null) {
-      SqlWriter.Frame frame = writer.startList("", "");
+      SqlWriter.Frame tableAttributeFrame = writer.startList("", "");
       for (SqlTableAttribute a : tableAttributes) {
         writer.sep(",", true);
         a.unparse(writer, 0, 0);
       }
-      writer.endList(frame);
+      writer.endList(tableAttributeFrame);
+    }
+    if (alterTableOptions != null) {
+      SqlWriter.Frame alterOptionFrame = writer.startList("", "");
+      for (SqlAlterTableOption a : alterTableOptions) {
+        writer.sep(",");
+        a.unparse(writer, 0, 0);
+      }
+      writer.endList(alterOptionFrame);
     }
   }
 

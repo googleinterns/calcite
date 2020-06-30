@@ -1877,6 +1877,38 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testAlterAddColumn() {
+    final String sql = "alter table foo add bar integer";
+    final String expected = "ALTER TABLE `FOO` ADD (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterAddMultiColumns() {
+    final String sql = "alter table foo add (bar integer, baz integer)";
+    final String expected = "ALTER TABLE `FOO` ADD"
+        + " (`BAR` INTEGER, `BAZ` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterAddColumnWithTableAttribute() {
+    final String sql = "alter table foo, no fallback add bar integer";
+    final String expected = "ALTER TABLE `FOO`, NO FALLBACK ADD"
+        + " (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterAddColumnEmptyFails() {
+    final String sql = "alter table foo ^add^";
+    final String expected = "(?s).*Encountered \"add <EOF>\".*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testAlterAddColumnEmptyParenthesesFails() {
+    final String sql = "alter table foo add ^(^)";
+    final String expected = "(?s).*Encountered \"\\( \\)\".*";
+    sql(sql).fails(expected);
+  }
+
   @Test void testIndexWithoutName() {
     final String sql = "create table foo (bar integer) index (bar)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) INDEX (`BAR`)";
