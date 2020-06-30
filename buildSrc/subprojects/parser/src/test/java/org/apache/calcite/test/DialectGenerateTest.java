@@ -51,14 +51,15 @@ public class DialectGenerateTest {
   /** Each testcase has a testName.txt and testName_expected.txt file.
    * This function makes sure that the testName.txt file is parsed without error
    * by checking that the contents of the modified functionMap match the contents
-   * of the testName_expected.txt file
+   * of the testName_expected.txt file.
    */
   private void assertFileProcessed(String testName) {
     DialectGenerate dialectGenerate = new DialectGenerate();
     Path basePath = Paths.get("src", "test", "processFileTests", testName);
     Path testPath = basePath.resolve(testName + ".txt");
     Path expectedPath = basePath.resolve(testName + "_expected.txt");
-    Path licensePath = Paths.get("src", "test", "processFileTests", "license.txt");
+    Path licensePath = Paths.get("src", "test", "processFileTests",
+        "license.txt");
 
     String fileText = readFile(testPath);
     Map<String, String> functionMap = new LinkedHashMap<String, String>();
