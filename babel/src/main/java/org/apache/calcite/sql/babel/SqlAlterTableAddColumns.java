@@ -32,6 +32,7 @@ public class SqlAlterTableAddColumns extends SqlAlterTableOption {
 
   public SqlAlterTableAddColumns(SqlNodeList columns) {
     this.columns = Objects.requireNonNull(columns);
+    assert !SqlNodeList.isEmptyList(columns);
   }
 
   @Override public void unparse(SqlWriter writer,
