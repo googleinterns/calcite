@@ -155,8 +155,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   }
 
   /**
-   * This is a failure test making sure the LOOKAHEAD for WHEN clause is 2 in Dialect1, where
-   * in core parser this number is 1.
+   * This is a failure test making sure the LOOKAHEAD for WHEN clause is 2 in
+   * Dialect1, where in core parser this number is 1.
    *
    * @see SqlDialectParserTest#testCaseExpression()
    * @see <a href="https://issues.apache.org/jira/browse/CALCITE-2847">[CALCITE-2847]

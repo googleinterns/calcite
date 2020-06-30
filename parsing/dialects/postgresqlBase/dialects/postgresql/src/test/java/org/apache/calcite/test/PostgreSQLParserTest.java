@@ -36,8 +36,8 @@ final class PostgreSQLParserTest extends PostgreSQLBaseParserTest {
   /**
    * PostgreSQL parser's global {@code LOOKAHEAD} is larger than the core
    * parser's. This causes different parse error message between these two
-   * parsers. Here we define a looser error checker for PostgreSQL, so that we can
-   * reuse failure testing codes from {@link SqlDialectParserTest}.
+   * parsers. Here we define a looser error checker for PostgreSQL, so that we
+   * can reuse failure testing codes from {@link SqlDialectParserTest}.
    *
    * <p>If a test case is written in this file -- that is, not inherited -- it
    * is still checked by {@link SqlDialectParserTest}'s checker.
@@ -65,7 +65,8 @@ final class PostgreSQLParserTest extends PostgreSQLBaseParserTest {
         return false;
       }
 
-      private void checkExNotNull(SqlParserUtil.StringAndPos sap, Throwable thrown) {
+      private void checkExNotNull(SqlParserUtil.StringAndPos sap,
+          Throwable thrown) {
         if (thrown == null) {
           throw new AssertionError("Expected query to throw exception, "
               + "but it did not; query [" + sap.sql
