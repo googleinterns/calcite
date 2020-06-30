@@ -22,7 +22,7 @@ import org.apache.calcite.sql.parser.defaultdialect.DefaultDialectParserImpl;
 /**
  * Tests the "Default" SQL parser.
  */
-final class DefaultParserTest extends SqlDialectParserTest {
+final class DefaultDialectParserTest extends SqlDialectParserTest {
 
   @Override protected SqlParserImplFactory parserImplFactory() {
     return DefaultDialectParserImpl.FACTORY;
