@@ -29,6 +29,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Arrays;
 
+/** Traverses the parserImpls tree for the given dialect. Processing is done
+ * by <code> DialectGenerate </code>.
+ */
 public class DialectTraverser {
 
   private static final Comparator<File> fileComparator = new Comparator<File>() {

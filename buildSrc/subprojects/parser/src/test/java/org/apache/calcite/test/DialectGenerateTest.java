@@ -48,6 +48,11 @@ public class DialectGenerateTest {
     assertEquals(function.length(), charIndex);
   }
 
+  /** Each testcase has a testName.txt and testName_expected.txt file.
+   * This function makes sure that the testName.txt file is parsed without error
+   * by checking that the contents of the modified functionMap match the contents
+   * of the testName_expected.txt file
+   */
   private void assertFileProcessed(String testName) {
     DialectGenerate dialectGenerate = new DialectGenerate();
     Path basePath = Paths.get("src", "test", "processFileTests", testName);
@@ -79,7 +84,6 @@ public class DialectGenerateTest {
     fileText = fileText.replaceAll("\\r", "\n");
     return fileText;
   }
-
 
   @Test public void processFunctionEmptyMultipleLines() {
     String declaration = "void foo() :\n";
