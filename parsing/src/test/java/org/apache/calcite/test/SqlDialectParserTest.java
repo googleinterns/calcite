@@ -53,6 +53,7 @@ import org.hamcrest.CustomTypeSafeMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.io.Reader;
@@ -9348,6 +9349,7 @@ public abstract class SqlDialectParserTest {
         .ok(expected);
   }
 
+  @Tag("DefaultCreateTable")
   @Test void testCreateTableAsSelectColumnList() {
     final String expected = "CREATE TABLE `X` (`A`, `B`) AS\n"
         + "SELECT *\n"
@@ -9356,6 +9358,7 @@ public abstract class SqlDialectParserTest {
         .ok(expected);
   }
 
+  @Tag("DefaultCreateTable")
   @Test void testCreateTableCheck() {
     final String expected = "CREATE TABLE `X` (`I` INTEGER NOT NULL,"
         + " CONSTRAINT `C1` CHECK (`I` < 10), `J` INTEGER)";
@@ -9363,6 +9366,7 @@ public abstract class SqlDialectParserTest {
         .ok(expected);
   }
 
+  @Tag("DefaultCreateTable")
   @Test void testCreateTableVirtualColumn() {
     final String sql = "create table if not exists x (\n"
         + " i int not null,\n"
@@ -9434,6 +9438,7 @@ public abstract class SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Tag("DefaultCreateFunction")
   @Test void testCreateOrReplaceFunction() {
     final String sql = "create or replace function if not exists x.udf\n"
         + " as 'org.apache.calcite.udf.TableFun.demoUdf'\n"
@@ -9449,6 +9454,7 @@ public abstract class SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Tag("DefaultCreateFunction")
   @Test void testCreateOrReplaceFunction2() {
     final String sql = "create function \"my Udf\"\n"
         + " as 'org.apache.calcite.udf.TableFun.demoUdf'";

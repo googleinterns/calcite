@@ -16,11 +16,8 @@
  */
 package org.apache.calcite.test;
 
-import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.parser.SqlParserImplFactory;
 import org.apache.calcite.sql.parser.bigquery.BigQueryParserImpl;
-
-import org.junit.jupiter.api.Test;
 
 /**
  * Tests the "BigQuery" SQL parser.
@@ -29,22 +26,5 @@ final class BigQueryParserTest extends SqlDialectParserTest {
 
   @Override protected SqlParserImplFactory parserImplFactory() {
     return BigQueryParserImpl.FACTORY;
-  }
-
-  @Test public void test() {
-
-  }
-
-  @Test public void testMergeIntoBigQuery() {
-    final String sql = "merge into t1 a using t2 b on a.x = b.x when matched then "
-        + "update set y = b.y when not matched then insert (x,y) values (b.x, b.y)";
-    final String expected = "MERGE INTO t1 AS a\n"
-        + "USING t2 AS b\n"
-        + "ON (a.x = b.x)\n"
-        + "WHEN MATCHED THEN UPDATE SET y = b.y\n"
-        + "WHEN NOT MATCHED THEN INSERT (x, y) VALUES (b.x, b.y)";
-    sql(sql)
-        .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
-        .ok(expected);
   }
 }

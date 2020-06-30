@@ -1011,7 +1011,6 @@ data: {
       "SqlCreateTable"
       "SqlCreateType"
       "SqlCreateView"
-      "SqlCreateFunction"
       "SqlCreateFunctionSqlForm"
     ]
 
