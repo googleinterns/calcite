@@ -37,7 +37,6 @@ import org.apache.calcite.sql.pretty.SqlPrettyWriter;
 import org.apache.calcite.sql.test.SqlTests;
 import org.apache.calcite.sql.validate.SqlConformance;
 import org.apache.calcite.sql.validate.SqlConformanceEnum;
-import org.apache.calcite.test.DiffTestCase;
 import org.apache.calcite.util.Bug;
 import org.apache.calcite.util.ConversionUtil;
 import org.apache.calcite.util.Pair;
@@ -54,6 +53,7 @@ import org.hamcrest.CustomTypeSafeMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.io.Reader;
@@ -90,7 +90,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * {@link #parserImplFactory()} method to return the extension parser
  * implementation.
  */
-public abstract class SqlParserTest {
+public abstract class SqlDialectParserTest {
   /**
    * List of reserved keywords.
    *
@@ -8946,7 +8946,7 @@ public abstract class SqlParserTest {
   }
 
   private boolean isNotSubclass() {
-    return this.getClass().equals(SqlParserTest.class);
+    return this.getClass().equals(SqlDialectParserTest.class);
   }
 
   /**
@@ -9349,6 +9349,7 @@ public abstract class SqlParserTest {
         .ok(expected);
   }
 
+  @Tag("DefaultCreateTable")
   @Test void testCreateTableAsSelectColumnList() {
     final String expected = "CREATE TABLE `X` (`A`, `B`) AS\n"
         + "SELECT *\n"
@@ -9357,6 +9358,7 @@ public abstract class SqlParserTest {
         .ok(expected);
   }
 
+  @Tag("DefaultCreateTable")
   @Test void testCreateTableCheck() {
     final String expected = "CREATE TABLE `X` (`I` INTEGER NOT NULL,"
         + " CONSTRAINT `C1` CHECK (`I` < 10), `J` INTEGER)";
@@ -9364,6 +9366,7 @@ public abstract class SqlParserTest {
         .ok(expected);
   }
 
+  @Tag("DefaultCreateTable")
   @Test void testCreateTableVirtualColumn() {
     final String sql = "create table if not exists x (\n"
         + " i int not null,\n"
@@ -9435,6 +9438,7 @@ public abstract class SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Tag("DefaultCreateFunction")
   @Test void testCreateOrReplaceFunction() {
     final String sql = "create or replace function if not exists x.udf\n"
         + " as 'org.apache.calcite.udf.TableFun.demoUdf'\n"
@@ -9450,6 +9454,7 @@ public abstract class SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Tag("DefaultCreateFunction")
   @Test void testCreateOrReplaceFunction2() {
     final String sql = "create function \"my Udf\"\n"
         + " as 'org.apache.calcite.udf.TableFun.demoUdf'";

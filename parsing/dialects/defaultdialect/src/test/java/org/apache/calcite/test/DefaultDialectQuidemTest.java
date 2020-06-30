@@ -18,7 +18,9 @@
 package org.apache.calcite.test;
 
 import org.apache.calcite.config.CalciteConnectionProperty;
+import org.apache.calcite.prepare.Prepare;
 import org.apache.calcite.sql.parser.defaultdialect.DefaultDialectParserImpl;
+import org.apache.calcite.util.TryThreadLocal;
 
 import net.hydromatic.quidem.Quidem;
 
@@ -75,5 +77,18 @@ class DefaultDialectQuidemTest extends DialectQuidemTest {
         }
       }
     };
+  }
+
+  /** Override settings for "sql/misc.iq". */
+  public void testSqlMisc(String path) throws Exception {
+    switch (CalciteAssert.DB) {
+    case ORACLE:
+      // There are formatting differences (e.g. "4.000" vs "4") when using
+      // Oracle as the JDBC data source.
+      return;
+    }
+    try (TryThreadLocal.Memo ignored = Prepare.THREAD_EXPAND.push(true)) {
+      checkRun(path);
+    }
   }
 }

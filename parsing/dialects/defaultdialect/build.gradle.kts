@@ -28,6 +28,8 @@ dependencies {
     implementation("org.apache.calcite.avatica:avatica-core")
     implementation("org.slf4j:slf4j-api")
 
+    testImplementation("net.hydromatic:foodmart-data-hsqldb")
+    testImplementation("net.hydromatic:foodmart-queries")
     testImplementation("net.hydromatic:quidem")
     testImplementation("net.hydromatic:scott-data-hsqldb")
     testImplementation("org.hsqldb:hsqldb")
@@ -66,7 +68,7 @@ val fmppMain by tasks.registering(org.apache.calcite.buildtools.fmpp.FmppTask::c
 
 val javaCCMain by tasks.registering(org.apache.calcite.buildtools.javacc.JavaCCTask::class) {
     dependsOn(fmppMain)
-    lookAhead.set(2)
+    lookAhead.set(1)
     val parserFile = fmppMain.map {
         it.output.asFileTree.matching { include("**/Parser.jj") }.singleFile
     }

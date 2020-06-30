@@ -15,6 +15,17 @@
 // limitations under the License.
 -->
 
+/* Extra operators */
+
+<DEFAULT, DQID, BTID> TOKEN :
+{
+    < DATE_PART: "DATE_PART" >
+|   < DATEADD: "DATEADD" >
+|   < DATEDIFF: "DATEDIFF" >
+|   < NEGATE: "!" >
+|   < TILDE: "~" >
+}
+
 SqlNode DateFunctionCall() :
 {
     final SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;

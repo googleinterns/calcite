@@ -17,13 +17,12 @@
 package org.apache.calcite.test;
 
 import org.apache.calcite.sql.parser.SqlParserImplFactory;
-import org.apache.calcite.sql.parser.SqlParserTest;
 import org.apache.calcite.sql.parser.mysql.MySQLParserImpl;
 
 /**
  * Tests the "MySQL" SQL parser.
  */
-final class MySQLParserTest extends SqlParserTest {
+final class MySQLParserTest extends SqlDialectParserTest {
 
   @Override protected SqlParserImplFactory parserImplFactory() {
     return MySQLParserImpl.FACTORY;

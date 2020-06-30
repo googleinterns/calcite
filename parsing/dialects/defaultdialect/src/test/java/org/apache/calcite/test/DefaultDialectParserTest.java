@@ -17,13 +17,12 @@
 package org.apache.calcite.test;
 
 import org.apache.calcite.sql.parser.SqlParserImplFactory;
-import org.apache.calcite.sql.parser.SqlParserTest;
 import org.apache.calcite.sql.parser.defaultdialect.DefaultDialectParserImpl;
 
 /**
  * Tests the "Default" SQL parser.
  */
-final class DefaultDialectParserTest extends SqlParserTest {
+final class DefaultDialectParserTest extends SqlDialectParserTest {
 
   @Override protected SqlParserImplFactory parserImplFactory() {
     return DefaultDialectParserImpl.FACTORY;

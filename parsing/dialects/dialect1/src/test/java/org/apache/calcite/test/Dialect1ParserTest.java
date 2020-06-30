@@ -19,7 +19,6 @@ package org.apache.calcite.test;
 import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.parser.SqlAbstractParserImpl;
 import org.apache.calcite.sql.parser.SqlParserImplFactory;
-import org.apache.calcite.sql.parser.SqlParserTest;
 import org.apache.calcite.sql.parser.SqlParserUtil;
 import org.apache.calcite.sql.parser.dialect1.Dialect1ParserImpl;
 
@@ -38,7 +37,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * Tests the Dialect1 SQL parser.
  */
-final class Dialect1ParserTest extends SqlParserTest {
+final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Override protected SqlParserImplFactory parserImplFactory() {
     return Dialect1ParserImpl.FACTORY;
@@ -137,14 +136,14 @@ final class Dialect1ParserTest extends SqlParserTest {
     sql(sql.toString()).ok(expected.toString());
   }
 
-  /** In Babel, AS is not reserved. */
+  /** In Dialect1, AS is not reserved. */
   @Test void testAs() {
     final String expected = "SELECT `AS`\n"
         + "FROM `T`";
     sql("select as from t").ok(expected);
   }
 
-  /** In Babel, DESC is not reserved. */
+  /** In Dialect1, DESC is not reserved. */
   @Test void testDesc() {
     final String sql = "select desc\n"
         + "from t\n"
@@ -156,14 +155,14 @@ final class Dialect1ParserTest extends SqlParserTest {
   }
 
   /**
-   * This is a failure test making sure the LOOKAHEAD for WHEN clause is 2 in Babel, where
-   * in core parser this number is 1.
+   * This is a failure test making sure the LOOKAHEAD for WHEN clause is 2 in
+   * Dialect1, where in core parser this number is 1.
    *
-   * @see SqlParserTest#testCaseExpression()
+   * @see SqlDialectParserTest#testCaseExpression()
    * @see <a href="https://issues.apache.org/jira/browse/CALCITE-2847">[CALCITE-2847]
    * Optimize global LOOKAHEAD for SQL parsers</a>
    */
-  @Test void testCaseExpressionBabel() {
+  @Test void testCaseExpressionDialect1() {
     sql("case x when 2, 4 then 3 ^when^ then 5 else 4 end")
         .fails("(?s)Encountered \"when then\" at .*");
   }
@@ -206,31 +205,31 @@ final class Dialect1ParserTest extends SqlParserTest {
   }
 
   /**
-   * Babel parser's global {@code LOOKAHEAD} is larger than the core
+   * Dialect1 parser's global {@code LOOKAHEAD} is larger than the core
    * parser's. This causes different parse error message between these two
-   * parsers. Here we define a looser error checker for Babel, so that we can
-   * reuse failure testing codes from {@link SqlParserTest}.
+   * parsers. Here we define a looser error checker for Dialect1, so that we can
+   * reuse failure testing codes from {@link SqlDialectParserTest}.
    *
    * <p>If a test case is written in this file -- that is, not inherited -- it
-   * is still checked by {@link SqlParserTest}'s checker.
+   * is still checked by {@link SqlDialectParserTest}'s checker.
    */
   @Override protected Tester getTester() {
     return new TesterImpl() {
       @Override protected void checkEx(String expectedMsgPattern,
           SqlParserUtil.StringAndPos sap, Throwable thrown) {
-        if (thrownByBabelTest(thrown)) {
+        if (thrownByDialect1Test(thrown)) {
           super.checkEx(expectedMsgPattern, sap, thrown);
         } else {
           checkExNotNull(sap, thrown);
         }
       }
 
-      private boolean thrownByBabelTest(Throwable ex) {
+      private boolean thrownByDialect1Test(Throwable ex) {
         Throwable rootCause = Throwables.getRootCause(ex);
         StackTraceElement[] stackTrace = rootCause.getStackTrace();
         for (StackTraceElement stackTraceElement : stackTrace) {
           String className = stackTraceElement.getClassName();
-          if (Objects.equals(className, BabelParserTest.class.getName())) {
+          if (Objects.equals(className, Dialect1ParserTest.class.getName())) {
             return true;
           }
         }

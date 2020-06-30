@@ -17,13 +17,12 @@
 package org.apache.calcite.test;
 
 import org.apache.calcite.sql.parser.SqlParserImplFactory;
-import org.apache.calcite.sql.parser.SqlParserTest;
 import org.apache.calcite.sql.parser.hive.HiveParserImpl;
 
 /**
  * Tests the "Hive" SQL parser.
  */
-final class HiveParserTest extends SqlParserTest {
+final class HiveParserTest extends SqlDialectParserTest {
 
   @Override protected SqlParserImplFactory parserImplFactory() {
     return HiveParserImpl.FACTORY;

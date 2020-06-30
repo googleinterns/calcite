@@ -37,6 +37,12 @@ dependencies {
     testImplementation(project(":parsing", "testClasses"))
 }
 
+tasks.named<Test>("test") {
+    useJUnitPlatform {
+        excludeTags("DefaultCreateTable", "DefaultCreateFunction")
+    }
+}
+
 val dialectGenerate by tasks.registering(org.apache.calcite.buildtools.parser.DialectGenerateTask::class) {
   rootDirectory.set(file("$rootDir/parsing"))
   dialectDirectory.set(file("."))

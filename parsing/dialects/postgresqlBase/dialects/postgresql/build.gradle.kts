@@ -35,6 +35,7 @@ dependencies {
     testImplementation("org.slf4j:slf4j-log4j12")
     testImplementation(project(":core", "testClasses"))
     testImplementation(project(":parsing", "testClasses"))
+    testImplementation(project(":parsing:dialects:postgresqlBase", "testClasses"))
 }
 
 val dialectGenerate by tasks.registering(org.apache.calcite.buildtools.parser.DialectGenerateTask::class) {
