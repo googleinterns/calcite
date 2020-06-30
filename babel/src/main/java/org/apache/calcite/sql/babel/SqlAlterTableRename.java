@@ -30,6 +30,12 @@ public class SqlAlterTableRename extends SqlAlterTableOption {
   final SqlIdentifier origName;
   final SqlIdentifier newName;
 
+  /**
+   * Creates a {@code SqlAlterTableRename}.
+   *
+   * @param origName Original name of object to be renamed.
+   * @param newName  New name of object to be renamed.
+   */
   public SqlAlterTableRename(SqlIdentifier origName, SqlIdentifier newName) {
     this.origName = Objects.requireNonNull(origName);
     this.newName = Objects.requireNonNull(newName);
