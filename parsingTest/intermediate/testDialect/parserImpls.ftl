@@ -21,4 +21,3 @@ void foo() :
 {
     // overidden by testDialect
 }
-

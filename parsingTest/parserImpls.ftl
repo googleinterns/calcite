@@ -34,5 +34,3 @@ void qux(int arg1, int arg2) :
 {
     // Below is a }
 }
-
-

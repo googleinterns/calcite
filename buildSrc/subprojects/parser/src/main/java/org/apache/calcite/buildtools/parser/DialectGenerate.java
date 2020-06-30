@@ -47,7 +47,7 @@ public class DialectGenerate {
 
   // Used to split up a string into tokens by the specified deliminators
   // while also keeping the deliminators as tokens.
-  public static final Pattern tokenizerPattern = Pattern.compile("((?<="
+  private static final Pattern tokenizerPattern = Pattern.compile("((?<="
       + splitDelims + ")|(?=" + splitDelims + "))");
 
   // Matches function declarations: <return_type> <name> (<args>) :
@@ -71,6 +71,10 @@ public class DialectGenerate {
     this.dialectDirectory = dialectDirectory;
     this.rootDirectory = rootDirectory;
     this.outputFile = outputFile;
+  }
+
+  public static Queue<String> getTokens(String input) {
+    return new LinkedList(Arrays.asList(tokenizerPattern.split(input)));
   }
 
   /**
@@ -112,16 +116,17 @@ public class DialectGenerate {
   private Queue<String> getTraversalPath(File rootDirectoryFile) {
     Path dialectPath = dialectDirectory.toPath();
     Path rootPath = rootDirectory.toPath();
-    dialectPath = dialectPath.subpath(rootPath.getNameCount(), dialectPath.getNameCount());
+    dialectPath = dialectPath.subpath(rootPath.getNameCount(),
+        dialectPath.getNameCount());
     Queue<String> pathElements = new LinkedList<>();
     dialectPath.forEach(p -> pathElements.add(p.toString()));
     return pathElements;
   }
 
   /**
-   * Traverses the determined path given by the directories queue. Once the queue is
-   * empty, the dialect directory has been reached. In that case any *.ftl
-   * file should be processed and no further traversal should happen.
+   * Traverses the determined path given by the directories queue. Once the
+   * queue is empty, the dialect directory has been reached. In that case any
+   * *.ftl file should be processed and no further traversal should happen.
    *
    * @param directories The directories to traverse in topdown order
    * @param currentDirectory The current directory the function is processing
@@ -148,8 +153,9 @@ public class DialectGenerate {
           e.printStackTrace();
         }
       } else if (!directories.isEmpty() && fileName.equals(nextDirectory)) {
-        // Remove the front element in the queue, the value is referneced above with
-        // directories.peek() and is used in the next recursive call to this function.
+        // Remove the front element in the queue, the value is referenced above
+        // with directories.peek() and is used in the next recursive call to
+        // this function.
         directories.poll();
         traverse(directories, f, functionMap);
       }
@@ -179,7 +185,7 @@ public class DialectGenerate {
     while (matcher.find()) {
       declarations.add(matcher.toMatchResult());
     }
-    Queue<String> tokens = new LinkedList(Arrays.asList(tokenizerPattern.split(fileText)));
+    Queue<String> tokens = getTokens(fileText);
     int charIndex = 0;
     while (!declarations.isEmpty()) {
       MatchResult declaration = declarations.poll();
@@ -300,115 +306,5 @@ public class DialectGenerate {
     m.find();
     m.find();
     return m.group();
-  }
-
-  /**
-   * Responsible for parsing a block of text surrounded by curly braces. It is
-   * assumed that parsing begins at the start of a curly block. Maintains the
-   * state of which structure the parser is currently in to ensure that
-   * encountered curly braces are valid.
-   */
-  public static class CurlyParser {
-
-    /**
-     * All of the possible important structures that a token can be inside of.
-     * This is tracked to ensure that when a curly brace is encountered,
-     * whether it is part of the syntax or not can be determined.
-     */
-    enum InsideState {
-
-      /**
-       * Not inside of anything except for possibly curly braces.
-       */
-      NONE,
-
-      /**
-       * Inside of a string declaration (block of double quotes).
-       */
-      STRING,
-
-      /**
-       * Inside of a character declaration (block of single quotes).
-       */
-      CHARACTER,
-
-      /**
-       * Inside of a single line comment.
-       */
-      SINGLE_COMMENT,
-
-      /**
-       * Inside of a multi line comment.
-       */
-      MULTI_COMMENT
-    }
-
-    // Default state is that the parser is not within any structure.
-    private InsideState insideState = InsideState.NONE;
-
-    // Keeps track of the number of open curly braces that have been
-    // legally encountered (those that are not within any structure).
-    private int curlyCounter = 0;
-
-    /**
-     * Parses the given token and updates the state. It is assumed that the
-     * tokens are provided as a sequence:
-     *
-     * for any token1, token2
-     * if parseToken(token1) is called and parseToken(token2) is called right after,
-     * then token2 comes directly after token1 in the stream of tokens.
-     *
-     * @param token The token to parse
-     * @return Whether or not the curly block has been fully parsed
-     */
-    public boolean parseToken(String token) {
-      updateState(token);
-      return curlyCounter == 0;
-    }
-
-    /**
-     * Determines the updated state based on the token and current state.
-     *
-     * @param token The token to parse
-     */
-    private void updateState(String token) {
-      if (token.equals("\n")) {
-        if (insideState == InsideState.SINGLE_COMMENT) {
-          insideState = InsideState.NONE;
-        }
-      } else if (token.equals("\"")) {
-        if (insideState == InsideState.NONE) {
-          insideState = InsideState.STRING;
-        } else if (insideState == InsideState.STRING) {
-          insideState = InsideState.NONE;
-        }
-      } else if (token.equals("'")) {
-        if (insideState == InsideState.NONE) {
-          insideState = InsideState.CHARACTER;
-        } else if (insideState == InsideState.CHARACTER) {
-          insideState = InsideState.NONE;
-        }
-      } else if (token.equals("//")) {
-        if (insideState == InsideState.NONE) {
-          insideState = InsideState.SINGLE_COMMENT;
-        }
-      } else if (token.equals("/*")) {
-        if (insideState == InsideState.NONE) {
-          insideState = InsideState.MULTI_COMMENT;
-        }
-      } else if (token.equals("*/")) {
-        if (insideState == InsideState.MULTI_COMMENT) {
-          insideState = InsideState.NONE;
-        }
-      } else if (token.equals("{")) {
-        if (insideState == InsideState.NONE) {
-          curlyCounter++;
-        }
-      } else if (token.equals("}")) {
-        if (insideState == InsideState.NONE) {
-          curlyCounter--;
-        }
-      }
-    }
   }
 }

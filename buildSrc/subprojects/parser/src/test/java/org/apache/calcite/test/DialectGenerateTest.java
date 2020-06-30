@@ -26,33 +26,33 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Assertions;
 import org.apache.calcite.buildtools.parser.DialectGenerate;
-import org.apache.calcite.buildtools.parser.DialectGenerate.CurlyParser;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DialectGenerateTest {
 
   /**
-   * Retrns a DialectGenerate with root path of calcite/parsingTest and
+   * Returns a DialectGenerate with root path of calcite/parsingTest and
    * dialect path of calcite/parsingTest/intermediate/testDialect.
    */
   private DialectGenerate setupDialectGenerate() {
     Path rootPath = Paths.get("..", "..", "..", "parsingTest");
     // Adds the path /intermediate/testDialect/ to the end of rootPath.
-    Path dialectPath = rootPath.resolve(Paths.get("intermediate", "testDialect"));
+    Path dialectPath = rootPath.resolve(Paths.get("intermediate",
+          "testDialect"));
     File rootFile = rootPath.toFile();
     File dialectFile = dialectPath.toFile();
     return new DialectGenerate(dialectFile, rootFile, "");
   }
 
   /**
-   * Returns the expected extraction results after calling DialectGenerate.extractFunctions
-   * onto the parsingTest directory structure.
+   * Returns the expected extraction results after calling
+   * DialectGenerate.extractFunctions onto the parsingTest directory structure.
    */
   private Map<String, String> getExpectedExtractionResults() {
     String foo = "void foo() :\n"
@@ -102,57 +102,16 @@ public class DialectGenerateTest {
     }};
   }
 
-  private Queue<String> getTokens(String str) {
-    return new LinkedList(Arrays.asList(DialectGenerate.tokenizerPattern.split(str)));
-  }
-
-  private void assertCurlyParserSucceeds(String input) {
-    CurlyParser parser = new CurlyParser();
-    Queue<String> tokens = getTokens(input);
-    boolean doneParsing = false;
-    while (!tokens.isEmpty()) {
-      if (doneParsing) {
-        assertTrue(false, "Failed to parse curly block");
-      }
-      doneParsing = parser.parseToken(tokens.poll());
-    }
-    assertTrue(doneParsing);
-  }
-
-  @Test public void testCurlyParserParsesEmpty() {
-    String input = "{  }";
-    assertCurlyParserSucceeds(input);
-  }
-
-  @Test public void testCurlyParserParsesString() {
-    String input = "{ \" } \"  }";
-    assertCurlyParserSucceeds(input);
-  }
-
-  @Test public void testCurlyParserParsesCharacter() {
-    String input = "{ ' } '  }";
-    assertCurlyParserSucceeds(input);
-  }
-
-  @Test public void testCurlyParserParsesSingleComment() {
-    String input = "{ //  } \n  }";
-    assertCurlyParserSucceeds(input);
-  }
-
-  @Test public void testCurlyParserParsesMultiComment() {
-    String input = "{ /*  } */  }";
-    assertCurlyParserSucceeds(input);
-  }
-
   @Test public void testExtractFunctions() {
     DialectGenerate dialectGenerate = setupDialectGenerate();
-    Map<String, String> res = dialectGenerate.extractFunctions();
+    Map<String, String> result = dialectGenerate.extractFunctions();
     Map<String, String> expected = getExpectedExtractionResults();
-    assertEquals(expected.size(), res.size(),
+    assertEquals(expected.size(), result.size(),
         "Resultant map size doesn't match expected map size");
     for (String key : expected.keySet()) {
-      assertTrue(res.containsKey(key), "Resultant map doesn't contain expected key: " + key);
-      assertEquals(expected.get(key), res.get(key));
+      assertTrue(result.containsKey(key),
+          "Resultant map doesn't contain expected key: " + key);
+      assertEquals(expected.get(key), result.get(key));
     }
   }
 }
