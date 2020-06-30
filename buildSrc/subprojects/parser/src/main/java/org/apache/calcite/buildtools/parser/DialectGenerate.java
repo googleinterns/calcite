@@ -226,6 +226,7 @@ public class DialectGenerate {
       functionBuilder.append(token);
       charIndex += token.length();
     }
+    System.out.println(functionBuilder.toString());
     // Called twice as there are two curly blocks, one for initialization
     // and one for the body.
     charIndex = processCurlyBlock(functionBuilder, tokens, charIndex);
@@ -254,6 +255,7 @@ public class DialectGenerate {
     // Remove any preceeding spaces or new lines before the curly block starts.
     charIndex = consumeExtraSpacesAndLines(functionBuilder, tokens, charIndex);
     if (!tokens.peek().equals("{")) {
+      System.out.println(tokens);
       throw new IllegalStateException("First token of curly block must be a curly brace.");
     }
     CurlyParser parser = new CurlyParser();
