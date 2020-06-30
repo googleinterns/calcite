@@ -136,6 +136,7 @@ public class DialectGenerate {
     Arrays.sort(files, fileComparator);
     String nextDirectory = directories.peek();
     for (File f : files) {
+      String fileName = f.getName();
       if (fileName.endsWith(".ftl")) {
         try {
           String fileText = new String(Files.readAllBytes(f.toPath()),
