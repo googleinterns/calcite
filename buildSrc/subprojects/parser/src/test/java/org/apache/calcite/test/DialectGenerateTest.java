@@ -16,8 +16,11 @@
  */
 package org.apache.calcite.test;
 
-import java.nio.file.Path;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Queue;
 import java.util.LinkedList;
@@ -30,6 +33,7 @@ import org.junit.jupiter.api.Assertions;
 import org.apache.calcite.buildtools.parser.DialectGenerate;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,6 +47,39 @@ public class DialectGenerateTest {
         0, declaration.length(), "foo");
     assertEquals(function.length(), charIndex);
   }
+
+  private void assertFileProcessed(String testName) {
+    DialectGenerate dialectGenerate = new DialectGenerate();
+    Path basePath = Paths.get("src", "test", "processFileTests", testName);
+    Path testPath = basePath.resolve(testName + ".txt");
+    Path expectedPath = basePath.resolve(testName + "_expected.txt");
+
+    String fileText = readFile(testPath);
+    Map<String, String> functionMap = new LinkedHashMap<String, String>();
+    dialectGenerate.processFile(fileText, functionMap);
+
+    String expectedText = readFile(expectedPath);
+    StringBuilder actualText = new StringBuilder();
+    for (String value : functionMap.values()) {
+      actualText.append(value + "\n");
+    }
+    assertEquals(expectedText, actualText.toString());
+  }
+
+  private String readFile(Path path) {
+    String fileText = "";
+    try {
+      fileText = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      assertTrue(false, "File " + path.toAbsolutePath().toString()
+          + " doesn't exist.");
+    }
+    // Windows line ending converting.
+    fileText = fileText.replaceAll("\\r\\n", "\n");
+    fileText = fileText.replaceAll("\\r", "\n");
+    return fileText;
+  }
+
 
   @Test public void processFunctionEmptyMultipleLines() {
     String declaration = "void foo() :\n";
@@ -113,5 +150,25 @@ public class DialectGenerateTest {
       + "}";
     assertThrows(IllegalStateException.class,
         () -> assertFunctionIsParsed(declaration, function));
+  }
+
+  @Test public void processFileEmpty() {
+    String testName = "empty";
+    assertFileProcessed(testName);
+  }
+
+  @Test public void processFileSingleFunction() {
+    String testName = "single_function";
+    assertFileProcessed(testName);
+  }
+
+  @Test public void processFileMultiLineDeclarations() {
+    String testName = "multi_line_declarations";
+    assertFileProcessed(testName);
+  }
+
+  @Test public void processFileMultipleFunctionsSeparatedByLines() {
+    String testName = "multiple_functions_separated";
+    assertFileProcessed(testName);
   }
 }

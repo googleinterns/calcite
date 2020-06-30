@@ -66,6 +66,11 @@ public class CurlyParserTest {
     assertCurlyParserSucceeds(input);
   }
 
+  @Test public void testCurlyParserParsesNestedValidCurlyBlocks() {
+    String input = "{ {  } }";
+    assertCurlyParserSucceeds(input);
+  }
+
   @Test public void testCurlyParserThrowsExceptionLeadingSpaces() {
     String input = " { }";
     assertThrows(AssertionError.class, () -> assertCurlyParserSucceeds(input));
