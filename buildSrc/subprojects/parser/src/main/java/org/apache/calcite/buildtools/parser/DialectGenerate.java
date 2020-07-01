@@ -59,8 +59,8 @@ public class DialectGenerate {
   }
 
   /**
-   * Extracts the functions from the given file into functionMap. Parses
-   * functions of the form:
+   * Extracts the functions and token assignments from the given file into
+   * extractedData. Parses functions of the form:
    * <return_type> <name>(<args>) :
    * {
    *     <properties>
@@ -68,6 +68,9 @@ public class DialectGenerate {
    * {
    *     <body>
    * }
+   *
+   * Parses token assignments of the form: [<OPT1, OPT2,...>](TOKEN|SKIP|MORE):
+   *                                       { <body> }
    *
    * @param fileText The contents of the file to process
    * @param extractedData The object to which the parsed functions and token assignments
@@ -87,6 +90,19 @@ public class DialectGenerate {
         /*isFunctionDeclaration=*/ false);
   }
 
+  /**
+   * Does a single pass of fileText and parses functions or token assignments
+   * as they are encountered.
+   *
+   * @param declarations The declarations to parse that are followed by some
+   *                     sort of of curly braces
+   * @param extractedData Where the extracted functions and token assignments
+   *                      are stored
+   * @param fileText The text to parse
+   * @param isFunctionDeclaration If true, the declarations are functions,
+   *                              otherwise the declarations are token
+   *                              assignments
+   */
   private void parseDeclarations(Queue<MatchResult> declarations,
       ExtractedData extractedData, String fileText,
       boolean isFunctionDeclaration) {
@@ -116,6 +132,23 @@ public class DialectGenerate {
     return  matches;
   }
 
+  /**
+   * Parses a token assignment of the form:
+   *
+   * [<OPT1, OPT2,...>](TOKEN|SKIP|MORE):
+   * {
+   *     <body>
+   * }
+   *
+   * @param tokens The tokens starting from the function declaration and
+   *               ending at EOF
+   * @param tokenAssignments The list to which the extracted token assignments
+   *                         will be added to
+   * @param charIndex The character index of the entire text of the file at which
+   *                  the parsing is commencing at
+   * @param declarationEnd The char index (of entire file text) at which the
+   *                       function declaration ends
+   */
   public int processTokenAssignment(
       Queue<String> tokens,
       List<String> tokenAssignments,
