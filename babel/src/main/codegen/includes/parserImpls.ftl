@@ -1156,17 +1156,6 @@ SqlNode SqlInsertWithOptionalValuesKeyword() :
     }
 }
 
-SqlNode SqlNamedExpression(SqlNode e) :
-{
-    final SqlIdentifier name;
-}
-{
-    <LPAREN> <NAMED> name = SimpleIdentifier() <RPAREN>
-    {
-        return SqlStdOperatorTable.AS.createCall(span().end(e), e, name);
-    }
-}
-
 SqlNodeList LiteralRowConstructorList(Span s) :
 {
     List<SqlNode> rowList = new ArrayList<SqlNode>();
@@ -1521,6 +1510,32 @@ SqlNode InlineFormatQuery(SqlNode q) :
     <LPAREN> <FORMAT> format = StringLiteral() <RPAREN>
     {
         return SqlStdOperatorTable.FORMAT.createCall(s.end(this), q, format);
+    }
+}
+
+SqlNode NamedLiteralOrIdentifier() :
+{
+     final SqlNode q;
+     final SqlNode e;
+}
+{
+    (
+        q = Literal()
+    |
+        q = SimpleIdentifier()
+    )
+    e = NamedQuery(q) { return e; }
+}
+
+SqlNode NamedQuery(SqlNode q) :
+{
+    final Span s = span();
+    final SqlIdentifier name;
+}
+{
+    <LPAREN> <NAMED> name = SimpleIdentifier() <RPAREN>
+    {
+        return SqlStdOperatorTable.AS.createCall(s.end(this), q, name);
     }
 }
 
