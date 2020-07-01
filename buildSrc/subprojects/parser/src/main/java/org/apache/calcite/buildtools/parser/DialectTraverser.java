@@ -57,12 +57,15 @@ public class DialectTraverser {
   }
 
   /**
-   * Extracts functions and token assignments and prints the functions for the
-   * given dialect.
+   * Extracts functions and token assignments and prints the functions and
+   * token assignments for  the given dialect.
    */
   public void run() {
     ExtractedData extractedData = extractData();
     // TODO(AndrewPochapsky): Remove this once generation logic added.
+    for (String tokenAssignment : extractedData.tokenAssignments) {
+      System.out.println(tokenAssignment + "\n");
+    }
     for (Map.Entry<String, String> entry : extractedData.functions.entrySet()) {
       System.out.println(entry.getKey() + "=" + entry.getValue() + "\n");
     }

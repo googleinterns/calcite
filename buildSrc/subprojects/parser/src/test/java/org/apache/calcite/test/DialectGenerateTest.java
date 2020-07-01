@@ -194,19 +194,33 @@ public class DialectGenerateTest {
     assertFileProcessed("token_assignments");
   }
 
-  @Test public void processFileFunctionsAndAssignments() {
+  @Test public void processFileFunctionsAndTokenAssignments() {
     assertFileProcessed("functions_and_assignments");
   }
 
-  @Test public void processTokenAssignmentEmpty() {
+  @Test public void processTokenAssignmentTokenEmpty() {
     String declaration = "TOKEN :\n";
     String assignment = declaration
       + "{\n}";
     assertTokenAssignmentIsParsed(declaration, assignment);
   }
 
-  @Test public void processTokenAssignmentNonEmpty() {
-    String declaration = "TOKEN :\n";
+  @Test public void processTokenAssignmentSkipEmpty() {
+    String declaration = "SKIP :\n";
+    String assignment = declaration
+      + "{\n}";
+    assertTokenAssignmentIsParsed(declaration, assignment);
+  }
+
+  @Test public void processTokenAssignmentMoreEmpty() {
+    String declaration = "MORE :\n";
+    String assignment = declaration
+      + "{\n}";
+    assertTokenAssignmentIsParsed(declaration, assignment);
+  }
+
+  @Test public void processTokenAssignmentNonEmptyWithAngleBrackets() {
+    String declaration = "<foo, bar> TOKEN :\n";
     String assignment = declaration
       + "{\n"
       + "< DATE_PART: \"DATE_PART\" >\n"
