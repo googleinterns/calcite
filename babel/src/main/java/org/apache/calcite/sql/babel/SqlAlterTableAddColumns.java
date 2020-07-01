@@ -23,16 +23,19 @@ import org.apache.calcite.sql.SqlWriter;
 import java.util.Objects;
 
 /**
- * A {@code SqlAlterTableAddColumn} represents an ADD column statement within
+ * A {@code SqlAlterTableAddColumns} represents an ADD column statement within
  * an ALTER TABLE query.
  */
 public class SqlAlterTableAddColumns extends SqlAlterTableOption {
 
   public final SqlNodeList columns;
 
+  /*
+   * Creates a {@code SqlAlterTableAddColumns}.
+   * @param columns  The list of columns to add. Must be non-null and non-empty
+   */
   public SqlAlterTableAddColumns(SqlNodeList columns) {
     this.columns = Objects.requireNonNull(columns);
-    assert !SqlNodeList.isEmptyList(columns);
   }
 
   @Override public void unparse(SqlWriter writer,
