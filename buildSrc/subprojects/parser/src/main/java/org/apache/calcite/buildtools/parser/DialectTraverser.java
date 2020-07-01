@@ -29,7 +29,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Arrays;
 
-/** Traverses the parserImpls tree for the given dialect. Processing is done
+/**
+ * Traverses the parserImpls tree for the given dialect. Processing is done
  * by <code> DialectGenerate </code>.
  */
 public class DialectTraverser {
@@ -46,7 +47,8 @@ public class DialectTraverser {
   private final String outputFile;
   private final DialectGenerate dialectGenerate;
 
-  public DialectTraverser(File dialectDirectory, File rootDirectory, String outputFile) {
+  public DialectTraverser(File dialectDirectory, File rootDirectory,
+      String outputFile) {
     this.dialectDirectory = dialectDirectory;
     this.rootDirectory = rootDirectory;
     this.outputFile = outputFile;

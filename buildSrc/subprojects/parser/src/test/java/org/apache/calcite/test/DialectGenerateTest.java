@@ -48,7 +48,8 @@ public class DialectGenerateTest {
     assertEquals(function.length(), charIndex);
   }
 
-  /** Each testcase has a testName.txt and testName_expected.txt file.
+  /**
+   * Each testcase has a testName.txt and testName_expected.txt file.
    * This function makes sure that the testName.txt file is parsed without error
    * by checking that the contents of the modified functionMap match the contents
    * of the testName_expected.txt file.
@@ -83,7 +84,7 @@ public class DialectGenerateTest {
       assertTrue(false, "File " + path.toAbsolutePath().toString()
           + " doesn't exist.");
     }
-    // Windows line ending converting.
+    // Windows line ending conversion.
     fileText = fileText.replaceAll("\\r\\n", "\n");
     fileText = fileText.replaceAll("\\r", "\n");
     return fileText;
@@ -161,22 +162,18 @@ public class DialectGenerateTest {
   }
 
   @Test public void processFileEmpty() {
-    String testName = "empty";
-    assertFileProcessed(testName);
+    assertFileProcessed("empty");
   }
 
   @Test public void processFileSingleFunction() {
-    String testName = "single_function";
-    assertFileProcessed(testName);
+    assertFileProcessed("single_function");
   }
 
   @Test public void processFileMultiLineDeclarations() {
-    String testName = "multi_line_declarations";
-    assertFileProcessed(testName);
+    assertFileProcessed("multi_line_declarations");
   }
 
   @Test public void processFileMultipleFunctionsSeparatedByLines() {
-    String testName = "multiple_functions_separated";
-    assertFileProcessed(testName);
+    assertFileProcessed("multiple_functions_separated");
   }
 }
