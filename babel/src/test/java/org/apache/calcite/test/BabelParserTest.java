@@ -1070,9 +1070,15 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testExecuteMacroWithMixedParamPatternFails() {
-    final String sql = "execute foo (1^,^ bar = '2')";
-    final String expected = "(?s).*Encountered \", bar\" at .*";
+    final String sql = "execute foo (1, ^bar^ = '2')";
+    final String expected = "(?s).*Encountered \"bar\" at .*";
     sql(sql).fails(expected);
+  }
+
+  @Test public void testExecuteMacroWithOmittedValues() {
+    final String sql = "execute foo (,,3)";
+    final String expected = "EXECUTE `FOO` (NULL, NULL, 3)";
+    sql(sql).ok(expected);
   }
 
   @Test public void testDateTimePrimaryLiteral() {

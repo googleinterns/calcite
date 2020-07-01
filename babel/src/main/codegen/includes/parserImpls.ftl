@@ -934,19 +934,34 @@ void SqlExecMacroArgument(SqlNodeList params) :
             }
         )*
     |
-        e = Literal()
+        e = SqlExecMacroPositionalParamItem()
         {
             params.add(new SqlExecMacroParam(getPos(), e));
         }
         (
             <COMMA>
-            e = Literal()
+            e = SqlExecMacroPositionalParamItem()
             {
                 params.add(new SqlExecMacroParam(getPos(), e));
             }
         )*
     )
     <RPAREN>
+}
+
+SqlNode SqlExecMacroPositionalParamItem() :
+{
+    SqlNode e;
+}
+{
+    (
+        e = Literal()
+    |
+        { e = SqlLiteral.createNull(getPos()); }
+    )
+    {
+        return e;
+    }
 }
 
 SqlNode SqlSimpleIdentifierEqualLiteral() :
