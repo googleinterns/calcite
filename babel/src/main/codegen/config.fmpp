@@ -36,7 +36,9 @@ data: {
       "org.apache.calcite.sql.babel.SqlAlterTableAttributeDataBlockSize",
       "org.apache.calcite.sql.babel.SqlAlterTableAttributeFreeSpace",
       "org.apache.calcite.sql.babel.SqlAlterTableAttributeOnCommit",
+      "org.apache.calcite.sql.babel.SqlAlterTableDrop",
       "org.apache.calcite.sql.babel.SqlAlterTableOption",
+      "org.apache.calcite.sql.babel.SqlAlterTableRename",
       "org.apache.calcite.sql.babel.SqlColumnAttributeGenerated",
       "org.apache.calcite.sql.babel.SqlColumnAttributeGenerated.GeneratedType",
       "org.apache.calcite.sql.babel.SqlColumnAttributeGeneratedCycle",
@@ -1067,9 +1069,15 @@ data: {
       "InfixCast"
     ]
 
-    preAtomicRowMethods: [
-      "InlineModOperator()"
-      "AlternativeTypeConversionLiteralOrIdentifier()"
+    preExpressionMethods: [
+      "InlineModOperator"
+      "AlternativeTypeConversionLiteralOrIdentifier"
+      "InlineFormatLiteralOrIdentifier"
+    ]
+
+    postExpressionMethods: [
+      "AlternativeTypeConversionQuery"
+      "InlineFormatQuery"
     ]
 
     dateTimeExpressionMethods: [
@@ -1091,13 +1099,14 @@ data: {
     includePosixOperators: true
     includeCastFormat: true
     includeCompoundIdentifier: true
+    allowColonSeparatorInCompoundIdentifier: true
     includeBraces: true
     includeAdditionalDeclarations: false
     includeSubstrKeyword: true
     includeQualifyClause: true
-    includeAlternativeTypeConversionQuery: true
     includeRankWithSortingExpressions: true
     includeTopN: true
+    includeInsertWithOmittedValues: true
   }
 }
 

@@ -457,7 +457,10 @@ data: {
     extraBinaryExpressions: [
     ]
 
-    preAtomicRowMethods: [
+    preExpressionMethods: [
+    ]
+
+    postExpressionMethods: [
     ]
 
     dateTimeExpressionMethods: [
@@ -478,13 +481,14 @@ data: {
     includePosixOperators: false
     includeCastFormat: false
     includeCompoundIdentifier: true
+    allowColonSeparatorInCompoundIdentifier: false
     includeBraces: true
     includeAdditionalDeclarations: false
     includeSubstrKeyword: false
     includeQualifyClause: false
-    includeAlternativeTypeConversionQuery: false
     includeRankWithSortingExpressions: false
     includeTopN: false
+    includeInsertWithOmittedValues: false
   }
 }
 

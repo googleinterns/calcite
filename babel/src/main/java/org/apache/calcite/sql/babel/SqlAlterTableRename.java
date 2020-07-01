@@ -16,36 +16,35 @@
  */
 package org.apache.calcite.sql.babel;
 
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlWriter;
 
 import java.util.Objects;
 
 /**
- * A {@code SqlAlterTableAddColumns} represents an ADD column statement within
- * an ALTER TABLE query.
+ * A {@code SqlAlterTableRename} represents a RENAME statement within an
+ * ALTER TABLE query.
  */
-public class SqlAlterTableAddColumns extends SqlAlterTableOption {
+public class SqlAlterTableRename extends SqlAlterTableOption {
 
-  public final SqlNodeList columns;
+  public final SqlIdentifier origName;
+  public final SqlIdentifier newName;
 
   /**
-   * Creates a {@code SqlAlterTableAddColumns}.
-   * @param columns  The list of columns to add. Must be non-null and non-empty
+   * Creates a {@code SqlAlterTableRename}.
+   *
+   * @param origName Original name of object to be renamed.
+   * @param newName  New name of object to be renamed.
    */
-  public SqlAlterTableAddColumns(SqlNodeList columns) {
-    this.columns = Objects.requireNonNull(columns);
+  public SqlAlterTableRename(SqlIdentifier origName, SqlIdentifier newName) {
+    this.origName = Objects.requireNonNull(origName);
+    this.newName = Objects.requireNonNull(newName);
   }
 
-  @Override public void unparse(SqlWriter writer,
-      int leftPrec, int rightPrec) {
-    writer.keyword("ADD");
-    SqlWriter.Frame frame = writer.startList("(", ")");
-    for (SqlNode c : columns) {
-      writer.sep(",");
-      c.unparse(writer, 0, 0);
-    }
-    writer.endList(frame);
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    writer.keyword("RENAME");
+    origName.unparse(writer, leftPrec, rightPrec);
+    writer.keyword("TO");
+    newName.unparse(writer, leftPrec, rightPrec);
   }
 }

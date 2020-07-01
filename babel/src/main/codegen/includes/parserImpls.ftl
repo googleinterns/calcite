@@ -1178,15 +1178,32 @@ SqlNode LiteralRowConstructor() :
 }
 {
     <LPAREN>
-    e = AtomicRowExpression() { valueList.add(e); }
+    e = LiteralRowConstructorItem()
+    { valueList.add(e); }
     (
-        LOOKAHEAD(2)
-        <COMMA> e = AtomicRowExpression() { valueList.add(e); }
+        <COMMA>
+        e = LiteralRowConstructorItem()
+        { valueList.add(e); }
     )*
     <RPAREN>
     {
         return SqlStdOperatorTable.ROW.createCall(s.end(valueList),
             valueList.toArray());
+    }
+}
+
+SqlNode LiteralRowConstructorItem() :
+{
+    SqlNode e;
+}
+{
+    (
+        e = AtomicRowExpression()
+    |
+        { e = SqlLiteral.createNull(getPos()); }
+    )
+    {
+        return e;
     }
 }
 
@@ -1433,51 +1450,62 @@ SqlTypeNameSpec TypeNameAlternativeCastSyntax() :
 
 SqlNode AlternativeTypeConversionLiteralOrIdentifier() :
 {
-     final List<SqlNode> args;
-     final SqlDataTypeSpec dt;
-     SqlNode e;
-     final Span s;
+     final SqlNode q;
+     final SqlNode e;
 }
 {
     (
-        e = Literal()
+        q = Literal()
     |
-        e = SimpleIdentifier()
+        q = SimpleIdentifier()
     )
-    {
-        s = span();
-        args = startList(e);
-    }
+    e = AlternativeTypeConversionQuery(q) { return e; }
+}
+
+SqlNode AlternativeTypeConversionQuery(SqlNode q) :
+{
+    final Span s = span();
+    final List<SqlNode> args = startList(q);
+    final SqlDataTypeSpec dt;
+    final SqlNode interval;
+    final SqlNode format;
+}
+{
     <LPAREN>
     (
         dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
     |
-        <INTERVAL> e = IntervalQualifier() { args.add(e); }
+        <INTERVAL> interval = IntervalQualifier() { args.add(interval); }
     )
-    [ <FORMAT> e = StringLiteral() { args.add(e); } ]
+    [ <FORMAT> format = StringLiteral() { args.add(format); } ]
     <RPAREN> {
         return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
     }
 }
 
-SqlNode AlternativeTypeConversionQuery(SqlNode query) :
+SqlNode InlineFormatLiteralOrIdentifier() :
 {
-    final List<SqlNode> args = startList(query);
-    final SqlDataTypeSpec dt;
-    final Span s;
-    SqlNode e;
+     final SqlNode q;
+     final SqlNode e;
 }
 {
-    { s = span(); }
-    <LPAREN>
     (
-        dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
+        q = Literal()
     |
-        <INTERVAL> e = IntervalQualifier() { args.add(e); }
+        q = SimpleIdentifier()
     )
-    [ <FORMAT> e = StringLiteral() { args.add(e); } ]
-    <RPAREN> {
-        return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
+    e = InlineFormatQuery(q) { return e; }
+}
+
+SqlNode InlineFormatQuery(SqlNode q) :
+{
+    final Span s = span();
+    final SqlNode format;
+}
+{
+    <LPAREN> <FORMAT> format = StringLiteral() <RPAREN>
+    {
+        return SqlStdOperatorTable.FORMAT.createCall(s.end(this), q, format);
     }
 }
 
@@ -1650,6 +1678,10 @@ SqlAlterTableOption AlterTableOption() :
 {
     (
         option = AlterTableAddColumns()
+    |
+        option = AlterTableRename()
+    |
+        option = AlterTableDrop()
     )
     { return option; }
 }
@@ -1678,6 +1710,39 @@ SqlAlterTableOption AlterTableAddColumns() :
         columns = ExtendColumnList()
     )
     { return new SqlAlterTableAddColumns(columns); }
+}
+
+/**
+ * Parses a RENAME statement within an ALTER TABLE query.
+ */
+SqlAlterTableOption AlterTableRename() :
+{
+    final SqlIdentifier origName;
+    final SqlIdentifier newName;
+}
+{
+    <RENAME>
+    origName = SimpleIdentifier()
+    <TO>
+    newName = SimpleIdentifier()
+    { return new SqlAlterTableRename(origName, newName); }
+}
+
+/**
+ * Parses a DROP statement within an ALTER TABLE query.
+ */
+SqlAlterTableOption AlterTableDrop() :
+{
+    final SqlIdentifier dropObj;
+    boolean identity = false;
+}
+{
+    <DROP>
+    dropObj = SimpleIdentifier()
+    [
+        <IDENTITY> { identity = true; }
+    ]
+    { return new SqlAlterTableDrop(dropObj, identity); }
 }
 
 /**

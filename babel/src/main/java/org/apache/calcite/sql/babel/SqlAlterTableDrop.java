@@ -16,36 +16,37 @@
  */
 package org.apache.calcite.sql.babel;
 
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlWriter;
 
 import java.util.Objects;
 
 /**
- * A {@code SqlAlterTableAddColumns} represents an ADD column statement within
- * an ALTER TABLE query.
+ * A {@code SqlAlterTableDrop} represents a DROP statement within an
+ * ALTER TABLE query.
  */
-public class SqlAlterTableAddColumns extends SqlAlterTableOption {
+public class SqlAlterTableDrop extends SqlAlterTableOption {
 
-  public final SqlNodeList columns;
+  public final SqlIdentifier dropObj;
+  public final boolean identity;
 
   /**
-   * Creates a {@code SqlAlterTableAddColumns}.
-   * @param columns  The list of columns to add. Must be non-null and non-empty
+   * Creates a {@code SqlAlterTableDrop}.
+   *
+   * @param dropObj   Identifier specifying object to drop.
+   * @param identity  Whether or not IDENTITY keyword is specified.
    */
-  public SqlAlterTableAddColumns(SqlNodeList columns) {
-    this.columns = Objects.requireNonNull(columns);
+  public SqlAlterTableDrop(SqlIdentifier dropObj, boolean identity) {
+    this.dropObj = Objects.requireNonNull(dropObj);
+    this.identity = identity;
   }
 
   @Override public void unparse(SqlWriter writer,
       int leftPrec, int rightPrec) {
-    writer.keyword("ADD");
-    SqlWriter.Frame frame = writer.startList("(", ")");
-    for (SqlNode c : columns) {
-      writer.sep(",");
-      c.unparse(writer, 0, 0);
+    writer.keyword("DROP");
+    dropObj.unparse(writer, leftPrec, rightPrec);
+    if (identity) {
+      writer.keyword("IDENTITY");
     }
-    writer.endList(frame);
   }
 }

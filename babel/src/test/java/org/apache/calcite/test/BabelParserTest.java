@@ -270,6 +270,20 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCompoundIdentifierWithColonSeparator() {
+    final String sql = "select * from foo:bar";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`.`BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCompoundIdentifierWithColonAndDotSeparators() {
+    final String sql = "select * from foo:bar.baz";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`.`BAR`.`BAZ`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateOrReplaceTable() {
     final String sql = "create or replace table foo (bar integer)";
     final String expected = "CREATE OR REPLACE TABLE `FOO` (`BAR` INTEGER)";
@@ -1710,6 +1724,38 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testInlineFormatIdentifier() {
+    final String sql = "select foo (format 'XXX')";
+    final String expected = "SELECT (`FOO` (FORMAT 'XXX'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testInlineFormatNumericLiteral() {
+    final String sql = "select 12.5 (format '9.99E99')";
+    final String expected = "SELECT (12.5 (FORMAT '9.99E99'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testInlineFormatStringLiteral() {
+    final String sql = "select 12.5 (format 'XXX')";
+    final String expected = "SELECT (12.5 (FORMAT 'XXX'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testInlineFormatDateLiteral() {
+    final String sql = "select current_date (format 'yyyy-mm-dd')";
+    final String expected = "SELECT (CURRENT_DATE (FORMAT 'yyyy-mm-dd'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testInlineFormatQuery() {
+    final String sql = "select (select foo from bar) (format 'XXX') from baz";
+    final String expected = "SELECT ((SELECT `FOO`\n"
+        + "FROM `BAR`) (FORMAT 'XXX'))\n"
+        + "FROM `BAZ`";
+    sql(sql).ok(expected);
+  }
+
   @Test void testAlternativeTypeConversionIdentifier() {
     final String sql = "select foo (integer)";
     final String expected = "SELECT CAST(`FOO` AS INTEGER)";
@@ -1907,6 +1953,37 @@ class BabelParserTest extends SqlParserTest {
     final String sql = "alter table foo add ^(^)";
     final String expected = "(?s).*Encountered \"\\( \\)\".*";
     sql(sql).fails(expected);
+  }
+
+  @Test void testAlterRename() {
+    final String sql = "alter table foo rename bar to baz";
+    final String expected = "ALTER TABLE `FOO` RENAME `BAR` TO `BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterRenameWithTableAttribute() {
+    final String sql = "alter table foo, no fallback rename bar to baz";
+    final String expected = "ALTER TABLE `FOO`, NO FALLBACK"
+        + " RENAME `BAR` TO `BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterDrop() {
+    final String sql = "alter table foo drop bar";
+    final String expected = "ALTER TABLE `FOO` DROP `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterDropWithIdentity() {
+    final String sql = "alter table foo drop bar identity";
+    final String expected = "ALTER TABLE `FOO` DROP `BAR` IDENTITY";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlterDropWithTableAttribute() {
+    final String sql = "alter table foo, no fallback drop bar";
+    final String expected = "ALTER TABLE `FOO`, NO FALLBACK DROP `BAR`";
+    sql(sql).ok(expected);
   }
 
   @Test void testIndexWithoutName() {
@@ -2129,5 +2206,33 @@ class BabelParserTest extends SqlParserTest {
         + " generated always as identity ^(^))";
     final String expected = "(?s).*Encountered \"\\( \\)\" at.*";
     sql(sql).fails(expected);
+  }
+
+  @Test public void testInsertOneOmittedValue() {
+    final String sql = "insert into foo values (1,,'hi')";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(1, NULL, 'hi'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInsertAllOmittedValues() {
+    final String sql = "insert into foo values (,,)";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(NULL, NULL, NULL))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInsertOneOmittedValueNoValuesKeyword() {
+    final String sql = "insert into foo (1,,'hi')";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(1, NULL, 'hi'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInsertAllOmittedValuesNoValuesKeyword() {
+    final String sql = "insert into foo (,,)";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(NULL, NULL, NULL))";
+    sql(sql).ok(expected);
   }
 }
