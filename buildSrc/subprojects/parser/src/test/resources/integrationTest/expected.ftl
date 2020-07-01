@@ -14,6 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+<DEFAULT> TOKEN :
+{
+
+}
+SKIP :
+{
+    < DATE_PART: "DATE_PART" >
+|   < DATEADD: "DATEADD" >
+|   < DATEDIFF: "DATEDIFF" >
+|   < NEGATE: "!" >
+|   < TILDE: "~" >
+}
+MORE : {}
 void foo() :
 {
     String x = " '}' ";
@@ -21,4 +34,35 @@ void foo() :
 {
     // overidden by testDialect
 }
-MORE : {}
+void bar  (   )  : {} {}
+void baz() : {x}
+{
+    // overridden by intermediate
+}
+void qux(int arg1, int arg2) :
+{
+    String x = " } "
+}
+{
+    // Below is a }
+}
+void quux(int arg1,
+    int arg2
+) :
+{
+    char x = ' } '
+    String y;
+}
+{
+    /* All invalid curly braces:
+    }
+    // }
+    " } "
+    ' } '
+    */
+    <TOKEN> {
+        y = " { } } "
+    }
+
+    // Not a string: "
+}

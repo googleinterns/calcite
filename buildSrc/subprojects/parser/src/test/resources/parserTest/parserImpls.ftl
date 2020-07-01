@@ -22,6 +22,10 @@ void foo() :
 
 }
 void bar  (   )  : {} {}
+<DEFAULT> TOKEN :
+{
+
+}
 void baz(): {x}
 
 {

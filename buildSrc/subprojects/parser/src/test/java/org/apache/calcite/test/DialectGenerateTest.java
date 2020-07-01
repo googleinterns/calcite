@@ -16,10 +16,6 @@
  */
 package org.apache.calcite.test;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Queue;
@@ -69,15 +65,14 @@ public class DialectGenerateTest {
         testName);
     Path testPath = basePath.resolve(testName + ".txt");
     Path expectedPath = basePath.resolve(testName + "_expected.txt");
-    Path licensePath = Paths.get("src", "test", "resources", "processFileTests",
-        "license.txt");
+    Path licensePath = Paths.get("src", "test", "resources", "license.txt");
 
-    String fileText = readFile(testPath);
+    String fileText = TestUtils.readFile(testPath);
     ExtractedData extractedData = new ExtractedData();
     dialectGenerate.processFile(fileText, extractedData);
 
-    String expectedText = readFile(expectedPath);
-    String licenseText = readFile(licensePath);
+    String expectedText = TestUtils.readFile(expectedPath);
+    String licenseText = TestUtils.readFile(licensePath);
     StringBuilder actualText = new StringBuilder();
     actualText.append(licenseText);
     for (String value : extractedData.tokenAssignments) {
@@ -87,20 +82,6 @@ public class DialectGenerateTest {
       actualText.append(value + "\n");
     }
     assertEquals(expectedText, actualText.toString());
-  }
-
-  private String readFile(Path path) {
-    String fileText = "";
-    try {
-      fileText = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      assertTrue(false, "File " + path.toAbsolutePath().toString()
-          + " doesn't exist.");
-    }
-    // Windows line ending conversion.
-    fileText = fileText.replaceAll("\\r\\n", "\n");
-    fileText = fileText.replaceAll("\\r", "\n");
-    return fileText;
   }
 
   @Test public void processFunctionEmptyMultipleLines() {

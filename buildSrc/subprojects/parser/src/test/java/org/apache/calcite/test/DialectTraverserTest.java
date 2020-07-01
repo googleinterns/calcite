@@ -26,10 +26,14 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
 import org.apache.calcite.buildtools.parser.DialectTraverser;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DialectTraverserTest {
+
+  private static final Path outputPath = Paths.get("src", "test", "resources",
+      "build", "integrationTest", "actual.ftl");
+
   /**
    * Returns a DialectTraverser with root path of calcite/parsingTest and
    * dialect path of calcite/parsingTest/intermediate/testDialect.
@@ -41,9 +45,20 @@ public class DialectTraverserTest {
           "testDialect"));
     File rootFile = rootPath.toFile();
     File dialectFile = dialectPath.toFile();
-    return new DialectTraverser(dialectFile, rootFile, "");
+    return new DialectTraverser(dialectFile, rootFile, outputPath.toString());
   }
 
-  // TODO(AndrewPochapsky) Add integration tests once generation logic has been
-  // added.
+  @Test public void testExtractionGenerationOnTestDirectory() {
+    DialectTraverser dialectTraverser = setupDialectTraverser();
+    dialectTraverser.run();
+    String actualText = TestUtils.readFile(outputPath);
+    String expectedText = TestUtils.readFile(Paths.get("src", "test",
+          "resources", "integrationTest", "expected.ftl"));
+    String licenseText = TestUtils.readFile(Paths.get("src", "test",
+          "resources", "license.txt"));
+    int licenseIndex = expectedText.indexOf(licenseText);
+    // Only compare the text after the apache license.
+    expectedText = expectedText.substring(licenseIndex + licenseText.length());
+    assertEquals(expectedText, actualText);
+  }
 }
