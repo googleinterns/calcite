@@ -1098,6 +1098,7 @@ data: {
     includeQualifyClause: true
     includeRankWithSortingExpressions: true
     includeTopN: true
+    includeInsertWithOmittedValues: true
   }
 }
 

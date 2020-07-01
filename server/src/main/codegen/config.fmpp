@@ -502,6 +502,7 @@ data: {
     includeQualifyClause: false
     includeRankWithSortingExpressions: false
     includeTopN: false
+    includeInsertWithOmittedValues: false
   }
 }
 

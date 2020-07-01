@@ -1039,15 +1039,32 @@ SqlNode LiteralRowConstructor() :
 }
 {
     <LPAREN>
-    e = AtomicRowExpression() { valueList.add(e); }
+    e = LiteralRowConstructorItem()
+    { valueList.add(e); }
     (
-        LOOKAHEAD(2)
-        <COMMA> e = AtomicRowExpression() { valueList.add(e); }
+        <COMMA>
+        e = LiteralRowConstructorItem()
+        { valueList.add(e); }
     )*
     <RPAREN>
     {
         return SqlStdOperatorTable.ROW.createCall(s.end(valueList),
             valueList.toArray());
+    }
+}
+
+SqlNode LiteralRowConstructorItem() :
+{
+    SqlNode e;
+}
+{
+    (
+        e = AtomicRowExpression()
+    |
+        { e = SqlLiteral.createNull(getPos()); }
+    )
+    {
+        return e;
     }
 }
 
