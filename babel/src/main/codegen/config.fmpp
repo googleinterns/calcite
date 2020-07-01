@@ -1085,6 +1085,7 @@ data: {
     includePosixOperators: true
     includeCastFormat: true
     includeCompoundIdentifier: true
+    allowColonSeparatorInCompoundIdentifier: true
     includeBraces: true
     includeAdditionalDeclarations: false
     includeSubstrKeyword: true
