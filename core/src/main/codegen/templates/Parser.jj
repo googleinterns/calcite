@@ -3650,9 +3650,9 @@ SqlNode Expression3(ExprContext exprContext) :
     Span rowSpan = null;
 }
 {
-<#list parser.preAtomicRowMethods as method>
-    LOOKAHEAD(${method})
-    e = ${method} { return e; }
+<#list parser.preExpressionMethods as method>
+    LOOKAHEAD(${method}())
+    e = ${method}() { return e; }
 |
 </#list>
     LOOKAHEAD(2)
@@ -3741,10 +3741,10 @@ SqlNode Expression3(ExprContext exprContext) :
         }
     }
     (
-<#if parser.includeAlternativeTypeConversionQuery>
-        e = AlternativeTypeConversionQuery(list1.get(0)) { return e; }
+<#list parser.postExpressionMethods as method>
+        e = ${method}(list1.get(0)) { return e; }
     |
-</#if>
+</#list>
         { return list1.get(0); }
     )
 }

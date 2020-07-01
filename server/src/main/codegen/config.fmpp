@@ -471,7 +471,10 @@ data: {
     extraBinaryExpressions: [
     ]
 
-    preAtomicRowMethods: [
+    preExpressionMethods: [
+    ]
+
+    postExpressionMethods: [
     ]
 
     dateTimeExpressionMethods: [
@@ -497,7 +500,6 @@ data: {
     includeAdditionalDeclarations: false
     includeSubstrKeyword: false
     includeQualifyClause: false
-    includeAlternativeTypeConversionQuery: false
     includeRankWithSortingExpressions: false
     includeTopN: false
   }

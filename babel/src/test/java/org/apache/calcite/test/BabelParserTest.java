@@ -1724,6 +1724,38 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testInlineFormatIdentifier() {
+    final String sql = "select foo (format 'XXX')";
+    final String expected = "SELECT (`FOO` (FORMAT 'XXX'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testInlineFormatNumericLiteral() {
+    final String sql = "select 12.5 (format '9.99E99')";
+    final String expected = "SELECT (12.5 (FORMAT '9.99E99'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testInlineFormatStringLiteral() {
+    final String sql = "select 12.5 (format 'XXX')";
+    final String expected = "SELECT (12.5 (FORMAT 'XXX'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testInlineFormatDateLiteral() {
+    final String sql = "select current_date (format 'yyyy-mm-dd')";
+    final String expected = "SELECT (CURRENT_DATE (FORMAT 'yyyy-mm-dd'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testInlineFormatQuery() {
+    final String sql = "select (select foo from bar) (format 'XXX') from baz";
+    final String expected = "SELECT ((SELECT `FOO`\n"
+        + "FROM `BAR`) (FORMAT 'XXX'))\n"
+        + "FROM `BAZ`";
+    sql(sql).ok(expected);
+  }
+
   @Test void testAlternativeTypeConversionIdentifier() {
     final String sql = "select foo (integer)";
     final String expected = "SELECT CAST(`FOO` AS INTEGER)";
