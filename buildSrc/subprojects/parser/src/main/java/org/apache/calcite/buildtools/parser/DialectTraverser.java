@@ -58,7 +58,7 @@ public class DialectTraverser {
 
   /**
    * Extracts functions and token assignments and prints the functions and
-   * token assignments for  the given dialect.
+   * token assignments for the given dialect.
    */
   public void run() {
     ExtractedData extractedData = extractData();
