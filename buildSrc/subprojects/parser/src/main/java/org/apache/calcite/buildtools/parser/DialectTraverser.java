@@ -45,14 +45,14 @@ public class DialectTraverser {
 
   private final File dialectDirectory;
   private final File rootDirectory;
-  private final String outputPathString;
+  private final String outputPath;
   private final DialectGenerate dialectGenerate;
 
   public DialectTraverser(File dialectDirectory, File rootDirectory,
-      String outputPathString) {
+      String outputPath) {
     this.dialectDirectory = dialectDirectory;
     this.rootDirectory = rootDirectory;
-    this.outputPathString = outputPathString;
+    this.outputPath = outputPath;
     this.dialectGenerate = new DialectGenerate();
   }
 
@@ -81,7 +81,7 @@ public class DialectTraverser {
    * @param extractedData The extracted data to write to the output file
    */
   public void generateParserImpls(ExtractedData extractedData) {
-    Path outputPath = Paths.get(outputPathString).toAbsolutePath();
+    Path outputFilePath = Paths.get(outputPath).toAbsolutePath();
     Path licensePath = Paths.get("src", "resources", "license.txt");
     StringBuilder content = new StringBuilder();
     try {
@@ -97,10 +97,10 @@ public class DialectTraverser {
     for (String function : extractedData.functions.values()) {
       content.append(function + "\n");
     }
-    File file = outputPath.toFile();
+    File file = outputFilePath.toFile();
     file.getParentFile().mkdirs();
     try {
-      Files.write(outputPath, content.toString().getBytes());
+      Files.write(outputFilePath, content.toString().getBytes());
     } catch (IOException e) {
       e.printStackTrace();
     }
