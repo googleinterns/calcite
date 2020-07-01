@@ -45,8 +45,7 @@ public class SqlAlterTableAttributeDataBlockSize
     this.immediate = immediate;
   }
 
-  @Override
-  public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     super.unparse(writer, leftPrec, rightPrec);
     if (immediate) {
       writer.keyword("IMMEDIATE");

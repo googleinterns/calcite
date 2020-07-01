@@ -43,8 +43,7 @@ public class SqlAlterTableAttributeFreeSpace
     this.isDefault = isDefault;
   }
 
-  @Override
-  public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     if (isDefault) {
       writer.keyword("DEFAULT FREESPACE");
     } else {
