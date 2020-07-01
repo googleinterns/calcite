@@ -800,6 +800,9 @@ SqlNodeList ParenthesizedQueryOrCommaListWithDefault(
         e = Default()
 <#if parser.includeInsertWithOmittedValues>
     |
+        // This LOOKAHEAD ensures that parsing fails if there is an empty set of
+        // parentheses after a VALUE keyword since that is invalid syntax in
+        // most dialects
         LOOKAHEAD({ getToken(1).kind != RPAREN })
         { e = SqlLiteral.createNull(getPos()); }
 </#if>

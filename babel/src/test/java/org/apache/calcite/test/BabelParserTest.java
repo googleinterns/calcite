@@ -2004,14 +2004,14 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testInsertOneOmittedValueNoValueKeyword() {
+  @Test public void testInsertOneOmittedValueNoValuesKeyword() {
     final String sql = "insert into foo (1,,'hi')";
     final String expected = "INSERT INTO `FOO`\n"
         + "VALUES (ROW(1, NULL, 'hi'))";
     sql(sql).ok(expected);
   }
 
-  @Test public void testInsertAllOmittedValuesNoValueKeyword() {
+  @Test public void testInsertAllOmittedValuesNoValuesKeyword() {
     final String sql = "insert into foo (,,)";
     final String expected = "INSERT INTO `FOO`\n"
         + "VALUES (ROW(NULL, NULL, NULL))";
