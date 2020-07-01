@@ -45,30 +45,24 @@ public class DialectTraverser {
 
   private final File dialectDirectory;
   private final File rootDirectory;
-  private final String outputFile;
+  private final String outputPath;
   private final DialectGenerate dialectGenerate;
 
   public DialectTraverser(File dialectDirectory, File rootDirectory,
-      String outputFile) {
+      String outputPath) {
     this.dialectDirectory = dialectDirectory;
     this.rootDirectory = rootDirectory;
-    this.outputFile = outputFile;
+    this.outputPath = outputPath;
     this.dialectGenerate = new DialectGenerate();
   }
 
   /**
-   * Extracts functions and token assignments and prints the functions and
-   * token assignments for the given dialect.
+   * Extracts functions and token assignments and generates a parserImpls.ftl
+   * file containing them at the specified output file.
    */
   public void run() {
     ExtractedData extractedData = extractData();
-    // TODO(AndrewPochapsky): Remove this once generation logic added.
-    for (String tokenAssignment : extractedData.tokenAssignments) {
-      System.out.println(tokenAssignment + "\n");
-    }
-    for (Map.Entry<String, String> entry : extractedData.functions.entrySet()) {
-      System.out.println(entry.getKey() + "=" + entry.getValue() + "\n");
-    }
+    generateParserImpls(extractedData);
   }
 
   /**
@@ -84,10 +78,32 @@ public class DialectTraverser {
   /**
    * Generates the parserImpls.ftl file for the dialect.
    *
-   * @param data The extracted data to write to the output file
+   * @param extractedData The extracted data to write to the output file
    */
-  public void generateParserImpls(ExtractedData data) {
-    // TODO(AndrewPochapsky): Add generation logic.
+  public void generateParserImpls(ExtractedData extractedData) {
+    Path outputFilePath = Paths.get(outputPath).toAbsolutePath();
+    Path licensePath = Paths.get("src", "resources", "license.txt");
+    StringBuilder content = new StringBuilder();
+    try {
+      String licenseText = new String(Files.readAllBytes(licensePath),
+          StandardCharsets.UTF_8);
+      content.append(licenseText);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    for (String tokenAssignment : extractedData.tokenAssignments) {
+      content.append(tokenAssignment + "\n");
+    }
+    for (String function : extractedData.functions.values()) {
+      content.append(function + "\n");
+    }
+    File file = outputFilePath.toFile();
+    file.getParentFile().mkdirs();
+    try {
+      Files.write(outputFilePath, content.toString().getBytes());
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -125,7 +141,7 @@ public class DialectTraverser {
     String nextDirectory = directories.peek();
     for (File f : files) {
       String fileName = f.getName();
-      if (fileName.endsWith(".ftl")) {
+      if (f.isFile() && fileName.endsWith(".ftl")) {
         try {
           String fileText = new String(Files.readAllBytes(f.toPath()),
               StandardCharsets.UTF_8);

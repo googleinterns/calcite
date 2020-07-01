@@ -34,6 +34,14 @@ void quux(int arg1,
 
     // Not a string: "
 }
+SKIP :
+{
+    < DATE_PART: "DATE_PART" >
+|   < DATEADD: "DATEADD" >
+|   < DATEDIFF: "DATEDIFF" >
+|   < NEGATE: "!" >
+|   < TILDE: "~" >
+}
 void baz() : {x}
 {
     // overridden by intermediate
