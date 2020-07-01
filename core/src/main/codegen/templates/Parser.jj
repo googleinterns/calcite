@@ -4919,7 +4919,7 @@ SqlNodeList ParenthesizedSimpleIdentifierList() :
     }
 }
 
-<#if parser.includeCompoundIdentifier >
+<#if parser.includeCompoundIdentifier>
 /**
  * Parses a compound identifier.
  */
@@ -4931,6 +4931,13 @@ SqlIdentifier CompoundIdentifier() :
 }
 {
     IdentifierSegment(nameList, posList)
+<#if parser.allowColonSeparatorInCompoundIdentifier>
+    [
+        LOOKAHEAD(2)
+        <COLON>
+        IdentifierSegment(nameList, posList)
+    ]
+</#if>
     (
         LOOKAHEAD(2)
         <DOT>
@@ -6057,9 +6064,14 @@ SqlNode JsonName() :
     final SqlNode e;
 }
 {
-     e = Expression(ExprContext.ACCEPT_NON_QUERY) {
+    (
+        e = SimpleIdentifier()
+    |
+        e = StringLiteral()
+    )
+    {
         return e;
-     }
+    }
 }
 
 List<SqlNode> JsonNameAndValue() :

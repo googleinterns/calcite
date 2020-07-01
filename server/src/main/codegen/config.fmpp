@@ -492,6 +492,7 @@ data: {
     includePosixOperators: false
     includeCastFormat: false
     includeCompoundIdentifier: true
+    allowColonSeparatorInCompoundIdentifier: false
     includeBraces: true
     includeAdditionalDeclarations: false
     includeSubstrKeyword: false
