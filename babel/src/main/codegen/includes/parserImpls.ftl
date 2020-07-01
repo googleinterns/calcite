@@ -199,6 +199,143 @@ SqlColumnAttribute ColumnAttributeDefault() :
     }
 }
 
+/**
+ * Parses a column attribute specified by the GENERATED statement.
+ */
+SqlColumnAttribute ColumnAttributeGenerated() :
+{
+    final GeneratedType generatedType;
+    final List<SqlColumnAttributeGeneratedOption> generateOptions =
+        new ArrayList<SqlColumnAttributeGeneratedOption>();
+}
+{
+    <GENERATED>
+    (
+        <ALWAYS> { generatedType = GeneratedType.ALWAYS; }
+    |
+        <BY> <DEFAULT_> { generatedType = GeneratedType.BY_DEFAULT; }
+    )
+    <AS> <IDENTITY>
+    [
+        <LPAREN>
+        (
+            ColumnAttributeGeneratedOption(generateOptions)
+        )+
+        <RPAREN>
+    ]
+    {
+        return new SqlColumnAttributeGenerated(getPos(), generatedType,
+            generateOptions);
+    }
+}
+
+/**
+ * Parses an option specified for the GENERATED column attribute, and adds it
+ * to a list.
+ */
+void ColumnAttributeGeneratedOption(
+    List<SqlColumnAttributeGeneratedOption> generateOptions) :
+{
+    final SqlColumnAttributeGeneratedOption generateOption;
+}
+{
+    (
+        generateOption = ColumnAttributeGeneratedCycle()
+    |
+        generateOption = ColumnAttributeGeneratedIncrementBy()
+    |
+        generateOption = ColumnAttributeGeneratedStartWith()
+    |
+        generateOption = ColumnAttributeGeneratedMaxValue()
+    |
+        generateOption = ColumnAttributeGeneratedMinValue()
+    )
+    { generateOptions.add(generateOption); }
+}
+
+/**
+ * Parses the CYCLE option of the GENERATED statement.
+ */
+SqlColumnAttributeGeneratedOption ColumnAttributeGeneratedCycle() :
+{
+    boolean none = false;
+}
+{
+    [ <NO> { none = true; } ]
+    <CYCLE>
+    { return new SqlColumnAttributeGeneratedCycle(none); }
+}
+
+/**
+ * Parses the INCREMENT BY option of the GENERATED statement.
+ */
+SqlColumnAttributeGeneratedOption ColumnAttributeGeneratedIncrementBy() :
+{
+    final SqlLiteral inc;
+}
+{
+    <INCREMENT> <BY>
+    inc = NumericLiteral()
+    { return new SqlColumnAttributeGeneratedIncrementBy(inc); }
+}
+
+/**
+ * Parses the START WITH option of the GENERATED statement.
+ */
+SqlColumnAttributeGeneratedOption ColumnAttributeGeneratedStartWith() :
+{
+    final SqlLiteral start;
+}
+{
+    <START> <WITH>
+    start = NumericLiteral()
+    { return new SqlColumnAttributeGeneratedStartWith(start); }
+}
+
+/**
+ * Parses the MAXVALUE option of the GENERATED statement.
+ */
+SqlColumnAttributeGeneratedOption ColumnAttributeGeneratedMaxValue() :
+{
+    final SqlLiteral max;
+    boolean none = false;
+}
+{
+    (
+        <NO> <MAXVALUE>
+        {
+            max = null;
+            none = true;
+        }
+    |
+        <MAXVALUE>
+        max = NumericLiteral()
+    )
+    { return new SqlColumnAttributeGeneratedMaxValue(max, none); }
+}
+
+/**
+ * Parses the MINVALUE option of the GENERATED statement.
+ */
+SqlColumnAttributeGeneratedOption ColumnAttributeGeneratedMinValue() :
+{
+    final SqlLiteral min;
+    boolean none = false;
+}
+{
+    (
+        <NO> <MINVALUE>
+        {
+            min = null;
+            none = true;
+        }
+    |
+        <MINVALUE>
+        min = NumericLiteral()
+    )
+    { return new SqlColumnAttributeGeneratedMinValue(min, none); }
+}
+
 SqlColumnAttribute ColumnAttributeCharacterSet() :
 {
     CharacterSet characterSet = null;
@@ -274,6 +411,8 @@ void ColumnAttributes(List<SqlColumnAttribute> list) :
             e = ColumnAttributeDefault()
         |
             e = ColumnAttributeDateFormat()
+        |
+            e = ColumnAttributeGenerated()
         ) { list.add(e); }
     )+
 }
