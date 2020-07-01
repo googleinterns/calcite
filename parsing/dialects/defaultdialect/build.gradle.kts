@@ -28,6 +28,8 @@ dependencies {
     implementation("org.apache.calcite.avatica:avatica-core")
     implementation("org.slf4j:slf4j-api")
 
+    testImplementation("net.hydromatic:foodmart-data-hsqldb")
+    testImplementation("net.hydromatic:foodmart-queries")
     testImplementation("net.hydromatic:quidem")
     testImplementation("net.hydromatic:scott-data-hsqldb")
     testImplementation("org.hsqldb:hsqldb")
@@ -71,7 +73,7 @@ val javaCCMain by tasks.registering(org.apache.calcite.buildtools.javacc.JavaCCT
         it.output.asFileTree.matching { include("**/Parser.jj") }.singleFile
     }
     inputFile.set(parserFile)
-    packageName.set("org.apache.calcite.sql.parser.hive")
+    packageName.set("org.apache.calcite.sql.parser.defaultdialect")
 }
 
 ide {

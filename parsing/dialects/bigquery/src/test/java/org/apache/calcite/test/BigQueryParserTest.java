@@ -17,21 +17,14 @@
 package org.apache.calcite.test;
 
 import org.apache.calcite.sql.parser.SqlParserImplFactory;
-import org.apache.calcite.sql.parser.SqlParserTest;
 import org.apache.calcite.sql.parser.bigquery.BigQueryParserImpl;
-
-import org.junit.jupiter.api.Test;
 
 /**
  * Tests the "BigQuery" SQL parser.
  */
-final class BigQueryParserTest extends SqlParserTest {
+final class BigQueryParserTest extends SqlDialectParserTest {
 
   @Override protected SqlParserImplFactory parserImplFactory() {
     return BigQueryParserImpl.FACTORY;
-  }
-
-  @Test public void test() {
-
   }
 }

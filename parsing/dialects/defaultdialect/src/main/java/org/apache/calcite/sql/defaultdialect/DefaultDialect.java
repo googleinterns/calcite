@@ -14,22 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-plugins {
-    kotlin("jvm")
-}
+package org.apache.calcite.sql.defaultdialect;
 
-dependencies {
-    api(project(":core"))
-
-    implementation("com.google.guava:guava")
-    implementation("org.apache.calcite.avatica:avatica-core")
-    implementation("org.slf4j:slf4j-api")
-
-    testImplementation("net.hydromatic:quidem")
-    testImplementation("net.hydromatic:scott-data-hsqldb")
-    testImplementation("org.hsqldb:hsqldb")
-    testImplementation("org.incava:java-diff")
-    testImplementation("org.slf4j:slf4j-log4j12")
-    testImplementation(project(":core", "testClasses"))
-    testImplementation(project(":parsing", "testClasses"))
+/** Default SQL parser. */
+@SuppressWarnings("unused")
+public class DefaultDialect {
+  // This class is currently a place-holder to commit the src/main/java folder.
 }

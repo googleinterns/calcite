@@ -18,7 +18,9 @@
 package org.apache.calcite.test;
 
 import org.apache.calcite.config.CalciteConnectionProperty;
-import org.apache.calcite.sql.parser.defaultparser.DefaultParserImpl;
+import org.apache.calcite.prepare.Prepare;
+import org.apache.calcite.sql.parser.defaultdialect.DefaultDialectParserImpl;
+import org.apache.calcite.util.TryThreadLocal;
 
 import net.hydromatic.quidem.Quidem;
 
@@ -26,7 +28,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Collection;
 
-class DefaultQuidemTest extends DialectQuidemTest {
+class DefaultDialectQuidemTest extends DialectQuidemTest {
 
   static final String URL = "jdbc:calcite:";
 
@@ -39,12 +41,12 @@ class DefaultQuidemTest extends DialectQuidemTest {
    * </blockquote> */
   public static void main(String[] args) throws Exception {
     for (String arg : args) {
-      new DefaultQuidemTest().test(arg);
+      new DefaultDialectQuidemTest().test(arg);
     }
   }
 
-  DefaultQuidemTest() {
-    super(DefaultParserImpl.FACTORY);
+  DefaultDialectQuidemTest() {
+    super(DefaultDialectParserImpl.FACTORY);
   }
 
   /** For {@link QuidemTest#test(String)} parameters. */
@@ -64,7 +66,7 @@ class DefaultQuidemTest extends DialectQuidemTest {
           return DriverManager.getConnection(URL,
               CalciteAssert.propBuilder()
                   .set(CalciteConnectionProperty.PARSER_FACTORY,
-                      DefaultParserImpl.class.getName() + "#FACTORY")
+                      DefaultDialectParserImpl.class.getName() + "#FACTORY")
                   .set(CalciteConnectionProperty.MATERIALIZATIONS_ENABLED,
                       "true")
                   .set(CalciteConnectionProperty.FUN, "standard,oracle")
@@ -75,5 +77,18 @@ class DefaultQuidemTest extends DialectQuidemTest {
         }
       }
     };
+  }
+
+  /** Override settings for "sql/misc.iq". */
+  public void testSqlMisc(String path) throws Exception {
+    switch (CalciteAssert.DB) {
+    case ORACLE:
+      // There are formatting differences (e.g. "4.000" vs "4") when using
+      // Oracle as the JDBC data source.
+      return;
+    }
+    try (TryThreadLocal.Memo ignored = Prepare.THREAD_EXPAND.push(true)) {
+      checkRun(path);
+    }
   }
 }
