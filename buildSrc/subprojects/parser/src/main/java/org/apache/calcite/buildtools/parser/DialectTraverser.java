@@ -57,8 +57,8 @@ public class DialectTraverser {
   }
 
   /**
-   * Extracts functions and token assignments and prints the functions and
-   * token assignments for the given dialect.
+   * Extracts functions and token assignments and generates a parserImpls.ftl
+   * file containing them at the specified output file.
    */
   public void run() {
     ExtractedData extractedData = extractData();
