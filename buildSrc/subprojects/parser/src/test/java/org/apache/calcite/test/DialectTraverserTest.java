@@ -35,7 +35,7 @@ public class DialectTraverserTest {
    * dialect path of calcite/parsingTest/intermediate/testDialect.
    */
   private DialectTraverser setupDialectTraverser() {
-    Path rootPath = Paths.get("src", "test", "resources" ,"parserTest");
+    Path rootPath = Paths.get("src", "test", "resources", "parserTest");
     // Adds the path /intermediate/testDialect/ to the end of rootPath.
     Path dialectPath = rootPath.resolve(Paths.get("intermediate",
           "testDialect"));
