@@ -14,38 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.calcite.sql.babel;
+package org.apache.calcite.sql.fun;
 
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlCall;
+import org.apache.calcite.sql.SqlFunction;
+import org.apache.calcite.sql.SqlFunctionCategory;
+import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlWriter;
 
-import java.util.Objects;
-
 /**
- * A {@code SqlAlterTableAddColumns} represents an ADD column statement within
- * an ALTER TABLE query.
- */
-public class SqlAlterTableAddColumns extends SqlAlterTableOption {
-
-  public final SqlNodeList columns;
-
-  /**
-   * Creates a {@code SqlAlterTableAddColumns}.
-   * @param columns  The list of columns to add. Must be non-null and non-empty
+   * The SQL <code>FORMAT</code> operator.
+   *
+   * <p>The SQL syntax is
+   *
+   * <blockquote><code>FORMAT(<i>expression</i> <i>literal</i>)</code>
+   * </blockquote>
    */
-  public SqlAlterTableAddColumns(SqlNodeList columns) {
-    this.columns = Objects.requireNonNull(columns);
+public class SqlFormatFunction extends SqlFunction {
+
+  public SqlFormatFunction() {
+    super("FORMAT", SqlKind.FORMAT, null, null, null, SqlFunctionCategory.STRING);
   }
 
-  @Override public void unparse(SqlWriter writer,
-      int leftPrec, int rightPrec) {
-    writer.keyword("ADD");
-    SqlWriter.Frame frame = writer.startList("(", ")");
-    for (SqlNode c : columns) {
-      writer.sep(",");
-      c.unparse(writer, 0, 0);
-    }
+  @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec, int rightPrec) {
+    call.operand(0).unparse(writer, 0, 0);
+    final SqlWriter.Frame frame = writer.startList("(", ")");
+    writer.keyword(getName());
+    call.operand(1).unparse(writer, 0, 0);
     writer.endList(frame);
   }
 }
