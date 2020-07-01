@@ -1448,6 +1448,20 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testNamedExpressionLiteral() {
+    final String sql = "select 1 (named b) from foo";
+    final String expected = "SELECT 1 AS `B`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNamedExpressionIdentifier() {
+    final String sql = "select a (named b) from foo";
+    final String expected = "SELECT `A` AS `B`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testNamedExpressionAlone() {
     final String sql = "select (a + b) (named x) from foo where x > 0";
     final String expected = "SELECT (`A` + `B`) AS `X`\n"

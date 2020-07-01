@@ -3390,19 +3390,8 @@ SqlNode Expression(ExprContext exprContext) :
     list = Expression2(exprContext)
     {
         e = SqlParserUtil.toTree(list);
+        return e;
     }
-    (
-<#list parser.postExpressionStatementParserMethods as method>
-        e = ${method}(e) {
-            return e;
-        }
-        <#sep>|</#sep>
-    |
-</#list>
-        {
-            return e;
-        }
-    )
 }
 
 // TODO jvs 15-Nov-2003:  ANY/ALL

@@ -1044,11 +1044,6 @@ data: {
       "SqlRenameTable"
     ]
 
-    # List of methods for parsing extensions to <expression> calls
-    postExpressionStatementParserMethods: [
-      "SqlNamedExpression"
-    ]
-
     # List of methods for parsing expressions to "EXEC" calls.
     execStatementParserMethods: [
       "SqlExecMacro"
@@ -1073,11 +1068,13 @@ data: {
       "InlineModOperator"
       "AlternativeTypeConversionLiteralOrIdentifier"
       "InlineFormatLiteralOrIdentifier"
+      "NamedLiteralOrIdentifier"
     ]
 
     postExpressionMethods: [
       "AlternativeTypeConversionQuery"
       "InlineFormatQuery"
+      "NamedQuery"
     ]
 
     dateTimeExpressionMethods: [
