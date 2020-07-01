@@ -31,6 +31,7 @@ import java.util.LinkedHashMap;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.apache.calcite.buildtools.parser.DialectGenerate;
+import org.apache.calcite.buildtools.parser.ExtractedData;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -45,6 +46,14 @@ public class DialectGenerateTest {
     int charIndex = dialectGenerate.processFunction(
         DialectGenerate.getTokens(function), new LinkedHashMap<String,String>(),
         0, declaration.length(), "foo");
+    assertEquals(function.length(), charIndex);
+  }
+
+  private void assertTokenAssignmentIsParsed(String declaration, String function) {
+    DialectGenerate dialectGenerate = new DialectGenerate();
+    int charIndex = dialectGenerate.processTokenAssignment(
+        DialectGenerate.getTokens(function), new LinkedList<String>(),
+        0, declaration.length());
     assertEquals(function.length(), charIndex);
   }
 
@@ -64,14 +73,17 @@ public class DialectGenerateTest {
         "license.txt");
 
     String fileText = readFile(testPath);
-    Map<String, String> functionMap = new LinkedHashMap<String, String>();
-    dialectGenerate.processFile(fileText, functionMap);
+    ExtractedData extractedData = new ExtractedData();
+    dialectGenerate.processFile(fileText, extractedData);
 
     String expectedText = readFile(expectedPath);
     String licenseText = readFile(licensePath);
     StringBuilder actualText = new StringBuilder();
     actualText.append(licenseText);
-    for (String value : functionMap.values()) {
+    for (String value : extractedData.tokenAssignments) {
+      actualText.append(value + "\n");
+    }
+    for (String value : extractedData.functions.values()) {
       actualText.append(value + "\n");
     }
     assertEquals(expectedText, actualText.toString());
@@ -176,5 +188,44 @@ public class DialectGenerateTest {
 
   @Test public void processFileMultipleFunctionsSeparatedByLines() {
     assertFileProcessed("multiple_functions_separated");
+  }
+
+  @Test public void processFileTokenAssignments() {
+    assertFileProcessed("token_assignments");
+  }
+
+  @Test public void processFileFunctionsAndTokenAssignments() {
+    assertFileProcessed("functions_and_assignments");
+  }
+
+  @Test public void processTokenAssignmentTokenEmpty() {
+    String declaration = "TOKEN :\n";
+    String assignment = declaration
+      + "{\n}";
+    assertTokenAssignmentIsParsed(declaration, assignment);
+  }
+
+  @Test public void processTokenAssignmentSkipEmpty() {
+    String declaration = "SKIP :\n";
+    String assignment = declaration
+      + "{\n}";
+    assertTokenAssignmentIsParsed(declaration, assignment);
+  }
+
+  @Test public void processTokenAssignmentMoreEmpty() {
+    String declaration = "MORE :\n";
+    String assignment = declaration
+      + "{\n}";
+    assertTokenAssignmentIsParsed(declaration, assignment);
+  }
+
+  @Test public void processTokenAssignmentNonEmptyWithAngleBrackets() {
+    String declaration = "<foo, bar> TOKEN :\n";
+    String assignment = declaration
+      + "{\n"
+      + "< DATE_PART: \"DATE_PART\" >\n"
+      + "< NEGATE: \"!\" >\n"
+      + "}";
+    assertTokenAssignmentIsParsed(declaration, assignment);
   }
 }

@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.List;
 import java.util.LinkedList;
 import java.util.LinkedHashMap;
 import java.util.Queue;
@@ -45,18 +46,21 @@ public class DialectGenerate {
       + splitDelims + ")|(?=" + splitDelims + "))");
 
   // Matches function declarations: <return_type> <name> (<args>) :
-  private static final Pattern declarationPattern =
+  private static final Pattern functionDeclarationPattern =
     Pattern.compile("(" + typeAndName + "\\s*\\(\\s*(" + typeAndName + "\\s*(\\,\\s*"
         + typeAndName + "\\s*)*)?\\)\\s*\\:\n?)");
   private static final Pattern namePattern = Pattern.compile("\\w+");
+  // Matches [<OPT1, OPT2, ...>](TOKEN|SKIP|MORE) :
+  private static final Pattern tokenDeclarationPattern =
+    Pattern.compile("((<\\s*\\w+\\s*(\\s*,\\s*\\w+)*\\s*>\\s*)?(TOKEN|SKIP|MORE)\\s*:\n?)");
 
   public static Queue<String> getTokens(String input) {
     return new LinkedList(Arrays.asList(tokenizerPattern.split(input)));
   }
 
   /**
-   * Extracts the functions from the given file into functionMap. Parses
-   * functions of the form:
+   * Extracts the functions and token assignments from the given file into
+   * extractedData. Parses functions of the form:
    * <return_type> <name>(<args>) :
    * {
    *     <properties>
@@ -65,18 +69,43 @@ public class DialectGenerate {
    *     <body>
    * }
    *
+   * Parses token assignments of the form: [<OPT1, OPT2,...>](TOKEN|SKIP|MORE):
+   *                                       { <body> }
+   *
    * @param fileText The contents of the file to process
-   * @param functionMap The map to which the parsing functions will be added to
+   * @param extractedData The object to which the parsed functions and token assignments
+   *             will be added to
    */
-  public void processFile(String fileText, Map<String, String> functionMap) {
+  public void processFile(String fileText, ExtractedData extractedData) {
     // For windows line endings.
     fileText = fileText.replaceAll("\\r\\n", "\n");
     fileText = fileText.replaceAll("\\r", "\n");
-    Queue<MatchResult> declarations = new LinkedList();
-    Matcher matcher = declarationPattern.matcher(fileText);
-    while (matcher.find()) {
-      declarations.add(matcher.toMatchResult());
-    }
+    Queue<MatchResult> functionDeclarations =
+      getMatches(functionDeclarationPattern, fileText);
+    Queue<MatchResult> tokenAssignmentDeclarations =
+      getMatches(tokenDeclarationPattern, fileText);
+    parseDeclarations(functionDeclarations, extractedData, fileText,
+        /*isFunctionDeclaration=*/ true);
+    parseDeclarations(tokenAssignmentDeclarations, extractedData, fileText,
+        /*isFunctionDeclaration=*/ false);
+  }
+
+  /**
+   * Does a single pass of fileText and parses functions or token assignments
+   * as they are encountered.
+   *
+   * @param declarations The declarations to parse that are followed by some
+   *                     sort of of curly braces
+   * @param extractedData Where the extracted functions and token assignments
+   *                      are stored
+   * @param fileText The text to parse
+   * @param isFunctionDeclaration If true, the declarations are functions,
+   *                              otherwise the declarations are token
+   *                              assignments
+   */
+  private void parseDeclarations(Queue<MatchResult> declarations,
+      ExtractedData extractedData, String fileText,
+      boolean isFunctionDeclaration) {
     Queue<String> tokens = getTokens(fileText);
     int charIndex = 0;
     while (!declarations.isEmpty()) {
@@ -84,9 +113,57 @@ public class DialectGenerate {
       while (charIndex < declaration.start()) {
         charIndex += tokens.poll().length();
       }
-      charIndex = processFunction(tokens, functionMap, charIndex,
-          declaration.end(),  getFunctionName(declaration.group()));
+      if (isFunctionDeclaration) {
+        charIndex = processFunction(tokens, extractedData.functions, charIndex,
+            declaration.end(), getFunctionName(declaration.group()));
+      } else {
+        charIndex = processTokenAssignment(tokens,
+            extractedData.tokenAssignments, charIndex, declaration.end());
+      }
     }
+  }
+
+  private Queue<MatchResult> getMatches(Pattern pattern, String text) {
+    Queue<MatchResult> matches = new LinkedList();
+    Matcher matcher = pattern.matcher(text);
+    while (matcher.find()) {
+      matches.add(matcher.toMatchResult());
+    }
+    return  matches;
+  }
+
+  /**
+   * Parses a token assignment of the form:
+   *
+   * [<OPT1, OPT2,...>](TOKEN|SKIP|MORE):
+   * {
+   *     <body>
+   * }
+   *
+   * @param tokens The tokens starting from the function declaration and
+   *               ending at EOF
+   * @param tokenAssignments The list to which the extracted token assignments
+   *                         will be added to
+   * @param charIndex The character index of the entire text of the file at which
+   *                  the parsing is commencing at
+   * @param declarationEnd The char index (of entire file text) at which the
+   *                       function declaration ends
+   */
+  public int processTokenAssignment(
+      Queue<String> tokens,
+      List<String> tokenAssignments,
+      int charIndex,
+      int declarationEnd) {
+    StringBuilder stringBuilder = new StringBuilder();
+    // Process the declaration:
+    while (charIndex < declarationEnd && !tokens.isEmpty()) {
+      String token = tokens.poll();
+      stringBuilder.append(token);
+      charIndex += token.length();
+    }
+    charIndex = processCurlyBlock(stringBuilder, tokens, charIndex);
+    tokenAssignments.add(stringBuilder.toString());
+    return charIndex;
   }
 
   /**

@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.List;
 import java.util.Queue;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -56,12 +57,16 @@ public class DialectTraverser {
   }
 
   /**
-   * Extracts functions and prints the results for the given dialect.
+   * Extracts functions and token assignments and prints the functions and
+   * token assignments for the given dialect.
    */
   public void run() {
-    Map<String, String> functions = extractFunctions();
+    ExtractedData extractedData = extractData();
     // TODO(AndrewPochapsky): Remove this once generation logic added.
-    for (Map.Entry<String, String> entry : functions.entrySet()) {
+    for (String tokenAssignment : extractedData.tokenAssignments) {
+      System.out.println(tokenAssignment + "\n");
+    }
+    for (Map.Entry<String, String> entry : extractedData.functions.entrySet()) {
       System.out.println(entry.getKey() + "=" + entry.getValue() + "\n");
     }
   }
@@ -70,18 +75,18 @@ public class DialectTraverser {
    * Traverses the parsing directory structure and extracts all of the
    * functions located in *.ftl files into a Map.
    */
-  public Map<String, String> extractFunctions() {
-    Map<String, String> functionMap = new LinkedHashMap<String, String>();
-    traverse(getTraversalPath(rootDirectory), rootDirectory, functionMap);
-    return functionMap;
+  public ExtractedData extractData() {
+    ExtractedData extractedData = new ExtractedData();
+    traverse(getTraversalPath(rootDirectory), rootDirectory, extractedData);
+    return extractedData;
   }
 
   /**
    * Generates the parserImpls.ftl file for the dialect.
    *
-   * @param functions The functions to place into the output file
+   * @param data The extracted data to write to the output file
    */
-  public void generateParserImpls(Map<String, String> functions) {
+  public void generateParserImpls(ExtractedData data) {
     // TODO(AndrewPochapsky): Add generation logic.
   }
 
@@ -113,7 +118,7 @@ public class DialectTraverser {
   private void traverse(
       Queue<String> directories,
       File currentDirectory,
-      Map<String, String> functionMap) {
+      ExtractedData extractedData) {
     File[] files = currentDirectory.listFiles();
     // Ensures that files are processed first.
     Arrays.sort(files, fileComparator);
@@ -124,7 +129,7 @@ public class DialectTraverser {
         try {
           String fileText = new String(Files.readAllBytes(f.toPath()),
               StandardCharsets.UTF_8);
-          dialectGenerate.processFile(fileText, functionMap);
+          dialectGenerate.processFile(fileText, extractedData);
         } catch (IOException e) {
           e.printStackTrace();
         } catch (IllegalStateException e) {
@@ -135,7 +140,7 @@ public class DialectTraverser {
         // with directories.peek() and is used in the next recursive call to
         // this function.
         directories.poll();
-        traverse(directories, f, functionMap);
+        traverse(directories, f, extractedData);
       }
     }
   }
