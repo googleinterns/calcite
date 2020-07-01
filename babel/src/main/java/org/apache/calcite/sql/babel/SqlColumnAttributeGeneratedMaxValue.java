@@ -32,20 +32,20 @@ public class SqlColumnAttributeGeneratedMaxValue extends
   /**
    * Creates a {@code SqlColumnAttributeGeneratedMaxValue}.
    *
-   * @param max     The amount specified in the MAXVALUE attribute.
+   * @param max     The amount specified in the MAXVALUE attribute. This
+   *                  parameter should only be null when {@code none} is true.
    * @param none    Whether NO MAXVALUE was specified.
    */
   public SqlColumnAttributeGeneratedMaxValue(SqlLiteral max, boolean none) {
     this.max = max;
     this.none = none;
-    assert none || max != null;
   }
 
   @Override public void unparse(SqlWriter writer,
       int leftPrec, int rightPrec) {
     if (none) {
       writer.keyword("NO MAXVALUE");
-    } else {
+    } else if (max != null) {
       writer.keyword("MAXVALUE");
       max.unparse(writer, leftPrec, rightPrec);
     }

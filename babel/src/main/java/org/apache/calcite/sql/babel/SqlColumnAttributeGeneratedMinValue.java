@@ -32,20 +32,20 @@ public class SqlColumnAttributeGeneratedMinValue extends
   /**
    * Creates a {@code SqlColumnAttributeGeneratedMinValue}.
    *
-   * @param min     The amount specified in the MINVALUE attribute.
+   * @param min     The amount specified in the MINVALUE attribute. This
+   *    *             parameter should only be null when {@code none} is true.
    * @param none    Whether NO MINVALUE was specified.
    */
   public SqlColumnAttributeGeneratedMinValue(SqlLiteral min, boolean none) {
     this.min = min;
     this.none = none;
-    assert none || min != null;
   }
 
   @Override public void unparse(SqlWriter writer,
       int leftPrec, int rightPrec) {
     if (none) {
       writer.keyword("NO MINVALUE");
-    } else {
+    } else if (min != null) {
       writer.keyword("MINVALUE");
       min.unparse(writer, leftPrec, rightPrec);
     }

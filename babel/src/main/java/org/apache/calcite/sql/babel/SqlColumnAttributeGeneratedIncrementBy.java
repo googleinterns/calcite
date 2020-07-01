@@ -33,7 +33,7 @@ public class SqlColumnAttributeGeneratedIncrementBy extends
   /**
    * Creates a {@code SqlColumnAttributeGeneratedIncrementBy}.
    *
-   * @param inc    The amount specified in the INCREMENT BY attribute.
+   * @param inc  The amount specified in the INCREMENT BY attribute.
    */
   public SqlColumnAttributeGeneratedIncrementBy(SqlLiteral inc) {
     this.inc = Objects.requireNonNull(inc);

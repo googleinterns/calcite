@@ -205,7 +205,7 @@ SqlColumnAttribute ColumnAttributeDefault() :
 SqlColumnAttribute ColumnAttributeGenerated() :
 {
     final GeneratedType generatedType;
-    final List<SqlColumnAttributeGeneratedOption> generateOptions =
+    final List<SqlColumnAttributeGeneratedOption> generatedOptions =
         new ArrayList<SqlColumnAttributeGeneratedOption>();
 }
 {
@@ -219,13 +219,13 @@ SqlColumnAttribute ColumnAttributeGenerated() :
     [
         <LPAREN>
         (
-            ColumnAttributeGeneratedOption(generateOptions)
+            ColumnAttributeGeneratedOption(generatedOptions)
         )+
         <RPAREN>
     ]
     {
         return new SqlColumnAttributeGenerated(getPos(), generatedType,
-            generateOptions);
+            generatedOptions);
     }
 }
 
@@ -234,23 +234,23 @@ SqlColumnAttribute ColumnAttributeGenerated() :
  * to a list.
  */
 void ColumnAttributeGeneratedOption(
-    List<SqlColumnAttributeGeneratedOption> generateOptions) :
+    List<SqlColumnAttributeGeneratedOption> generatedOptions) :
 {
-    final SqlColumnAttributeGeneratedOption generateOption;
+    final SqlColumnAttributeGeneratedOption generatedOption;
 }
 {
     (
-        generateOption = ColumnAttributeGeneratedCycle()
+        generatedOption = ColumnAttributeGeneratedCycle()
     |
-        generateOption = ColumnAttributeGeneratedIncrementBy()
+        generatedOption = ColumnAttributeGeneratedIncrementBy()
     |
-        generateOption = ColumnAttributeGeneratedStartWith()
+        generatedOption = ColumnAttributeGeneratedStartWith()
     |
-        generateOption = ColumnAttributeGeneratedMaxValue()
+        generatedOption = ColumnAttributeGeneratedMaxValue()
     |
-        generateOption = ColumnAttributeGeneratedMinValue()
+        generatedOption = ColumnAttributeGeneratedMinValue()
     )
-    { generateOptions.add(generateOption); }
+    { generatedOptions.add(generatedOption); }
 }
 
 /**

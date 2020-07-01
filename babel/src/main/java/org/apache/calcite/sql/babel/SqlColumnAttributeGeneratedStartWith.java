@@ -33,7 +33,7 @@ public class SqlColumnAttributeGeneratedStartWith extends
   /**
    * Creates a {@code SqlColumnAttributeGeneratedStartWith}.
    *
-   * @param start    The amount specified in the START WITH attribute.
+   * @param start  The amount specified in the START WITH attribute.
    */
   public SqlColumnAttributeGeneratedStartWith(SqlLiteral start) {
     this.start = Objects.requireNonNull(start);
