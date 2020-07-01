@@ -34,7 +34,7 @@ public abstract class SqlTableAttribute {
    *
    * @param pos  Parser position, must not be null
    */
-  public SqlTableAttribute(SqlParserPos pos) {
+  protected SqlTableAttribute(SqlParserPos pos) {
     this.pos = pos;
   }
 
