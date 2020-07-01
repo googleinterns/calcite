@@ -82,7 +82,15 @@ public class DialectTraverser {
    */
   public void generateParserImpls(ExtractedData extractedData) {
     Path outputPath = Paths.get(outputPathString).toAbsolutePath();
+    Path licensePath = Paths.get("src", "resources", "license.txt");
     StringBuilder content = new StringBuilder();
+    try {
+      String licenseText = new String(Files.readAllBytes(licensePath),
+          StandardCharsets.UTF_8);
+      content.append(licenseText);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     for (String tokenAssignment : extractedData.tokenAssignments) {
       content.append(tokenAssignment + "\n");
     }

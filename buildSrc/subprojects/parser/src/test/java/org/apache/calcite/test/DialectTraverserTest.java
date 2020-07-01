@@ -54,11 +54,6 @@ public class DialectTraverserTest {
     String actualText = TestUtils.readFile(outputPath);
     String expectedText = TestUtils.readFile(Paths.get("src", "test",
           "resources", "integrationTest", "expected.ftl"));
-    String licenseText = TestUtils.readFile(Paths.get("src", "test",
-          "resources", "license.txt"));
-    int licenseIndex = expectedText.indexOf(licenseText);
-    // Only compare the text after the apache license.
-    expectedText = expectedText.substring(licenseIndex + licenseText.length());
     assertEquals(expectedText, actualText);
   }
 }

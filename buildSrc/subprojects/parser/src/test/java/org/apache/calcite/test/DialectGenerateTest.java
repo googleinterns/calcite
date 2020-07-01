@@ -65,7 +65,7 @@ public class DialectGenerateTest {
         testName);
     Path testPath = basePath.resolve(testName + ".txt");
     Path expectedPath = basePath.resolve(testName + "_expected.txt");
-    Path licensePath = Paths.get("src", "test", "resources", "license.txt");
+    Path licensePath = Paths.get("src", "resources", "license.txt");
 
     String fileText = TestUtils.readFile(testPath);
     ExtractedData extractedData = new ExtractedData();
