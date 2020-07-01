@@ -31,11 +31,11 @@ import org.apache.calcite.buildtools.parser.DialectTraverser;
 
 public class DialectTraverserTest {
   /**
-   * Returns a DialectGenerate with root path of calcite/parsingTest and
+   * Returns a DialectTraverser with root path of calcite/parsingTest and
    * dialect path of calcite/parsingTest/intermediate/testDialect.
    */
   private DialectTraverser setupDialectTraverser() {
-    Path rootPath = Paths.get("..", "..", "..", "parsingTest");
+    Path rootPath = Paths.get("src", "test", "resources", "parserTest");
     // Adds the path /intermediate/testDialect/ to the end of rootPath.
     Path dialectPath = rootPath.resolve(Paths.get("intermediate",
           "testDialect"));
