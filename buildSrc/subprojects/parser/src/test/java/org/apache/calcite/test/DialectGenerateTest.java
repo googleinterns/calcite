@@ -61,11 +61,13 @@ public class DialectGenerateTest {
    */
   private void assertFileProcessed(String testName) {
     DialectGenerate dialectGenerate = new DialectGenerate();
-    Path basePath = Paths.get("src", "test", "resources" ,"processFileTests",
-        testName);
+    Path resourcePath = Paths.get("src", "test", "resources");
+    Path basePath = resourcePath.resolve(Paths.get("processFileTests", testName));
+
     Path testPath = basePath.resolve(testName + ".txt");
     Path expectedPath = basePath.resolve(testName + "_expected.txt");
-    Path licensePath = Paths.get("src", "resources", "license.txt");
+    Path licensePath = resourcePath.resolve(Paths.get("parserTest",
+        "src", "resources", "license.txt"));
 
     String fileText = TestUtils.readFile(testPath);
     ExtractedData extractedData = new ExtractedData();
