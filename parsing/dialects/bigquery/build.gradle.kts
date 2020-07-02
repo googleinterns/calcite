@@ -56,8 +56,8 @@ tasks.register<Copy>("test2") {
 
 val fmppMain by tasks.registering(org.apache.calcite.buildtools.fmpp.FmppTask::class) {
     dependsOn(dialectGenerate)
-    //dependsOn("test1") // TODO remove
-    //dependsOn("test2") // TODO remove
+    dependsOn("test1") // TODO remove
+    dependsOn("test2") // TODO remove
 
     inputs.dir(".")
     config.set(file("config.fmpp"))

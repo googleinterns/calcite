@@ -77,8 +77,8 @@ public class DialectTraverser {
 
   /**
    * Generates the parserImpls.ftl file for the dialect. It is assumed that
-   * there exists a path src/resources/license.txt at the root directory which
-   * was specified in the constructor.
+   * there exists a path src/resources/license.txt at the root parsing directory
+   * which was specified in the constructor.
    *
    * @param extractedData The extracted data to write to the output file
    */
