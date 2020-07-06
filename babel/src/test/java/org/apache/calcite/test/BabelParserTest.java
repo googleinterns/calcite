@@ -1902,19 +1902,4 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "(?s).*Numeric literal.*out of range.*";
     sql(sql).fails(expected);
   }
-
-  @Test void testSqlValidatorRewriteMergeInsert() {
-    final String sql = "MERGE INTO t1 AS a\n"
-        + "USING t2 AS b\n"
-        + "ON a.x = b.x\n"
-        + "WHEN MATCHED THEN UPDATE SET\n"
-        + "  y = b.y\n"
-        + "WHEN NOT MATCHED THEN INSERT (x, y) VALUES (b.x, b.y)\n";
-    final String expected = "MERGE INTO `T1` AS `A`\n"
-        + "USING `T2` AS `B`\n"
-        + "ON (`A`.`X` = `B`.`X`)\n"
-        + "WHEN MATCHED THEN UPDATE SET `Y` = `B`.`Y`\n"
-        + "WHEN NOT MATCHED THEN INSERT (`X`, `Y`) (VALUES (ROW(`B`.`X`, `B`.`Y`)))";
-    sql(sql).ok(expected);
-  }
 }
