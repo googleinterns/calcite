@@ -1070,8 +1070,8 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testExecuteMacroWithMixedParamPatternFails() {
-    final String sql = "execute foo (1, ^bar^ = '2')";
-    final String expected = "(?s).*Encountered \"bar\" at .*";
+    final String sql = "execute foo (1, bar ^=^ '2')";
+    final String expected = "(?s).*Encountered \"=\" at .*";
     sql(sql).fails(expected);
   }
 
@@ -2253,6 +2253,53 @@ class BabelParserTest extends SqlParserTest {
     final String sql = "insert into foo (,,)";
     final String expected = "INSERT INTO `FOO`\n"
         + "VALUES (ROW(NULL, NULL, NULL))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHostVariableExecPositionalParams() {
+    final String sql = "exec foo (:bar, :baz, :qux)";
+    final String expected = "EXECUTE `FOO` (:BAR, :BAZ, :QUX)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHostVariableExecNamedParams() {
+    final String sql = "exec foo (bar=:bar, baz=:baz, qux=:qux)";
+    final String expected = "EXECUTE `FOO` (`BAR` = :BAR, `BAZ` = :BAZ,"
+        + " `QUX` = :QUX)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHostVariableSelect() {
+    final String sql = "select :bar as baz from foo where a = :qux";
+    final String expected = "SELECT :BAR AS `BAZ`\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` = :QUX)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHostVariableInsert() {
+    final String sql = "insert into foo values (:bar, :baz)";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(:BAR, :BAZ))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHostVariableInsertWithoutValuesKeyword() {
+    final String sql = "insert into foo (:bar, :baz)";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(:BAR, :BAZ))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHostVariableUpdate() {
+    final String sql = "update foo set bar = :baz";
+    final String expected = "UPDATE `FOO` SET `BAR` = :BAZ";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHostVariableCast() {
+    final String sql = "select cast(:foo as bar)";
+    final String expected = "SELECT CAST(:FOO AS `BAR`)";
     sql(sql).ok(expected);
   }
 }

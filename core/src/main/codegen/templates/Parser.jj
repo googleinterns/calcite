@@ -3861,6 +3861,10 @@ SqlNode AtomicRowExpression() :
         e = ${method}
     |
 </#list>
+<#if parser.includeHostVariables>
+        e = SqlHostVariable()
+    |
+</#if>
         e = Literal()
     |
         e = DynamicParam()

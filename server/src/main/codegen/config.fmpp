@@ -499,6 +499,7 @@ data: {
     includeRankWithSortingExpressions: false
     includeTopN: false
     includeInsertWithOmittedValues: false
+    includeHostVariables: false
   }
 }
 

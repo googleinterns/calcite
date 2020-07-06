@@ -1094,7 +1094,7 @@ SqlNode SqlExecMacroPositionalParamItem() :
 }
 {
     (
-        e = Literal()
+        e = AtomicRowExpression()
     |
         { e = SqlLiteral.createNull(getPos()); }
     )
@@ -1111,7 +1111,7 @@ SqlNode SqlSimpleIdentifierEqualLiteral() :
 {
     name = SimpleIdentifier()
     <EQ>
-    value = Literal()
+    value = AtomicRowExpression()
     {
         return new SqlExecMacroParam(getPos(), name, value);
     }
@@ -1815,5 +1815,15 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
         return new SqlSelectTopN(pos, selectNum,
             SqlLiteral.createBoolean(isPercent, pos),
             SqlLiteral.createBoolean(withTies, pos));
+    }
+}
+
+SqlHostVariable SqlHostVariable() :
+{
+}
+{
+    <COLON>
+    <IDENTIFIER> {
+        return new SqlHostVariable(unquotedIdentifier(), getPos());
     }
 }

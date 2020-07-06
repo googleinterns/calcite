@@ -92,6 +92,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlCharacterSetToCharacterSet",
       "org.apache.calcite.sql.babel.SqlTranslateUsingCharacterSet",
       "org.apache.calcite.sql.babel.SqlColumnAttributeDateFormat",
+      "org.apache.calcite.sql.babel.SqlHostVariable",
     ]
 
     # List of keywords.
@@ -1104,6 +1105,7 @@ data: {
     includeRankWithSortingExpressions: true
     includeTopN: true
     includeInsertWithOmittedValues: true
+    includeHostVariables: true
   }
 }
 
