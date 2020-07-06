@@ -37,6 +37,8 @@ import java.util.regex.Pattern;
  */
 public class DialectGenerate {
 
+  // Matches foo<body> where body can be [\w\s<>,]. This allows for easy
+  // handling of nested angle brackets and comma separated values.
   private static final String type = "\\w+\\s*(<\\s*[\\w<>,\\s]+>)?";
   private static final String typeAndName = type + "\\s+\\w+";
   private static final String splitDelims = "(\\s|\n|\"|//|/\\*|\\*/|'|\\}|\\{)";
@@ -50,7 +52,8 @@ public class DialectGenerate {
   private static final Pattern functionDeclarationPattern =
     Pattern.compile("(" + typeAndName + "\\s*\\(\\s*(" + typeAndName + "\\s*(\\,\\s*"
         + typeAndName + "\\s*)*)?\\)\\s*\\:\n?)");
-  private static final Pattern namePattern = Pattern.compile("(\\w+)\\s*\\(");
+  // Matches the function name within the above function declaration.
+  private static final Pattern functionNamePattern = Pattern.compile("(\\w+)\\s*\\(");
   // Matches [<OPT1, OPT2, ...>](TOKEN|SKIP|MORE) :
   private static final Pattern tokenDeclarationPattern =
     Pattern.compile("((<\\s*\\w+\\s*(\\s*,\\s*\\w+)*\\s*>\\s*)?(TOKEN|SKIP|MORE)\\s*:\n?)");
@@ -272,7 +275,7 @@ public class DialectGenerate {
    *                            <return_type> <name> (<args>) :
    */
   public String getFunctionName(String functionDeclaration) {
-    Matcher m = namePattern.matcher(functionDeclaration);
+    Matcher m = functionNamePattern.matcher(functionDeclaration);
     m.find();
     return m.group(1);
   }
