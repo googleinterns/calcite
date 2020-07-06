@@ -1507,7 +1507,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     // note that the values clause has already been converted to a
     // select on the values row constructor; so we need to extract
     // that via the from clause on the select
-    if (insertCall != null) {
+    if (insertCall != null && config.sqlConformance().allowMergeInsertRewrite()) {
       SqlCall valuesCall = (SqlCall) insertCall.getSource();
       SqlCall rowCall = valuesCall.operand(0);
       selectList =

@@ -460,4 +460,5 @@ public interface SqlConformance {
    */
   boolean allowQualifyingCommonColumn();
 
+  boolean allowMergeInsertRewrite();
 }
