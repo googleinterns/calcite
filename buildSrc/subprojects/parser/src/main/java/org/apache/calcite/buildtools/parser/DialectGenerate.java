@@ -37,7 +37,8 @@ import java.util.regex.Pattern;
  */
 public class DialectGenerate {
 
-  private static final String typeAndName = "\\w+\\s+\\w+";
+  private static final String type = "(\\w+\\s*(<\\s*\\w+\\s*(,\\s*\\w+\\s*)*>)?)";
+  private static final String typeAndName = type + "\\s+\\w+";
   private static final String splitDelims = "(\\s|\n|\"|//|/\\*|\\*/|'|\\}|\\{)";
 
   // Used to split up a string into tokens by the specified deliminators
@@ -49,7 +50,7 @@ public class DialectGenerate {
   private static final Pattern functionDeclarationPattern =
     Pattern.compile("(" + typeAndName + "\\s*\\(\\s*(" + typeAndName + "\\s*(\\,\\s*"
         + typeAndName + "\\s*)*)?\\)\\s*\\:\n?)");
-  private static final Pattern namePattern = Pattern.compile("\\w+");
+  private static final Pattern namePattern = Pattern.compile("(\\w+)\\s*\\(");
   // Matches [<OPT1, OPT2, ...>](TOKEN|SKIP|MORE) :
   private static final Pattern tokenDeclarationPattern =
     Pattern.compile("((<\\s*\\w+\\s*(\\s*,\\s*\\w+)*\\s*>\\s*)?(TOKEN|SKIP|MORE)\\s*:\n?)");
@@ -270,11 +271,9 @@ public class DialectGenerate {
    * @param functionDeclaration The function declaration of form
    *                            <return_type> <name> (<args>) :
    */
-  private String getFunctionName(String functionDeclaration) {
+  public String getFunctionName(String functionDeclaration) {
     Matcher m = namePattern.matcher(functionDeclaration);
-    // Name is the second match.
     m.find();
-    m.find();
-    return m.group();
+    return m.group(1);
   }
 }
