@@ -1820,7 +1820,7 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
 
 SqlHostVariable SqlHostVariable() :
 {
-    String name;
+    final String name;
 }
 {
     <COLON>
