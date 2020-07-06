@@ -38,5 +38,7 @@ public class SqlHostVariable extends SqlIdentifier {
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.print(":");
     writer.print(names.get(0));
+    // Ensures whitespace is added before a separator such as "AS"
+    writer.setNeedWhitespace(true);
   }
 }

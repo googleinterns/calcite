@@ -2263,9 +2263,9 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testHostVariableExecNamedParams() {
-    final String sql = "exec foo (bar=:bar , baz=:baz , qux=:qux)";
+    final String sql = "exec foo (bar=:bar, baz=:baz, qux=:qux)";
     final String expected = "EXECUTE `FOO` (`BAR` = :BAR, `BAZ` = :BAZ,"
-        + "`QUX` = :QUX)";
+        + " `QUX` = :QUX)";
     sql(sql).ok(expected);
   }
 
@@ -2294,6 +2294,12 @@ class BabelParserTest extends SqlParserTest {
   @Test public void testHostVariableUpdate() {
     final String sql = "update foo set bar = :baz";
     final String expected = "UPDATE `FOO` SET `BAR` = :BAZ";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHostVariableCast() {
+    final String sql = "select cast(:foo as bar)";
+    final String expected = "SELECT CAST(:FOO AS `BAR`)";
     sql(sql).ok(expected);
   }
 }
