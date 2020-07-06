@@ -420,10 +420,6 @@ data: {
     renameStatementParserMethods: [
     ]
 
-    # List of methods for parsing extensions to <expression> calls
-    postExpressionStatementParserMethods: [
-    ]
-
     # List of methods for parsing expressions to "EXEC" calls.
     execStatementParserMethods: [
     ]
@@ -473,6 +469,7 @@ data: {
     includeRankWithSortingExpressions: false
     includeTopN: false
     includeInsertWithOmittedValues: false
+    includeHostVariables: false
   }
 }
 

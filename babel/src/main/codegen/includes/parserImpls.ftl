@@ -199,6 +199,143 @@ SqlColumnAttribute ColumnAttributeDefault() :
     }
 }
 
+/**
+ * Parses a column attribute specified by the GENERATED statement.
+ */
+SqlColumnAttribute ColumnAttributeGenerated() :
+{
+    final GeneratedType generatedType;
+    final List<SqlColumnAttributeGeneratedOption> generatedOptions =
+        new ArrayList<SqlColumnAttributeGeneratedOption>();
+}
+{
+    <GENERATED>
+    (
+        <ALWAYS> { generatedType = GeneratedType.ALWAYS; }
+    |
+        <BY> <DEFAULT_> { generatedType = GeneratedType.BY_DEFAULT; }
+    )
+    <AS> <IDENTITY>
+    [
+        <LPAREN>
+        (
+            ColumnAttributeGeneratedOption(generatedOptions)
+        )+
+        <RPAREN>
+    ]
+    {
+        return new SqlColumnAttributeGenerated(getPos(), generatedType,
+            generatedOptions);
+    }
+}
+
+/**
+ * Parses an option specified for the GENERATED column attribute, and adds it
+ * to a list.
+ */
+void ColumnAttributeGeneratedOption(
+    List<SqlColumnAttributeGeneratedOption> generatedOptions) :
+{
+    final SqlColumnAttributeGeneratedOption generatedOption;
+}
+{
+    (
+        generatedOption = ColumnAttributeGeneratedCycle()
+    |
+        generatedOption = ColumnAttributeGeneratedIncrementBy()
+    |
+        generatedOption = ColumnAttributeGeneratedStartWith()
+    |
+        generatedOption = ColumnAttributeGeneratedMaxValue()
+    |
+        generatedOption = ColumnAttributeGeneratedMinValue()
+    )
+    { generatedOptions.add(generatedOption); }
+}
+
+/**
+ * Parses the CYCLE option of the GENERATED statement.
+ */
+SqlColumnAttributeGeneratedOption ColumnAttributeGeneratedCycle() :
+{
+    boolean none = false;
+}
+{
+    [ <NO> { none = true; } ]
+    <CYCLE>
+    { return new SqlColumnAttributeGeneratedCycle(none); }
+}
+
+/**
+ * Parses the INCREMENT BY option of the GENERATED statement.
+ */
+SqlColumnAttributeGeneratedOption ColumnAttributeGeneratedIncrementBy() :
+{
+    final SqlLiteral inc;
+}
+{
+    <INCREMENT> <BY>
+    inc = NumericLiteral()
+    { return new SqlColumnAttributeGeneratedIncrementBy(inc); }
+}
+
+/**
+ * Parses the START WITH option of the GENERATED statement.
+ */
+SqlColumnAttributeGeneratedOption ColumnAttributeGeneratedStartWith() :
+{
+    final SqlLiteral start;
+}
+{
+    <START> <WITH>
+    start = NumericLiteral()
+    { return new SqlColumnAttributeGeneratedStartWith(start); }
+}
+
+/**
+ * Parses the MAXVALUE option of the GENERATED statement.
+ */
+SqlColumnAttributeGeneratedOption ColumnAttributeGeneratedMaxValue() :
+{
+    final SqlLiteral max;
+    boolean none = false;
+}
+{
+    (
+        <NO> <MAXVALUE>
+        {
+            max = null;
+            none = true;
+        }
+    |
+        <MAXVALUE>
+        max = NumericLiteral()
+    )
+    { return new SqlColumnAttributeGeneratedMaxValue(max, none); }
+}
+
+/**
+ * Parses the MINVALUE option of the GENERATED statement.
+ */
+SqlColumnAttributeGeneratedOption ColumnAttributeGeneratedMinValue() :
+{
+    final SqlLiteral min;
+    boolean none = false;
+}
+{
+    (
+        <NO> <MINVALUE>
+        {
+            min = null;
+            none = true;
+        }
+    |
+        <MINVALUE>
+        min = NumericLiteral()
+    )
+    { return new SqlColumnAttributeGeneratedMinValue(min, none); }
+}
+
 SqlColumnAttribute ColumnAttributeCharacterSet() :
 {
     CharacterSet characterSet = null;
@@ -274,6 +411,8 @@ void ColumnAttributes(List<SqlColumnAttribute> list) :
             e = ColumnAttributeDefault()
         |
             e = ColumnAttributeDateFormat()
+        |
+            e = ColumnAttributeGenerated()
         ) { list.add(e); }
     )+
 }
@@ -934,19 +1073,34 @@ void SqlExecMacroArgument(SqlNodeList params) :
             }
         )*
     |
-        e = Literal()
+        e = SqlExecMacroPositionalParamItem()
         {
             params.add(new SqlExecMacroParam(getPos(), e));
         }
         (
             <COMMA>
-            e = Literal()
+            e = SqlExecMacroPositionalParamItem()
             {
                 params.add(new SqlExecMacroParam(getPos(), e));
             }
         )*
     )
     <RPAREN>
+}
+
+SqlNode SqlExecMacroPositionalParamItem() :
+{
+    SqlNode e;
+}
+{
+    (
+        e = AtomicRowExpression()
+    |
+        { e = SqlLiteral.createNull(getPos()); }
+    )
+    {
+        return e;
+    }
 }
 
 SqlNode SqlSimpleIdentifierEqualLiteral() :
@@ -957,7 +1111,7 @@ SqlNode SqlSimpleIdentifierEqualLiteral() :
 {
     name = SimpleIdentifier()
     <EQ>
-    value = Literal()
+    value = AtomicRowExpression()
     {
         return new SqlExecMacroParam(getPos(), name, value);
     }
@@ -999,17 +1153,6 @@ SqlNode SqlInsertWithOptionalValuesKeyword() :
     {
         return SqlStdOperatorTable.VALUES.createCall(s.end(this),
             rowConstructorList.toArray());
-    }
-}
-
-SqlNode SqlNamedExpression(SqlNode e) :
-{
-    final SqlIdentifier name;
-}
-{
-    <LPAREN> <NAMED> name = SimpleIdentifier() <RPAREN>
-    {
-        return SqlStdOperatorTable.AS.createCall(span().end(e), e, name);
     }
 }
 
@@ -1370,6 +1513,32 @@ SqlNode InlineFormatQuery(SqlNode q) :
     }
 }
 
+SqlNode NamedLiteralOrIdentifier() :
+{
+     final SqlNode q;
+     final SqlNode e;
+}
+{
+    (
+        q = Literal()
+    |
+        q = SimpleIdentifier()
+    )
+    e = NamedQuery(q) { return e; }
+}
+
+SqlNode NamedQuery(SqlNode q) :
+{
+    final Span s = span();
+    final SqlIdentifier name;
+}
+{
+    <LPAREN> <NAMED> name = SimpleIdentifier() <RPAREN>
+    {
+        return SqlStdOperatorTable.AS.createCall(s.end(this), q, name);
+    }
+}
+
 /**
  * The RANK function call with sorting expressions has a default ordering of DESC
  * while the RANK() OVER function call has a default ordering of ASC.
@@ -1647,4 +1816,18 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
             SqlLiteral.createBoolean(isPercent, pos),
             SqlLiteral.createBoolean(withTies, pos));
     }
+}
+
+SqlHostVariable SqlHostVariable() :
+{
+    final String name;
+}
+{
+    <COLON>
+    (
+        <IDENTIFIER> { name = unquotedIdentifier(); }
+    |
+        name = NonReservedKeyWord()
+    )
+    { return new SqlHostVariable(name, getPos()); }
 }
