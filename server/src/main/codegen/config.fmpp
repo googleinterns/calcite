@@ -492,6 +492,7 @@ data: {
     allowUpsertFormOfUpdate: false
     allowAbbreviatedKeywords: true
     allowTranslateUsingCharSetWithError: false
+    allowNestedJoins: false
     includePosixOperators: false
     includeCastFormat: false
     includeCompoundIdentifier: true
