@@ -53,6 +53,11 @@ public class DialectGenerateTest {
     assertEquals(function.length(), charIndex);
   }
 
+  private void assertFunctionNameExtracted(String declaration, String name) {
+    DialectGenerate dialectGenerate = new DialectGenerate();
+    assertEquals(name, dialectGenerate.getFunctionName(declaration));
+  }
+
   /**
    * Each testcase has a testName.txt and testName_expected.txt file.
    * This function makes sure that the testName.txt file is parsed without error
@@ -181,6 +186,10 @@ public class DialectGenerateTest {
     assertFileProcessed("functions_and_assignments");
   }
 
+  @Test public void processFileTypesWithAngleBrackets() {
+    assertFileProcessed("angle_brackets");
+  }
+
   @Test public void processTokenAssignmentTokenEmpty() {
     String declaration = "TOKEN :\n";
     String assignment = declaration
@@ -210,5 +219,30 @@ public class DialectGenerateTest {
       + "< NEGATE: \"!\" >\n"
       + "}";
     assertTokenAssignmentIsParsed(declaration, assignment);
+  }
+
+  @Test public void getFunctionNameSingleWord() {
+    String declaration = "String foo () :";
+    assertFunctionNameExtracted(declaration, "foo");
+  }
+
+  @Test public void getFunctionNameSingleAngleBrackets() {
+    String declaration = "List<String> foo () :";
+    assertFunctionNameExtracted(declaration, "foo");
+  }
+
+  @Test public void getFunctionNameNestedAngleBrackets() {
+    String declaration = "List<List<String>> foo () :";
+    assertFunctionNameExtracted(declaration, "foo");
+  }
+
+  @Test public void getFunctionNameSingleAngleBracketsMultipleOptions() {
+    String declaration = "Map<String, String> foo () :";
+    assertFunctionNameExtracted(declaration, "foo");
+  }
+
+  @Test public void getFunctionNameWithArguments() {
+    String declaration = "Map<String, String> foo(String x, int y) :";
+    assertFunctionNameExtracted(declaration, "foo");
   }
 }
