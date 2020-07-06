@@ -1821,21 +1821,13 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
 SqlHostVariable SqlHostVariable() :
 {
     String name;
-    SqlParserPos pos;
 }
 {
     <COLON>
     (
-        <IDENTIFIER>
-        {
-            name = unquotedIdentifier();
-            pos = getPos();
-        }
+        <IDENTIFIER> { name = unquotedIdentifier(); }
     |
         name = NonReservedKeyWord()
-        {
-            pos = getPos();
-        }
     )
-    { return new SqlHostVariable(name, pos); }
+    { return new SqlHostVariable(name, getPos()); }
 }
