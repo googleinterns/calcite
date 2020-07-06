@@ -2270,8 +2270,8 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test public void testHostVariableSelect() {
-    final String sql = "select :bar from foo where a = :qux";
-    final String expected = "SELECT :BAR\n"
+    final String sql = "select :bar as baz from foo where a = :qux";
+    final String expected = "SELECT :BAR AS `BAZ`\n"
         + "FROM `FOO`\n"
         + "WHERE (`A` = :QUX)";
     sql(sql).ok(expected);
