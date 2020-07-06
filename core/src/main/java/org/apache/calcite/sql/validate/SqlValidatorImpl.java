@@ -4901,7 +4901,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     if (call.getUpdateCall() != null) {
       validateUpdate(call.getUpdateCall());
     }
-    if (call.getInsertCall() != null) {
+    if (call.getInsertCall() != null && config.sqlConformance().allowMergeInsertRewrite()) {
       validateInsert(call.getInsertCall());
     }
   }
