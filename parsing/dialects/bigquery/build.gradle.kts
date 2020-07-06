@@ -43,21 +43,8 @@ val dialectGenerate by tasks.registering(org.apache.calcite.buildtools.parser.Di
   outputFile = "build/generated/templates/parserImpls.ftl"
 }
 
-// TODO remove these two tasks, temporary until generation task is finished
-tasks.register("test1") {
-    doLast {
-        mkdir("build/generated/templates")
-    }
-}
-tasks.register<Copy>("test2") {
-    from("$rootDir/parsing/parserImpls.ftl")
-    into("$buildDir/generated/templates")
-}
-
 val fmppMain by tasks.registering(org.apache.calcite.buildtools.fmpp.FmppTask::class) {
     dependsOn(dialectGenerate)
-    dependsOn("test1") // TODO remove
-    dependsOn("test2") // TODO remove
 
     inputs.dir(".")
     config.set(file("config.fmpp"))
