@@ -31,15 +31,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DialectTraverserTest {
 
-  private static final Path outputPath = Paths.get("src", "test", "resources",
-      "build", "integrationTest", "actual.ftl");
+  private static final Path outputPath = Paths.get("build", "integrationTest",
+      "actual.ftl");
+  private static final Path rootPath = Paths.get("src", "test", "resources",
+      "parserTest");
 
   /**
    * Returns a DialectTraverser with root path of calcite/parsingTest and
    * dialect path of calcite/parsingTest/intermediate/testDialect.
    */
   private DialectTraverser setupDialectTraverser() {
-    Path rootPath = Paths.get("src", "test", "resources", "parserTest");
     // Adds the path /intermediate/testDialect/ to the end of rootPath.
     Path dialectPath = rootPath.resolve(Paths.get("intermediate",
           "testDialect"));
@@ -51,7 +52,8 @@ public class DialectTraverserTest {
   @Test public void testExtractionGenerationOnTestDirectory() {
     DialectTraverser dialectTraverser = setupDialectTraverser();
     dialectTraverser.run();
-    String actualText = TestUtils.readFile(outputPath);
+    String actualText = TestUtils.readFile(rootPath.resolve(
+          Paths.get("intermediate", "testDialect").resolve(outputPath)));
     String expectedText = TestUtils.readFile(Paths.get("src", "test",
           "resources", "integrationTest", "expected.ftl"));
     assertEquals(expectedText, actualText);

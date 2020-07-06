@@ -76,13 +76,16 @@ public class DialectTraverser {
   }
 
   /**
-   * Generates the parserImpls.ftl file for the dialect.
+   * Generates the parserImpls.ftl file for the dialect. It is assumed that
+   * there exists a path src/resources/license.txt at the root parsing directory
+   * which was specified in the constructor.
    *
    * @param extractedData The extracted data to write to the output file
    */
   public void generateParserImpls(ExtractedData extractedData) {
-    Path outputFilePath = Paths.get(outputPath).toAbsolutePath();
-    Path licensePath = Paths.get("src", "resources", "license.txt");
+    Path outputFilePath = dialectDirectory.toPath().resolve(outputPath);
+    Path licensePath = rootDirectory.toPath().resolve(
+        Paths.get("src", "resources", "license.txt"));
     StringBuilder content = new StringBuilder();
     try {
       String licenseText = new String(Files.readAllBytes(licensePath),
@@ -97,8 +100,8 @@ public class DialectTraverser {
     for (String function : extractedData.functions.values()) {
       content.append(function + "\n");
     }
-    File file = outputFilePath.toFile();
-    file.getParentFile().mkdirs();
+    File outputFile = outputFilePath.toFile();
+    outputFile.getParentFile().mkdirs();
     try {
       Files.write(outputFilePath, content.toString().getBytes());
     } catch (IOException e) {
