@@ -2255,4 +2255,34 @@ class BabelParserTest extends SqlParserTest {
         + "VALUES (ROW(NULL, NULL, NULL))";
     sql(sql).ok(expected);
   }
+
+  @Test public void testHostVariableExecPositionalParams() {
+    final String sql = "exec foo(:a, :b, :c)";
+    final String expected = "EXECUTE `FOO` (:a, :b, :c)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHostVariableExecNamedParams() {
+    final String sql = "exec foo(bar=:a, baz=:b, qux=:c)";
+    final String expected = "EXECUTE `FOO` (`BAR` = :a, `BAZ` = :b, `QUX` = :c)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHostVariableSelect() {
+    final String sql = "select :bar from foo where a = :qux";
+    final String expected = "SELECT :bar FROM where `A` = :qux";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHostVariableInsert() {
+    final String sql = "insert into foo values (:bar, :baz)";
+    final String expected = "INSERT INTO `FOO` VALUES (:bar, :baz)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHostVariableUpdate() {
+    final String sql = "update foo set bar = :baz";
+    final String expected = "UPDATE `FOO` SET `BAR` = :baz";
+    sql(sql).ok(expected);
+  }
 }
