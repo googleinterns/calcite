@@ -231,6 +231,11 @@ public class DialectGenerateTest {
     assertFunctionNameExtracted(declaration, "foo");
   }
 
+  @Test public void getFunctionNameNestedAngleBrackets() {
+    String declaration = "List<List<String>> foo () :";
+    assertFunctionNameExtracted(declaration, "foo");
+  }
+
   @Test public void getFunctionNameSingleAngleBracketsMultipleOptions() {
     String declaration = "Map<String, String> foo () :";
     assertFunctionNameExtracted(declaration, "foo");
