@@ -2302,4 +2302,11 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "SELECT CAST(:FOO AS `BAR`)";
     sql(sql).ok(expected);
   }
+
+  @Test public void testHostVariableNonReservedKeywords() {
+    final String sql = "insert into foo values (:a, :avg)";
+    final String expected = "INSERT INTO `FOO`\n"
+        + "VALUES (ROW(:A, :AVG))";
+    sql(sql).ok(expected);
+  }
 }

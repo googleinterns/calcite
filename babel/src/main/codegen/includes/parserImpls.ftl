@@ -1820,10 +1820,22 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
 
 SqlHostVariable SqlHostVariable() :
 {
+    String name;
+    SqlParserPos pos;
 }
 {
     <COLON>
-    <IDENTIFIER> {
-        return new SqlHostVariable(unquotedIdentifier(), getPos());
-    }
+    (
+        <IDENTIFIER>
+        {
+            name = unquotedIdentifier();
+            pos = getPos();
+        }
+    |
+        name = NonReservedKeyWord()
+        {
+            pos = getPos();
+        }
+    )
+    { return new SqlHostVariable(name, pos); }
 }
