@@ -33,7 +33,8 @@ public class DialectTraverserTest {
 
   private static final Path outputPath = Paths.get("build", "integrationTest",
       "actual.ftl");
-  private static final Path rootPath = Paths.get("src", "test", "resources", "parserTest");
+  private static final Path rootPath = Paths.get("src", "test", "resources",
+      "parserTest");
 
   /**
    * Returns a DialectTraverser with root path of calcite/parsingTest and
