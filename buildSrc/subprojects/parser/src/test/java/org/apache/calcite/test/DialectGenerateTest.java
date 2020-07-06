@@ -231,7 +231,7 @@ public class DialectGenerateTest {
     assertFunctionNameExtracted(declaration, "foo");
   }
 
-  @Test public void getFunctionNameSingleAngleBracketsCommaOptions() {
+  @Test public void getFunctionNameSingleAngleBracketsMultipleOptions() {
     String declaration = "Map<String, String> foo () :";
     assertFunctionNameExtracted(declaration, "foo");
   }

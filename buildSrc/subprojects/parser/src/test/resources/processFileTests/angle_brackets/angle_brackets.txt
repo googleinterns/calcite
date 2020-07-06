@@ -18,4 +18,10 @@ List<String> foo() : {} {}
 
 Map<String, String> bar() : {} {}
 
-Foo<Bar<Baz>> qux() : {} {}
+Map<List<String>, String> baz() : {} {}
+
+List   < Integer >  qux  () : {} {}
+
+void quux (List<String> x) : {} {}
+
+void corge (Map<String, Integer> x) : {} {}

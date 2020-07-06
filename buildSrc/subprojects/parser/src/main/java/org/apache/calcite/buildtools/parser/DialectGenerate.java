@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  */
 public class DialectGenerate {
 
-  private static final String type = "(\\w+\\s*(<\\s*\\w+\\s*(,\\s*\\w+\\s*)*>)?)";
+  private static final String type = "\\w+\\s*(<\\s*[\\w<>,\\s]+>)?";
   private static final String typeAndName = type + "\\s+\\w+";
   private static final String splitDelims = "(\\s|\n|\"|//|/\\*|\\*/|'|\\}|\\{)";
 
