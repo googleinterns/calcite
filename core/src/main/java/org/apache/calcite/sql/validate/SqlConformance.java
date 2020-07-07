@@ -476,12 +476,12 @@ public interface SqlConformance {
    *
    * <p>{@code VALUES (b.x, b.y)} is the inserted value. The default behavior
    * is to rewrite it as {@code SELECT b.x, b.y FROM t2 AS b}. Which is not
-   * a valid grammar in some dialects.
+   * a valid grammar in some dialects.</p>
    *
    * <p>Among the built-in conformance levels, false in
    * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#BIG_QUERY},
-   * true otherwise.
+   * true otherwise.</p>
    */
   boolean allowMergeInsertRewrite();
 }
