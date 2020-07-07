@@ -20,7 +20,7 @@ import org.apache.calcite.config.CalciteConnectionProperty;
 import org.apache.calcite.jdbc.CalciteConnection;
 import org.apache.calcite.schema.Function;
 import org.apache.calcite.schema.FunctionParameter;
-import org.apache.calcite.sql.parser.ddl.SqlDdlParserImpl;
+import org.apache.calcite.sql.parser.defaultdialect.DefaultDialectParserImpl;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -47,9 +47,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Unit tests for server and DDL.
+ * Unit tests for DDL statements.
  */
-class ServerTest {
+class DefaultDialectTest {
 
   static final String URL = "jdbc:calcite:";
 
@@ -57,7 +57,7 @@ class ServerTest {
     return DriverManager.getConnection(URL,
         CalciteAssert.propBuilder()
             .set(CalciteConnectionProperty.PARSER_FACTORY,
-                SqlDdlParserImpl.class.getName() + "#FACTORY")
+                DefaultDialectParserImpl.class.getName() + "#FACTORY")
             .set(CalciteConnectionProperty.MATERIALIZATIONS_ENABLED,
                 "true")
             .set(CalciteConnectionProperty.FUN, "standard,oracle")

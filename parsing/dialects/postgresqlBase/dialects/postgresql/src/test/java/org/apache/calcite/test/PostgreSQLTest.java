@@ -17,7 +17,7 @@
 package org.apache.calcite.test;
 
 import org.apache.calcite.config.CalciteConnectionProperty;
-import org.apache.calcite.sql.parser.babel.SqlBabelParserImpl;
+import org.apache.calcite.sql.parser.postgresql.PostgreSQLParserImpl;
 
 import org.junit.jupiter.api.Test;
 
@@ -35,16 +35,16 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 /**
- * Unit tests for Babel framework.
+ * Unit tests for PostgreSQL.
  */
-class BabelTest {
+class PostgreSQLTest {
 
   static final String URL = "jdbc:calcite:";
 
   private static UnaryOperator<CalciteAssert.PropBuilder> useParserFactory() {
     return propBuilder ->
         propBuilder.set(CalciteConnectionProperty.PARSER_FACTORY,
-            SqlBabelParserImpl.class.getName() + "#FACTORY");
+            PostgreSQLParserImpl.class.getName() + "#FACTORY");
   }
 
   private static UnaryOperator<CalciteAssert.PropBuilder> useLibraryList(
