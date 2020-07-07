@@ -475,7 +475,7 @@ public interface SqlConformance {
    * </pre></blockquote>
    *
    * <p>{@code VALUES (b.x, b.y)} is the inserted value. The default behavior
-   * is to rewrite it to {@code SELECT b.x, b.y FROM t2 AS b}. Which is not
+   * is to rewrite it as {@code SELECT b.x, b.y FROM t2 AS b}. Which is not
    * a valid grammar in some dialects.
    *
    * <p>Among the built-in conformance levels, false in
