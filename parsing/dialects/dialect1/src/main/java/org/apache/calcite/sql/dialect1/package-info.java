@@ -16,6 +16,6 @@
  */
 
 /**
- * Dialect1 parser tests.
+ * Dialect1 parser.
  */
-package org.apache.calcite.test;
+package org.apache.calcite.sql.dialect1;

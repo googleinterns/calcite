@@ -70,7 +70,13 @@ class DefaultDialectQuidemTest extends DialectQuidemTest {
                       "true")
                   .set(CalciteConnectionProperty.FUN, "standard,oracle")
                   .build());
-
+        case "blank":
+          return CalciteAssert.that()
+              .with(CalciteConnectionProperty.PARSER_FACTORY,
+                  "org.apache.calcite.sql.parser.defaultdialect"
+                      + ".DefaultDialectParserImpl#FACTORY")
+              .with(CalciteAssert.SchemaSpec.BLANK)
+              .connect();
         default:
           return super.connect(name, reference);
         }
