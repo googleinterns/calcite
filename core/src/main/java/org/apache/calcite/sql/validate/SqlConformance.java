@@ -463,7 +463,7 @@ public interface SqlConformance {
   /**
    * Whether to allow the rewrite of the insert call in merge call.
    *
-   * <p>For example, in the query
+   * <p>For example, in the query</p>
    *
    * <blockquote><pre>
    * MERGE INTO t1 AS a
@@ -472,7 +472,7 @@ public interface SqlConformance {
    * WHEN MATCHED THEN UPDATE SET
    *   y = b.y
    * WHEN NOT MATCHED THEN INSERT (x, y) VALUES (b.x, b.y)
-   * </pre></blockquote></p>
+   * </pre></blockquote>
    *
    * <p>{@code VALUES (b.x, b.y)} is the inserted value. The default behavior
    * is to rewrite it as {@code SELECT b.x, b.y FROM t2 AS b}. Which is not
