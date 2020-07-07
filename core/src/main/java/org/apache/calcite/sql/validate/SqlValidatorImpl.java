@@ -1507,8 +1507,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     // note that the values clause has already been converted to a
     // select on the values row constructor; so we need to extract
     // that via the from clause on the select
-    if (insertCall != null &&
-        config.sqlConformance().allowMergeInsertRewrite()) {
+    if (insertCall != null
+        && config.sqlConformance().allowMergeInsertRewrite()) {
       SqlCall valuesCall = (SqlCall) insertCall.getSource();
       SqlCall rowCall = valuesCall.operand(0);
       selectList =
@@ -4902,8 +4902,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     if (call.getUpdateCall() != null) {
       validateUpdate(call.getUpdateCall());
     }
-    if (call.getInsertCall() != null &&
-        config.sqlConformance().allowMergeInsertRewrite()) {
+    if (call.getInsertCall() != null
+        && config.sqlConformance().allowMergeInsertRewrite()) {
       validateInsert(call.getInsertCall());
     }
   }
