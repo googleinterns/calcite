@@ -39,6 +39,14 @@ data: {
       "org.apache.calcite.sql.babel.SqlAlterTableDrop",
       "org.apache.calcite.sql.babel.SqlAlterTableOption",
       "org.apache.calcite.sql.babel.SqlAlterTableRename",
+      "org.apache.calcite.sql.babel.SqlColumnAttributeGenerated",
+      "org.apache.calcite.sql.babel.SqlColumnAttributeGenerated.GeneratedType",
+      "org.apache.calcite.sql.babel.SqlColumnAttributeGeneratedCycle",
+      "org.apache.calcite.sql.babel.SqlColumnAttributeGeneratedIncrementBy",
+      "org.apache.calcite.sql.babel.SqlColumnAttributeGeneratedMaxValue",
+      "org.apache.calcite.sql.babel.SqlColumnAttributeGeneratedMinValue",
+      "org.apache.calcite.sql.babel.SqlColumnAttributeGeneratedOption",
+      "org.apache.calcite.sql.babel.SqlColumnAttributeGeneratedStartWith",
       "org.apache.calcite.sql.babel.SqlSetTimeZone",
       "org.apache.calcite.sql.babel.OnCommitType",
       "org.apache.calcite.sql.babel.SetType",
@@ -84,6 +92,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlCharacterSetToCharacterSet",
       "org.apache.calcite.sql.babel.SqlTranslateUsingCharacterSet",
       "org.apache.calcite.sql.babel.SqlColumnAttributeDateFormat",
+      "org.apache.calcite.sql.babel.SqlHostVariable",
     ]
 
     # List of keywords.
@@ -1036,11 +1045,6 @@ data: {
       "SqlRenameTable"
     ]
 
-    # List of methods for parsing extensions to <expression> calls
-    postExpressionStatementParserMethods: [
-      "SqlNamedExpression"
-    ]
-
     # List of methods for parsing expressions to "EXEC" calls.
     execStatementParserMethods: [
       "SqlExecMacro"
@@ -1065,11 +1069,13 @@ data: {
       "InlineModOperator"
       "AlternativeTypeConversionLiteralOrIdentifier"
       "InlineFormatLiteralOrIdentifier"
+      "NamedLiteralOrIdentifier"
     ]
 
     postExpressionMethods: [
       "AlternativeTypeConversionQuery"
       "InlineFormatQuery"
+      "NamedQuery"
     ]
 
     dateTimeExpressionMethods: [
@@ -1100,6 +1106,7 @@ data: {
     includeRankWithSortingExpressions: true
     includeTopN: true
     includeInsertWithOmittedValues: true
+    includeHostVariables: true
   }
 }
 
