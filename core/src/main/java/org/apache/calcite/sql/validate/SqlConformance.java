@@ -472,7 +472,7 @@ public interface SqlConformance {
    * WHEN MATCHED THEN UPDATE SET
    *   y = b.y
    * WHEN NOT MATCHED THEN INSERT (x, y) VALUES (b.x, b.y)
-   * </pre></blockquote>
+   * </pre></blockquote></p>
    *
    * <p>{@code VALUES (b.x, b.y)} is the inserted value. The default behavior
    * is to rewrite it as {@code SELECT b.x, b.y FROM t2 AS b}. Which is not
