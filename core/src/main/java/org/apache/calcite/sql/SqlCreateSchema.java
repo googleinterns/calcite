@@ -21,6 +21,7 @@ import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.schema.Schema;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.impl.AbstractSchema;
+import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 import org.apache.calcite.util.Pair;
@@ -41,9 +42,9 @@ public class SqlCreateSchema extends SqlCreate
       new SqlSpecialOperator("CREATE SCHEMA", SqlKind.CREATE_SCHEMA);
 
   /** Creates a SqlCreateSchema. */
-  SqlCreateSchema(SqlParserPos pos, boolean replace, boolean ifNotExists,
-      SqlIdentifier name) {
-    super(OPERATOR, pos, replace, ifNotExists);
+  SqlCreateSchema(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
+      boolean ifNotExists, SqlIdentifier name) {
+    super(OPERATOR, pos, createSpecifier, ifNotExists);
     this.name = Objects.requireNonNull(name);
   }
 
@@ -52,11 +53,7 @@ public class SqlCreateSchema extends SqlCreate
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    if (getReplace()) {
-      writer.keyword("CREATE OR REPLACE");
-    } else {
-      writer.keyword("CREATE");
-    }
+    writer.keyword(getCreateSpecifier().toString());
     writer.keyword("SCHEMA");
     if (ifNotExists) {
       writer.keyword("IF NOT EXISTS");
@@ -69,7 +66,8 @@ public class SqlCreateSchema extends SqlCreate
         SqlDdlNodes.schema(context, true, name);
     final SchemaPlus subSchema0 = pair.left.plus().getSubSchema(pair.right);
     if (subSchema0 != null) {
-      if (!getReplace() && !ifNotExists) {
+      if (getCreateSpecifier() != SqlCreateSpecifier.CREATE_OR_REPLACE
+          && !ifNotExists) {
         throw SqlUtil.newContextException(name.getParserPosition(),
             RESOURCE.schemaExists(pair.right));
       }

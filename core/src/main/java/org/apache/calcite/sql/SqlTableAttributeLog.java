@@ -16,22 +16,31 @@
  */
 package org.apache.calcite.sql;
 
+import org.apache.calcite.sql.parser.SqlParserPos;
+
 /**
- * Enumerates the types of sets.
+ * A <code>SqlTableAttributeLog</code> is a table option
+ * for the LOG attribute.
  */
-public enum OnCommitType {
-  /**
-   * ON COMMIT type not specified.
-   */
-  UNSPECIFIED,
+public class SqlTableAttributeLog extends SqlTableAttribute {
+
+  private final boolean loggingEnabled;
 
   /**
-   * Save the contents of a materialized global temporary table across transactions.
+   * Creates a {@code SqlTableAttributeLog}.
+   *
+   * @param loggingEnabled  Transient journal logging is enabled
+   * @param pos  Parser position, must not be null
    */
-  PRESERVE,
+  public SqlTableAttributeLog(boolean loggingEnabled, SqlParserPos pos) {
+    super(pos);
+    this.loggingEnabled = loggingEnabled;
+  }
 
-  /**
-   * Discard the contents of a materialized global temporary table across transactions.
-   */
-  DELETE,
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    if (!loggingEnabled) {
+      writer.keyword("NO");
+    }
+    writer.keyword("LOG");
+  }
 }

@@ -16,22 +16,14 @@
  */
 package org.apache.calcite.sql;
 
+import org.apache.calcite.sql.SqlWriter;
+
 /**
- * Enumerates the types of sets.
+ * A {@code SqlColumnAttributeGeneratedOption} is an abstract class that
+ * represents the possible options (ex. CYCLE, MAXVALUE) of a
+ * GENERATED column attribute.
  */
-public enum OnCommitType {
-  /**
-   * ON COMMIT type not specified.
-   */
-  UNSPECIFIED,
+public abstract class SqlColumnAttributeGeneratedOption {
 
-  /**
-   * Save the contents of a materialized global temporary table across transactions.
-   */
-  PRESERVE,
-
-  /**
-   * Discard the contents of a materialized global temporary table across transactions.
-   */
-  DELETE,
+  public abstract void unparse(SqlWriter writer, int leftPrec, int rightPrec);
 }

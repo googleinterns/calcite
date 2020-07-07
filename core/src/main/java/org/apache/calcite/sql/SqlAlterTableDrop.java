@@ -16,22 +16,34 @@
  */
 package org.apache.calcite.sql;
 
+import java.util.Objects;
+
 /**
- * Enumerates the types of sets.
+ * A {@code SqlAlterTableDrop} represents a DROP statement within an
+ * ALTER TABLE query.
  */
-public enum OnCommitType {
-  /**
-   * ON COMMIT type not specified.
-   */
-  UNSPECIFIED,
+public class SqlAlterTableDrop extends SqlAlterTableOption {
+
+  public final SqlIdentifier dropObj;
+  public final boolean identity;
 
   /**
-   * Save the contents of a materialized global temporary table across transactions.
+   * Creates a {@code SqlAlterTableDrop}.
+   *
+   * @param dropObj   Identifier specifying object to drop.
+   * @param identity  Whether or not IDENTITY keyword is specified.
    */
-  PRESERVE,
+  public SqlAlterTableDrop(SqlIdentifier dropObj, boolean identity) {
+    this.dropObj = Objects.requireNonNull(dropObj);
+    this.identity = identity;
+  }
 
-  /**
-   * Discard the contents of a materialized global temporary table across transactions.
-   */
-  DELETE,
+  @Override public void unparse(SqlWriter writer,
+      int leftPrec, int rightPrec) {
+    writer.keyword("DROP");
+    dropObj.unparse(writer, leftPrec, rightPrec);
+    if (identity) {
+      writer.keyword("IDENTITY");
+    }
+  }
 }

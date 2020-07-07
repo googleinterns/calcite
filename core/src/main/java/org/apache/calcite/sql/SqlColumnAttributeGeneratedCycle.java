@@ -17,21 +17,28 @@
 package org.apache.calcite.sql;
 
 /**
- * Enumerates the types of sets.
+ * A {@code SqlColumnAttributeGeneratedCycle} represents the CYCLE option
+ * of a GENERATED column attribute.
  */
-public enum OnCommitType {
-  /**
-   * ON COMMIT type not specified.
-   */
-  UNSPECIFIED,
+public class SqlColumnAttributeGeneratedCycle extends
+    SqlColumnAttributeGeneratedOption {
+
+  public final boolean none;
 
   /**
-   * Save the contents of a materialized global temporary table across transactions.
+   * Creates a {@code SqlColumnAttributeGeneratedCycle}.
+   *
+   * @param none   Whether or not NO CYCLE was specified.
    */
-  PRESERVE,
+  public SqlColumnAttributeGeneratedCycle(boolean none) {
+    this.none = none;
+  }
 
-  /**
-   * Discard the contents of a materialized global temporary table across transactions.
-   */
-  DELETE,
+  @Override public void unparse(SqlWriter writer,
+      int leftPrec, int rightPrec) {
+    if (none) {
+      writer.keyword("NO");
+    }
+    writer.keyword("CYCLE");
+  }
 }
