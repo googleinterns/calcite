@@ -114,4 +114,8 @@ public abstract class SqlAbstractConformance implements SqlConformance {
   public boolean allowAliasUnnestItems() {
     return SqlConformanceEnum.DEFAULT.allowAliasUnnestItems();
   }
+
+  @Override public boolean allowMergeInsertRewrite() {
+    return SqlConformanceEnum.DEFAULT.allowMergeInsertRewrite();
+  }
 }

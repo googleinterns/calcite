@@ -77,4 +77,8 @@ public class SqlDelegatingConformance extends SqlAbstractConformance {
     return delegate.allowAliasUnnestItems();
   }
 
+  @Override public boolean allowMergeInsertRewrite() {
+    return delegate.allowMergeInsertRewrite();
+  }
+
 }
