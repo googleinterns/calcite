@@ -15,11 +15,15 @@
 // limitations under the License.
 -->
 
-JoinType LeftSemiJoin() :
+/* Extra operators */
+
+<DEFAULT, DQID, BTID> TOKEN :
 {
-}
-{
-    <LEFT> <SEMI> <JOIN> { return JoinType.LEFT_SEMI_JOIN; }
+    < DATE_PART: "DATE_PART" >
+|   < DATEADD: "DATEADD" >
+|   < DATEDIFF: "DATEDIFF" >
+|   < NEGATE: "!" >
+|   < TILDE: "~" >
 }
 
 SqlNode DateFunctionCall() :
@@ -47,7 +51,7 @@ SqlNode DateFunctionCall() :
     }
 }
 
-SqlNode DateaddFunctionCall() :
+SqlNode DateAddFunctionCall() :
 {
     final SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;
     final Span s;
@@ -72,15 +76,6 @@ SqlNode DateaddFunctionCall() :
     <RPAREN> {
         return createCall(qualifiedName, s.end(this), funcType, null, args);
     }
-}
-
-boolean IfNotExistsOpt() :
-{
-}
-{
-    <IF> <NOT> <EXISTS> { return true; }
-|
-    { return false; }
 }
 
 SetType SetTypeOpt() :
@@ -152,22 +147,6 @@ void SourceTableAndAlias(SqlNodeList sourceTables, SqlNodeList sourceAliases) :
         }
     |
         { sourceAliases.add(null); }
-    )
-}
-
-boolean IsNullable() :
-{
-
-}
-{
-    (
-        <NOT> <NULL> {
-            return false;
-        }
-    |
-        <NULL> {
-            return true;
-        }
     )
 }
 
@@ -1208,34 +1187,6 @@ SqlNode LiteralRowConstructorItem() :
     )
     {
         return e;
-    }
-}
-
-/* Extra operators */
-
-<DEFAULT, DQID, BTID> TOKEN :
-{
-    < DATE_PART: "DATE_PART" >
-|   < DATEADD: "DATEADD" >
-|   < DATEDIFF: "DATEDIFF" >
-|   < NEGATE: "!" >
-|   < TILDE: "~" >
-}
-
-/** Parses the infix "::" cast operator used in PostgreSQL. */
-void InfixCast(List<Object> list, ExprContext exprContext, Span s) :
-{
-    final SqlDataTypeSpec dt;
-}
-{
-    <INFIX_CAST> {
-        checkNonQueryExpression(exprContext);
-    }
-    dt = DataType() {
-        list.add(
-            new SqlParserUtil.ToTreeListItem(SqlLibraryOperators.INFIX_CAST,
-                s.pos()));
-        list.add(dt);
     }
 }
 
