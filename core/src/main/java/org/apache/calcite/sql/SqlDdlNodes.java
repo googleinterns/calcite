@@ -21,7 +21,6 @@ import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.jdbc.ContextSqlValidator;
 import org.apache.calcite.rel.RelRoot;
 import org.apache.calcite.schema.ColumnStrategy;
-import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier;
 import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 import org.apache.calcite.sql.parser.SqlParseException;

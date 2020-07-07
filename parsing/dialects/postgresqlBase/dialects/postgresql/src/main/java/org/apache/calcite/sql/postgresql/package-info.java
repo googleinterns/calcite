@@ -14,15 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.calcite.sql;
-
 
 /**
- * A {@code SqlColumnAttributeGeneratedOption} is an abstract class that
- * represents the possible options (ex. CYCLE, MAXVALUE) of a
- * GENERATED column attribute.
+ * PostgreSQL parser.
  */
-public abstract class SqlColumnAttributeGeneratedOption {
-
-  public abstract void unparse(SqlWriter writer, int leftPrec, int rightPrec);
-}
+package org.apache.calcite.sql.postgresql;

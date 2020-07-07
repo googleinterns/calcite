@@ -16,9 +16,6 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.sql.SqlColumnAttribute;
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
