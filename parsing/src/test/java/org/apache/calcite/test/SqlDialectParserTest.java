@@ -9353,6 +9353,7 @@ public abstract class SqlDialectParserTest {
         .ok(expected);
   }
 
+  @Tag("DefaultCreateTable")
   @Test void testCreateTableAsSelectColumnList() {
     final String expected = "CREATE TABLE `X` (`A`, `B`) AS\n"
         + "SELECT *\n"
