@@ -1976,38 +1976,65 @@ SqlLiteral JoinType() :
     }
 }
 
+/**
+ * Parses either a table reference or a nested JOIN clause.
+ */
+SqlNode TableRefOrJoinClause() :
+{
+    SqlNode e;
+}
+{
+    (
+<#if parser.allowNestedJoins>
+        LOOKAHEAD(<LPAREN> TableRef() Natural() JoinType())
+        <LPAREN>
+        e = TableRef()
+        e = JoinClause(e)
+        <RPAREN>
+    |
+</#if>
+        e = TableRef()
+    )
+    { return e; }
+}
+
 /** Matches "LEFT JOIN t ON ...", "RIGHT JOIN t USING ...", "JOIN t". */
-SqlNode JoinTable(SqlNode e) :
+SqlNode JoinClause(SqlNode e) :
 {
     SqlNode e2, condition;
-    final SqlLiteral natural, joinType, on, using;
+    final SqlLiteral natural, joinType, joinConditionType;
     SqlNodeList list;
 }
 {
     natural = Natural()
     joinType = JoinType()
-    e2 = TableRef()
+    e2 = TableRefOrJoinClause()
     (
-        <ON> { on = JoinConditionType.ON.symbol(getPos()); }
+        <ON> {
+            joinConditionType = JoinConditionType.ON.symbol(getPos());
+        }
         condition = Expression(ExprContext.ACCEPT_SUB_QUERY) {
             return new SqlJoin(joinType.getParserPosition(),
                 e,
                 natural,
                 joinType,
                 e2,
-                on,
+                joinConditionType,
                 condition);
         }
     |
-        <USING> { using = JoinConditionType.USING.symbol(getPos()); }
+        <USING> {
+            joinConditionType = JoinConditionType.USING.symbol(getPos());
+        }
         list = ParenthesizedSimpleIdentifierList() {
             return new SqlJoin(joinType.getParserPosition(),
                 e,
                 natural,
                 joinType,
                 e2,
-                using,
-                new SqlNodeList(list.getList(), Span.of(using).end(this)));
+                joinConditionType,
+                new SqlNodeList(list.getList(),
+                Span.of(joinConditionType).end(this)));
         }
     |
         {
@@ -2061,46 +2088,7 @@ SqlNode FromClause() :
             //
             // For more information about the issue, see https://github.com/javacc/javacc/issues/86
             LOOKAHEAD(3)
-            natural = Natural()
-            joinType = JoinType()
-            e2 = TableRef()
-            (
-                <ON> {
-                    joinConditionType = JoinConditionType.ON.symbol(getPos());
-                }
-                condition = Expression(ExprContext.ACCEPT_SUB_QUERY) {
-                    e = new SqlJoin(joinType.getParserPosition(),
-                        e,
-                        natural,
-                        joinType,
-                        e2,
-                        joinConditionType,
-                        condition);
-                }
-            |
-                <USING> {
-                    joinConditionType = JoinConditionType.USING.symbol(getPos());
-                }
-                list = ParenthesizedSimpleIdentifierList() {
-                    e = new SqlJoin(joinType.getParserPosition(),
-                        e,
-                        natural,
-                        joinType,
-                        e2,
-                        joinConditionType,
-                        new SqlNodeList(list.getList(), Span.of(joinConditionType).end(this)));
-                }
-            |
-                {
-                    e = new SqlJoin(joinType.getParserPosition(),
-                        e,
-                        natural,
-                        joinType,
-                        e2,
-                        JoinConditionType.NONE.symbol(joinType.getParserPosition()),
-                        null);
-                }
-            )
+            e = JoinClause(e)
         |
             // NOTE jvs 6-Feb-2004:  See comments at top of file for why
             // hint is necessary here.  I had to use this special semantic

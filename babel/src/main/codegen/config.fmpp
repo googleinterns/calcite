@@ -1094,6 +1094,7 @@ data: {
     allowUpsertFormOfUpdate: true
     allowAbbreviatedKeywords: true
     allowTranslateUsingCharSetWithError: true
+    allowNestedJoins: true
     includePosixOperators: true
     includeCastFormat: true
     includeCompoundIdentifier: true

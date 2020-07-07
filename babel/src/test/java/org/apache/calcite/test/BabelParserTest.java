@@ -2256,6 +2256,96 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testNestedJoin() {
+    final String sql = "select * from foo join (bar join baz on bar.a = baz.a)"
+        + " on foo.a = bar.a";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "INNER JOIN (`BAR` INNER JOIN `BAZ` ON (`BAR`.`A` = `BAZ`.`A`))"
+        + " ON (`FOO`.`A` = `BAR`.`A`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedJoinMultiLevel() {
+    final String sql = "select * from foo join (bar join "
+        + "(baz join qux on baz.a = qux.a) on bar.a = baz.a)"
+        + " on foo.a = bar.a";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "INNER JOIN (`BAR` INNER JOIN (`BAZ` INNER JOIN `QUX`"
+        + " ON (`BAZ`.`A` = `QUX`.`A`))"
+        + " ON (`BAR`.`A` = `BAZ`.`A`))"
+        + " ON (`FOO`.`A` = `BAR`.`A`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedLeftJoin() {
+    final String sql = "select * from foo left join"
+        + " (bar left join baz on bar.a = baz.a)"
+        + " on foo.a = bar.a";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "LEFT JOIN (`BAR` LEFT JOIN `BAZ` ON (`BAR`.`A` = `BAZ`.`A`))"
+        + " ON (`FOO`.`A` = `BAR`.`A`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedRightJoin() {
+    final String sql = "select * from foo right join"
+        + " (bar right join baz on bar.a = baz.a)"
+        + " on foo.a = bar.a";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "RIGHT JOIN (`BAR` RIGHT JOIN `BAZ` ON (`BAR`.`A` = `BAZ`.`A`))"
+        + " ON (`FOO`.`A` = `BAR`.`A`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedFullJoin() {
+    final String sql = "select * from foo full join"
+        + " (bar full join baz on bar.a = baz.a)"
+        + " on foo.a = bar.a";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "FULL JOIN (`BAR` FULL JOIN `BAZ` ON (`BAR`.`A` = `BAZ`.`A`))"
+        + " ON (`FOO`.`A` = `BAR`.`A`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedCrossJoin() {
+    final String sql = "select * from foo cross join (bar cross join baz)";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "CROSS JOIN (`BAR` CROSS JOIN `BAZ`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedDifferentJoins() {
+    final String sql = "select * from foo left join"
+        + " (bar cross join baz)"
+        + " on foo.a = bar.a";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "LEFT JOIN (`BAR` CROSS JOIN `BAZ`)"
+        + " ON (`FOO`.`A` = `BAR`.`A`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedJoinParenthesizedTableFails() {
+    final String sql = "select * from foo cross join (bar cross join (^baz^))";
+    final String expected =
+        "(?s)Non-query expression encountered in illegal context.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testNestedJoinParenthesizedUnnestFails() {
+    final String sql = "select * from foo cross join"
+        + " (bar cross join ^(^unnest(x)))";
+    final String expected =
+        "(?s)Encountered \"\\( unnest \\( x \\) \\)\" at .*";
+    sql(sql).fails(expected);
+  }
+
   @Test public void testHostVariableExecPositionalParams() {
     final String sql = "exec foo (:bar, :baz, :qux)";
     final String expected = "EXECUTE `FOO` (:BAR, :BAZ, :QUX)";
