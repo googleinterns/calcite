@@ -16,31 +16,40 @@
  */
 package org.apache.calcite.sql.babel;
 
-import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 /**
- * A {@code SqlCharacterSetToCharacterSet} is an AST node that contains
- * the structure of CharacterSet to CharacterSet token.
+ * A {@code SqlAlterTableAttributeOnCommit} is a ALTER TABLE attribute
+ * for the ON COMMIT attribute.
  */
-public class SqlCharacterSetToCharacterSet extends SqlIdentifier {
+public class SqlAlterTableAttributeOnCommit extends SqlTableAttribute {
+
+  final OnCommitType onCommitType;
+
   /**
-   * Creates a {@code SqlCharacterSetToCharacterSet}.
-   *
-   * @param charSetNamesPrimitiveArr  Primitive string array of two character sets
-   * @param pos  Parser position, must not be null
+   * Creates a {@code SqlAlterTableAttributeOnCommit}.
+   * @param pos           Parser position, must not be null.
+   * @param onCommitType  ON COMMIT option specified.
    */
-  public SqlCharacterSetToCharacterSet(
-      final String[] charSetNamesPrimitiveArr,
-      final SqlParserPos pos) {
-    super(new ArrayList<>(Arrays.asList(charSetNamesPrimitiveArr)), pos);
+  public SqlAlterTableAttributeOnCommit(SqlParserPos pos,
+      OnCommitType onCommitType) {
+    super(pos);
+    this.onCommitType = onCommitType;
   }
 
-  @Override public void unparse(final SqlWriter writer,
-      final int leftPrec, final int rightPrec) {
-    writer.print(names.get(0) + "_TO_" + names.get(1));
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    writer.keyword("ON COMMIT");
+    switch (onCommitType) {
+    case DELETE:
+      writer.keyword("DELETE");
+      break;
+    case PRESERVE:
+      writer.keyword("PRESERVE");
+      break;
+    default:
+      break;
+    }
+    writer.keyword("ROWS");
   }
 }

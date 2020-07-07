@@ -20,27 +20,24 @@ import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 /**
- * A {@code SqlCharacterSetToCharacterSet} is an AST node that contains
- * the structure of CharacterSet to CharacterSet token.
+ * A {@code SqlHostVariable} is a host variable of the form ":name".
  */
-public class SqlCharacterSetToCharacterSet extends SqlIdentifier {
+public class SqlHostVariable extends SqlIdentifier {
+
   /**
-   * Creates a {@code SqlCharacterSetToCharacterSet}.
+   * Creates a {@code SqlHostVariable}.
    *
-   * @param charSetNamesPrimitiveArr  Primitive string array of two character sets
+   * @param name  Name of the host variable
    * @param pos  Parser position, must not be null
    */
-  public SqlCharacterSetToCharacterSet(
-      final String[] charSetNamesPrimitiveArr,
-      final SqlParserPos pos) {
-    super(new ArrayList<>(Arrays.asList(charSetNamesPrimitiveArr)), pos);
+  public SqlHostVariable(String name, SqlParserPos pos) {
+    super(name, pos);
   }
 
-  @Override public void unparse(final SqlWriter writer,
-      final int leftPrec, final int rightPrec) {
-    writer.print(names.get(0) + "_TO_" + names.get(1));
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    writer.print(":" + names.get(0));
+    // Ensures whitespace is added before a separator such as "AS".
+    writer.setNeedWhitespace(true);
   }
 }

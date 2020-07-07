@@ -111,7 +111,7 @@ OnCommitType OnCommitTypeOpt() :
         (
             <PRESERVE> { onCommitType = OnCommitType.PRESERVE; }
         |
-            <RELEASE> { onCommitType = OnCommitType.RELEASE; }
+            <DELETE> { onCommitType = OnCommitType.DELETE; }
         )
         <ROWS>
     |
@@ -199,6 +199,143 @@ SqlColumnAttribute ColumnAttributeDefault() :
     }
 }
 
+/**
+ * Parses a column attribute specified by the GENERATED statement.
+ */
+SqlColumnAttribute ColumnAttributeGenerated() :
+{
+    final GeneratedType generatedType;
+    final List<SqlColumnAttributeGeneratedOption> generatedOptions =
+        new ArrayList<SqlColumnAttributeGeneratedOption>();
+}
+{
+    <GENERATED>
+    (
+        <ALWAYS> { generatedType = GeneratedType.ALWAYS; }
+    |
+        <BY> <DEFAULT_> { generatedType = GeneratedType.BY_DEFAULT; }
+    )
+    <AS> <IDENTITY>
+    [
+        <LPAREN>
+        (
+            ColumnAttributeGeneratedOption(generatedOptions)
+        )+
+        <RPAREN>
+    ]
+    {
+        return new SqlColumnAttributeGenerated(getPos(), generatedType,
+            generatedOptions);
+    }
+}
+
+/**
+ * Parses an option specified for the GENERATED column attribute, and adds it
+ * to a list.
+ */
+void ColumnAttributeGeneratedOption(
+    List<SqlColumnAttributeGeneratedOption> generatedOptions) :
+{
+    final SqlColumnAttributeGeneratedOption generatedOption;
+}
+{
+    (
+        generatedOption = ColumnAttributeGeneratedCycle()
+    |
+        generatedOption = ColumnAttributeGeneratedIncrementBy()
+    |
+        generatedOption = ColumnAttributeGeneratedStartWith()
+    |
+        generatedOption = ColumnAttributeGeneratedMaxValue()
+    |
+        generatedOption = ColumnAttributeGeneratedMinValue()
+    )
+    { generatedOptions.add(generatedOption); }
+}
+
+/**
+ * Parses the CYCLE option of the GENERATED statement.
+ */
+SqlColumnAttributeGeneratedOption ColumnAttributeGeneratedCycle() :
+{
+    boolean none = false;
+}
+{
+    [ <NO> { none = true; } ]
+    <CYCLE>
+    { return new SqlColumnAttributeGeneratedCycle(none); }
+}
+
+/**
+ * Parses the INCREMENT BY option of the GENERATED statement.
+ */
+SqlColumnAttributeGeneratedOption ColumnAttributeGeneratedIncrementBy() :
+{
+    final SqlLiteral inc;
+}
+{
+    <INCREMENT> <BY>
+    inc = NumericLiteral()
+    { return new SqlColumnAttributeGeneratedIncrementBy(inc); }
+}
+
+/**
+ * Parses the START WITH option of the GENERATED statement.
+ */
+SqlColumnAttributeGeneratedOption ColumnAttributeGeneratedStartWith() :
+{
+    final SqlLiteral start;
+}
+{
+    <START> <WITH>
+    start = NumericLiteral()
+    { return new SqlColumnAttributeGeneratedStartWith(start); }
+}
+
+/**
+ * Parses the MAXVALUE option of the GENERATED statement.
+ */
+SqlColumnAttributeGeneratedOption ColumnAttributeGeneratedMaxValue() :
+{
+    final SqlLiteral max;
+    boolean none = false;
+}
+{
+    (
+        <NO> <MAXVALUE>
+        {
+            max = null;
+            none = true;
+        }
+    |
+        <MAXVALUE>
+        max = NumericLiteral()
+    )
+    { return new SqlColumnAttributeGeneratedMaxValue(max, none); }
+}
+
+/**
+ * Parses the MINVALUE option of the GENERATED statement.
+ */
+SqlColumnAttributeGeneratedOption ColumnAttributeGeneratedMinValue() :
+{
+    final SqlLiteral min;
+    boolean none = false;
+}
+{
+    (
+        <NO> <MINVALUE>
+        {
+            min = null;
+            none = true;
+        }
+    |
+        <MINVALUE>
+        min = NumericLiteral()
+    )
+    { return new SqlColumnAttributeGeneratedMinValue(min, none); }
+}
+
 SqlColumnAttribute ColumnAttributeCharacterSet() :
 {
     CharacterSet characterSet = null;
@@ -272,6 +409,10 @@ void ColumnAttributes(List<SqlColumnAttribute> list) :
             e = ColumnAttributeCompress()
         |
             e = ColumnAttributeDefault()
+        |
+            e = ColumnAttributeDateFormat()
+        |
+            e = ColumnAttributeGenerated()
         ) { list.add(e); }
     )+
 }
@@ -303,7 +444,7 @@ void ColumnWithType(List<SqlNode> list) :
     }
 }
 
-SqlCreateAttribute CreateTableAttributeFallback() :
+SqlTableAttribute TableAttributeFallback() :
 {
     boolean no = false;
     boolean protection = false;
@@ -312,29 +453,29 @@ SqlCreateAttribute CreateTableAttributeFallback() :
     [ <NO>  { no = true; } ]
     <FALLBACK>
     [ <PROTECTION> { protection = true; } ]
-    { return new SqlCreateAttributeFallback(no, protection, getPos()); }
+    { return new SqlTableAttributeFallback(no, protection, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeJournalTable() :
+SqlTableAttribute TableAttributeJournalTable() :
 {
     final SqlIdentifier id;
 }
 {
     <WITH> <JOURNAL> <TABLE> <EQ> id = CompoundIdentifier()
-    { return new SqlCreateAttributeJournalTable(id, getPos()); }
+    { return new SqlTableAttributeJournalTable(id, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeMap() :
+SqlTableAttribute TableAttributeMap() :
 {
     final SqlIdentifier id;
 }
 {
     <MAP> <EQ> id = CompoundIdentifier()
-    { return new SqlCreateAttributeMap(id, getPos()); }
+    { return new SqlTableAttributeMap(id, getPos()); }
 }
 
 // FREESPACE attribute can take in decimals but should be truncated to an integer.
-SqlCreateAttribute CreateTableAttributeFreeSpace() :
+SqlTableAttribute TableAttributeFreeSpace() :
 {
     SqlLiteral tempNumeric;
     int freeSpaceValue;
@@ -349,10 +490,46 @@ SqlCreateAttribute CreateTableAttributeFreeSpace() :
         }
     }
     [ <PERCENT> { percent = true; } ]
-    { return new SqlCreateAttributeFreeSpace(freeSpaceValue, percent, getPos()); }
+    { return new SqlTableAttributeFreeSpace(freeSpaceValue, percent, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeIsolatedLoading() :
+/**
+ * Parses FREESPACE attribute in ALTER TABLE queries.
+ * Can either specify a value, or DEFAULT FREESPACE.
+ */
+SqlTableAttribute AlterTableAttributeFreeSpace() :
+{
+    SqlLiteral tempNumeric;
+    int freeSpaceValue;
+    boolean percent = false;
+    boolean isDefault = false;
+}
+{
+    (
+        <FREESPACE> <EQ> tempNumeric = UnsignedNumericLiteral() {
+            freeSpaceValue = tempNumeric.getValueAs(Integer.class);
+            if (freeSpaceValue < 0 || freeSpaceValue > 75) {
+                throw SqlUtil.newContextException(getPos(),
+                    RESOURCE.numberLiteralOutOfRange(
+                        String.valueOf(freeSpaceValue)));
+            }
+        }
+        [ <PERCENT> { percent = true; } ]
+
+    |
+        <DEFAULT_> <FREESPACE>
+        {
+            freeSpaceValue = 0;
+            isDefault = true;
+        }
+    )
+    {
+        return new SqlAlterTableAttributeFreeSpace(freeSpaceValue, percent,
+            getPos(), isDefault);
+    }
+}
+
+SqlTableAttribute TableAttributeIsolatedLoading() :
 {
     boolean nonLoadIsolated = false;
     boolean concurrent = false;
@@ -373,10 +550,10 @@ SqlCreateAttribute CreateTableAttributeIsolatedLoading() :
             <NONE> { operationLevel = OperationLevel.NONE; }
         )
     ]
-    { return new SqlCreateAttributeIsolatedLoading(nonLoadIsolated, concurrent, operationLevel, getPos()); }
+    { return new SqlTableAttributeIsolatedLoading(nonLoadIsolated, concurrent, operationLevel, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeJournal() :
+SqlTableAttribute TableAttributeJournal() :
 {
   JournalType journalType;
   JournalModifier journalModifier;
@@ -406,10 +583,10 @@ SqlCreateAttribute CreateTableAttributeJournal() :
         )
         <JOURNAL>
     )
-    { return new SqlCreateAttributeJournal(journalType, journalModifier, getPos()); }
+    { return new SqlTableAttributeJournal(journalType, journalModifier, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeDataBlockSize() :
+SqlTableAttribute TableAttributeDataBlockSize() :
 {
     DataBlockModifier modifier = null;
     DataBlockUnitSize unitSize;
@@ -433,10 +610,49 @@ SqlCreateAttribute CreateTableAttributeDataBlockSize() :
             [ <BYTES> ] { unitSize = DataBlockUnitSize.BYTES; }
         )
     )
-    { return new SqlCreateAttributeDataBlockSize(modifier, unitSize, dataBlockSize, getPos()); }
+    {
+        return new SqlTableAttributeDataBlockSize(modifier, unitSize,
+            dataBlockSize, getPos());
+    }
 }
 
-SqlCreateAttribute CreateTableAttributeMergeBlockRatio() :
+/**
+ * Parses DATABLOCKSIZE attribute in ALTER TABLE queries,
+ * including IMMEDIATE option.
+ */
+SqlTableAttribute AlterTableAttributeDataBlockSize() :
+{
+    DataBlockModifier modifier = null;
+    DataBlockUnitSize unitSize;
+    SqlLiteral dataBlockSize = null;
+    boolean immediate = false;
+}
+{
+    (
+        (
+            ( <MINIMUM> | <MIN> ) { modifier = DataBlockModifier.MINIMUM; }
+        |
+            ( <MAXIMUM> | <MAX> ) { modifier = DataBlockModifier.MAXIMUM; }
+        |
+            <DEFAULT_> { modifier = DataBlockModifier.DEFAULT; }
+        )
+        <DATABLOCKSIZE> { unitSize = DataBlockUnitSize.BYTES; }
+    |
+        <DATABLOCKSIZE> <EQ> dataBlockSize = UnsignedNumericLiteral()
+        (
+            ( <KILOBYTES> | <KBYTES> ) { unitSize = DataBlockUnitSize.KILOBYTES; }
+        |
+            [ <BYTES> ] { unitSize = DataBlockUnitSize.BYTES; }
+        )
+    )
+    [ <IMMEDIATE> { immediate = true; } ]
+    {
+        return new SqlAlterTableAttributeDataBlockSize(modifier, unitSize,
+            dataBlockSize, getPos(), immediate);
+    }
+}
+
+SqlTableAttribute TableAttributeMergeBlockRatio() :
 {
     MergeBlockRatioModifier modifier = MergeBlockRatioModifier.UNSPECIFIED;
     int ratio = 1;
@@ -456,7 +672,7 @@ SqlCreateAttribute CreateTableAttributeMergeBlockRatio() :
     )
     {
         if (ratio >= 1 && ratio <= 100) {
-            return new SqlCreateAttributeMergeBlockRatio(modifier, ratio, percent, getPos());
+            return new SqlTableAttributeMergeBlockRatio(modifier, ratio, percent, getPos());
         } else {
             throw SqlUtil.newContextException(getPos(),
                 RESOURCE.numberLiteralOutOfRange(String.valueOf(ratio)));
@@ -464,7 +680,7 @@ SqlCreateAttribute CreateTableAttributeMergeBlockRatio() :
     }
 }
 
-SqlCreateAttribute CreateTableAttributeChecksum() :
+SqlTableAttribute TableAttributeChecksum() :
 {
     ChecksumEnabled checksumEnabled;
 }
@@ -477,10 +693,35 @@ SqlCreateAttribute CreateTableAttributeChecksum() :
     |
         <OFF> { checksumEnabled = ChecksumEnabled.OFF; }
     )
-    { return new SqlCreateAttributeChecksum(checksumEnabled, getPos()); }
+    { return new SqlTableAttributeChecksum(checksumEnabled, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeBlockCompression() :
+/**
+ * Parses CHECKSUM attribute in ALTER TABLE queries,
+ * including IMMEDIATE option.
+ */
+SqlTableAttribute AlterTableAttributeChecksum() :
+{
+    ChecksumEnabled checksumEnabled;
+    boolean immediate = false;
+}
+{
+    <CHECKSUM> <EQ>
+    (
+        <DEFAULT_> { checksumEnabled = ChecksumEnabled.DEFAULT; }
+    |
+        <ON> { checksumEnabled = ChecksumEnabled.ON; }
+    |
+        <OFF> { checksumEnabled = ChecksumEnabled.OFF; }
+    )
+    [ <IMMEDIATE> { immediate = true; } ]
+    {
+        return new SqlAlterTableAttributeChecksum(checksumEnabled,
+            getPos(), immediate);
+    }
+}
+
+SqlTableAttribute TableAttributeBlockCompression() :
 {
     BlockCompressionOption blockCompressionOption;
 }
@@ -495,51 +736,63 @@ SqlCreateAttribute CreateTableAttributeBlockCompression() :
     |
         <NEVER> { blockCompressionOption = BlockCompressionOption.NEVER; }
     )
-    { return new SqlCreateAttributeBlockCompression(blockCompressionOption, getPos()); }
+    { return new SqlTableAttributeBlockCompression(blockCompressionOption, getPos()); }
 }
 
-SqlCreateAttribute CreateTableAttributeLog() :
+SqlTableAttribute TableAttributeLog() :
 {
     boolean loggingEnabled = true;
 }
 {
     [ <NO> { loggingEnabled = false; } ]
     <LOG> {
-        return new SqlCreateAttributeLog(loggingEnabled, getPos());
+        return new SqlTableAttributeLog(loggingEnabled, getPos());
     }
 }
 
-List<SqlCreateAttribute> CreateTableAttributes() :
+SqlColumnAttribute ColumnAttributeDateFormat() :
 {
-    final List<SqlCreateAttribute> list = new ArrayList<SqlCreateAttribute>();
-    SqlCreateAttribute e;
+    SqlNode formatString = null;
+}
+{
+    <FORMAT>
+    formatString = StringLiteral()
+    {
+        return new SqlColumnAttributeDateFormat(getPos(), formatString);
+    }
+}
+
+List<SqlTableAttribute> CreateTableAttributes() :
+{
+    final List<SqlTableAttribute> list = new ArrayList<SqlTableAttribute>();
+    SqlTableAttribute e;
     Span s;
 }
 {
     (
         <COMMA>
         (
-            e = CreateTableAttributeMap()
+            e = TableAttributeMap()
         |
-            e = CreateTableAttributeFallback()
+            e = TableAttributeFallback()
         |
-            e = CreateTableAttributeJournalTable()
+            e = TableAttributeJournalTable()
         |
-            e = CreateTableAttributeFreeSpace()
+            e = TableAttributeFreeSpace()
         |
-            e = CreateTableAttributeIsolatedLoading()
+            e = TableAttributeIsolatedLoading()
         |
-            e = CreateTableAttributeDataBlockSize()
+            e = TableAttributeDataBlockSize()
         |
-            e = CreateTableAttributeMergeBlockRatio()
+            e = TableAttributeMergeBlockRatio()
         |
-            e = CreateTableAttributeChecksum()
+            e = TableAttributeChecksum()
         |
-            e = CreateTableAttributeBlockCompression()
+            e = TableAttributeBlockCompression()
         |
-            e = CreateTableAttributeLog()
+            e = TableAttributeLog()
         |
-            e = CreateTableAttributeJournal()
+            e = TableAttributeJournal()
         ) { list.add(e); }
     )+
     { return list; }
@@ -556,18 +809,19 @@ WithDataType WithDataOpt() :
     { return WithDataType.UNSPECIFIED; }
 }
 
-SqlCreate SqlCreateTable(Span s, boolean replace) :
+SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
 {
     SetType setType = SetType.UNSPECIFIED;
     Volatility volatility = Volatility.UNSPECIFIED;
     final boolean ifNotExists;
     final SqlIdentifier id;
-    final List<SqlCreateAttribute> tableAttributes;
+    final List<SqlTableAttribute> tableAttributes;
     final SqlNodeList columnList;
     final SqlNode query;
     WithDataType withData = WithDataType.UNSPECIFIED;
     SqlPrimaryIndex primaryIndex = null;
     SqlIndex index;
+    List<SqlIndex> indices = new ArrayList<SqlIndex>();
     final OnCommitType onCommitType;
 }
 {
@@ -604,22 +858,33 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
     |
         { query = null; }
     )
-    (
-       index = SqlCreateTableIndex(s)
-       {
-           if (index instanceof SqlPrimaryIndex) {
-               primaryIndex = (SqlPrimaryIndex) index;
-           }
-       }
-    )*
+    [
+        index = SqlCreateTableIndex(s) { indices.add(index); }
+        (
+           [<COMMA>] index = SqlCreateTableIndex(s) { indices.add(index); }
+        )*
+        {
+            // Filter out any primary indices from index list.
+            int i = 0;
+            while (i < indices.size()) {
+                if (indices.get(i) instanceof SqlPrimaryIndex) {
+                    primaryIndex = (SqlPrimaryIndex) indices.remove(i);
+                } else {
+                    i++;
+                }
+            }
+        }
+    ]
     onCommitType = OnCommitTypeOpt()
     {
-        return new SqlCreateTable(s.end(this), replace, setType, volatility, ifNotExists, id,
-            tableAttributes, columnList, query, withData, primaryIndex, onCommitType);
+        return new SqlCreateTable(s.end(this), createSpecifier, setType,
+         volatility, ifNotExists, id, tableAttributes, columnList, query,
+         withData, primaryIndex, indices, onCommitType);
     }
 }
 
-SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
+SqlCreate SqlCreateFunctionSqlForm(Span s,
+        SqlCreateSpecifier createSpecifier) :
 {
     SqlIdentifier functionName = null;
     SqlNodeList fieldNames = new SqlNodeList(getPos());
@@ -685,7 +950,7 @@ SqlCreate SqlCreateFunctionSqlForm(Span s, boolean replace) :
     }
     <RETURN> returnExpression = Expression(ExprContext.ACCEPT_SUB_QUERY)
     {
-        return new SqlCreateFunctionSqlForm(s.end(this), replace,
+        return new SqlCreateFunctionSqlForm(s.end(this), createSpecifier,
             functionName, specificFunctionName, fieldNames, fieldTypes,
             returnsDataType, isDeterministic, canRunOnNullInput,
             hasSqlSecurityDefiner, typeInt, returnExpression);
@@ -722,9 +987,8 @@ void FieldNameTypeCommaListWithoutOptionalNull(
 }
 
 /**
-    Parses an index declaration. Currently only supports PRIMARY INDEX statements,
-    but can be extended to support non-primary indices.
-*/
+ *   Parses an index declaration (both PRIMARY and non-primary indices).
+ */
 SqlIndex SqlCreateTableIndex(Span s) :
 {
    SqlNodeList columns;
@@ -751,6 +1015,18 @@ SqlIndex SqlCreateTableIndex(Span s) :
            return new SqlPrimaryIndex(s.end(this), columns, name, isUnique,
                 /*explicitNoPrimaryIndex=*/ false);
        }
+   |
+       [
+            <UNIQUE> { isUnique = true; }
+       ]
+       <INDEX>
+       [
+            name = SimpleIdentifier()
+       ]
+       columns = ParenthesizedSimpleIdentifierList()
+       {
+           return new SqlSecondaryIndex(s.end(this), columns, name, isUnique);
+       }
    )
 }
 
@@ -765,12 +1041,79 @@ SqlIndex SqlCreateTableIndex(Span s) :
 SqlNode SqlExecMacro() :
 {
     SqlIdentifier macro;
+    SqlNodeList params = new SqlNodeList(getPos());
     Span s;
 }
 {
     macro = CompoundIdentifier() { s = span(); }
+    [
+        SqlExecMacroArgument(params)
+    ]
     {
-        return new SqlExecMacro(s.end(this), macro);
+        return new SqlExecMacro(s.end(this), macro, params);
+    }
+}
+
+void SqlExecMacroArgument(SqlNodeList params) :
+{
+    SqlNode e;
+}
+{
+    <LPAREN>
+    (
+        e = SqlSimpleIdentifierEqualLiteral()
+        {
+            params.add(e);
+        }
+        (
+            <COMMA>
+            e = SqlSimpleIdentifierEqualLiteral()
+            {
+                params.add(e);
+            }
+        )*
+    |
+        e = SqlExecMacroPositionalParamItem()
+        {
+            params.add(new SqlExecMacroParam(getPos(), e));
+        }
+        (
+            <COMMA>
+            e = SqlExecMacroPositionalParamItem()
+            {
+                params.add(new SqlExecMacroParam(getPos(), e));
+            }
+        )*
+    )
+    <RPAREN>
+}
+
+SqlNode SqlExecMacroPositionalParamItem() :
+{
+    SqlNode e;
+}
+{
+    (
+        e = AtomicRowExpression()
+    |
+        { e = SqlLiteral.createNull(getPos()); }
+    )
+    {
+        return e;
+    }
+}
+
+SqlNode SqlSimpleIdentifierEqualLiteral() :
+{
+    SqlIdentifier name;
+    SqlNode value;
+}
+{
+    name = SimpleIdentifier()
+    <EQ>
+    value = AtomicRowExpression()
+    {
+        return new SqlExecMacroParam(getPos(), name, value);
     }
 }
 
@@ -813,17 +1156,6 @@ SqlNode SqlInsertWithOptionalValuesKeyword() :
     }
 }
 
-SqlNode SqlNamedExpression(SqlNode e) :
-{
-    final SqlIdentifier name;
-}
-{
-    <LPAREN> <NAMED> name = SimpleIdentifier() <RPAREN>
-    {
-        return SqlStdOperatorTable.AS.createCall(span().end(e), e, name);
-    }
-}
-
 SqlNodeList LiteralRowConstructorList(Span s) :
 {
     List<SqlNode> rowList = new ArrayList<SqlNode>();
@@ -850,15 +1182,32 @@ SqlNode LiteralRowConstructor() :
 }
 {
     <LPAREN>
-    e = AtomicRowExpression() { valueList.add(e); }
+    e = LiteralRowConstructorItem()
+    { valueList.add(e); }
     (
-        LOOKAHEAD(2)
-        <COMMA> e = AtomicRowExpression() { valueList.add(e); }
+        <COMMA>
+        e = LiteralRowConstructorItem()
+        { valueList.add(e); }
     )*
     <RPAREN>
     {
         return SqlStdOperatorTable.ROW.createCall(s.end(valueList),
             valueList.toArray());
+    }
+}
+
+SqlNode LiteralRowConstructorItem() :
+{
+    SqlNode e;
+}
+{
+    (
+        e = AtomicRowExpression()
+    |
+        { e = SqlLiteral.createNull(getPos()); }
+    )
+    {
+        return e;
     }
 }
 
@@ -989,31 +1338,35 @@ SqlNode CurrentDateFunction() :
 
 SqlNode DateTimeTerm() :
 {
-    final SqlNode e;
-    SqlIdentifier timeZoneValue;
+    final SqlNode dateTimePrimary;
+    final SqlNode displacement;
 }
 {
     (
-        e = DateTimeLiteral()
+        dateTimePrimary = DateTimeLiteral()
     |
-        e = SimpleIdentifier()
+        dateTimePrimary = SimpleIdentifier()
     |
-        e = DateFunctionCall()
+        dateTimePrimary = DateFunctionCall()
     )
+    <AT>
     (
-        <AT>
+        <LOCAL>
+        {
+            return new SqlDateTimeAtLocal(getPos(), dateTimePrimary);
+        }
+    |
+        [<TIME> <ZONE>]
         (
-            <LOCAL>
-            {
-                return new SqlDateTimeAtLocal(getPos(), e);
-            }
+            displacement = SimpleIdentifier()
         |
-            <TIME> <ZONE>
-            {
-                timeZoneValue = SimpleIdentifier();
-                return new SqlDateTimeAtTimeZone(getPos(), e, timeZoneValue);
-            }
+            displacement = IntervalLiteral()
+        |
+            displacement = NumericLiteral()
         )
+        {
+            return new SqlDateTimeAtTimeZone(getPos(), dateTimePrimary, displacement);
+        }
     )
 }
 
@@ -1101,51 +1454,88 @@ SqlTypeNameSpec TypeNameAlternativeCastSyntax() :
 
 SqlNode AlternativeTypeConversionLiteralOrIdentifier() :
 {
-     final List<SqlNode> args;
-     final SqlDataTypeSpec dt;
-     SqlNode e;
-     final Span s;
+     final SqlNode q;
+     final SqlNode e;
 }
 {
     (
-        e = Literal()
+        q = Literal()
     |
-        e = SimpleIdentifier()
+        q = SimpleIdentifier()
     )
-    {
-        s = span();
-        args = startList(e);
-    }
+    e = AlternativeTypeConversionQuery(q) { return e; }
+}
+
+SqlNode AlternativeTypeConversionQuery(SqlNode q) :
+{
+    final Span s = span();
+    final List<SqlNode> args = startList(q);
+    final SqlDataTypeSpec dt;
+    final SqlNode interval;
+    final SqlNode format;
+}
+{
     <LPAREN>
     (
         dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
     |
-        <INTERVAL> e = IntervalQualifier() { args.add(e); }
+        <INTERVAL> interval = IntervalQualifier() { args.add(interval); }
     )
-    [ <FORMAT> e = StringLiteral() { args.add(e); } ]
+    [ <FORMAT> format = StringLiteral() { args.add(format); } ]
     <RPAREN> {
         return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
     }
 }
 
-SqlNode AlternativeTypeConversionQuery(SqlNode query) :
+SqlNode InlineFormatLiteralOrIdentifier() :
 {
-    final List<SqlNode> args = startList(query);
-    final SqlDataTypeSpec dt;
-    final Span s;
-    SqlNode e;
+     final SqlNode q;
+     final SqlNode e;
 }
 {
-    { s = span(); }
-    <LPAREN>
     (
-        dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
+        q = Literal()
     |
-        <INTERVAL> e = IntervalQualifier() { args.add(e); }
+        q = SimpleIdentifier()
     )
-    [ <FORMAT> e = StringLiteral() { args.add(e); } ]
-    <RPAREN> {
-        return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
+    e = InlineFormatQuery(q) { return e; }
+}
+
+SqlNode InlineFormatQuery(SqlNode q) :
+{
+    final Span s = span();
+    final SqlNode format;
+}
+{
+    <LPAREN> <FORMAT> format = StringLiteral() <RPAREN>
+    {
+        return SqlStdOperatorTable.FORMAT.createCall(s.end(this), q, format);
+    }
+}
+
+SqlNode NamedLiteralOrIdentifier() :
+{
+     final SqlNode q;
+     final SqlNode e;
+}
+{
+    (
+        q = Literal()
+    |
+        q = SimpleIdentifier()
+    )
+    e = NamedQuery(q) { return e; }
+}
+
+SqlNode NamedQuery(SqlNode q) :
+{
+    final Span s = span();
+    final SqlIdentifier name;
+}
+{
+    <LPAREN> <NAMED> name = SimpleIdentifier() <RPAREN>
+    {
+        return SqlStdOperatorTable.AS.createCall(s.end(this), q, name);
     }
 }
 
@@ -1199,4 +1589,245 @@ SqlNode RankFunctionCallWithParams() :
             SqlLiteral.createBoolean(false, SqlParserPos.ZERO), null, null, null, s1.end(this));
         return SqlStdOperatorTable.OVER.createCall(s.end(over), rankCall, over);
     }
+}
+
+/**
+ * Parses ALTER TABLE queries.
+ */
+SqlAlter SqlAlterTable(Span s, String scope) :
+{
+     final SqlIdentifier tableName;
+     final List<SqlTableAttribute> tableAttributes;
+     final List<SqlAlterTableOption> alterTableOptions;
+}
+{
+    <TABLE>
+    tableName = SimpleIdentifier()
+    (
+        tableAttributes = AlterTableAttributes()
+        (
+            alterTableOptions = AlterTableOptions()
+        |
+            { alterTableOptions = null; }
+        )
+    |
+        alterTableOptions = AlterTableOptions()
+        { tableAttributes = null; }
+    )
+    {
+        return new SqlAlterTable(getPos(), scope, tableName,
+            tableAttributes, alterTableOptions);
+    }
+}
+
+/**
+ * Parses table attributes for ALTER TABLE queries.
+ */
+List<SqlTableAttribute> AlterTableAttributes() :
+{
+    final List<SqlTableAttribute> list = new ArrayList<SqlTableAttribute>();
+    SqlTableAttribute e;
+    Span s;
+}
+{
+    (
+        <COMMA>
+        (
+            e = AlterTableAttributeOnCommit()
+        |
+            e = TableAttributeFallback()
+        |
+            e = TableAttributeJournalTable()
+        |
+            e = AlterTableAttributeFreeSpace()
+        |
+            e = AlterTableAttributeDataBlockSize()
+        |
+            e = TableAttributeMergeBlockRatio()
+        |
+            e = AlterTableAttributeChecksum()
+        |
+            e = TableAttributeBlockCompression()
+        |
+            e = TableAttributeLog()
+        |
+            e = TableAttributeJournal()
+        ) { list.add(e); }
+    )+
+    { return list; }
+}
+
+/**
+ * Parses the ON COMMIT attribute for ALTER TABLE queries.
+ */
+SqlTableAttribute AlterTableAttributeOnCommit() :
+{
+    final OnCommitType onCommitType;
+}
+{
+    <ON> <COMMIT>
+    (
+        <PRESERVE> { onCommitType = OnCommitType.PRESERVE; }
+    |
+        <DELETE> { onCommitType = OnCommitType.DELETE; }
+    )
+    <ROWS>
+    { return new SqlAlterTableAttributeOnCommit(getPos(), onCommitType); }
+}
+
+/**
+ * Parses a list of alter options (ex. ADD, DROP, RENAME) for
+ * ALTER TABLE queries.
+ */
+List<SqlAlterTableOption> AlterTableOptions() :
+{
+    final List<SqlAlterTableOption> alterTableOptions =
+        new ArrayList<SqlAlterTableOption>();
+    SqlAlterTableOption alterTableOption;
+}
+{
+    alterTableOption = AlterTableOption()
+    { alterTableOptions.add(alterTableOption); }
+    (
+        <COMMA>
+        alterTableOption = AlterTableOption()
+        { alterTableOptions.add(alterTableOption); }
+    )*
+    { return alterTableOptions; }
+}
+
+/**
+ * Parses a single alter option (ex. ADD, DROP, RENAME) for
+ * ALTER TABLE queries.
+ * Used by {@code AlterTableOptions}.
+ */
+SqlAlterTableOption AlterTableOption() :
+{
+    final SqlAlterTableOption option;
+}
+{
+    (
+        option = AlterTableAddColumns()
+    |
+        option = AlterTableRename()
+    |
+        option = AlterTableDrop()
+    )
+    { return option; }
+}
+
+/**
+ * Parses an ADD column statement within an ALTER TABLE query.
+ * Handles both the case where there is a single column not enclosed in
+ * parentheses, and the case where there are one or more columns enclosed
+ * in parentheses.
+ */
+SqlAlterTableOption AlterTableAddColumns() :
+{
+    final List<SqlNode> columnList = new ArrayList<SqlNode>();
+    final SqlNodeList columns;
+    final Span s;
+}
+{
+    <ADD>
+    (
+        { s = span(); }
+        ColumnWithType(columnList)
+        {
+            columns = new SqlNodeList(columnList, s.end(this));
+        }
+    |
+        columns = ExtendColumnList()
+    )
+    { return new SqlAlterTableAddColumns(columns); }
+}
+
+/**
+ * Parses a RENAME statement within an ALTER TABLE query.
+ */
+SqlAlterTableOption AlterTableRename() :
+{
+    final SqlIdentifier origName;
+    final SqlIdentifier newName;
+}
+{
+    <RENAME>
+    origName = SimpleIdentifier()
+    <TO>
+    newName = SimpleIdentifier()
+    { return new SqlAlterTableRename(origName, newName); }
+}
+
+/**
+ * Parses a DROP statement within an ALTER TABLE query.
+ */
+SqlAlterTableOption AlterTableDrop() :
+{
+    final SqlIdentifier dropObj;
+    boolean identity = false;
+}
+{
+    <DROP>
+    dropObj = SimpleIdentifier()
+    [
+        <IDENTITY> { identity = true; }
+    ]
+    { return new SqlAlterTableDrop(dropObj, identity); }
+}
+
+/**
+ * Parses a TOP N statement in a SELECT query
+ * (for example SELECT TOP 5 * FROM FOO).
+ */
+SqlNode SqlSelectTopN(SqlParserPos pos) :
+{
+    final SqlNumericLiteral selectNum;
+    final double tempNum;
+    boolean isPercent = false;
+    boolean withTies = false;
+}
+{
+    <TOP>
+    selectNum = UnsignedNumericLiteral()
+    { tempNum = selectNum.getValueAs(Double.class); }
+    [
+        <PERCENT>
+        {
+            isPercent = true;
+            if (tempNum > 100) {
+                throw SqlUtil.newContextException(getPos(),
+                    RESOURCE.numberLiteralOutOfRange(String.valueOf(tempNum)));
+            }
+        }
+    ]
+    {
+        if (tempNum != Math.floor(tempNum) && !isPercent) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.integerRequiredWhenNoPercent(
+                    String.valueOf(tempNum)
+                ));
+        }
+    }
+    [
+        <WITH> <TIES> { withTies = true; }
+    ]
+    {
+        return new SqlSelectTopN(pos, selectNum,
+            SqlLiteral.createBoolean(isPercent, pos),
+            SqlLiteral.createBoolean(withTies, pos));
+    }
+}
+
+SqlHostVariable SqlHostVariable() :
+{
+    final String name;
+}
+{
+    <COLON>
+    (
+        <IDENTIFIER> { name = unquotedIdentifier(); }
+    |
+        name = NonReservedKeyWord()
+    )
+    { return new SqlHostVariable(name, getPos()); }
 }

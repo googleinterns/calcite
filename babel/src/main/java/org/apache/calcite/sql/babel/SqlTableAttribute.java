@@ -16,31 +16,32 @@
  */
 package org.apache.calcite.sql.babel;
 
-import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 /**
- * A {@code SqlCharacterSetToCharacterSet} is an AST node that contains
- * the structure of CharacterSet to CharacterSet token.
+ * A <code>SqlTableAttribute</code> is a base class that can be used
+ * to create custom options for the SQL CREATE TABLE function.
+ *
+ * <p>To customize table option unparsing, override the method
+ * {@link #unparse(SqlWriter, int, int)}.
  */
-public class SqlCharacterSetToCharacterSet extends SqlIdentifier {
+public abstract class SqlTableAttribute {
+  private final SqlParserPos pos;
+
   /**
-   * Creates a {@code SqlCharacterSetToCharacterSet}.
+   * Creates a {@code SqlTableAttribute}.
    *
-   * @param charSetNamesPrimitiveArr  Primitive string array of two character sets
    * @param pos  Parser position, must not be null
    */
-  public SqlCharacterSetToCharacterSet(
-      final String[] charSetNamesPrimitiveArr,
-      final SqlParserPos pos) {
-    super(new ArrayList<>(Arrays.asList(charSetNamesPrimitiveArr)), pos);
+  protected SqlTableAttribute(SqlParserPos pos) {
+    this.pos = pos;
   }
 
-  @Override public void unparse(final SqlWriter writer,
-      final int leftPrec, final int rightPrec) {
-    writer.print(names.get(0) + "_TO_" + names.get(1));
+  /** Writes a SQL representation of this table option to a writer. */
+  public abstract void unparse(SqlWriter writer, int leftPrec, int rightPrec);
+
+  public SqlParserPos getParserPos() {
+    return pos;
   }
 }

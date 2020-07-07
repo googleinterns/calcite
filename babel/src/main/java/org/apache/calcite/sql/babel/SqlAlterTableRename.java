@@ -18,29 +18,33 @@ package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlWriter;
-import org.apache.calcite.sql.parser.SqlParserPos;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Objects;
+
 /**
- * A {@code SqlCharacterSetToCharacterSet} is an AST node that contains
- * the structure of CharacterSet to CharacterSet token.
+ * A {@code SqlAlterTableRename} represents a RENAME statement within an
+ * ALTER TABLE query.
  */
-public class SqlCharacterSetToCharacterSet extends SqlIdentifier {
+public class SqlAlterTableRename extends SqlAlterTableOption {
+
+  public final SqlIdentifier origName;
+  public final SqlIdentifier newName;
+
   /**
-   * Creates a {@code SqlCharacterSetToCharacterSet}.
+   * Creates a {@code SqlAlterTableRename}.
    *
-   * @param charSetNamesPrimitiveArr  Primitive string array of two character sets
-   * @param pos  Parser position, must not be null
+   * @param origName Original name of object to be renamed.
+   * @param newName  New name of object to be renamed.
    */
-  public SqlCharacterSetToCharacterSet(
-      final String[] charSetNamesPrimitiveArr,
-      final SqlParserPos pos) {
-    super(new ArrayList<>(Arrays.asList(charSetNamesPrimitiveArr)), pos);
+  public SqlAlterTableRename(SqlIdentifier origName, SqlIdentifier newName) {
+    this.origName = Objects.requireNonNull(origName);
+    this.newName = Objects.requireNonNull(newName);
   }
 
-  @Override public void unparse(final SqlWriter writer,
-      final int leftPrec, final int rightPrec) {
-    writer.print(names.get(0) + "_TO_" + names.get(1));
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    writer.keyword("RENAME");
+    origName.unparse(writer, leftPrec, rightPrec);
+    writer.keyword("TO");
+    newName.unparse(writer, leftPrec, rightPrec);
   }
 }

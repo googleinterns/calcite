@@ -16,38 +16,35 @@
  */
 package org.apache.calcite.sql.babel;
 
+import org.apache.calcite.sql.SqlColumnAttribute;
+import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlCreateAttributeFreeSpace</code> is a CREATE TABLE option
- * for the FREESPACE attribute.
+ * A {@code SqlColumnAttributeDateFormat} is an AST node that gives
+ * a Date column of a specific format.
  */
-public class SqlCreateAttributeFreeSpace extends SqlCreateAttribute {
+public class SqlColumnAttributeDateFormat extends SqlColumnAttribute {
 
-  private final int freeSpaceValue;
-  private final boolean percent;
+  public final SqlNode formatString;
 
   /**
-   * Creates a {@code SqlCreateAttributeFreeSpace}.
+   * Creates a {@code SqlColumnAttributeDateFormat}.
    *
-   * @param freeSpaceValue  The percentage of free space to reserve during loading operations
-   * @param percent  Optional keyword PERCENT
    * @param pos  Parser position, must not be null
    */
-  public SqlCreateAttributeFreeSpace(int freeSpaceValue, boolean percent, SqlParserPos pos) {
+  public SqlColumnAttributeDateFormat(SqlParserPos pos, SqlNode formatString) {
     super(pos);
-    this.freeSpaceValue = freeSpaceValue;
-    this.percent = percent;
+    this.formatString = formatString;
   }
 
-  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
-    writer.keyword("FREESPACE");
-    writer.sep("=");
-    writer.print(freeSpaceValue);
-    writer.print(" ");
-    if (percent) {
-      writer.keyword("PERCENT");
+  @Override public void unparse(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
+    if (formatString == null) {
+      return;
     }
+    writer.keyword("FORMAT");
+    formatString.unparse(writer, 0, 0);
   }
 }
