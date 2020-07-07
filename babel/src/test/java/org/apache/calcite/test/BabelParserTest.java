@@ -2191,6 +2191,17 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testNestedDifferentJoins() {
+    final String sql = "select * from foo left join"
+        + " (bar cross join baz)"
+        + " on foo.a = bar.a";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "LEFT JOIN (`BAR` CROSS JOIN `BAZ`)"
+        + " ON (`FOO`.`A` = `BAR`.`A`)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testNestedJoinParenthesizedTableFails() {
     final String sql = "select * from foo cross join (bar cross join (^baz^))";
     final String expected =
