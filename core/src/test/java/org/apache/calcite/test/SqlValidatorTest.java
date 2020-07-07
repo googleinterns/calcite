@@ -11504,4 +11504,69 @@ class SqlValidatorTest extends SqlValidatorTestCase {
     assertThat(resultType.toString(), is("INTEGER"));
   }
 
+  @Test void testMergeInsertRewriteInDefaultEnabled() {
+    final String sql = "MERGE INTO emp AS e\n"
+        + "USING dept AS b\n"
+        + "ON e.ename = b.name\n"
+        + "WHEN MATCHED THEN UPDATE SET\n"
+        + "  empno = b.deptno\n"
+        + "WHEN NOT MATCHED THEN INSERT (ename, empno, "
+        + "job, hiredate, sal, comm, deptno, slacker) "
+        + "VALUES (b.name, b.deptno, "
+        + "b.deptno, timestamp '1970-01-01 00:00:00', 1, 2, 3, false )\n";
+    final String expected =  "MERGE INTO `EMP` AS `E`\n"
+        + "USING `DEPT` AS `B`\n"
+        + "ON `E`.`ENAME` = `B`.`NAME`\n"
+        + "WHEN MATCHED THEN UPDATE SET `EMPNO` = `B`.`DEPTNO`\n"
+        + "WHEN NOT MATCHED THEN INSERT "
+        + "(`ENAME`, `EMPNO`, "
+        + "`JOB`, `HIREDATE`, `SAL`, `COMM`, `DEPTNO`, `SLACKER`) "
+        + "(SELECT `B`.`NAME`, `B`.`DEPTNO`, "
+        + "CAST(`B`.`DEPTNO` AS VARCHAR(10) CHARACTER SET `ISO-8859-1`), "
+        + "TIMESTAMP '1970-01-01 00:00:00', 1, 2, 3, FALSE\n"
+        + "FROM `DEPT` AS `B`)";
+    sql(sql).withConformance(SqlConformanceEnum.DEFAULT).rewritesTo(expected);
+  }
+
+  @Test void testMergeInsertRewriteInBabelDisabled() {
+    final String sql = "MERGE INTO emp AS e\n"
+        + "USING dept AS b\n"
+        + "ON e.ename = b.name\n"
+        + "WHEN MATCHED THEN UPDATE SET\n"
+        + "  empno = b.deptno\n"
+        + "WHEN NOT MATCHED THEN INSERT (ename, empno, "
+        + "job, hiredate, sal, comm, deptno, slacker) "
+        + "VALUES (b.name, b.deptno, "
+        + "b.deptno, timestamp '1970-01-01 00:00:00', 1, 2, 3, false )\n";
+    final String expected =  "MERGE INTO `EMP` AS `E`\n"
+        + "USING `DEPT` AS `B`\n"
+        + "ON `E`.`ENAME` = `B`.`NAME`\n"
+        + "WHEN MATCHED THEN UPDATE SET `EMPNO` = `B`.`DEPTNO`\n"
+        + "WHEN NOT MATCHED THEN INSERT (`ENAME`, `EMPNO`, "
+        + "`JOB`, `HIREDATE`, `SAL`, `COMM`, `DEPTNO`, `SLACKER`) "
+        + "(VALUES ROW(`B`.`NAME`, `B`.`DEPTNO`, "
+        + "`B`.`DEPTNO`, TIMESTAMP '1970-01-01 00:00:00', 1, 2, 3, FALSE))";
+    sql(sql).withConformance(SqlConformanceEnum.BABEL).rewritesTo(expected);
+  }
+
+  @Test void testMergeInsertRewriteInBigQueryDisabled() {
+    final String sql = "MERGE INTO emp AS e\n"
+        + "USING dept AS b\n"
+        + "ON e.ename = b.name\n"
+        + "WHEN MATCHED THEN UPDATE SET\n"
+        + "  empno = b.deptno\n"
+        + "WHEN NOT MATCHED THEN INSERT (ename, empno, "
+        + "job, hiredate, sal, comm, deptno, slacker) "
+        + "VALUES (b.name, b.deptno, "
+        + "b.deptno, timestamp '1970-01-01 00:00:00', 1, 2, 3, false )\n";
+    final String expected =  "MERGE INTO `EMP` AS `E`\n"
+        + "USING `DEPT` AS `B`\n"
+        + "ON `E`.`ENAME` = `B`.`NAME`\n"
+        + "WHEN MATCHED THEN UPDATE SET `EMPNO` = `B`.`DEPTNO`\n"
+        + "WHEN NOT MATCHED THEN INSERT (`ENAME`, `EMPNO`, "
+        + "`JOB`, `HIREDATE`, `SAL`, `COMM`, `DEPTNO`, `SLACKER`) "
+        + "(VALUES ROW(`B`.`NAME`, `B`.`DEPTNO`, "
+        + "`B`.`DEPTNO`, TIMESTAMP '1970-01-01 00:00:00', 1, 2, 3, FALSE))";
+    sql(sql).withConformance(SqlConformanceEnum.BIG_QUERY).rewritesTo(expected);
+  }
 }
