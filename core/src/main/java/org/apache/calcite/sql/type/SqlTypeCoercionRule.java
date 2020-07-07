@@ -106,6 +106,7 @@ public class SqlTypeCoercionRule implements SqlTypeMappingRule {
     rule.add(SqlTypeName.SMALLINT);
     rule.add(SqlTypeName.INTEGER);
     rule.add(SqlTypeName.BIGINT);
+    rule.add(SqlTypeName.BYTEINT);
     rule.add(SqlTypeName.DECIMAL);
     rule.add(SqlTypeName.FLOAT);
     rule.add(SqlTypeName.REAL);
@@ -121,6 +122,7 @@ public class SqlTypeCoercionRule implements SqlTypeMappingRule {
     coerceRules.add(SqlTypeName.SMALLINT, rule);
     coerceRules.add(SqlTypeName.INTEGER, rule);
     coerceRules.add(SqlTypeName.BIGINT, rule);
+    coerceRules.add(SqlTypeName.BYTEINT, rule);
     coerceRules.add(SqlTypeName.FLOAT, rule);
     coerceRules.add(SqlTypeName.REAL, rule);
     coerceRules.add(SqlTypeName.DECIMAL, rule);
@@ -144,6 +146,7 @@ public class SqlTypeCoercionRule implements SqlTypeMappingRule {
               .add(SqlTypeName.SMALLINT)
               .add(SqlTypeName.INTEGER)
               .add(SqlTypeName.BIGINT)
+              .add(SqlTypeName.BYTEINT)
               .add(SqlTypeName.DECIMAL)
               .add(SqlTypeName.CHAR)
               .add(SqlTypeName.VARCHAR)
