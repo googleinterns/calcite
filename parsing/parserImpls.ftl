@@ -33,6 +33,21 @@ boolean IfExistsOpt() :
     { return false; }
 }
 
+boolean IsNullable() :
+{
+}
+{
+    (
+        <NOT> <NULL> {
+            return false;
+        }
+    |
+        <NULL> {
+            return true;
+        }
+    )
+}
+
 SqlCreate SqlCreateSchema(Span s, SqlCreateSpecifier createSpecifier) :
 {
     final boolean ifNotExists;
