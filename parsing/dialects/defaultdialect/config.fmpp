@@ -32,17 +32,13 @@ data: {
 
     # List of keywords.
     keywords: [
+      "ARCHIVE"
+      "FILE"
       "IF"
+      "JAR"
       "MATERIALIZED"
       "STORED"
       "VIRTUAL"
-      "JAR"
-      "FILE"
-      "ARCHIVE"
-      "DEL"
-      "INS"
-      "SEL"
-      "UPD"
     ]
 
     # List of keywords from "keywords" section that are not reserved.
@@ -485,7 +481,7 @@ data: {
 
     allowUpdateFromTable: false
     allowUpsertFormOfUpdate: false
-    allowAbbreviatedKeywords: true
+    allowAbbreviatedKeywords: false
     allowTranslateUsingCharSetWithError: false
     includePosixOperators: false
     includeCastFormat: false
