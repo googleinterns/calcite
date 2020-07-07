@@ -16,22 +16,32 @@
  */
 package org.apache.calcite.sql;
 
+import org.apache.calcite.sql.parser.SqlParserPos;
+
 /**
- * Enumerates the types of sets.
+ * A <code>SqlTableAttributeJournalTable</code> is a table option
+ * for the WITH JOURNAL TABLE attribute.
  */
-public enum OnCommitType {
-  /**
-   * ON COMMIT type not specified.
-   */
-  UNSPECIFIED,
+public class SqlTableAttributeJournalTable extends SqlTableAttribute {
+
+  private final SqlIdentifier tableName;
 
   /**
-   * Save the contents of a materialized global temporary table across transactions.
+   * Creates a {@code SqlTableAttributeJournalTable}.
+   *
+   * @param tableName  Name of the permanent journal table to be used
+   * @param pos  Parser position, must not be null
    */
-  PRESERVE,
+  public SqlTableAttributeJournalTable(SqlIdentifier tableName, SqlParserPos pos) {
+    super(pos);
+    this.tableName = tableName;
+  }
 
-  /**
-   * Discard the contents of a materialized global temporary table across transactions.
-   */
-  DELETE,
+  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
+    writer.keyword("WITH");
+    writer.keyword("JOURNAL");
+    writer.keyword("TABLE");
+    writer.sep("=");
+    tableName.unparse(writer, 0, 0);
+  }
 }

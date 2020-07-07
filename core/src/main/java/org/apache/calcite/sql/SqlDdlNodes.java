@@ -21,6 +21,8 @@ import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.jdbc.ContextSqlValidator;
 import org.apache.calcite.rel.RelRoot;
 import org.apache.calcite.schema.ColumnStrategy;
+import org.apache.calcite.sql.*;
+import org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier;
 import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.apache.calcite.sql.parser.SqlParserPos;
@@ -47,53 +49,66 @@ public class SqlDdlNodes {
   private SqlDdlNodes() {}
 
   /** Creates a CREATE SCHEMA. */
-  public static SqlCreateSchema createSchema(SqlParserPos pos, boolean replace,
-      boolean ifNotExists, SqlIdentifier name) {
-    return new SqlCreateSchema(pos, replace, ifNotExists, name);
+  public static SqlCreateSchema createSchema(SqlParserPos pos,
+      SqlCreateSpecifier createSpecifier, boolean ifNotExists,
+      SqlIdentifier name) {
+    return new SqlCreateSchema(pos, createSpecifier, ifNotExists, name);
   }
 
   /** Creates a CREATE FOREIGN SCHEMA. */
   public static SqlCreateForeignSchema createForeignSchema(SqlParserPos pos,
-      boolean replace, boolean ifNotExists, SqlIdentifier name, SqlNode type,
-      SqlNode library, SqlNodeList optionList) {
-    return new SqlCreateForeignSchema(pos, replace, ifNotExists, name, type,
+       SqlCreateSpecifier createSpecifier, boolean ifNotExists,
+       SqlIdentifier name, SqlNode type, SqlNode library,
+       SqlNodeList optionList) {
+    return new SqlCreateForeignSchema(pos, createSpecifier, ifNotExists, name, type,
         library, optionList);
   }
 
   /** Creates a CREATE TYPE. */
-  public static SqlCreateType createType(SqlParserPos pos, boolean replace,
-      SqlIdentifier name, SqlNodeList attributeList,
-      SqlDataTypeSpec dataTypeSpec) {
-    return new SqlCreateType(pos, replace, name, attributeList, dataTypeSpec);
+  public static SqlCreateType createType(SqlParserPos pos,
+      SqlCreateSpecifier createSpecifier, SqlIdentifier name,
+      SqlNodeList attributeList, SqlDataTypeSpec dataTypeSpec) {
+    return new SqlCreateType(pos, createSpecifier, name, attributeList, dataTypeSpec);
   }
 
   /** Creates a CREATE TABLE. */
-  public static SqlCreateTable createTable(SqlParserPos pos, boolean replace,
-      boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList,
-      SqlNode query) {
-    return new SqlCreateTable(pos, replace, ifNotExists, name, columnList,
+  public static SqlCreateTable createTable(SqlParserPos pos,
+      SqlCreateSpecifier createSpecifier, boolean ifNotExists,
+      SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
+    return new SqlCreateTable(pos, createSpecifier, ifNotExists, name, columnList,
         query);
   }
 
-  /** Creates a CREATE VIEW. */
-  public static SqlCreateView createView(SqlParserPos pos, boolean replace,
-      SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
-    return new SqlCreateView(pos, replace, name, columnList, query);
+  /** Creates a CREATE VIEW (withCheckOption not specified). */
+  public static SqlCreateView createView(SqlParserPos pos,
+      SqlCreateSpecifier createSpecifier, SqlIdentifier name,
+      SqlNodeList columnList, SqlNode query) {
+    return new SqlCreateView(pos, createSpecifier, name, columnList, query);
+  }
+
+  /** Creates a CREATE VIEW (withCheckOption specified). */
+  public static SqlCreateView createView(SqlParserPos pos,
+      SqlCreateSpecifier createSpecifier, SqlIdentifier name,
+      SqlNodeList columnList, SqlNode query, boolean withCheckOption) {
+    return new SqlCreateView(pos, createSpecifier, name, columnList,
+        query, withCheckOption);
   }
 
   /** Creates a CREATE MATERIALIZED VIEW. */
   public static SqlCreateMaterializedView createMaterializedView(
-      SqlParserPos pos, boolean replace, boolean ifNotExists,
-      SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
-    return new SqlCreateMaterializedView(pos, replace, ifNotExists, name,
+          SqlParserPos pos, SqlCreateSpecifier createSpecifier,
+          boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList,
+          SqlNode query) {
+    return new SqlCreateMaterializedView(pos, createSpecifier, ifNotExists, name,
         columnList, query);
   }
 
   /** Creates a CREATE FUNCTION. */
   public static SqlCreateFunction createFunction(
-      SqlParserPos pos, boolean replace, boolean ifNotExists,
-      SqlIdentifier name, SqlNode className, SqlNodeList usingList) {
-    return new SqlCreateFunction(pos, replace, ifNotExists, name,
+          SqlParserPos pos, SqlCreateSpecifier createSpecifier,
+          boolean ifNotExists, SqlIdentifier name, SqlNode className,
+          SqlNodeList usingList) {
+    return new SqlCreateFunction(pos, createSpecifier, ifNotExists, name,
         className, usingList);
   }
 
@@ -162,7 +177,7 @@ public class SqlDdlNodes {
       SqlNodeList columnList) {
     return new SqlKeyConstraint(pos, name, columnList) {
       @Override public SqlOperator getOperator() {
-        return PRIMARY;
+        return SqlKeyConstraint.PRIMARY;
       }
     };
   }

@@ -16,22 +16,13 @@
  */
 package org.apache.calcite.sql;
 
+import org.apache.calcite.sql.SqlWriter;
+
 /**
- * Enumerates the types of sets.
+ * A {@code SqlAlterTableOption} is an abstract class representing
+ * an option (ex. ADD, RENAME, DROP) for an ALTER TABLE query.
  */
-public enum OnCommitType {
-  /**
-   * ON COMMIT type not specified.
-   */
-  UNSPECIFIED,
+public abstract class SqlAlterTableOption {
 
-  /**
-   * Save the contents of a materialized global temporary table across transactions.
-   */
-  PRESERVE,
-
-  /**
-   * Discard the contents of a materialized global temporary table across transactions.
-   */
-  DELETE,
+  public abstract void unparse(SqlWriter writer, int leftPrec, int rightPrec);
 }

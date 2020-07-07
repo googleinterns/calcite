@@ -16,22 +16,30 @@
  */
 package org.apache.calcite.sql;
 
+import org.apache.calcite.sql.parser.SqlParserPos;
+
 /**
- * Enumerates the types of sets.
+ * A <code>SqlTableAttributeMap</code> is a table option
+ * for the MAP attribute.
  */
-public enum OnCommitType {
-  /**
-   * ON COMMIT type not specified.
-   */
-  UNSPECIFIED,
+public class SqlTableAttributeMap extends SqlTableAttribute {
+
+  private final SqlIdentifier mapName;
 
   /**
-   * Save the contents of a materialized global temporary table across transactions.
+   * Creates a {@code SqlTableAttributeMap}.
+   *
+   * @param mapName  Name of an existing contiguous map
+   * @param pos  Parser position, must not be null
    */
-  PRESERVE,
+  public SqlTableAttributeMap(SqlIdentifier mapName, SqlParserPos pos) {
+    super(pos);
+    this.mapName = mapName;
+  }
 
-  /**
-   * Discard the contents of a materialized global temporary table across transactions.
-   */
-  DELETE,
+  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
+    writer.keyword("MAP");
+    writer.sep("=");
+    mapName.unparse(writer, 0, 0);
+  }
 }

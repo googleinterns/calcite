@@ -16,22 +16,29 @@
  */
 package org.apache.calcite.sql;
 
+import java.util.Objects;
+
 /**
- * Enumerates the types of sets.
+ * A {@code SqlColumnAttributeGeneratedStartWith} represents the START WITH
+ * option of a GENERATED column attribute.
  */
-public enum OnCommitType {
-  /**
-   * ON COMMIT type not specified.
-   */
-  UNSPECIFIED,
+public class SqlColumnAttributeGeneratedStartWith extends
+    SqlColumnAttributeGeneratedOption {
+
+  public final SqlLiteral start;
 
   /**
-   * Save the contents of a materialized global temporary table across transactions.
+   * Creates a {@code SqlColumnAttributeGeneratedStartWith}.
+   *
+   * @param start  The amount specified in the START WITH attribute.
    */
-  PRESERVE,
+  public SqlColumnAttributeGeneratedStartWith(SqlLiteral start) {
+    this.start = Objects.requireNonNull(start);
+  }
 
-  /**
-   * Discard the contents of a materialized global temporary table across transactions.
-   */
-  DELETE,
+  @Override public void unparse(SqlWriter writer,
+      int leftPrec, int rightPrec) {
+    writer.keyword("START WITH");
+    start.unparse(writer, leftPrec, rightPrec);
+  }
 }
