@@ -16,7 +16,6 @@
  */
 package org.apache.calcite.test;
 
-import org.apache.calcite.config.CalciteConnectionProperty;
 import org.apache.calcite.jdbc.CalciteConnection;
 import org.apache.calcite.materialize.MaterializationService;
 import org.apache.calcite.plan.Contexts;
@@ -24,9 +23,8 @@ import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParser;
-import org.apache.calcite.sql.parser.babel.SqlBabelParserImpl;
+import org.apache.calcite.sql.parser.SqlParserImplFactory;
 import org.apache.calcite.sql.pretty.SqlPrettyWriter;
-import org.apache.calcite.sql.validate.SqlConformanceEnum;
 import org.apache.calcite.tools.Frameworks;
 import org.apache.calcite.tools.Planner;
 
@@ -40,76 +38,34 @@ import net.hydromatic.quidem.Quidem;
 
 import org.junit.jupiter.api.BeforeEach;
 
-import java.sql.Connection;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Unit tests for the Babel SQL parser.
+ * Unit tests for Dialect parsers.
  */
-class BabelQuidemTest extends QuidemTest {
-  /** Runs a test from the command line.
-   *
-   * <p>For example:
-   *
-   * <blockquote>
-   *   <code>java BabelQuidemTest sql/table.iq</code>
-   * </blockquote> */
-  public static void main(String[] args) throws Exception {
-    for (String arg : args) {
-      new BabelQuidemTest().test(arg);
-    }
+abstract class DialectQuidemTest extends QuidemTest {
+
+  private final SqlParserImplFactory parserFactory;
+
+  DialectQuidemTest(SqlParserImplFactory parserFactory) {
+    this.parserFactory = parserFactory;
   }
 
   @BeforeEach public void setup() {
     MaterializationService.setThreadLocal();
   }
 
-  /** For {@link QuidemTest#test(String)} parameters. */
-  public static Collection<Object[]> data() {
-    // Start with a test file we know exists, then find the directory and list
-    // its files.
-    final String first = "sql/select.iq";
-    return data(first);
-  }
+  abstract Quidem.ConnectionFactory createDialectConnectionFactory();
 
   @Override protected Quidem.ConnectionFactory createConnectionFactory() {
-    return new QuidemConnectionFactory() {
-      @Override public Connection connect(String name, boolean reference)
-          throws Exception {
-        switch (name) {
-        case "babel":
-          return BabelTest.connect();
-        case "scott-babel":
-          return CalciteAssert.that()
-              .with(CalciteAssert.Config.SCOTT)
-              .with(CalciteConnectionProperty.PARSER_FACTORY,
-                  SqlBabelParserImpl.class.getName() + "#FACTORY")
-              .with(CalciteConnectionProperty.CONFORMANCE,
-                  SqlConformanceEnum.BABEL)
-              .connect();
-        case "scott-redshift":
-          return CalciteAssert.that()
-              .with(CalciteAssert.Config.SCOTT)
-              .with(CalciteConnectionProperty.FUN, "standard,postgresql,oracle")
-              .with(CalciteConnectionProperty.PARSER_FACTORY,
-                  SqlBabelParserImpl.class.getName() + "#FACTORY")
-              .with(CalciteConnectionProperty.CONFORMANCE,
-                  SqlConformanceEnum.BABEL)
-              .with(CalciteConnectionProperty.LENIENT_OPERATOR_LOOKUP, true)
-              .connect();
-        default:
-          return super.connect(name, reference);
-        }
-      }
-    };
+    return createDialectConnectionFactory();
   }
 
   @Override protected CommandHandler createCommandHandler() {
-    return new BabelCommandHandler();
+    return new DialectCommandHandler(parserFactory);
   }
 
   /** Command that prints the validated parse tree of a SQL statement. */
@@ -117,20 +73,22 @@ class BabelQuidemTest extends QuidemTest {
     private final ImmutableList<String> lines;
     private final ImmutableList<String> content;
     private final Set<String> productSet;
+    private final SqlParserImplFactory parserFactory;
 
     ExplainValidatedCommand(List<String> lines, List<String> content,
-        Set<String> productSet) {
+        Set<String> productSet, SqlParserImplFactory parserFactory) {
       this.lines = ImmutableList.copyOf(lines);
       this.content = ImmutableList.copyOf(content);
       this.productSet = ImmutableSet.copyOf(productSet);
+      this.parserFactory = parserFactory;
     }
 
     @Override public void execute(Context x, boolean execute) throws Exception {
       if (execute) {
-        // use Babel parser
+        // use MySQL parser
         final SqlParser.ConfigBuilder parserConfig =
             SqlParser.configBuilder()
-                .setParserFactory(SqlBabelParserImpl.FACTORY);
+                .setParserFactory(parserFactory);
 
         // extract named schema from connection and use it in planner
         final CalciteConnection calciteConnection =
@@ -163,7 +121,14 @@ class BabelQuidemTest extends QuidemTest {
 
   /** Command handler that adds a "!explain-validated-on dialect..." command
    * (see {@link ExplainValidatedCommand}). */
-  private static class BabelCommandHandler implements CommandHandler {
+  private static class DialectCommandHandler implements CommandHandler {
+
+    private final SqlParserImplFactory parserFactory;
+
+    DialectCommandHandler(SqlParserImplFactory parserFactory) {
+      this.parserFactory = parserFactory;
+    }
+
     @Override public Command parseCommand(List<String> lines,
         List<String> content, String line) {
       final String prefix = "explain-validated-on";
@@ -176,7 +141,7 @@ class BabelQuidemTest extends QuidemTest {
           for (int i = 0; i < matcher.groupCount(); i++) {
             set.add(matcher.group(i + 1));
           }
-          return new ExplainValidatedCommand(lines, content, set.build());
+          return new ExplainValidatedCommand(lines, content, set.build(), parserFactory);
         }
       }
       return null;
