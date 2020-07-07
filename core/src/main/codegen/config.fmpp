@@ -409,8 +409,15 @@ data: {
     ]
 
     # List of methods for parsing extensions to "CREATE [OR REPLACE]" calls.
-    # Each must accept arguments "(SqlParserPos pos, boolean replace)".
+    # Each must accept arguments:
+    # "(SqlParserPos pos, SqlCreateSpecifier createSpecifier)".
     createStatementParserMethods: [
+    ]
+
+    # List of methods for parsing extensions to "REPLACE" calls.
+    # Each must accept arguments:
+    # "(SqlParserPos pos, SqlCreateSpecifier createSpecifier)".
+    replaceStatementParserMethods: [
     ]
 
     # list of methods for parsing extensions to "SET TIME ZONE" calls
@@ -430,10 +437,6 @@ data: {
     renameStatementParserMethods: [
     ]
 
-    # List of methods for parsing extensions to <expression> calls
-    postExpressionStatementParserMethods: [
-    ]
-
     # List of methods for parsing expressions to "EXEC" calls.
     execStatementParserMethods: [
     ]
@@ -450,7 +453,10 @@ data: {
     extraBinaryExpressions: [
     ]
 
-    preAtomicRowMethods: [
+    preExpressionMethods: [
+    ]
+
+    postExpressionMethods: [
     ]
 
     dateTimeExpressionMethods: [
@@ -471,12 +477,15 @@ data: {
     includePosixOperators: false
     includeCastFormat: false
     includeCompoundIdentifier: true
+    allowColonSeparatorInCompoundIdentifier: false
     includeBraces: true
     includeAdditionalDeclarations: false
     includeSubstrKeyword: false
     includeQualifyClause: false
-    includeAlternativeTypeConversionQuery: false
     includeRankWithSortingExpressions: false
+    includeTopN: false
+    includeInsertWithOmittedValues: false
+    includeHostVariables: false
   }
 }
 

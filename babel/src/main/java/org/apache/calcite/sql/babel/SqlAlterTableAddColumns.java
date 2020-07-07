@@ -16,34 +16,36 @@
  */
 package org.apache.calcite.sql.babel;
 
-import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlWriter;
-import org.apache.calcite.sql.parser.SqlParserPos;
+
+import java.util.Objects;
 
 /**
- * A <code>SqlCreateAttributeJournalTable</code> is a CREATE TABLE option
- * for the WITH JOURNAL TABLE attribute.
+ * A {@code SqlAlterTableAddColumns} represents an ADD column statement within
+ * an ALTER TABLE query.
  */
-public class SqlCreateAttributeJournalTable extends SqlCreateAttribute {
+public class SqlAlterTableAddColumns extends SqlAlterTableOption {
 
-  private final SqlIdentifier tableName;
+  public final SqlNodeList columns;
 
   /**
-   * Creates a {@code SqlCreateAttributeJournalTable}.
-   *
-   * @param tableName  Name of the permanent journal table to be used
-   * @param pos  Parser position, must not be null
+   * Creates a {@code SqlAlterTableAddColumns}.
+   * @param columns  The list of columns to add. Must be non-null and non-empty
    */
-  public SqlCreateAttributeJournalTable(SqlIdentifier tableName, SqlParserPos pos) {
-    super(pos);
-    this.tableName = tableName;
+  public SqlAlterTableAddColumns(SqlNodeList columns) {
+    this.columns = Objects.requireNonNull(columns);
   }
 
-  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
-    writer.keyword("WITH");
-    writer.keyword("JOURNAL");
-    writer.keyword("TABLE");
-    writer.sep("=");
-    tableName.unparse(writer, 0, 0);
+  @Override public void unparse(SqlWriter writer,
+      int leftPrec, int rightPrec) {
+    writer.keyword("ADD");
+    SqlWriter.Frame frame = writer.startList("(", ")");
+    for (SqlNode c : columns) {
+      writer.sep(",");
+      c.unparse(writer, 0, 0);
+    }
+    writer.endList(frame);
   }
 }

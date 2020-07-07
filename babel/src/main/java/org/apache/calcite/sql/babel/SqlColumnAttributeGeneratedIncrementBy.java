@@ -16,31 +16,32 @@
  */
 package org.apache.calcite.sql.babel;
 
-import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlWriter;
-import org.apache.calcite.sql.parser.SqlParserPos;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Objects;
+
 /**
- * A {@code SqlCharacterSetToCharacterSet} is an AST node that contains
- * the structure of CharacterSet to CharacterSet token.
+ * A {@code SqlColumnAttributeGeneratedIncrementBy} represents the
+ * INCREMENT BY option of a GENERATED column attribute.
  */
-public class SqlCharacterSetToCharacterSet extends SqlIdentifier {
+public class SqlColumnAttributeGeneratedIncrementBy extends
+    SqlColumnAttributeGeneratedOption {
+
+  public final SqlLiteral inc;
+
   /**
-   * Creates a {@code SqlCharacterSetToCharacterSet}.
+   * Creates a {@code SqlColumnAttributeGeneratedIncrementBy}.
    *
-   * @param charSetNamesPrimitiveArr  Primitive string array of two character sets
-   * @param pos  Parser position, must not be null
+   * @param inc  The amount specified in the INCREMENT BY attribute.
    */
-  public SqlCharacterSetToCharacterSet(
-      final String[] charSetNamesPrimitiveArr,
-      final SqlParserPos pos) {
-    super(new ArrayList<>(Arrays.asList(charSetNamesPrimitiveArr)), pos);
+  public SqlColumnAttributeGeneratedIncrementBy(SqlLiteral inc) {
+    this.inc = Objects.requireNonNull(inc);
   }
 
-  @Override public void unparse(final SqlWriter writer,
-      final int leftPrec, final int rightPrec) {
-    writer.print(names.get(0) + "_TO_" + names.get(1));
+  @Override public void unparse(SqlWriter writer,
+      int leftPrec, int rightPrec) {
+    writer.keyword("INCREMENT BY");
+    inc.unparse(writer, leftPrec, rightPrec);
   }
 }

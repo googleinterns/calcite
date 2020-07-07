@@ -18,30 +18,35 @@ package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlWriter;
-import org.apache.calcite.sql.parser.SqlParserPos;
+
+import java.util.Objects;
 
 /**
- * A <code>SqlCreateAttributeMap</code> is a CREATE TABLE option
- * for the MAP attribute.
+ * A {@code SqlAlterTableDrop} represents a DROP statement within an
+ * ALTER TABLE query.
  */
-public class SqlCreateAttributeMap extends SqlCreateAttribute {
+public class SqlAlterTableDrop extends SqlAlterTableOption {
 
-  private final SqlIdentifier mapName;
+  public final SqlIdentifier dropObj;
+  public final boolean identity;
 
   /**
-   * Creates a {@code SqlCreateAttributeMap}.
+   * Creates a {@code SqlAlterTableDrop}.
    *
-   * @param mapName  Name of an existing contiguous map
-   * @param pos  Parser position, must not be null
+   * @param dropObj   Identifier specifying object to drop.
+   * @param identity  Whether or not IDENTITY keyword is specified.
    */
-  public SqlCreateAttributeMap(SqlIdentifier mapName, SqlParserPos pos) {
-    super(pos);
-    this.mapName = mapName;
+  public SqlAlterTableDrop(SqlIdentifier dropObj, boolean identity) {
+    this.dropObj = Objects.requireNonNull(dropObj);
+    this.identity = identity;
   }
 
-  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
-    writer.keyword("MAP");
-    writer.sep("=");
-    mapName.unparse(writer, 0, 0);
+  @Override public void unparse(SqlWriter writer,
+      int leftPrec, int rightPrec) {
+    writer.keyword("DROP");
+    dropObj.unparse(writer, leftPrec, rightPrec);
+    if (identity) {
+      writer.keyword("IDENTITY");
+    }
   }
 }

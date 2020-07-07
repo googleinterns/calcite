@@ -1650,9 +1650,6 @@ public class SqlParserTest {
             + "WHERE (`A` LIKE `B` ESCAPE `C`)) ESCAPE `D`)))");
   }
 
-  @Test void testFoo() {
-  }
-
   @Test void testArithmeticOperators() {
     expr("1-2+3*4/5/6-7")
         .ok("(((1 - 2) + (((3 * 4) / 5) / 6)) - 7)");
