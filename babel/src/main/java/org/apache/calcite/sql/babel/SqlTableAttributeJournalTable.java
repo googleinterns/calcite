@@ -20,27 +20,30 @@ import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 /**
- * A {@code SqlCharacterSetToCharacterSet} is an AST node that contains
- * the structure of CharacterSet to CharacterSet token.
+ * A <code>SqlTableAttributeJournalTable</code> is a table option
+ * for the WITH JOURNAL TABLE attribute.
  */
-public class SqlCharacterSetToCharacterSet extends SqlIdentifier {
+public class SqlTableAttributeJournalTable extends SqlTableAttribute {
+
+  private final SqlIdentifier tableName;
+
   /**
-   * Creates a {@code SqlCharacterSetToCharacterSet}.
+   * Creates a {@code SqlTableAttributeJournalTable}.
    *
-   * @param charSetNamesPrimitiveArr  Primitive string array of two character sets
+   * @param tableName  Name of the permanent journal table to be used
    * @param pos  Parser position, must not be null
    */
-  public SqlCharacterSetToCharacterSet(
-      final String[] charSetNamesPrimitiveArr,
-      final SqlParserPos pos) {
-    super(new ArrayList<>(Arrays.asList(charSetNamesPrimitiveArr)), pos);
+  public SqlTableAttributeJournalTable(SqlIdentifier tableName, SqlParserPos pos) {
+    super(pos);
+    this.tableName = tableName;
   }
 
-  @Override public void unparse(final SqlWriter writer,
-      final int leftPrec, final int rightPrec) {
-    writer.print(names.get(0) + "_TO_" + names.get(1));
+  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
+    writer.keyword("WITH");
+    writer.keyword("JOURNAL");
+    writer.keyword("TABLE");
+    writer.sep("=");
+    tableName.unparse(writer, 0, 0);
   }
 }

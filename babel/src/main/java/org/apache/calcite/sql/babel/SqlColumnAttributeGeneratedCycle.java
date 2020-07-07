@@ -17,31 +17,30 @@
 package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlWriter;
-import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A <code>SqlCreateAttributeLog</code> is a CREATE TABLE option
- * for the LOG attribute.
+ * A {@code SqlColumnAttributeGeneratedCycle} represents the CYCLE option
+ * of a GENERATED column attribute.
  */
-public class SqlCreateAttributeLog extends SqlCreateAttribute {
+public class SqlColumnAttributeGeneratedCycle extends
+    SqlColumnAttributeGeneratedOption {
 
-  private final boolean loggingEnabled;
+  public final boolean none;
 
   /**
-   * Creates a {@code SqlCreateAttributeLog}.
+   * Creates a {@code SqlColumnAttributeGeneratedCycle}.
    *
-   * @param loggingEnabled  Transient journal logging is enabled
-   * @param pos  Parser position, must not be null
+   * @param none   Whether or not NO CYCLE was specified.
    */
-  public SqlCreateAttributeLog(boolean loggingEnabled, SqlParserPos pos) {
-    super(pos);
-    this.loggingEnabled = loggingEnabled;
+  public SqlColumnAttributeGeneratedCycle(boolean none) {
+    this.none = none;
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    if (!loggingEnabled) {
+  @Override public void unparse(SqlWriter writer,
+      int leftPrec, int rightPrec) {
+    if (none) {
       writer.keyword("NO");
     }
-    writer.keyword("LOG");
+    writer.keyword("CYCLE");
   }
 }

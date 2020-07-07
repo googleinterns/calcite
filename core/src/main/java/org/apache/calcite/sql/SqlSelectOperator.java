@@ -161,7 +161,11 @@ public class SqlSelectOperator extends SqlOperator {
       final SqlNode keyword = select.keywordList.get(i);
       keyword.unparse(writer, 0, 0);
     }
-    writer.topN(select.fetch, select.offset);
+    if (select.topN != null) {
+      writer.topN(select.topN);
+    } else {
+      writer.fetchAsTopN(select.fetch, select.offset);
+    }
     final SqlNodeList selectClause =
         select.selectList != null
             ? select.selectList

@@ -16,31 +16,40 @@
  */
 package org.apache.calcite.sql.babel;
 
-import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 /**
- * A {@code SqlCharacterSetToCharacterSet} is an AST node that contains
- * the structure of CharacterSet to CharacterSet token.
+ * A <code>SqlTableAttributeFreeSpace</code> is a table option
+ * for the FREESPACE attribute.
  */
-public class SqlCharacterSetToCharacterSet extends SqlIdentifier {
+public class SqlTableAttributeFreeSpace extends SqlTableAttribute {
+
+  private final SqlLiteral freeSpaceValue;
+  private final boolean percent;
+
   /**
-   * Creates a {@code SqlCharacterSetToCharacterSet}.
+   * Creates a {@code SqlTableAttributeFreeSpace}.
    *
-   * @param charSetNamesPrimitiveArr  Primitive string array of two character sets
+   * @param freeSpaceValue  The percentage of free space to reserve during loading operations
+   * @param percent  Optional keyword PERCENT
    * @param pos  Parser position, must not be null
    */
-  public SqlCharacterSetToCharacterSet(
-      final String[] charSetNamesPrimitiveArr,
-      final SqlParserPos pos) {
-    super(new ArrayList<>(Arrays.asList(charSetNamesPrimitiveArr)), pos);
+  public SqlTableAttributeFreeSpace(int freeSpaceValue, boolean percent,
+      SqlParserPos pos) {
+    super(pos);
+    this.freeSpaceValue = SqlLiteral.createExactNumeric(
+        String.valueOf(freeSpaceValue), pos);
+    this.percent = percent;
   }
 
-  @Override public void unparse(final SqlWriter writer,
-      final int leftPrec, final int rightPrec) {
-    writer.print(names.get(0) + "_TO_" + names.get(1));
+  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
+    writer.keyword("FREESPACE");
+    writer.sep("=");
+    this.freeSpaceValue.unparse(writer, leftPrec, rightPrec);
+    if (percent) {
+      writer.keyword("PERCENT");
+    }
   }
 }

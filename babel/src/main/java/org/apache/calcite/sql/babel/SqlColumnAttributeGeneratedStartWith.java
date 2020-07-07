@@ -16,31 +16,32 @@
  */
 package org.apache.calcite.sql.babel;
 
-import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlWriter;
-import org.apache.calcite.sql.parser.SqlParserPos;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Objects;
+
 /**
- * A {@code SqlCharacterSetToCharacterSet} is an AST node that contains
- * the structure of CharacterSet to CharacterSet token.
+ * A {@code SqlColumnAttributeGeneratedStartWith} represents the START WITH
+ * option of a GENERATED column attribute.
  */
-public class SqlCharacterSetToCharacterSet extends SqlIdentifier {
+public class SqlColumnAttributeGeneratedStartWith extends
+    SqlColumnAttributeGeneratedOption {
+
+  public final SqlLiteral start;
+
   /**
-   * Creates a {@code SqlCharacterSetToCharacterSet}.
+   * Creates a {@code SqlColumnAttributeGeneratedStartWith}.
    *
-   * @param charSetNamesPrimitiveArr  Primitive string array of two character sets
-   * @param pos  Parser position, must not be null
+   * @param start  The amount specified in the START WITH attribute.
    */
-  public SqlCharacterSetToCharacterSet(
-      final String[] charSetNamesPrimitiveArr,
-      final SqlParserPos pos) {
-    super(new ArrayList<>(Arrays.asList(charSetNamesPrimitiveArr)), pos);
+  public SqlColumnAttributeGeneratedStartWith(SqlLiteral start) {
+    this.start = Objects.requireNonNull(start);
   }
 
-  @Override public void unparse(final SqlWriter writer,
-      final int leftPrec, final int rightPrec) {
-    writer.print(names.get(0) + "_TO_" + names.get(1));
+  @Override public void unparse(SqlWriter writer,
+      int leftPrec, int rightPrec) {
+    writer.keyword("START WITH");
+    start.unparse(writer, leftPrec, rightPrec);
   }
 }

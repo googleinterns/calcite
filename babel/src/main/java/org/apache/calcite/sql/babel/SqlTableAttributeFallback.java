@@ -16,31 +16,38 @@
  */
 package org.apache.calcite.sql.babel;
 
-import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 /**
- * A {@code SqlCharacterSetToCharacterSet} is an AST node that contains
- * the structure of CharacterSet to CharacterSet token.
+ * A <code>SqlTableAttributeFallback</code> is a table option
+ * for the FALLBACK keyword.
  */
-public class SqlCharacterSetToCharacterSet extends SqlIdentifier {
+public class SqlTableAttributeFallback extends SqlTableAttribute {
+
+  private final boolean no;
+  private final boolean protection;
+
   /**
-   * Creates a {@code SqlCharacterSetToCharacterSet}.
+   * Creates a {@code SqlTableAttributeFallback}.
    *
-   * @param charSetNamesPrimitiveArr  Primitive string array of two character sets
+   * @param no  Optional NO keyword
+   * @param protection Optional PROTECTION keyword
    * @param pos  Parser position, must not be null
    */
-  public SqlCharacterSetToCharacterSet(
-      final String[] charSetNamesPrimitiveArr,
-      final SqlParserPos pos) {
-    super(new ArrayList<>(Arrays.asList(charSetNamesPrimitiveArr)), pos);
+  public SqlTableAttributeFallback(boolean no, boolean protection, SqlParserPos pos) {
+    super(pos);
+    this.no = no;
+    this.protection = protection;
   }
 
-  @Override public void unparse(final SqlWriter writer,
-      final int leftPrec, final int rightPrec) {
-    writer.print(names.get(0) + "_TO_" + names.get(1));
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    if (no) {
+      writer.keyword("NO");
+    }
+    writer.keyword("FALLBACK");
+    if (protection) {
+      writer.keyword("PROTECTION");
+    }
   }
 }
