@@ -1114,30 +1114,30 @@ public abstract class SqlDialectParserTest {
 
   @Test void testRowValueExpression() {
     final String expected0 = "INSERT INTO \"EMPS\"\n"
-            + "VALUES (ROW(1, 'Fred')),\n"
-            + "(ROW(2, 'Eric'))";
+        + "VALUES (ROW(1, 'Fred')),\n"
+        + "(ROW(2, 'Eric'))";
     String sql = "insert into emps values (1,'Fred'),(2, 'Eric')";
     sql(sql)
         .withDialect(SqlDialect.DatabaseProduct.CALCITE.getDialect())
-         .ok(expected0);
+        .ok(expected0);
 
     final String expected1 = "INSERT INTO `emps`\n"
-            + "VALUES (1, 'Fred'),\n"
-            + "(2, 'Eric')";
+        + "VALUES (1, 'Fred'),\n"
+        + "(2, 'Eric')";
     sql(sql)
         .withDialect(SqlDialect.DatabaseProduct.MYSQL.getDialect())
         .ok(expected1);
 
     final String expected2 = "INSERT INTO \"EMPS\"\n"
-            + "VALUES (1, 'Fred'),\n"
-            + "(2, 'Eric')";
+        + "VALUES (1, 'Fred'),\n"
+        + "(2, 'Eric')";
     sql(sql)
         .withDialect(SqlDialect.DatabaseProduct.ORACLE.getDialect())
         .ok(expected2);
 
     final String expected3 = "INSERT INTO [EMPS]\n"
-            + "VALUES (1, 'Fred'),\n"
-            + "(2, 'Eric')";
+        + "VALUES (1, 'Fred'),\n"
+        + "(2, 'Eric')";
     sql(sql)
         .withDialect(SqlDialect.DatabaseProduct.MSSQL.getDialect())
         .ok(expected3);
@@ -9317,11 +9317,13 @@ public abstract class SqlDialectParserTest {
         .ok("CREATE OR REPLACE TYPE `MYTYPE1` AS VARCHAR(5)");
   }
 
+  @Tag("DefaultCreateTable")
   @Test void testCreateTable() {
     sql("create table x (i int not null, j varchar(5) null)")
         .ok("CREATE TABLE `X` (`I` INTEGER NOT NULL, `J` VARCHAR(5))");
   }
 
+  @Tag("DefaultCreateTable")
   @Test void testCreateOrReplaceTable() {
     sql("create or replace table x (i int)")
         .ok("CREATE OR REPLACE TABLE `X` (`I` INTEGER)");
@@ -9359,6 +9361,7 @@ public abstract class SqlDialectParserTest {
         .ok(expected);
   }
 
+  @Tag("DefaultCreateTable")
   @Test void testCreateTableCheck() {
     final String expected = "CREATE TABLE `X` (`I` INTEGER NOT NULL,"
         + " CONSTRAINT `C1` CHECK (`I` < 10), `J` INTEGER)";
@@ -9366,6 +9369,7 @@ public abstract class SqlDialectParserTest {
         .ok(expected);
   }
 
+  @Tag("DefaultCreateTable")
   @Test void testCreateTableVirtualColumn() {
     final String sql = "create table if not exists x (\n"
         + " i int not null,\n"
@@ -9437,6 +9441,7 @@ public abstract class SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Tag("DefaultCreateTable")
   @Test void testCreateOrReplaceFunction() {
     final String sql = "create or replace function if not exists x.udf\n"
         + " as 'org.apache.calcite.udf.TableFun.demoUdf'\n"
@@ -9452,6 +9457,7 @@ public abstract class SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Tag("DefaultCreateTable")
   @Test void testCreateOrReplaceFunction2() {
     final String sql = "create function \"my Udf\"\n"
         + " as 'org.apache.calcite.udf.TableFun.demoUdf'";
