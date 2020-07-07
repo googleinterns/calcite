@@ -798,6 +798,14 @@ SqlNodeList ParenthesizedQueryOrCommaListWithDefault(
         e = OrderedQueryOrExpr(firstExprContext)
     |
         e = Default()
+<#if parser.includeInsertWithOmittedValues>
+    |
+        // This LOOKAHEAD ensures that parsing fails if there is an empty set of
+        // parentheses after a VALUES keyword since that is invalid syntax in
+        // most dialects
+        LOOKAHEAD({ getToken(1).kind != RPAREN })
+        { e = SqlLiteral.createNull(getPos()); }
+</#if>
     )
     {
         list = startList(e);
@@ -812,6 +820,10 @@ SqlNodeList ParenthesizedQueryOrCommaListWithDefault(
             e = Expression(exprContext)
         |
             e = Default()
+<#if parser.includeInsertWithOmittedValues>
+        |
+            { e = SqlLiteral.createNull(getPos()); }
+</#if>
         )
         {
             list.add(e);
@@ -1013,6 +1025,10 @@ SqlNode SqlStmt() :
     |
 <#if parser.createStatementParserMethods?size != 0>
         stmt = SqlCreate()
+    |
+</#if>
+<#if parser.replaceStatementParserMethods?size != 0>
+        stmt = SqlReplace()
     |
 </#if>
 <#if parser.renameStatementParserMethods?size != 0>
@@ -1268,6 +1284,7 @@ SqlSelect SqlSelect() :
 {
     final List<SqlLiteral> keywords = new ArrayList<SqlLiteral>();
     final SqlNodeList keywordList;
+    SqlNode topN = null;
     List<SqlNode> selectList;
     final SqlNode fromClause;
     final SqlNode where;
@@ -1307,6 +1324,10 @@ SqlSelect SqlSelect() :
     |   <ALL> {
             keywords.add(SqlSelectKeyword.ALL.symbol(getPos()));
         }
+<#if parser.includeTopN>
+    |
+        topN = SqlSelectTopN(getPos())
+</#if>
     )?
     {
         keywordList = new SqlNodeList(keywords, s.addAll(keywords).pos());
@@ -1332,9 +1353,10 @@ SqlSelect SqlSelect() :
         }
     )
     {
-        return new SqlSelect(s.end(this), keywordList,
+        return new SqlSelect(s.end(this), keywordList, topN,
             new SqlNodeList(selectList, Span.of(selectList).pos()),
-            fromClause, where, groupBy, having, qualify, windowDecls, null, null, null,
+            fromClause, where, groupBy, having, qualify, windowDecls,
+            /*orderBy=*/ null, /*offset=*/ null, /*fetch=*/ null,
             new SqlNodeList(hints, getPos()));
     }
 }
@@ -1615,6 +1637,7 @@ SqlNode SqlInsert() :
     (
 <#-- additional literal parser methods are included here -->
 <#list parser.insertStatementParserMethods as method>
+        LOOKAHEAD(${method}())
         source = ${method}()
     |
 </#list>
@@ -3367,19 +3390,8 @@ SqlNode Expression(ExprContext exprContext) :
     list = Expression2(exprContext)
     {
         e = SqlParserUtil.toTree(list);
+        return e;
     }
-    (
-<#list parser.postExpressionStatementParserMethods as method>
-        e = ${method}(e) {
-            return e;
-        }
-        <#sep>|</#sep>
-    |
-</#list>
-        {
-            return e;
-        }
-    )
 }
 
 // TODO jvs 15-Nov-2003:  ANY/ALL
@@ -3640,9 +3652,9 @@ SqlNode Expression3(ExprContext exprContext) :
     Span rowSpan = null;
 }
 {
-<#list parser.preAtomicRowMethods as method>
-    LOOKAHEAD(${method})
-    e = ${method} { return e; }
+<#list parser.preExpressionMethods as method>
+    LOOKAHEAD(${method}())
+    e = ${method}() { return e; }
 |
 </#list>
     LOOKAHEAD(2)
@@ -3731,10 +3743,10 @@ SqlNode Expression3(ExprContext exprContext) :
         }
     }
     (
-<#if parser.includeAlternativeTypeConversionQuery>
-        e = AlternativeTypeConversionQuery(list1.get(0)) { return e; }
+<#list parser.postExpressionMethods as method>
+        e = ${method}(list1.get(0)) { return e; }
     |
-</#if>
+</#list>
         { return list1.get(0); }
     )
 }
@@ -3849,6 +3861,10 @@ SqlNode AtomicRowExpression() :
         e = ${method}
     |
 </#list>
+<#if parser.includeHostVariables>
+        e = SqlHostVariable()
+    |
+</#if>
         e = Literal()
     |
         e = DynamicParam()
@@ -4004,7 +4020,11 @@ SqlAlter SqlAlter() :
 }
 {
     <ALTER> { s = span(); }
-    scope = Scope()
+    (
+        scope = Scope()
+    |
+        { scope = null; }
+    )
     (
 <#-- additional literal parser methods are included here -->
 <#list parser.alterStatementParserMethods as method>
@@ -4033,20 +4053,20 @@ String Scope() :
 SqlCreate SqlCreate() :
 {
     final Span s;
-    boolean replace = false;
+    SqlCreateSpecifier createSpecifier = SqlCreateSpecifier.CREATE;
     final SqlCreate create;
 }
 {
     <CREATE> { s = span(); }
     [
         <OR> <REPLACE> {
-            replace = true;
+            createSpecifier = SqlCreateSpecifier.CREATE_OR_REPLACE;
         }
     ]
     (
 <#-- additional literal parser methods are included here -->
 <#list parser.createStatementParserMethods as method>
-        create = ${method}(s, replace)
+        create = ${method}(s, createSpecifier)
         <#sep>| LOOKAHEAD(2) </#sep>
 </#list>
     )
@@ -4905,7 +4925,7 @@ SqlNodeList ParenthesizedSimpleIdentifierList() :
     }
 }
 
-<#if parser.includeCompoundIdentifier >
+<#if parser.includeCompoundIdentifier>
 /**
  * Parses a compound identifier.
  */
@@ -4917,6 +4937,13 @@ SqlIdentifier CompoundIdentifier() :
 }
 {
     IdentifierSegment(nameList, posList)
+<#if parser.allowColonSeparatorInCompoundIdentifier>
+    [
+        LOOKAHEAD(2)
+        <COLON>
+        IdentifierSegment(nameList, posList)
+    ]
+</#if>
     (
         LOOKAHEAD(2)
         <DOT>
@@ -6043,9 +6070,16 @@ SqlNode JsonName() :
     final SqlNode e;
 }
 {
-     e = Expression(ExprContext.ACCEPT_NON_QUERY) {
+    (
+        e = SimpleIdentifier()
+    |
+        e = StringLiteral()
+    |
+        e = NumericLiteral()
+    )
+    {
         return e;
-     }
+    }
 }
 
 List<SqlNode> JsonNameAndValue() :
