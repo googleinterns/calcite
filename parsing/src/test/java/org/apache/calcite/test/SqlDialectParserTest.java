@@ -9441,7 +9441,7 @@ public abstract class SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Tag("DefaultCreateTable")
+  @Tag("DefaultCreateFunction")
   @Test void testCreateOrReplaceFunction() {
     final String sql = "create or replace function if not exists x.udf\n"
         + " as 'org.apache.calcite.udf.TableFun.demoUdf'\n"
@@ -9457,7 +9457,7 @@ public abstract class SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Tag("DefaultCreateTable")
+  @Tag("DefaultCreateFunction")
   @Test void testCreateOrReplaceFunction2() {
     final String sql = "create function \"my Udf\"\n"
         + " as 'org.apache.calcite.udf.TableFun.demoUdf'";
