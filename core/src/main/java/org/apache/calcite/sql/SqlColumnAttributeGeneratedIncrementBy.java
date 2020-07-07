@@ -16,22 +16,29 @@
  */
 package org.apache.calcite.sql;
 
+import java.util.Objects;
+
 /**
- * Enumerates the types of sets.
+ * A {@code SqlColumnAttributeGeneratedIncrementBy} represents the
+ * INCREMENT BY option of a GENERATED column attribute.
  */
-public enum OnCommitType {
-  /**
-   * ON COMMIT type not specified.
-   */
-  UNSPECIFIED,
+public class SqlColumnAttributeGeneratedIncrementBy extends
+    SqlColumnAttributeGeneratedOption {
+
+  public final SqlLiteral inc;
 
   /**
-   * Save the contents of a materialized global temporary table across transactions.
+   * Creates a {@code SqlColumnAttributeGeneratedIncrementBy}.
+   *
+   * @param inc  The amount specified in the INCREMENT BY attribute.
    */
-  PRESERVE,
+  public SqlColumnAttributeGeneratedIncrementBy(SqlLiteral inc) {
+    this.inc = Objects.requireNonNull(inc);
+  }
 
-  /**
-   * Discard the contents of a materialized global temporary table across transactions.
-   */
-  DELETE,
+  @Override public void unparse(SqlWriter writer,
+      int leftPrec, int rightPrec) {
+    writer.keyword("INCREMENT BY");
+    inc.unparse(writer, leftPrec, rightPrec);
+  }
 }

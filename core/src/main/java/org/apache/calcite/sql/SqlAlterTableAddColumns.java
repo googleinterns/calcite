@@ -16,22 +16,32 @@
  */
 package org.apache.calcite.sql;
 
+import java.util.Objects;
+
 /**
- * Enumerates the types of sets.
+ * A {@code SqlAlterTableAddColumns} represents an ADD column statement within
+ * an ALTER TABLE query.
  */
-public enum OnCommitType {
-  /**
-   * ON COMMIT type not specified.
-   */
-  UNSPECIFIED,
+public class SqlAlterTableAddColumns extends SqlAlterTableOption {
+
+  public final SqlNodeList columns;
 
   /**
-   * Save the contents of a materialized global temporary table across transactions.
+   * Creates a {@code SqlAlterTableAddColumns}.
+   * @param columns  The list of columns to add. Must be non-null and non-empty
    */
-  PRESERVE,
+  public SqlAlterTableAddColumns(SqlNodeList columns) {
+    this.columns = Objects.requireNonNull(columns);
+  }
 
-  /**
-   * Discard the contents of a materialized global temporary table across transactions.
-   */
-  DELETE,
+  @Override public void unparse(SqlWriter writer,
+      int leftPrec, int rightPrec) {
+    writer.keyword("ADD");
+    SqlWriter.Frame frame = writer.startList("(", ")");
+    for (SqlNode c : columns) {
+      writer.sep(",");
+      c.unparse(writer, 0, 0);
+    }
+    writer.endList(frame);
+  }
 }

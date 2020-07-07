@@ -57,10 +57,10 @@ public class SqlCreateForeignSchema extends SqlCreate
           SqlKind.CREATE_FOREIGN_SCHEMA);
 
   /** Creates a SqlCreateForeignSchema. */
-  SqlCreateForeignSchema(SqlParserPos pos, boolean replace, boolean ifNotExists,
-      SqlIdentifier name, SqlNode type, SqlNode library,
-      SqlNodeList optionList) {
-    super(OPERATOR, pos, replace, ifNotExists);
+  SqlCreateForeignSchema(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
+                         boolean ifNotExists, SqlIdentifier name, SqlNode type, SqlNode library,
+                         SqlNodeList optionList) {
+    super(OPERATOR, pos, createSpecifier, ifNotExists);
     this.name = Objects.requireNonNull(name);
     this.type = type;
     this.library = library;
@@ -74,11 +74,7 @@ public class SqlCreateForeignSchema extends SqlCreate
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    if (getReplace()) {
-      writer.keyword("CREATE OR REPLACE");
-    } else {
-      writer.keyword("CREATE");
-    }
+    writer.keyword(getCreateSpecifier().toString());
     writer.keyword("FOREIGN SCHEMA");
     if (ifNotExists) {
       writer.keyword("IF NOT EXISTS");
@@ -112,7 +108,8 @@ public class SqlCreateForeignSchema extends SqlCreate
         SqlDdlNodes.schema(context, true, name);
     final SchemaPlus subSchema0 = pair.left.plus().getSubSchema(pair.right);
     if (subSchema0 != null) {
-      if (!getReplace() && !ifNotExists) {
+      if (getCreateSpecifier() != SqlCreateSpecifier.CREATE_OR_REPLACE
+          && !ifNotExists) {
         throw SqlUtil.newContextException(name.getParserPosition(),
             RESOURCE.schemaExists(pair.right));
       }

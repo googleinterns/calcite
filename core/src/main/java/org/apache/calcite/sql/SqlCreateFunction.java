@@ -40,10 +40,10 @@ public class SqlCreateFunction extends SqlCreate
       new SqlSpecialOperator("CREATE FUNCTION", SqlKind.CREATE_FUNCTION);
 
   /** Creates a SqlCreateFunction. */
-  public SqlCreateFunction(SqlParserPos pos, boolean replace,
-      boolean ifNotExists, SqlIdentifier name,
-      SqlNode className, SqlNodeList usingList) {
-    super(OPERATOR, pos, replace, ifNotExists);
+  public SqlCreateFunction(SqlParserPos pos,
+                           SqlCreateSpecifier createSpecifier, boolean ifNotExists,
+                           SqlIdentifier name, SqlNode className, SqlNodeList usingList) {
+    super(OPERATOR, pos, createSpecifier, ifNotExists);
     this.name = Objects.requireNonNull(name);
     this.className = className;
     this.usingList = Objects.requireNonNull(usingList);
@@ -51,8 +51,8 @@ public class SqlCreateFunction extends SqlCreate
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec,
-      int rightPrec) {
-    writer.keyword(getReplace() ? "CREATE OR REPLACE" : "CREATE");
+                                int rightPrec) {
+    writer.keyword(getCreateSpecifier().toString());
     writer.keyword("FUNCTION");
     if (ifNotExists) {
       writer.keyword("IF NOT EXISTS");

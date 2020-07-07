@@ -47,119 +47,132 @@ public class SqlDdlNodes {
   private SqlDdlNodes() {}
 
   /** Creates a CREATE SCHEMA. */
-  public static SqlCreateSchema createSchema(SqlParserPos pos, boolean replace,
-      boolean ifNotExists, SqlIdentifier name) {
-    return new SqlCreateSchema(pos, replace, ifNotExists, name);
+  public static SqlCreateSchema createSchema(SqlParserPos pos,
+                                             SqlCreate.SqlCreateSpecifier createSpecifier, boolean ifNotExists,
+                                             SqlIdentifier name) {
+    return new SqlCreateSchema(pos, createSpecifier, ifNotExists, name);
   }
 
   /** Creates a CREATE FOREIGN SCHEMA. */
   public static SqlCreateForeignSchema createForeignSchema(SqlParserPos pos,
-      boolean replace, boolean ifNotExists, SqlIdentifier name, SqlNode type,
-      SqlNode library, SqlNodeList optionList) {
-    return new SqlCreateForeignSchema(pos, replace, ifNotExists, name, type,
+                                                           SqlCreate.SqlCreateSpecifier createSpecifier, boolean ifNotExists,
+                                                           SqlIdentifier name, SqlNode type, SqlNode library,
+                                                           SqlNodeList optionList) {
+    return new SqlCreateForeignSchema(pos, createSpecifier, ifNotExists, name, type,
         library, optionList);
   }
 
   /** Creates a CREATE TYPE. */
-  public static SqlCreateType createType(SqlParserPos pos, boolean replace,
-      SqlIdentifier name, SqlNodeList attributeList,
-      SqlDataTypeSpec dataTypeSpec) {
-    return new SqlCreateType(pos, replace, name, attributeList, dataTypeSpec);
+  public static SqlCreateType createType(SqlParserPos pos,
+                                         SqlCreate.SqlCreateSpecifier createSpecifier, SqlIdentifier name,
+                                         SqlNodeList attributeList, SqlDataTypeSpec dataTypeSpec) {
+    return new SqlCreateType(pos, createSpecifier, name, attributeList, dataTypeSpec);
   }
 
   /** Creates a CREATE TABLE. */
-  public static SqlCreateTable createTable(SqlParserPos pos, boolean replace,
-      boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList,
-      SqlNode query) {
-    return new SqlCreateTable(pos, replace, ifNotExists, name, columnList,
+  public static SqlCreateTable createTable(SqlParserPos pos,
+                                           SqlCreate.SqlCreateSpecifier createSpecifier, boolean ifNotExists,
+                                           SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
+    return new SqlCreateTable(pos, createSpecifier, ifNotExists, name, columnList,
         query);
   }
 
-  /** Creates a CREATE VIEW. */
-  public static SqlCreateView createView(SqlParserPos pos, boolean replace,
-      SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
-    return new SqlCreateView(pos, replace, name, columnList, query);
+  /** Creates a CREATE VIEW (withCheckOption not specified). */
+  public static SqlCreateView createView(SqlParserPos pos,
+                                         SqlCreate.SqlCreateSpecifier createSpecifier, SqlIdentifier name,
+                                         SqlNodeList columnList, SqlNode query) {
+    return new SqlCreateView(pos, createSpecifier, name, columnList, query);
+  }
+
+  /** Creates a CREATE VIEW (withCheckOption specified). */
+  public static SqlCreateView createView(SqlParserPos pos,
+                                         SqlCreate.SqlCreateSpecifier createSpecifier, SqlIdentifier name,
+                                         SqlNodeList columnList, SqlNode query, boolean withCheckOption) {
+    return new SqlCreateView(pos, createSpecifier, name, columnList,
+        query, withCheckOption);
   }
 
   /** Creates a CREATE MATERIALIZED VIEW. */
   public static SqlCreateMaterializedView createMaterializedView(
-      SqlParserPos pos, boolean replace, boolean ifNotExists,
-      SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
-    return new SqlCreateMaterializedView(pos, replace, ifNotExists, name,
+      SqlParserPos pos, SqlCreate.SqlCreateSpecifier createSpecifier,
+      boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList,
+      SqlNode query) {
+    return new SqlCreateMaterializedView(pos, createSpecifier, ifNotExists, name,
         columnList, query);
   }
 
   /** Creates a CREATE FUNCTION. */
   public static SqlCreateFunction createFunction(
-      SqlParserPos pos, boolean replace, boolean ifNotExists,
-      SqlIdentifier name, SqlNode className, SqlNodeList usingList) {
-    return new SqlCreateFunction(pos, replace, ifNotExists, name,
+      SqlParserPos pos, SqlCreate.SqlCreateSpecifier createSpecifier,
+      boolean ifNotExists, SqlIdentifier name, SqlNode className,
+      SqlNodeList usingList) {
+    return new SqlCreateFunction(pos, createSpecifier, ifNotExists, name,
         className, usingList);
   }
 
   /** Creates a DROP [ FOREIGN ] SCHEMA. */
   public static SqlDropSchema dropSchema(SqlParserPos pos, boolean foreign,
-      boolean ifExists, SqlIdentifier name) {
+                                         boolean ifExists, SqlIdentifier name) {
     return new SqlDropSchema(pos, foreign, ifExists, name);
   }
 
   /** Creates a DROP TYPE. */
   public static SqlDropType dropType(SqlParserPos pos, boolean ifExists,
-      SqlIdentifier name) {
+                                     SqlIdentifier name) {
     return new SqlDropType(pos, ifExists, name);
   }
 
   /** Creates a DROP TABLE. */
   public static SqlDropTable dropTable(SqlParserPos pos, boolean ifExists,
-      SqlIdentifier name) {
+                                       SqlIdentifier name) {
     return new SqlDropTable(pos, ifExists, name);
   }
 
   /** Creates a DROP VIEW. */
   public static SqlDrop dropView(SqlParserPos pos, boolean ifExists,
-      SqlIdentifier name) {
+                                 SqlIdentifier name) {
     return new SqlDropView(pos, ifExists, name);
   }
 
   /** Creates a DROP MATERIALIZED VIEW. */
   public static SqlDrop dropMaterializedView(SqlParserPos pos,
-      boolean ifExists, SqlIdentifier name) {
+                                             boolean ifExists, SqlIdentifier name) {
     return new SqlDropMaterializedView(pos, ifExists, name);
   }
 
   /** Creates a DROP FUNCTION. */
   public static SqlDrop dropFunction(SqlParserPos pos,
-      boolean ifExists, SqlIdentifier name) {
+                                     boolean ifExists, SqlIdentifier name) {
     return new SqlDropFunction(pos, ifExists, name);
   }
 
   /** Creates a column declaration. */
   public static SqlNode column(SqlParserPos pos, SqlIdentifier name,
-      SqlDataTypeSpec dataType, SqlNode expression, ColumnStrategy strategy) {
+                               SqlDataTypeSpec dataType, SqlNode expression, ColumnStrategy strategy) {
     return new SqlColumnDeclaration(pos, name, dataType, expression, strategy);
   }
 
   /** Creates a attribute definition. */
   public static SqlNode attribute(SqlParserPos pos, SqlIdentifier name,
-      SqlDataTypeSpec dataType, SqlNode expression, SqlCollation collation) {
+                                  SqlDataTypeSpec dataType, SqlNode expression, SqlCollation collation) {
     return new SqlAttributeDefinition(pos, name, dataType, expression, collation);
   }
 
   /** Creates a CHECK constraint. */
   public static SqlNode check(SqlParserPos pos, SqlIdentifier name,
-      SqlNode expression) {
+                              SqlNode expression) {
     return new SqlCheckConstraint(pos, name, expression);
   }
 
   /** Creates a UNIQUE constraint. */
   public static SqlKeyConstraint unique(SqlParserPos pos, SqlIdentifier name,
-      SqlNodeList columnList) {
+                                        SqlNodeList columnList) {
     return new SqlKeyConstraint(pos, name, columnList);
   }
 
   /** Creates a PRIMARY KEY constraint. */
   public static SqlKeyConstraint primary(SqlParserPos pos, SqlIdentifier name,
-      SqlNodeList columnList) {
+                                         SqlNodeList columnList) {
     return new SqlKeyConstraint(pos, name, columnList) {
       @Override public SqlOperator getOperator() {
         return PRIMARY;
@@ -169,7 +182,7 @@ public class SqlDdlNodes {
 
   /** Returns the schema in which to create an object. */
   static Pair<CalciteSchema, String> schema(CalcitePrepare.Context context,
-      boolean mutable, SqlIdentifier id) {
+                                            boolean mutable, SqlIdentifier id) {
     final String name;
     final List<String> path;
     if (id.isSimple()) {
@@ -216,7 +229,7 @@ public class SqlDdlNodes {
 
   /** Populates the table called {@code name} by executing {@code query}. */
   protected static void populate(SqlIdentifier name, SqlNode query,
-      CalcitePrepare.Context context) {
+                                 CalcitePrepare.Context context) {
     // Generate, prepare and execute an "INSERT INTO table query" statement.
     // (It's a bit inefficient that we convert from SqlNode to SQL and back
     // again.)

@@ -80,9 +80,10 @@ public class SqlCreateTable extends SqlCreate
       new SqlSpecialOperator("CREATE TABLE", SqlKind.CREATE_TABLE);
 
   /** Creates a SqlCreateTable. */
-  SqlCreateTable(SqlParserPos pos, boolean replace, boolean ifNotExists,
-      SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
-    super(OPERATOR, pos, replace, ifNotExists);
+  SqlCreateTable(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
+                 boolean ifNotExists, SqlIdentifier name, SqlNodeList columnList,
+                 SqlNode query) {
+    super(OPERATOR, pos, createSpecifier, ifNotExists);
     this.name = Objects.requireNonNull(name);
     this.columnList = columnList; // may be null
     this.query = query; // for "CREATE TABLE ... AS query"; may be null
@@ -93,7 +94,7 @@ public class SqlCreateTable extends SqlCreate
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.keyword("CREATE");
+    writer.keyword(getCreateSpecifier().toString());
     writer.keyword("TABLE");
     if (ifNotExists) {
       writer.keyword("IF NOT EXISTS");
@@ -189,12 +190,12 @@ public class SqlCreateTable extends SqlCreate
     final InitializerExpressionFactory ief =
         new NullInitializerExpressionFactory() {
           @Override public ColumnStrategy generationStrategy(RelOptTable table,
-              int iColumn) {
+                                                             int iColumn) {
             return columns.get(iColumn).strategy;
           }
 
           @Override public RexNode newColumnDefaultValue(RelOptTable table,
-              int iColumn, InitializerContext context) {
+                                                         int iColumn, InitializerContext context) {
             final ColumnDef c = columns.get(iColumn);
             if (c.expr != null) {
               // REVIEW Danny 2019-10-09: Should we support validation for DDL nodes?
@@ -233,7 +234,7 @@ public class SqlCreateTable extends SqlCreate
     final ColumnStrategy strategy;
 
     private ColumnDef(SqlNode expr, RelDataType type,
-        ColumnStrategy strategy) {
+                      ColumnStrategy strategy) {
       this.expr = expr;
       this.type = type;
       this.strategy = Objects.requireNonNull(strategy);
@@ -244,7 +245,7 @@ public class SqlCreateTable extends SqlCreate
     }
 
     static ColumnDef of(SqlNode expr, RelDataType type,
-        ColumnStrategy strategy) {
+                        ColumnStrategy strategy) {
       return new ColumnDef(expr, type, strategy);
     }
   }
@@ -287,8 +288,8 @@ public class SqlCreateTable extends SqlCreate
      * @param initializerExpressionFactory How columns are populated
      */
     MutableArrayTable(String name, RelProtoDataType protoStoredRowType,
-        RelProtoDataType protoRowType,
-        InitializerExpressionFactory initializerExpressionFactory) {
+                      RelProtoDataType protoRowType,
+                      InitializerExpressionFactory initializerExpressionFactory) {
       super(name);
       this.protoStoredRowType = Objects.requireNonNull(protoStoredRowType);
       this.protoRowType = Objects.requireNonNull(protoRowType);
@@ -301,7 +302,7 @@ public class SqlCreateTable extends SqlCreate
     }
 
     public <T> Queryable<T> asQueryable(QueryProvider queryProvider,
-        SchemaPlus schema, String tableName) {
+                                        SchemaPlus schema, String tableName) {
       return new AbstractTableQueryable<T>(queryProvider, schema, this,
           tableName) {
         public Enumerator<T> enumerator() {
@@ -316,7 +317,7 @@ public class SqlCreateTable extends SqlCreate
     }
 
     public Expression getExpression(SchemaPlus schema, String tableName,
-        Class clazz) {
+                                    Class clazz) {
       return Schemas.tableExpression(schema, getElementType(),
           tableName, clazz);
     }

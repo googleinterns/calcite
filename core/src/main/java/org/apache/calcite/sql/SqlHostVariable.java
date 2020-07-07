@@ -16,22 +16,28 @@
  */
 package org.apache.calcite.sql;
 
+import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlWriter;
+import org.apache.calcite.sql.parser.SqlParserPos;
+
 /**
- * Enumerates the types of sets.
+ * A {@code SqlHostVariable} is a host variable of the form ":name".
  */
-public enum OnCommitType {
-  /**
-   * ON COMMIT type not specified.
-   */
-  UNSPECIFIED,
+public class SqlHostVariable extends SqlIdentifier {
 
   /**
-   * Save the contents of a materialized global temporary table across transactions.
+   * Creates a {@code SqlHostVariable}.
+   *
+   * @param name  Name of the host variable
+   * @param pos  Parser position, must not be null
    */
-  PRESERVE,
+  public SqlHostVariable(String name, SqlParserPos pos) {
+    super(name, pos);
+  }
 
-  /**
-   * Discard the contents of a materialized global temporary table across transactions.
-   */
-  DELETE,
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    writer.print(":" + names.get(0));
+    // Ensures whitespace is added before a separator such as "AS".
+    writer.setNeedWhitespace(true);
+  }
 }
