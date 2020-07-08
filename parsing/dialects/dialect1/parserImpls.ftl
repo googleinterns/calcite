@@ -1412,7 +1412,7 @@ SqlNode AlternativeTypeConversionLiteralOrIdentifier() :
     (
         q = Literal()
     |
-        q = SimpleIdentifier()
+        q = CompoundIdentifier()
     )
     e = AlternativeTypeConversionQuery(q) { return e; }
 }
@@ -1447,7 +1447,7 @@ SqlNode InlineFormatLiteralOrIdentifier() :
     (
         q = Literal()
     |
-        q = SimpleIdentifier()
+        q = CompoundIdentifier()
     )
     e = InlineFormatQuery(q) { return e; }
 }
@@ -1473,7 +1473,7 @@ SqlNode NamedLiteralOrIdentifier() :
     (
         q = Literal()
     |
-        q = SimpleIdentifier()
+        q = CompoundIdentifier()
     )
     e = NamedQuery(q) { return e; }
 }
