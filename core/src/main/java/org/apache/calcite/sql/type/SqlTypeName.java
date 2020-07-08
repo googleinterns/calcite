@@ -55,6 +55,7 @@ public enum SqlTypeName {
   SMALLINT(PrecScale.NO_NO, false, Types.SMALLINT, SqlTypeFamily.NUMERIC),
   INTEGER(PrecScale.NO_NO, false, Types.INTEGER, SqlTypeFamily.NUMERIC),
   BIGINT(PrecScale.NO_NO, false, Types.BIGINT, SqlTypeFamily.NUMERIC),
+  BYTEINT(PrecScale.NO_NO, false, Types.TINYINT, SqlTypeFamily.NUMERIC),
   DECIMAL(PrecScale.NO_NO | PrecScale.YES_NO | PrecScale.YES_YES, false,
       Types.DECIMAL, SqlTypeFamily.NUMERIC),
   FLOAT(PrecScale.NO_NO, false, Types.FLOAT, SqlTypeFamily.NUMERIC),
@@ -146,7 +147,7 @@ public enum SqlTypeName {
   public static final List<SqlTypeName> ALL_TYPES =
       ImmutableList.of(
           BOOLEAN, INTEGER, VARCHAR, DATE, TIME, TIMESTAMP, NULL, DECIMAL,
-          ANY, CHAR, BINARY, VARBINARY, TINYINT, SMALLINT, BIGINT, REAL,
+          ANY, CHAR, BINARY, VARBINARY, TINYINT, SMALLINT, BIGINT, BYTEINT, REAL,
           DOUBLE, SYMBOL, INTERVAL_YEAR, INTERVAL_YEAR_MONTH, INTERVAL_MONTH,
           INTERVAL_DAY, INTERVAL_DAY_HOUR, INTERVAL_DAY_MINUTE,
           INTERVAL_DAY_SECOND, INTERVAL_HOUR, INTERVAL_HOUR_MINUTE,
@@ -161,7 +162,7 @@ public enum SqlTypeName {
       ImmutableList.of(BINARY, VARBINARY);
 
   public static final List<SqlTypeName> INT_TYPES =
-      ImmutableList.of(TINYINT, SMALLINT, INTEGER, BIGINT);
+      ImmutableList.of(TINYINT, SMALLINT, INTEGER, BIGINT, BYTEINT);
 
   public static final List<SqlTypeName> EXACT_TYPES =
       combine(INT_TYPES, ImmutableList.of(DECIMAL));
@@ -504,6 +505,7 @@ public enum SqlTypeName {
       }
 
     case TINYINT:
+    case BYTEINT:
       return getNumericLimit(2, 8, sign, limit, beyond);
 
     case SMALLINT:
@@ -913,6 +915,7 @@ public enum SqlTypeName {
     case SMALLINT:
     case INTEGER:
     case BIGINT:
+    case BYTEINT:
     case DECIMAL:
       return SqlLiteral.createExactNumeric(o.toString(), pos);
     case VARCHAR:
