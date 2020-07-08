@@ -856,7 +856,7 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
     ]
     onCommitType = OnCommitTypeOpt()
     {
-        return new SqlCreateTable(s.end(this), createSpecifier, setType,
+        return new SqlCreateTableDialect1(s.end(this), createSpecifier, setType,
          volatility, ifNotExists, id, tableAttributes, columnList, query,
          withData, primaryIndex, indices, onCommitType);
     }

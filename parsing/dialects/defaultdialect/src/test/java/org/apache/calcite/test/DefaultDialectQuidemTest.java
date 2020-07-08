@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.calcite.test;
 
 import org.apache.calcite.config.CalciteConnectionProperty;
@@ -71,7 +70,13 @@ class DefaultDialectQuidemTest extends DialectQuidemTest {
                       "true")
                   .set(CalciteConnectionProperty.FUN, "standard,oracle")
                   .build());
-
+        case "blank":
+          return CalciteAssert.that()
+              .with(CalciteConnectionProperty.PARSER_FACTORY,
+                  "org.apache.calcite.sql.parser.defaultdialect"
+                      + ".DefaultDialectParserImpl#FACTORY")
+              .with(CalciteAssert.SchemaSpec.BLANK)
+              .connect();
         default:
           return super.connect(name, reference);
         }

@@ -153,7 +153,7 @@ tasks.withType<Checkstyle>().configureEach {
 
 val fmppMain by tasks.registering(org.apache.calcite.buildtools.fmpp.FmppTask::class) {
     config.set(file("src/main/codegen/config.fmpp"))
-    templates.set(file("src/main/codegen/templates"))
+    templates.set(file("$rootDir/parsing/src/main/resources"))
 }
 
 val javaCCMain by tasks.registering(org.apache.calcite.buildtools.javacc.JavaCCTask::class) {
@@ -165,26 +165,11 @@ val javaCCMain by tasks.registering(org.apache.calcite.buildtools.javacc.JavaCCT
     packageName.set("org.apache.calcite.sql.parser.impl")
 }
 
-val fmppTest by tasks.registering(org.apache.calcite.buildtools.fmpp.FmppTask::class) {
-    config.set(file("src/test/codegen/config.fmpp"))
-    templates.set(file("src/main/codegen/templates"))
-}
-
-val javaCCTest by tasks.registering(org.apache.calcite.buildtools.javacc.JavaCCTask::class) {
-    dependsOn(fmppTest)
-    val parserFile = fmppTest.map {
-        it.output.asFileTree.matching { include("**/Parser.jj") }.singleFile
-    }
-    inputFile.set(parserFile)
-    packageName.set("org.apache.calcite.sql.parser.parserextensiontesting")
-}
-
 ide {
     fun generatedSource(javacc: TaskProvider<org.apache.calcite.buildtools.javacc.JavaCCTask>, sourceSet: String) =
         generatedJavaSources(javacc.get(), javacc.get().output.get().asFile, sourceSets.named(sourceSet))
 
     generatedSource(javaCCMain, "main")
-    generatedSource(javaCCTest, "test")
 }
 
 val integTestAll by tasks.registering() {

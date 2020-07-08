@@ -16,23 +16,14 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.sql.SqlCall;
-import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlLiteral;
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlNumericLiteral;
-import org.apache.calcite.sql.SqlOperator;
-import org.apache.calcite.sql.SqlSelect;
-import org.apache.calcite.sql.SqlSpecialOperator;
-import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 
 /**
- * {@code SqlSelectTopN} is a class that handles the TOP n syntax in
- * SELECT statements. It is used by the {@link SqlSelect} class.
+ * {@code SqlSelectTopN} is a class that handles the TOP n syntax in SELECT statements. It is used
+ * by the {@link org.apache.calcite.sql.SqlSelect} class.
  */
 public class SqlSelectTopN extends SqlCall {
   private static final SqlSpecialOperator OPERATOR =

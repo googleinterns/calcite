@@ -9353,6 +9353,7 @@ public abstract class SqlDialectParserTest {
         .ok(expected);
   }
 
+  @Tag("DefaultCreateTable")
   @Test void testCreateTableAsSelectColumnList() {
     final String expected = "CREATE TABLE `X` (`A`, `B`) AS\n"
         + "SELECT *\n"
@@ -9578,32 +9579,6 @@ public abstract class SqlDialectParserTest {
     final String expected = "CREATE OR REPLACE VIEW `FOO` AS\n"
         + "SELECT *\n"
         + "FROM `BAR` WITH CHECK OPTION";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testDel() {
-    final String sql = "del from t";
-    final String expected = "DELETE FROM `T`";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testIns() {
-    final String sql = "ins into foo (a, b) values (1,'hi')";
-    final String expected = "INSERT INTO `FOO` (`A`, `B`)\n"
-        + "VALUES (ROW(1, 'hi'))";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testSel() {
-    final String sql = "sel 1 from t";
-    final String expected = "SELECT 1\n"
-        + "FROM `T`";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testUpd() {
-    final String sql = "upd foo set x = 1";
-    final String expected = "UPDATE `FOO` SET `X` = 1";
     sql(sql).ok(expected);
   }
 }

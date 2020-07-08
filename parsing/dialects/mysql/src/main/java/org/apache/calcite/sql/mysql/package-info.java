@@ -14,11 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.calcite.sql.babel;
 
-/** SQL parser that accepts a wide variety of dialects. */
-@SuppressWarnings("unused")
-public class Babel {
-  // This class is currently a place-holder. Javadoc gets upset
-  // if there are no classes in babel/java/main.
-}
+/**
+ * MySQL parser.
+ */
+package org.apache.calcite.sql.mysql;

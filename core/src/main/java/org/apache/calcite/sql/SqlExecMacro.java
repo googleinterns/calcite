@@ -24,18 +24,27 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Parse tree for {@code EXEC} statement.
+ * Parse tree for {@code SqlExecMacro} statement.
  */
 public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("EXECUTE", SqlKind.OTHER);
+      new SqlSpecialOperator("EXECUTE", SqlKind.EXECUTE);
 
-  private final SqlIdentifier name;
+  public final SqlIdentifier name;
+  public final SqlNodeList params;
 
-  /** Creates a SqlExecMacro. */
-  public SqlExecMacro(SqlParserPos pos, SqlIdentifier name) {
+  /**
+   * Create an {@code SqlExecMacro}.
+   *
+   * @param pos  Parser position, must not be null
+   * @param name  Name of the macro
+   * @param params  List of parameters
+   */
+  public SqlExecMacro(SqlParserPos pos, SqlIdentifier name,
+      SqlNodeList params) {
     super(pos);
     this.name = Objects.requireNonNull(name);
+    this.params = params;
   }
 
   @Override public SqlOperator getOperator() {
@@ -43,12 +52,22 @@ public class SqlExecMacro extends SqlCall implements SqlExecutableStatement {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(name);
+    // the list of paramNames could be empty
+    return ImmutableNullableList.of(name, params);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("EXECUTE");
     name.unparse(writer, leftPrec, rightPrec);
+    if (SqlNodeList.isEmptyList(params)) {
+      return;
+    }
+    SqlWriter.Frame frame = writer.startList("(", ")");
+    for (SqlNode e : params) {
+      writer.sep(",", false);
+      e.unparse(writer, 0, 0);
+    }
+    writer.endList(frame);
   }
 
   // Intentionally left empty.

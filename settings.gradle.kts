@@ -44,7 +44,6 @@ rootProject.name = "calcite"
 include(
     "bom",
     "release",
-    "babel",
     "cassandra",
     "core",
     "druid",
@@ -69,7 +68,6 @@ include(
     "piglet",
     "plus",
     "redis",
-    "server",
     "spark",
     "splunk",
     "ubenchmark"

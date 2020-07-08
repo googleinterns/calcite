@@ -16,6 +16,6 @@
  */
 
 /**
- * Parse tree for SQL extensions used by the Babel parser.
+ * PostgreSQL parser tests.
  */
-package org.apache.calcite.sql.babel;
+package org.apache.calcite.test;

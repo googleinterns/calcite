@@ -39,9 +39,9 @@ dependencies {
 }
 
 val dialectGenerate by tasks.registering(org.apache.calcite.buildtools.parser.DialectGenerateTask::class) {
-  rootDirectory.set(file("$rootDir/parsing"))
-  dialectDirectory.set(file("."))
-  outputFile = "build/generated/templates/parserImpls.ftl"
+    rootDirectory.set(file("$rootDir/parsing"))
+    dialectDirectory.set(file("."))
+    outputFile = "build/generated/templates/parserImpls.ftl"
 }
 
 val fmppMain by tasks.registering(org.apache.calcite.buildtools.fmpp.FmppTask::class) {
@@ -63,8 +63,10 @@ val javaCCMain by tasks.registering(org.apache.calcite.buildtools.javacc.JavaCCT
 }
 
 ide {
-    fun generatedSource(javacc: TaskProvider<org.apache.calcite.buildtools.javacc.JavaCCTask>,
-        sourceSet: String) = generatedJavaSources(javacc.get(), javacc.get().output.get().asFile,
+    fun generatedSource(
+        javacc: TaskProvider<org.apache.calcite.buildtools.javacc.JavaCCTask>,
+        sourceSet: String
+    ) = generatedJavaSources(javacc.get(), javacc.get().output.get().asFile,
             sourceSets.named(sourceSet))
 
     generatedSource(javaCCMain, "main")

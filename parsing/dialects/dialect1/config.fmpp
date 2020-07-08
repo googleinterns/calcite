@@ -76,7 +76,7 @@ data: {
       "org.apache.calcite.sql.SqlTableAttributeMap",
       "org.apache.calcite.sql.SqlTableAttributeMergeBlockRatio",
       "org.apache.calcite.sql.SqlTableAttributeMergeBlockRatio.MergeBlockRatioModifier",
-      "org.apache.calcite.sql.SqlCreateTable",
+      "org.apache.calcite.sql.SqlCreateTableDialect1",
       "org.apache.calcite.sql.SqlDdlNodes",
       "org.apache.calcite.sql.SqlExecMacro",
       "org.apache.calcite.sql.SqlExecMacroParam",
@@ -1044,6 +1044,7 @@ data: {
     # Each must accept arguments:
     # "(SqlParserPos pos, SqlCreateSpecifier createSpecifier)".
     replaceStatementParserMethods: [
+      "SqlCreateView"
     ]
 
     # list of methods for parsing extensions to "SET" calls

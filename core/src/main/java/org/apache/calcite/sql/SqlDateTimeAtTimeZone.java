@@ -22,18 +22,31 @@ import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 
+/**
+ * A {@code SqlDateTimeAtTimeZone} is an AST node that describes
+ * the date time expression of At Time Zone.
+ */
 public class SqlDateTimeAtTimeZone extends SqlCall implements SqlExecutableStatement {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("AT TIME ZONE", SqlKind.OTHER);
 
-  private final SqlNode dateTimePrimary;
-  private final SqlIdentifier timeZoneValue;
+  public final SqlNode dateTimePrimary;
+  public final SqlNode displacementValue;
 
+  /**
+   * Creates a {@code SqlDateTimeAtTimeZone}.
+   *
+   * @param pos  Parser position, must not be null
+   * @param dateTimePrimary  SqlNode, contains the time to be transformed
+   * @param displacementValue  SqlNode, contains the displacement to the time
+   */
   public SqlDateTimeAtTimeZone(
-      SqlParserPos pos, SqlNode dateTimePrimary, SqlIdentifier timeZoneValue) {
+      SqlParserPos pos,
+      SqlNode dateTimePrimary,
+      SqlNode displacementValue) {
     super(pos);
     this.dateTimePrimary = dateTimePrimary;
-    this.timeZoneValue = timeZoneValue;
+    this.displacementValue = displacementValue;
   }
 
   @Override public SqlOperator getOperator() {
@@ -41,13 +54,14 @@ public class SqlDateTimeAtTimeZone extends SqlCall implements SqlExecutableState
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(dateTimePrimary);
+    return ImmutableNullableList.of(dateTimePrimary, displacementValue);
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+  @Override public void unparse(SqlWriter writer, int leftPrec,
+      int rightPrec) {
     dateTimePrimary.unparse(writer, leftPrec, rightPrec);
     writer.keyword("AT TIME ZONE");
-    timeZoneValue.unparse(writer, leftPrec, rightPrec);
+    displacementValue.unparse(writer, leftPrec, rightPrec);
   }
 
   // Intentionally left empty.

@@ -334,7 +334,6 @@ public enum SqlConformanceEnum implements SqlConformance {
     case DEFAULT:
     case LENIENT:
     case PRESTO:
-    case BIG_QUERY:
     case MYSQL_8:
     case DIALECT_1:
     case HIVE:

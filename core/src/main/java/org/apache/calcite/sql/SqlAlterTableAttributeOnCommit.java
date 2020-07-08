@@ -40,10 +40,10 @@ public class SqlAlterTableAttributeOnCommit extends SqlTableAttribute {
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("ON COMMIT");
     switch (onCommitType) {
-    case OnCommitType.DELETE:
+    case DELETE:
       writer.keyword("DELETE");
       break;
-    case OnCommitType.PRESERVE:
+    case PRESERVE:
       writer.keyword("PRESERVE");
       break;
     default:

@@ -13,32 +13,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# This file is an FMPP (http://fmpp.sourceforge.net/) configuration file to
+# allow clients to extend Calcite's SQL parser to support application specific
+# SQL statements, literals or data types.
+#
+# Calcite's parser grammar file (Parser.jj) is written in javacc
+# (http://javacc.java.net/) with Freemarker (http://freemarker.org/) variables
+# to allow clients to:
+#   1. have custom parser implementation class and package name.
+#   2. insert new parser method implementations written in javacc to parse
+#      custom:
+#      a) SQL statements.
+#      b) literals.
+#      c) data types.
+#   3. add new keywords to support custom SQL constructs added as part of (2).
+#   4. add import statements needed by inserted custom parser implementations.
+#
+# Parser template file (Parser.jj) along with this file are packaged as
+# part of the calcite-core-<version>.jar under "codegen" directory.
+
 data: {
   parser: {
-    # Generated parser implementation class package and name
-    package: "org.apache.calcite.sql.parser.postgresql",
-    class: "PostgreSQLParserImpl",
+    # Generated parser implementation package and class name.
+    package: "org.apache.calcite.sql.parser.impl",
+    class: "SqlParserImpl",
 
-    # List of import statements.
+    # List of additional classes and packages to import.
+    # Example. "org.apache.calcite.sql.*", "java.util.List".
     imports: [
-      "org.apache.calcite.schema.ColumnStrategy"
-      "org.apache.calcite.sql.SqlCreate"
-      "org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier",
-      "org.apache.calcite.sql.SqlDrop"
-      "org.apache.calcite.sql.SqlDdlNodes"
-      "java.util.Map"
-      "java.util.HashMap"
     ]
 
-    # List of keywords.
+    # List of new keywords. Example: "DATABASES", "TABLES". If the keyword is not a reserved
+    # keyword add it to 'nonReservedKeywords' section.
     keywords: [
-      "ARCHIVE"
-      "FILE"
-      "IF"
-      "JAR"
-      "MATERIALIZED"
-      "STORED"
-      "VIRTUAL"
     ]
 
     # List of keywords from "keywords" section that are not reserved.
@@ -138,6 +145,7 @@ data: {
       "GOTO"
       "GRANTED"
       "HIERARCHY"
+      "HOP"
       "HOURS"
       "IGNORE"
       "IMMEDIATE"
@@ -329,6 +337,7 @@ data: {
       "TRIGGER_CATALOG"
       "TRIGGER_NAME"
       "TRIGGER_SCHEMA"
+      "TUMBLE"
       "TYPE"
       "UNBOUNDED"
       "UNCOMMITTED"
@@ -357,13 +366,6 @@ data: {
     # List of non-reserved keywords to add;
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
-      "ARCHIVE"
-      "FILE"
-      "IF"
-      "JAR"
-      "MATERIALIZED"
-      "STORED"
-      "VIRTUAL"
     ]
 
     # List of non-reserved keywords to remove;
@@ -377,6 +379,8 @@ data: {
     ]
 
     # List of methods for parsing custom SQL statements.
+    # Return type of method implementation should be 'SqlNode'.
+    # Example: SqlShowDatabases(), SqlShowTables().
     statementParserMethods: [
     ]
 
@@ -396,12 +400,11 @@ data: {
     # Return type of method implementation should be "SqlNode".
     # Example: DateFunctionCall().
     builtinFunctionCallMethods: [
-      "DateFunctionCall()"
-      "DateAddFunctionCall()"
     ]
 
     # List of methods for parsing extensions to "ALTER <scope>" calls.
     # Each must accept arguments "(SqlParserPos pos, String scope)".
+    # Example: "SqlUploadJarNode"
     alterStatementParserMethods: [
     ]
 
@@ -409,43 +412,29 @@ data: {
     # Each must accept arguments:
     # "(SqlParserPos pos, SqlCreateSpecifier createSpecifier)".
     createStatementParserMethods: [
-      "SqlCreateForeignSchema"
-      "SqlCreateMaterializedView"
-      "SqlCreateSchema"
-      "SqlCreateTable"
-      "SqlCreateType"
-      "SqlCreateView"
-      "SqlCreateFunction"
     ]
 
     # List of methods for parsing extensions to "REPLACE" calls.
     # Each must accept arguments:
     # "(SqlParserPos pos, SqlCreateSpecifier createSpecifier)".
     replaceStatementParserMethods: [
-        "SqlCreateView"
     ]
 
-    # list of methods for parsing extensions to "SET" calls
+    # list of methods for parsing extensions to "SET TIME ZONE" calls
     setTimeZoneStatementParserMethods: [
     ]
 
     # List of methods for parsing extensions to "DROP" calls.
     # Each must accept arguments "(SqlParserPos pos)".
     dropStatementParserMethods: [
-      "SqlDropMaterializedView"
-      "SqlDropSchema"
-      "SqlDropTable"
-      "SqlDropType"
-      "SqlDropView"
-      "SqlDropFunction"
-    ]
-
-    # List of methods for parsing extentions to "RENAME" calls.
-    renameStatementParserMethods: [
     ]
 
     # List of methods for parsing extensions to "INSERT" calls.
     insertStatementParserMethods: [
+    ]
+
+    # List of methods for parsing extentions to "RENAME" calls.
+    renameStatementParserMethods: [
     ]
 
     # List of methods for parsing expressions to "EXEC" calls.
@@ -458,12 +447,10 @@ data: {
 
     # Binary operators tokens
     binaryOperatorsTokens: [
-      "< INFIX_CAST: \"::\" >"
     ]
 
     # Binary operators initialization
     extraBinaryExpressions: [
-      "InfixCast"
     ]
 
     preExpressionMethods: [
@@ -480,13 +467,13 @@ data: {
     # given as part of "statementParserMethods", "literalParserMethods" or
     # "dataTypeParserMethods".
     implementationFiles: [
-      "parserImpls.ftl"
     ]
 
     allowUpdateFromTable: false
     allowUpsertFormOfUpdate: false
     allowAbbreviatedKeywords: false
     allowTranslateUsingCharSetWithError: false
+    allowNestedJoins: false
     includePosixOperators: false
     includeCastFormat: false
     includeCompoundIdentifier: true
@@ -503,5 +490,5 @@ data: {
 }
 
 freemarkerLinks: {
-  templates: build/generated/templates/
+  templates: includes/
 }

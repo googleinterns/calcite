@@ -21,7 +21,6 @@ import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.schema.Schema;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.impl.AbstractSchema;
-import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 import org.apache.calcite.util.Pair;

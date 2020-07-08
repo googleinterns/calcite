@@ -16,6 +16,8 @@
  */
 package org.apache.calcite.sql.test;
 
+import org.apache.calcite.avatica.util.Casing;
+import org.apache.calcite.avatica.util.Quoting;
 import org.apache.calcite.sql.SqlFunction;
 import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlSpecialOperator;
@@ -24,8 +26,12 @@ import org.apache.calcite.sql.fun.SqlLibraryOperatorTableFactory;
 import org.apache.calcite.sql.fun.SqlOverlapsOperator;
 import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 import org.apache.calcite.sql.parser.SqlAbstractParserImpl;
-import org.apache.calcite.sql.parser.SqlParserTest;
+import org.apache.calcite.sql.parser.SqlParser;
+import org.apache.calcite.sql.parser.impl.SqlParserImpl;
+import org.apache.calcite.sql.validate.SqlConformance;
+import org.apache.calcite.sql.validate.SqlConformanceEnum;
 import org.apache.calcite.test.DiffTestCase;
+import org.apache.calcite.util.SourceStringReader;
 import org.apache.calcite.util.Sources;
 import org.apache.calcite.util.Util;
 
@@ -44,6 +50,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -73,7 +80,7 @@ class DocumentationTest {
         if (line.equals("{% comment %} start {% endcomment %}")) {
           ++stage;
           SqlAbstractParserImpl.Metadata metadata =
-              new SqlParserTest().getSqlParser("").getMetadata();
+              getSqlParser("").getMetadata();
           int z = 0;
           for (String s : metadata.getTokens()) {
             if (z++ > 0) {
@@ -159,6 +166,24 @@ class DocumentationTest {
       }
       map.put(regex, new PatternOp(Pattern.compile(regex), name));
     }
+  }
+
+  private SqlParser getSqlParser(String sql) {
+    Quoting quoting = Quoting.DOUBLE_QUOTE;
+    Casing unquotedCasing = Casing.TO_UPPER;
+    Casing quotedCasing = Casing.UNCHANGED;
+    SqlConformance conformance = SqlConformanceEnum.DEFAULT;
+    UnaryOperator<SqlParser.ConfigBuilder> transform = UnaryOperator.identity();
+    final SqlParser.ConfigBuilder configBuilder =
+        SqlParser.configBuilder()
+            .setParserFactory(SqlParserImpl.FACTORY)
+            .setQuoting(quoting)
+            .setUnquotedCasing(unquotedCasing)
+            .setQuotedCasing(quotedCasing)
+            .setConformance(conformance);
+    final SqlParser.Config config =
+        transform.apply(configBuilder).build();
+    return SqlParser.create(new SourceStringReader(sql), config);
   }
 
   /** A compiled regex and an operator name. An item to be found in the
