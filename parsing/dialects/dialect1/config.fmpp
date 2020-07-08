@@ -1019,6 +1019,7 @@ data: {
        "CurrentTimestampFunction()"
        "CurrentTimeFunction()"
        "CurrentDateFunction()"
+       "TimeFunctionCall()"
     ]
 
     # List of methods for parsing extensions to "ALTER <scope>" calls.

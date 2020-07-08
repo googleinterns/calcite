@@ -1503,6 +1503,13 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTimeFunction() {
+    final String sql = "SELECT time-1 FROM foo";
+    final String expected = "SELECT (TIME - 1)\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCurrentTimestampFunction() {
     final String sql = "select current_timestamp";
     final String expected = "SELECT CURRENT_TIMESTAMP";
