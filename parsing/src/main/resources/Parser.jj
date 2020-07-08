@@ -7803,8 +7803,6 @@ void NonReservedKeyWord2of3() :
 |
     < #HEXDIGIT: ["0"-"9","a"-"f","A"-"F"] >
 |
-    < HEXSTRING: "'"(<HEXDIGIT>)+ "'">
-|
     < #WHITESPACE:
     [ " ","\t","\n","\r","\f" ]
     >

@@ -1808,12 +1808,20 @@ SqlHostVariable SqlHostVariable() :
 
 SqlNode SqlHexCharStringLiteral() :
 {
-    String p;
+    final String p;
+    final HexCharLiteralFormat format;
 }
 {
-    ["_" <LATIN>] <HEXSTRING>
+    ["_" <LATIN>]
+    <QUOTED_STRING>
     {
-        p = SqlParserUtil.trim(token.image, "xX'");
-        return new SqlHexCharStringLiteral(new NlsString(p, null, null),SqlTypeName.CHAR, getPos());
+        p = SqlParserUtil.trim(token.image, "'");
+    }
+    <XC>
+    {
+        format = HexCharLiteralFormat.XC;
+    }
+    {
+        return new SqlHexCharStringLiteral(new NlsString(p, null, null),SqlTypeName.CHAR, getPos(), format);
     }
 }
