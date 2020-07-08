@@ -83,6 +83,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlTranslateUsingCharacterSet",
       "org.apache.calcite.sql.babel.SqlColumnAttributeDateFormat",
       "org.apache.calcite.sql.babel.SqlHexCharStringLiteral",
+      "org.apache.calcite.sql.babel.SqlHexCharStringLiteral.HexCharLiteralFormat",
     ]
 
     # List of keywords.
@@ -132,6 +133,9 @@ data: {
       "UPD"
       "UPPERCASE"
       "VOLATILE"
+      "XC"
+      "XCV"
+      "XCF"
     ]
 
     # List of keywords from "keywords" section that are not reserved.
@@ -484,6 +488,9 @@ data: {
       "SEMI"
       "UNICODE"
       "UPD"
+      "XC"
+      "XCV"
+      "XCF"
 
       # The following keywords are reserved in core Calcite,
       # are reserved in some version of SQL,

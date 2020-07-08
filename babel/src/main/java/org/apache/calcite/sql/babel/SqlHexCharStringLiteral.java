@@ -25,6 +25,8 @@ import org.apache.calcite.util.NlsString;
 
 public class SqlHexCharStringLiteral extends SqlLiteral {
 
+  final HexCharLiteralFormat format;
+
   /**
    * Creates a <code>SqlLiteral</code>.
    * @param value
@@ -32,11 +34,36 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
    * @param pos
    */
   public SqlHexCharStringLiteral(final NlsString value, final SqlTypeName typeName,
-      final SqlParserPos pos) {
+      final SqlParserPos pos, final HexCharLiteralFormat format) {
     super(value, typeName, pos);
+    this.format = format;
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
     writer.keyword(value.toString());
+    switch (this.format) {
+    case XC:
+      writer.keyword("XC");
+      break;
+    default:
+      break;
+    }
+  }
+
+  public enum HexCharLiteralFormat {
+    /**
+     * Default to be the same as XCV.
+     */
+    XC,
+
+    /**
+     * XCV.
+     */
+    XCV,
+
+    /**
+     * XCF.
+     */
+    XCF,
   }
 }

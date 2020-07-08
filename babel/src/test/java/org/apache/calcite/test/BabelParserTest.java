@@ -2022,8 +2022,8 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).fails(expected);
   }
 
-  @Test void testHexDigitChar() {
-    final String sql = "'c1a'";
-    expr(sql).ok("'C1A'");
+  @Test void testHexCharLiteralCharSetNotSpecifiedDefaultFormat() {
+    final String sql = "'c1a'XC";
+    expr(sql).ok("'C1A' XC");
   }
 }
