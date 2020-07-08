@@ -4298,6 +4298,9 @@ SqlNode StringLiteral() :
     int nfrags = 0;
     List<SqlLiteral> frags = null;
     char unicodeEscapeChar = 0;
+<#if parser.allowHexCharacterLiteral>
+    SqlNode ec;
+</#if>
 }
 {
     // A continued string literal consists of a head fragment and one or more
@@ -4305,7 +4308,11 @@ SqlNode StringLiteral() :
     // comments are special tokens, each fragment is a token. But since spaces
     // or comments may not occur between the prefix and the first quote, the
     // head fragment, with any prefix, is one token.
-
+<#if parser.allowHexCharacterLiteral>
+    ec = SqlHexCharStringLiteral()
+    {return ec;}
+    |
+</#if>
     <BINARY_STRING_LITERAL>
     {
         try {
@@ -7795,6 +7802,8 @@ void NonReservedKeyWord2of3() :
     < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
 |
     < #HEXDIGIT: ["0"-"9","a"-"f","A"-"F"] >
+|
+    < HEXSTRING: "'"(<HEXDIGIT>)+ "'">
 |
     < #WHITESPACE:
     [ " ","\t","\n","\r","\f" ]

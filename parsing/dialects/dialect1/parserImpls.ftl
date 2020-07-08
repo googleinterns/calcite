@@ -1805,3 +1805,15 @@ SqlHostVariable SqlHostVariable() :
     )
     { return new SqlHostVariable(name, getPos()); }
 }
+
+SqlNode SqlHexCharStringLiteral() :
+{
+    String p;
+}
+{
+    ["_" <LATIN>] <HEXSTRING>
+    {
+        p = SqlParserUtil.trim(token.image, "xX'");
+        return new SqlHexCharStringLiteral(new NlsString(p, null, null),SqlTypeName.CHAR, getPos());
+    }
+}

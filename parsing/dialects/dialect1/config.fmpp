@@ -98,6 +98,7 @@ data: {
       "org.apache.calcite.sql.SqlCharacterSetToCharacterSet",
       "org.apache.calcite.sql.SqlTranslateUsingCharacterSet",
       "org.apache.calcite.sql.SqlColumnAttributeDateFormat",
+      "org.apache.calcite.sql.SqlHexCharStringLiteral",
       "org.apache.calcite.sql.SqlHostVariable",
     ]
 
@@ -1122,6 +1123,7 @@ data: {
     allowUpdateFromTable: true
     allowUpsertFormOfUpdate: true
     allowAbbreviatedKeywords: true
+    allowHexCharacterLiteral: true
     allowTranslateUsingCharSetWithError: true
     allowNestedJoins: true
     includePosixOperators: true

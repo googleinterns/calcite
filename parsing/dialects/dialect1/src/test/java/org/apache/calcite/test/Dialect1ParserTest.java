@@ -2407,4 +2407,9 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "SELECT CAST(`X` AS BYTEINT)";
     sql(sql).ok(expected);
   }
+
+  @Test void testHexDigitChar() {
+    final String sql = "'c1a'";
+    expr(sql).ok("'C1A'");
+  }
 }
