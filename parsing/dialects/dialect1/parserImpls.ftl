@@ -1809,19 +1809,32 @@ SqlHostVariable SqlHostVariable() :
 SqlNode SqlHexCharStringLiteral() :
 {
     final String p;
+    final String charSet;
     final HexCharLiteralFormat format;
 }
 {
-    ["_" <LATIN>]
     <QUOTED_STRING>
     {
-        p = SqlParserUtil.trim(token.image, "'");
+        p = SqlParserUtil.parseString(token.image);
     }
     <XC>
     {
         format = HexCharLiteralFormat.XC;
     }
     {
-        return new SqlHexCharStringLiteral(new NlsString(p, null, null),SqlTypeName.CHAR, getPos(), format);
+        return new SqlHexCharStringLiteral(new NlsString(p, null, null),SqlTypeName.CHAR, getPos(), null, format);
+    }
+|
+    <PREFIXED_STRING_LITERAL>
+    {
+        charSet = SqlParserUtil.getCharacterSet(token.image);
+        p = SqlParserUtil.parseString(token.image);
+    }
+    <XC>
+    {
+        format = HexCharLiteralFormat.XC;
+    }
+    {
+        return new SqlHexCharStringLiteral(new NlsString(p, null, null),SqlTypeName.CHAR, getPos(), charSet, format);
     }
 }

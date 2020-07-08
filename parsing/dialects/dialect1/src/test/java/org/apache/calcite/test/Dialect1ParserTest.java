@@ -2415,6 +2415,6 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test void testHexCharLiteralCharSetSpecifiedXCVFormat() {
     final String sql = "_LATIN'c1a'XC";
-    expr(sql).ok("_LATIN'C1A' XC");
+    expr(sql).ok("_LATIN 'C1A' XC");
   }
 }
