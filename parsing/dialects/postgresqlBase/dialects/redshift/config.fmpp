@@ -463,6 +463,7 @@ data: {
 
     # Binary operators initialization
     extraBinaryExpressions: [
+      "InfixCast"
     ]
 
     preExpressionMethods: [
