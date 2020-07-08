@@ -32,16 +32,24 @@ public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
   private final CharacterSet characterSet;
   private final StorageFormat storageFormat;
 
-  public SqlJsonTypeNameSpec(Integer maxLength,
+  public SqlJsonTypeNameSpec(SqlParserPos pos,
+      Integer maxLength,
       Integer inlineLength,
       CharacterSet characterSet,
-      StorageFormat storageFormat,
-      SqlParserPos pos) {
+      StorageFormat storageFormat) {
     super(new SqlIdentifier("JSON", pos), pos);
     this.maxLength = maxLength;
     this.inlineLength = inlineLength;
     this.characterSet = characterSet;
     this.storageFormat = storageFormat;
+
+    // These two fields are mutally exclusive.
+    assert characterSet == null || storageFormat == null;
+
+    if (characterSet != null) {
+      assert characterSet == CharacterSet.LATIN ||
+        characterSet == CharacterSet.UNICODE;
+    }
   }
 
   @Override public RelDataType deriveType(SqlValidator validator) {
@@ -65,15 +73,18 @@ public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("JSON");
     if (maxLength != null) {
-      writer.keyword("(" + maxLength + ")");
+      final SqlWriter.Frame frame =
+        writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
+      writer.print(maxLength);
+      writer.endList(frame);
     }
     if (inlineLength != null) {
       writer.keyword("INLINE LENGTH " + inlineLength);
     }
     if (characterSet != null) {
-      writer.keyword(characterSet.toString());
+      writer.keyword("CHARACTER SET " + characterSet.toString());
     } else if (storageFormat != null) {
-      writer.keyword(storageFormat.toString());
+      writer.keyword("STORAGE FORMAT " + storageFormat.toString());
     }
   }
 

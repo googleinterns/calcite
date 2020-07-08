@@ -2405,4 +2405,52 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "SELECT CAST(`X` AS BYTEINT)";
     sql(sql).ok(expected);
   }
+
+  @Test public void testJsonType() {
+    final String sql = "create table foo (x json)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeMaxLength() {
+    final String sql = "create table foo (x json(33))";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON(33))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeInlineLength() {
+    final String sql = "create table foo (x json inline length 33)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON INLINE LENGTH 33)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeMaxLengthAndInlineLength() {
+    final String sql = "create table foo (x json(33) inline length 20)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON(33) INLINE LENGTH 20)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeCharacterSetLatin() {
+    final String sql = "create table foo (x json character set latin)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON CHARACTER SET LATIN)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeCharacterSetUnicode() {
+    final String sql = "create table foo (x json character set unicode)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON CHARACTER SET UNICODE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeStorageFormatBson() {
+    final String sql = "create table foo (x json storage format bson)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON STORAGE FORMAT BSON)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeStorageFormatUbjson() {
+    final String sql = "create table foo (x json storage format ubjson)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON STORAGE FORMAT UBJSON)";
+    sql(sql).ok(expected);
+  }
 }

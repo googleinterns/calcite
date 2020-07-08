@@ -21,6 +21,8 @@ data: {
 
     # List of import statements.
     imports: [
+      "org.apache.calcite.sql.SqlJsonTypeNameSpec",
+      "org.apache.calcite.sql.SqlJsonTypeNameSpec.StorageFormat",
       "org.apache.calcite.sql.SqlCreate",
       "org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier",
       "org.apache.calcite.sql.SqlColumnAttribute",
@@ -28,9 +30,9 @@ data: {
       "org.apache.calcite.sql.SqlColumnAttributeCaseSpecific",
       "org.apache.calcite.sql.SqlColumnAttributeCharacterSet",
       "org.apache.calcite.sql.SqlColumnAttributeCharacterSet",
-      "org.apache.calcite.sql.CharacterSet"
       "org.apache.calcite.sql.SqlColumnAttributeCompress",
       "org.apache.calcite.sql.SqlColumnAttributeDefault",
+      "org.apache.calcite.sql.CharacterSet"
       "org.apache.calcite.sql.babel.SqlAlterTable",
       "org.apache.calcite.sql.babel.SqlAlterTableAddColumns",
       "org.apache.calcite.sql.babel.SqlAlterTableAttributeChecksum",
@@ -100,6 +102,7 @@ data: {
     keywords: [
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
+      "BSON"
       "BYTES"
       "CASESPECIFIC"
       "CHECKSUM"
@@ -136,9 +139,11 @@ data: {
       "RENAME"
       "SEL"
       "SEMI"
+      "STORAGE"
       "SUBSTR"
       "TEMP"
       "TOP"
+      "UBJSON"
       "UNICODE"
       "UPD"
       "UPPERCASE"
@@ -464,6 +469,7 @@ data: {
       # not in core, added in babel
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
+      "BSON"
       "BYTES"
       "CHECKSUM"
       "CONCURRENT"
@@ -493,6 +499,8 @@ data: {
       "OFF"
       "RENAME"
       "SEMI"
+      "STORAGE"
+      "UBJSON"
       "UNICODE"
       "UPD"
 
@@ -993,6 +1001,7 @@ data: {
     # Return type of method implementation should be "SqlTypeNameSpec".
     # Example: SqlParseTimeStampZ().
     dataTypeParserMethods: [
+        "SqlJsonDataType()"
     ]
 
     # List of methods for parsing builtin function calls.
