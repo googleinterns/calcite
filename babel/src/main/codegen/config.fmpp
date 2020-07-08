@@ -82,6 +82,7 @@ data: {
       "org.apache.calcite.sql.babel.SqlCharacterSetToCharacterSet",
       "org.apache.calcite.sql.babel.SqlTranslateUsingCharacterSet",
       "org.apache.calcite.sql.babel.SqlColumnAttributeDateFormat",
+      "org.apache.calcite.sql.babel.SqlHexCharStringLiteral",
     ]
 
     # List of keywords.
@@ -1079,6 +1080,7 @@ data: {
     allowUpdateFromTable: true
     allowUpsertFormOfUpdate: true
     allowAbbreviatedKeywords: true
+    allowHexCharacterLiteral: true
     allowTranslateUsingCharSetWithError: true
     includePosixOperators: true
     includeCastFormat: true

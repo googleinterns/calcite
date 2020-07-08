@@ -1583,3 +1583,15 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
             SqlLiteral.createBoolean(withTies, pos));
     }
 }
+
+SqlNode SqlHexCharStringLiteral() :
+{
+    String p;
+}
+{
+    ["_" <LATIN>] <HEXSTRING>
+    {
+        p = SqlParserUtil.trim(token.image, "xX'");
+        return new SqlHexCharStringLiteral(new NlsString(p, null, null),SqlTypeName.CHAR, getPos());
+    }
+}

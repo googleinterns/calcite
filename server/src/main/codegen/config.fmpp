@@ -488,6 +488,7 @@ data: {
     allowUpdateFromTable: false
     allowUpsertFormOfUpdate: false
     allowAbbreviatedKeywords: true
+    allowHexCharacterLiteral: false
     allowTranslateUsingCharSetWithError: false
     includePosixOperators: false
     includeCastFormat: false

@@ -2021,4 +2021,9 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "(?s).*Numeric literal.*out of range.*";
     sql(sql).fails(expected);
   }
+
+  @Test void testHexDigitChar() {
+    final String sql = "'c1a'";
+    expr(sql).ok("'C1A'");
+  }
 }
