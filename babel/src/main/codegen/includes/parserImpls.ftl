@@ -47,6 +47,19 @@ SqlNode DateFunctionCall() :
     }
 }
 
+SqlNode TimeFunctionCall() :
+{
+    final SqlIdentifier qualifiedName;
+    final Span s;
+}
+{
+    <TIME>
+    {
+        return SqlStdOperatorTable.TIME.createCall(getPos());
+    }
+}
+
+
 SqlNode DateaddFunctionCall() :
 {
     final SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;
