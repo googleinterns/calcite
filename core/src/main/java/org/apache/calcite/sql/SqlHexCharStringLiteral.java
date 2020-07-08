@@ -51,6 +51,12 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
     case XC:
       writer.keyword("XC");
       break;
+    case XCF:
+      writer.keyword("XCF");
+      break;
+    case XCV:
+      writer.keyword("XCV");
+      break;
     default:
       break;
     }
