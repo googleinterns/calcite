@@ -1587,31 +1587,37 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
 SqlNode SqlHexCharStringLiteral() :
 {
     final String p;
-    final String charSet;
+    String charSet = null;
     final HexCharLiteralFormat format;
 }
 {
-    <QUOTED_STRING>
+    (
+        <PREFIXED_STRING_LITERAL>
+        {
+            charSet = SqlParserUtil.getCharacterSet(token.image);
+        }
+    |
+        <QUOTED_STRING>
+    )
     {
         p = SqlParserUtil.parseString(token.image);
     }
-    <XC>
-    {
-        format = HexCharLiteralFormat.XC;
-    }
-    {
-        return new SqlHexCharStringLiteral(new NlsString(p, null, null),SqlTypeName.CHAR, getPos(), null, format);
-    }
-|
-    <PREFIXED_STRING_LITERAL>
-    {
-        charSet = SqlParserUtil.getCharacterSet(token.image);
-        p = SqlParserUtil.parseString(token.image);
-    }
-    <XC>
-    {
-        format = HexCharLiteralFormat.XC;
-    }
+    (
+        <XC>
+        {
+            format = HexCharLiteralFormat.XC;
+        }
+    |
+        <XCV>
+        {
+            format = HexCharLiteralFormat.XCV;
+        }
+    |
+        <XCF>
+        {
+            format = HexCharLiteralFormat.XCF;
+        }
+    )
     {
         return new SqlHexCharStringLiteral(new NlsString(p, null, null),SqlTypeName.CHAR, getPos(), charSet, format);
     }

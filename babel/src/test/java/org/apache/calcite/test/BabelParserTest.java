@@ -2028,7 +2028,7 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test void testHexCharLiteralCharSetSpecifiedXCVFormat() {
-    final String sql = "_LATIN'c1a'XC";
-    expr(sql).ok("_LATIN 'C1A' XC");
+    final String sql = "_LATIN'c1a'XCV";
+    expr(sql).ok("_LATIN 'C1A' XCV");
   }
 }
