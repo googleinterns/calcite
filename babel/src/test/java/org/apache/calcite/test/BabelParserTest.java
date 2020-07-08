@@ -2034,5 +2034,9 @@ class BabelParserTest extends SqlParserTest {
     expr(sql).ok(expected);
   }
 
-
+  @Test void testHexCharLiteralCharSetSpecifiedXCFFormat() {
+    final String sql = "_unicode'c1a'XCF";
+    final String expected = "_UNICODE 'C1A' XCF";
+    expr(sql).ok(expected);
+  }
 }
