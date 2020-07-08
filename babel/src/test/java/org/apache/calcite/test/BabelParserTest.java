@@ -1455,9 +1455,16 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testNamedExpressionIdentifier() {
+  @Test public void testNamedExpressionSimpleIdentifier() {
     final String sql = "select a (named b) from foo";
     final String expected = "SELECT `A` AS `B`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNamedExpressionCompoundIdentifier() {
+    final String sql = "select a.b (named c) from foo";
+    final String expected = "SELECT `A`.`B` AS `C`\n"
         + "FROM `FOO`";
     sql(sql).ok(expected);
   }
@@ -1744,9 +1751,15 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testInlineFormatIdentifier() {
+  @Test void testInlineFormatSimpleIdentifier() {
     final String sql = "select foo (format 'XXX')";
     final String expected = "SELECT (`FOO` (FORMAT 'XXX'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testInlineFormatCompoundIdentifier() {
+    final String sql = "select foo.bar (format 'XXX')";
+    final String expected = "SELECT (`FOO`.`BAR` (FORMAT 'XXX'))";
     sql(sql).ok(expected);
   }
 
@@ -1776,9 +1789,15 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testAlternativeTypeConversionIdentifier() {
+  @Test void testAlternativeTypeConversionSimpleIdentifier() {
     final String sql = "select foo (integer)";
     final String expected = "SELECT CAST(`FOO` AS INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionCompoundIdentifier() {
+    final String sql = "select foo.bar (integer)";
+    final String expected = "SELECT CAST(`FOO`.`BAR` AS INTEGER)";
     sql(sql).ok(expected);
   }
 
