@@ -2399,4 +2399,10 @@ class BabelParserTest extends SqlParserTest {
         + "VALUES (ROW(:A, :AVG))";
     sql(sql).ok(expected);
   }
+
+  @Test public void testCastByteInt() {
+    final String sql = "select cast(x as byteint)";
+    final String expected = "SELECT CAST(`X` AS BYTEINT)";
+    sql(sql).ok(expected);
+  }
 }

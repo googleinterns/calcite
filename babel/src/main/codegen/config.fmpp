@@ -1095,6 +1095,7 @@ data: {
     allowAbbreviatedKeywords: true
     allowTranslateUsingCharSetWithError: true
     allowNestedJoins: true
+    allowByteIntType: true
     includePosixOperators: true
     includeCastFormat: true
     includeCompoundIdentifier: true

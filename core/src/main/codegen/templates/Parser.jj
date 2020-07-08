@@ -5147,6 +5147,10 @@ SqlTypeNameSpec SqlTypeName1(Span s) :
         <SMALLINT> { sqlTypeName = SqlTypeName.SMALLINT; }
     |
         <BIGINT> { sqlTypeName = SqlTypeName.BIGINT; }
+<#if parser.allowByteIntType>
+    |
+        <BYTEINT> { sqlTypeName = SqlTypeName.BYTEINT; }
+</#if>
     |
         <REAL> { sqlTypeName = SqlTypeName.REAL; }
     |
@@ -7070,6 +7074,7 @@ SqlPostfixOperator PostfixRowOperator() :
 |   < BOTH: "BOTH" >
 |   < BREADTH: "BREADTH" >
 |   < BY: "BY" >
+|   < BYTEINT: "BYTEINT" >
 |   < C: "C" >
 |   < CALL: "CALL" >
 |   < CALLED: "CALLED" >
