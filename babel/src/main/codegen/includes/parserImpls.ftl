@@ -1926,4 +1926,3 @@ SqlTypeNameSpec SqlJsonDataType() :
             characterSet, storageFormat);
     }
 }
-

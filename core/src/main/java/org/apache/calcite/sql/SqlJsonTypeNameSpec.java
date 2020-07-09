@@ -23,7 +23,6 @@ import org.apache.calcite.util.Litmus;
 
 /**
  * A sql type name specification of the JSON type.
- *
  */
 public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
 
