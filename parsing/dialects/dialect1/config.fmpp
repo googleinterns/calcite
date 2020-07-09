@@ -1088,12 +1088,10 @@ data: {
 
     # Binary operators tokens
     binaryOperatorsTokens: [
-      "< INFIX_CAST: \"::\" >"
     ]
 
     # Binary operators initialization
     extraBinaryExpressions: [
-      "InfixCast"
     ]
 
     preExpressionMethods: [

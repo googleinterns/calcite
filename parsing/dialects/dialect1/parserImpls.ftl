@@ -1213,23 +1213,6 @@ SqlNode LiteralRowConstructorItem() :
     }
 }
 
-/** Parses the infix "::" cast operator used in PostgreSQL. */
-void InfixCast(List<Object> list, ExprContext exprContext, Span s) :
-{
-    final SqlDataTypeSpec dt;
-}
-{
-    <INFIX_CAST> {
-        checkNonQueryExpression(exprContext);
-    }
-    dt = DataType() {
-        list.add(
-            new SqlParserUtil.ToTreeListItem(SqlLibraryOperators.INFIX_CAST,
-                s.pos()));
-        list.add(dt);
-    }
-}
-
 // Parses inline MOD expression of form "x MOD y" where x, y must be numeric
 SqlNode InlineModOperator() :
 {
