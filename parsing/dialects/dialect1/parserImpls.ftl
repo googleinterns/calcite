@@ -74,7 +74,6 @@ SqlNode TimeFunctionCall() :
     }
 }
 
-
 SqlNode DateAddFunctionCall() :
 {
     final SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;

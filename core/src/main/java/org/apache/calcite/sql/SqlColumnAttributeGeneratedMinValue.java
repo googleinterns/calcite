@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.sql;
 
+
 /**
  * A {@code SqlColumnAttributeGeneratedMinValue} represents the MINVALUE
  * option of a GENERATED column attribute.

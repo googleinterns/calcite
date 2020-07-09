@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.sql;
 
+
 /**
  * A {@code SqlColumnAttributeGeneratedMaxValue} represents the MAXVALUE
  * option of a GENERATED column attribute.

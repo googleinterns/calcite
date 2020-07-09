@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.sql;
 
+
 import java.util.Objects;
 
 /**

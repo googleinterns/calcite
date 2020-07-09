@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.sql;
 
+
 /**
  * A {@code SqlColumnAttributeGeneratedCycle} represents the CYCLE option
  * of a GENERATED column attribute.
