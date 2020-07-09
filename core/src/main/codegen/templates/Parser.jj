@@ -4315,6 +4315,7 @@ SqlNode StringLiteral() :
     // comments are special tokens, each fragment is a token. But since spaces
     // or comments may not occur between the prefix and the first quote, the
     // head fragment, with any prefix, is one token.
+
 <#if parser.allowHexCharacterLiteral>
     hexCharLiteral = SqlHexCharStringLiteral()
     {return hexCharLiteral;}
