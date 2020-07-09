@@ -74,8 +74,7 @@ public class SqlDdlNodes {
   public static SqlCreateTable createTable(SqlParserPos pos,
       SqlCreateSpecifier createSpecifier, boolean ifNotExists,
       SqlIdentifier name, SqlNodeList columnList, SqlNode query) {
-    return new SqlCreateTable(pos, createSpecifier, ifNotExists, name, columnList,
-        query);
+    return new SqlCreateTableDefault(pos, createSpecifier, ifNotExists, name, columnList, query);
   }
 
   /** Creates a CREATE VIEW (withCheckOption not specified). */

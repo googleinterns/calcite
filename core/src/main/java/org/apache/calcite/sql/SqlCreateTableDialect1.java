@@ -27,18 +27,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code CREATE TABLE} statement.
  */
-public class SqlCreateTableDialect1 extends SqlCreate
-    implements SqlExecutableStatement {
-  public final SqlIdentifier name;
-  public final SetType setType;
-  public final Volatility volatility;
-  public final List<SqlTableAttribute> tableAttributes;
-  public final SqlNodeList columnList;
-  public final SqlNode query;
-  public final WithDataType withData;
-  public final SqlPrimaryIndex primaryIndex;
-  public final List<SqlIndex> indices;
-  public final OnCommitType onCommitType;
+public class SqlCreateTableDialect1 extends SqlCreateTable {
 
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("CREATE TABLE", SqlKind.CREATE_TABLE);

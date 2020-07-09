@@ -121,7 +121,7 @@ public class SqlCreateMaterializedView extends SqlCreate
 
   /** A table that implements a materialized view. */
   private static class MaterializedViewTable
-      extends SqlCreateTable.MutableArrayTable {
+      extends SqlCreateTableDefault.MutableArrayTable {
     /** The key with which this was stored in the materialization service,
      * or null if not (yet) materialized. */
     MaterializationKey key;
