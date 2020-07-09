@@ -26,6 +26,7 @@
 /buildSrc/subprojects/*/build
 /parsing/dialects/*/build
 /parsing/dialects/postgresqlBase/dialects/*/build
+/buildSrc/subprojects/parser/**/build/
 
 # IDEA
 /out
