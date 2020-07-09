@@ -489,7 +489,6 @@ data: {
     allowAbbreviatedKeywords: true
     allowTranslateUsingCharSetWithError: false
     allowNestedJoins: false
-    allowByteIntType: false
     includePosixOperators: false
     includeCastFormat: false
     includeCompoundIdentifier: true
