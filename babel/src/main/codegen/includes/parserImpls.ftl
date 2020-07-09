@@ -1589,7 +1589,7 @@ SqlNode SqlHexCharStringLiteral() :
     final String p;
     final String formatString;
     String charSet = null;
-BabelCharacterSet charSetEnum = null;
+    CharacterSet charSetEnum = null;
     final HexCharLiteralFormat format;
 }
 {
@@ -1599,13 +1599,13 @@ BabelCharacterSet charSetEnum = null;
             charSet = SqlParserUtil.getCharacterSet(token.image);
             charSet = SqlParserUtil.trim(charSet, " ").toUpperCase();
             if (charSet.equals("LATIN")) {
-                charSetEnum = BabelCharacterSet.LATIN;
+                charSetEnum = CharacterSet.LATIN;
             } else if (charSet.equals("UNICODE")) {
-                charSetEnum = BabelCharacterSet.UNICODE;
+                charSetEnum = CharacterSet.UNICODE;
             } else if (charSet.equals("GRAPHIC")) {
-               charSetEnum = BabelCharacterSet.GRAPHIC;
+               charSetEnum = CharacterSet.GRAPHIC;
             } else if (charSet.equals("KANJISJIS")) {
-              charSetEnum = BabelCharacterSet.KANJISJIS;
+              charSetEnum = CharacterSet.KANJISJIS;
             } else {
               throw SqlUtil.newContextException(getPos(),
               RESOURCE.unknownCharacterSet(charSet));
@@ -1627,6 +1627,6 @@ BabelCharacterSet charSetEnum = null;
     }
     {
         return new SqlHexCharStringLiteral(new NlsString(p, null, null),
-        SqlTypeName.CHAR, getPos(), charSetEnum, format);
+        getPos(), charSetEnum, format);
     }
 }

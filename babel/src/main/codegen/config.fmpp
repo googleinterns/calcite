@@ -84,7 +84,6 @@ data: {
       "org.apache.calcite.sql.babel.SqlColumnAttributeDateFormat",
       "org.apache.calcite.sql.babel.SqlHexCharStringLiteral",
       "org.apache.calcite.sql.babel.SqlHexCharStringLiteral.HexCharLiteralFormat",
-      "org.apache.calcite.sql.babel.SqlHexCharStringLiteral.BabelCharacterSet",
     ]
 
     # List of keywords.
