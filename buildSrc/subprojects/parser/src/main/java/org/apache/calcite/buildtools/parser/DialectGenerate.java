@@ -59,7 +59,7 @@ public class DialectGenerate {
     Pattern.compile("((<\\s*\\w+\\s*(\\s*,\\s*\\w+)*\\s*>\\s*)?(TOKEN|SKIP|MORE)\\s*:\n?)");
 
   public static Queue<String> getTokens(String input) {
-    return new LinkedList(Arrays.asList(tokenizerPattern.split(input)));
+    return new LinkedList<String>(Arrays.asList(tokenizerPattern.split(input)));
   }
 
   /**
@@ -128,7 +128,7 @@ public class DialectGenerate {
   }
 
   private Queue<MatchResult> getMatches(Pattern pattern, String text) {
-    Queue<MatchResult> matches = new LinkedList();
+    Queue<MatchResult> matches = new LinkedList<>();
     Matcher matcher = pattern.matcher(text);
     while (matcher.find()) {
       matches.add(matcher.toMatchResult());
