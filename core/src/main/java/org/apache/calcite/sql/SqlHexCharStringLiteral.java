@@ -33,9 +33,9 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
 
   /**
    * Creates a {@code SqlHexCharStringLiteral}.
-   * @param value  NlsString that contains the hex string
-   * @param pos  Parser position, must not be null
-   * @param charSet  Character set enum, can be null
+   * @param value   NlsString that contains the hex string
+   * @param pos     Parser position, must not be null
+   * @param charSet Character set enum, can be null
    * @param format  Format of the hex char literal
    */
   public SqlHexCharStringLiteral(final NlsString value, final SqlParserPos pos,
@@ -75,14 +75,12 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
     case XCV:
       writer.keyword("XCV");
       break;
-    default:
-      break;
     }
   }
 
   public enum HexCharLiteralFormat {
     /**
-     * Default to be the same as XCV.
+     * Default format option, same as XCV.
      */
     XC,
 

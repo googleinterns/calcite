@@ -4299,7 +4299,7 @@ SqlNode StringLiteral() :
     List<SqlLiteral> frags = null;
     char unicodeEscapeChar = 0;
 <#if parser.allowHexCharacterLiteral>
-    SqlNode ec;
+    SqlNode hexCharLiteral;
 </#if>
 }
 {
@@ -4309,8 +4309,8 @@ SqlNode StringLiteral() :
     // or comments may not occur between the prefix and the first quote, the
     // head fragment, with any prefix, is one token.
 <#if parser.allowHexCharacterLiteral>
-    ec = SqlHexCharStringLiteral()
-    {return ec;}
+    hexCharLiteral = SqlHexCharStringLiteral()
+    {return hexCharLiteral;}
     |
 </#if>
     <BINARY_STRING_LITERAL>
