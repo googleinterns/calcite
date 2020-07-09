@@ -71,12 +71,16 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
             RESOURCE.unknownCharacterSet(charSetString));
       }
     }
-    if (formatString.equals("XC")) {
+    switch (formatString) {
+    case "XC":
       format = HexCharLiteralFormat.XC;
-    } else if (formatString.equals("XCV")) {
+      break;
+    case "XCV":
       format = HexCharLiteralFormat.XCV;
-    } else {
+      break;
+    default:
       format = HexCharLiteralFormat.XCF;
+      break;
     }
   }
 
