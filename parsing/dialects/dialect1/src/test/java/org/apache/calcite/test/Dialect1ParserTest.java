@@ -2431,4 +2431,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "_UNICODE 'C1A' XCF";
     expr(sql).ok(expected);
   }
+
+  @Test void testHexCharLiteralOutsideRangeFails() {
+    // 'g' contains char outside hex range, it would be incorrectly parsed
+    // falling into the <PREFIXED_STRING_LITERAL> which leads to errors
+    final String sql = "^_unicode'cg'^XCF";
+    final String expected = "Unknown character set 'unicode'";
+    expr(sql).fails(expected);
+  }
 }
