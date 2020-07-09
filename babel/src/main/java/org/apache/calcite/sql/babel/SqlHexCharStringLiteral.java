@@ -103,7 +103,7 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
         break;
       }
     }
-    writer.keyword(value.toString());
+    writer.literal(value.toString());
     switch (format) {
     case XC:
       writer.keyword("XC");
