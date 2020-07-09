@@ -1586,46 +1586,24 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
 
 SqlNode SqlHexCharStringLiteral() :
 {
-    final NlsString p;
+    final String hex;
     final String formatString;
-    final String charSet;
-    CharacterSet charSetEnum = null;
-    final HexCharLiteralFormat format;
+    String charSet = null;
 }
 {
     (
         <PREFIXED_HEX_STRING_LITERAL>
         {
-            charSet = SqlParserUtil
-                      .trim(SqlParserUtil.getCharacterSet(token.image), " ")
-                      .toUpperCase();
-            if (charSet.equals("LATIN")) {
-                charSetEnum = CharacterSet.LATIN;
-            } else if (charSet.equals("UNICODE")) {
-                charSetEnum = CharacterSet.UNICODE;
-            } else if (charSet.equals("GRAPHIC")) {
-               charSetEnum = CharacterSet.GRAPHIC;
-            } else if (charSet.equals("KANJISJIS")) {
-              charSetEnum = CharacterSet.KANJISJIS;
-            } else {
-              throw SqlUtil.newContextException(getPos(),
-              RESOURCE.unknownCharacterSet(charSet));
-            }
+            charSet = SqlParserUtil.getCharacterSet(token.image);
         }
     |
         <QUOTED_HEX_STRING>
     )
     {
         String[] tokens = token.image.split("'");
-        p = new NlsString(tokens[1], null, null);
+        hex = tokens[1];
         formatString = tokens[2];
-        if (formatString.equals("XC")) {
-            format = HexCharLiteralFormat.XC;
-        } else if (formatString.equals("XCV")) {
-            format = HexCharLiteralFormat.XCV;
-        } else {
-            format = HexCharLiteralFormat.XCF;
-        }
-        return new SqlHexCharStringLiteral(p, getPos(), charSetEnum, format);
+        return new SqlHexCharStringLiteral(hex, getPos(), charSet,
+        formatString);
     }
 }

@@ -18,10 +18,16 @@ package org.apache.calcite.sql.babel;
 
 import org.apache.calcite.sql.SqlColumnAttributeCharacterSet.CharacterSet;
 import org.apache.calcite.sql.SqlLiteral;
+import org.apache.calcite.sql.SqlUtil;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.parser.SqlParserUtil;
 import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.util.NlsString;
+
+import java.util.Locale;
+
+import static org.apache.calcite.util.Static.RESOURCE;
 
 /**
  * Parse tree for {@code SqlHexCharStringLiteral} expression.
@@ -33,16 +39,45 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
 
   /**
    * Creates a {@code SqlHexCharStringLiteral}.
-   * @param value   NlsString that contains the hex string
-   * @param pos     Parser position, must not be null
-   * @param charSet Character set enum, can be null
-   * @param format  Format of the hex char literal
+   * @param hex           String that contains the hex characters
+   * @param pos           Parser position, must not be null
+   * @param charSetString Character set string, can be null
+   * @param formatString  Format of the hex char literal
    */
-  public SqlHexCharStringLiteral(final NlsString value, final SqlParserPos pos,
-      final CharacterSet charSet, final HexCharLiteralFormat format) {
-    super(value, SqlTypeName.CHAR, pos);
-    this.charSet = charSet;
-    this.format = format;
+  public SqlHexCharStringLiteral(final String hex, final SqlParserPos pos,
+      final String charSetString, final String formatString) {
+    super(new NlsString(hex, null, null), SqlTypeName.CHAR, pos);
+    if (charSetString == null) {
+      this.charSet = null;
+    } else {
+      String normalizedCharSetString = SqlParserUtil
+          .trim(charSetString, " ")
+          .toUpperCase(Locale.ROOT);
+      switch (normalizedCharSetString) {
+      case "LATIN":
+        charSet = CharacterSet.LATIN;
+        break;
+      case "UNICODE":
+        charSet = CharacterSet.UNICODE;
+        break;
+      case "GRAPHIC":
+        charSet = CharacterSet.GRAPHIC;
+        break;
+      case "KANJISJIS":
+        charSet = CharacterSet.KANJISJIS;
+        break;
+      default:
+        throw SqlUtil.newContextException(pos,
+            RESOURCE.unknownCharacterSet(charSetString));
+      }
+    }
+    if (formatString.equals("XC")) {
+      format = HexCharLiteralFormat.XC;
+    } else if (formatString.equals("XCV")) {
+      format = HexCharLiteralFormat.XCV;
+    } else {
+      format = HexCharLiteralFormat.XCF;
+    }
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
@@ -65,7 +100,7 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
       }
     }
     writer.keyword(value.toString());
-    switch (this.format) {
+    switch (format) {
     case XC:
       writer.keyword("XC");
       break;
