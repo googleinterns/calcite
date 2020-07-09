@@ -2029,8 +2029,8 @@ class BabelParserTest extends SqlParserTest {
   }
 
   @Test void testHexCharLiteralCharSetSpecifiedXCFormat() {
-    final String sql = "_KANJISIS 'ABC'XC";
-    final String expected = "_KANJISIS 'ABC' XC";
+    final String sql = "_KANJISJIS 'ABC'XC";
+    final String expected = "_KANJISJIS 'ABC' XC";
     expr(sql).ok(expected);
   }
 

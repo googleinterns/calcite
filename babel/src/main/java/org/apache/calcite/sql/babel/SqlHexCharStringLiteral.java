@@ -22,20 +22,23 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.util.NlsString;
 
-
+/**
+ * Parse tree for {@code SqlHexCharStringLiteral} expression.
+ */
 public class SqlHexCharStringLiteral extends SqlLiteral {
 
   final HexCharLiteralFormat format;
-  final String charSet;
+  final BabelCharacterSet charSet;
 
   /**
-   * Creates a <code>SqlLiteral</code>.
+   * Creates a {@code SqlHexCharStringLiteral}.
    * @param value
    * @param typeName
    * @param pos
    */
   public SqlHexCharStringLiteral(final NlsString value, final SqlTypeName typeName,
-      final SqlParserPos pos, final String charSet, final HexCharLiteralFormat format) {
+      final SqlParserPos pos, final BabelCharacterSet charSet,
+      final HexCharLiteralFormat format) {
     super(value, typeName, pos);
     this.charSet = charSet;
     this.format = format;
@@ -44,7 +47,20 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
   @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
     if (charSet != null) {
       writer.print("_");
-      writer.keyword(charSet);
+      switch (this.charSet) {
+      case LATIN:
+        writer.keyword("LATIN");
+        break;
+      case UNICODE:
+        writer.keyword("UNICODE");
+        break;
+      case GRAPHIC:
+        writer.keyword("GRAPHIC");
+        break;
+      case KANJISJIS:
+        writer.keyword("KANJISJIS");
+        break;
+      }
     }
     writer.keyword(value.toString());
     switch (this.format) {
@@ -69,13 +85,35 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
     XC,
 
     /**
-     * XCV.
+     * VARCHAR format.
      */
     XCV,
 
     /**
-     * XCF.
+     * CHAR format.
      */
     XCF,
+  }
+
+  public enum BabelCharacterSet {
+    /**
+     * Column has the LATIN character set.
+     */
+    LATIN,
+
+    /**
+     * Column has the UNICODE character set.
+     */
+    UNICODE,
+
+    /**
+     * Column has the GRAPHIC character set.
+     */
+    GRAPHIC,
+
+    /**
+     * Column has the KANJISJIS character set.
+     */
+    KANJISJIS,
   }
 }
