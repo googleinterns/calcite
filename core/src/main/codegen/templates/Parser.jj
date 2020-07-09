@@ -4318,7 +4318,7 @@ SqlNode StringLiteral() :
 
 <#if parser.allowHexCharacterLiteral>
     hexCharLiteral = SqlHexCharStringLiteral()
-    {return hexCharLiteral;}
+    { return hexCharLiteral; }
     |
 </#if>
     <BINARY_STRING_LITERAL>
