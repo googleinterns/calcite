@@ -1808,9 +1808,9 @@ SqlHostVariable SqlHostVariable() :
 
 SqlNode SqlHexCharStringLiteral() :
 {
-    final String p;
+    final NlsString p;
     final String formatString;
-    String charSet = null;
+    final String charSet;
     CharacterSet charSetEnum = null;
     final HexCharLiteralFormat format;
 }
@@ -1818,8 +1818,9 @@ SqlNode SqlHexCharStringLiteral() :
     (
         <PREFIXED_HEX_STRING_LITERAL>
         {
-            charSet = SqlParserUtil.getCharacterSet(token.image);
-            charSet = SqlParserUtil.trim(charSet, " ").toUpperCase();
+            charSet = SqlParserUtil
+                      .trim(SqlParserUtil.getCharacterSet(token.image), " ")
+                      .toUpperCase();
             if (charSet.equals("LATIN")) {
                 charSetEnum = CharacterSet.LATIN;
             } else if (charSet.equals("UNICODE")) {
@@ -1837,8 +1838,9 @@ SqlNode SqlHexCharStringLiteral() :
         <QUOTED_HEX_STRING>
     )
     {
-        p = token.image.split("'")[1];
-        formatString = token.image.split("'")[2];
+        String[] tokens = token.image.split("'");
+        p = new NlsString(tokens[1], null, null);
+        formatString = tokens[2];
         if (formatString.equals("XC")) {
             format = HexCharLiteralFormat.XC;
         } else if (formatString.equals("XCV")) {
@@ -1846,9 +1848,6 @@ SqlNode SqlHexCharStringLiteral() :
         } else {
             format = HexCharLiteralFormat.XCF;
         }
-    }
-    {
-        return new SqlHexCharStringLiteral(new NlsString(p, null, null),
-        getPos(), charSetEnum, format);
+        return new SqlHexCharStringLiteral(p, getPos(), charSetEnum, format);
     }
 }
