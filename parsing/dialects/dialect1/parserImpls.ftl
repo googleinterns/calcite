@@ -74,7 +74,6 @@ SqlNode TimeFunctionCall() :
     }
 }
 
-
 SqlNode DateAddFunctionCall() :
 {
     final SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;
@@ -1211,6 +1210,23 @@ SqlNode LiteralRowConstructorItem() :
     )
     {
         return e;
+    }
+}
+
+/** Parses the infix "::" cast operator used in PostgreSQL. */
+void InfixCast(List<Object> list, ExprContext exprContext, Span s) :
+{
+    final SqlDataTypeSpec dt;
+}
+{
+    <INFIX_CAST> {
+        checkNonQueryExpression(exprContext);
+    }
+    dt = DataType() {
+        list.add(
+            new SqlParserUtil.ToTreeListItem(SqlLibraryOperators.INFIX_CAST,
+                s.pos()));
+        list.add(dt);
     }
 }
 

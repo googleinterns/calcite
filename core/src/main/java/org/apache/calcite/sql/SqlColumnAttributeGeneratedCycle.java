@@ -16,6 +16,8 @@
  */
 package org.apache.calcite.sql;
 
+import org.apache.calcite.sql.SqlWriter;
+
 /**
  * A {@code SqlColumnAttributeGeneratedCycle} represents the CYCLE option
  * of a GENERATED column attribute.

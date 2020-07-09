@@ -16,6 +16,9 @@
  */
 package org.apache.calcite.sql;
 
+import org.apache.calcite.sql.SqlLiteral;
+import org.apache.calcite.sql.SqlWriter;
+
 /**
  * A {@code SqlColumnAttributeGeneratedMaxValue} represents the MAXVALUE
  * option of a GENERATED column attribute.

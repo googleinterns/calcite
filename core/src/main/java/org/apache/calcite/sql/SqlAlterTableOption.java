@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.sql;
 
+import org.apache.calcite.sql.SqlWriter;
 
 /**
  * A {@code SqlAlterTableOption} is an abstract class representing

@@ -16,6 +16,9 @@
  */
 package org.apache.calcite.sql;
 
+import org.apache.calcite.sql.SqlLiteral;
+import org.apache.calcite.sql.SqlWriter;
+
 import java.util.Objects;
 
 /**

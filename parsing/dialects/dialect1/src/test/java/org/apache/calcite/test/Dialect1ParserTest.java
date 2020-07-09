@@ -246,6 +246,49 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     };
   }
 
+  /** Tests parsing PostgreSQL-style "::" cast operator. */
+  @Test void testParseInfixCast()  {
+    checkParseInfixCast("integer");
+    checkParseInfixCast("varchar");
+    checkParseInfixCast("boolean");
+    checkParseInfixCast("double");
+    checkParseInfixCast("bigint");
+
+    final String sql = "select -('12' || '.34')::VARCHAR(30)::INTEGER as x\n"
+        + "from t";
+    final String expected = ""
+        + "SELECT (- ('12' || '.34') :: VARCHAR(30) :: INTEGER) AS `X`\n"
+        + "FROM `T`";
+    sql(sql).ok(expected);
+  }
+
+  private void checkParseInfixCast(String sqlType) {
+    String sql = "SELECT x::" + sqlType + " FROM (VALUES (1, 2)) as tbl(x,y)";
+    String expected = "SELECT `X` :: " + sqlType.toUpperCase(Locale.ROOT) + "\n"
+        + "FROM (VALUES (ROW(1, 2))) AS `TBL` (`X`, `Y`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCompoundIdentifierWithColonSeparator() {
+    final String sql = "select * from foo:bar";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`.`BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCompoundIdentifierWithColonAndDotSeparators() {
+    final String sql = "select * from foo:bar.baz";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`.`BAR`.`BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateOrReplaceTable() {
+    final String sql = "create or replace table foo (bar integer)";
+    final String expected = "CREATE OR REPLACE TABLE `FOO` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTableWithNoSetTypeSpecified() {
     final String sql = "create table foo (bar integer not null, baz varchar(30))";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER NOT NULL, `BAZ` VARCHAR(30))";
