@@ -2053,4 +2053,10 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "Unknown character set 'unicode'";
     expr(sql).fails(expected);
   }
+
+  @Test void testHexCharLiteralInQuery() {
+    final String sql = "select _LATIN'c1a'XCV";
+    final String expected = "SELECT _LATIN 'C1A' XCV";
+    sql(sql).ok(expected);
+  }
 }
