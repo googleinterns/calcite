@@ -106,6 +106,7 @@ data: {
       "ARCHIVE"
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
+      "BYTEINT"
       "BYTES"
       "CASESPECIFIC"
       "CHECKSUM"
@@ -1008,6 +1009,7 @@ data: {
     # Return type of method implementation should be "SqlTypeNameSpec".
     # Example: SqlParseTimeStampZ().
     dataTypeParserMethods: [
+      "ByteIntType()"
     ]
 
     # List of methods for parsing builtin function calls.
@@ -1019,6 +1021,7 @@ data: {
        "CurrentTimestampFunction()"
        "CurrentTimeFunction()"
        "CurrentDateFunction()"
+       "TimeFunctionCall()"
     ]
 
     # List of methods for parsing extensions to "ALTER <scope>" calls.
@@ -1125,6 +1128,7 @@ data: {
     allowUpsertFormOfUpdate: true
     allowAbbreviatedKeywords: true
     allowTranslateUsingCharSetWithError: true
+    allowNestedJoins: true
     includePosixOperators: true
     includeCastFormat: true
     includeCompoundIdentifier: true

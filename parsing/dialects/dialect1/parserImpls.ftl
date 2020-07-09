@@ -26,6 +26,17 @@
 |   < TILDE: "~" >
 }
 
+SqlTypeNameSpec ByteIntType() :
+{
+    final Span s = Span.of();
+}
+{
+    <BYTEINT>
+    {
+        return new SqlBasicTypeNameSpec(SqlTypeName.BYTEINT, s.end(this));
+    }
+}
+
 SqlNode DateFunctionCall() :
 {
     final SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;
@@ -50,6 +61,19 @@ SqlNode DateFunctionCall() :
         return SqlStdOperatorTable.DATE.createCall(getPos());
     }
 }
+
+SqlNode TimeFunctionCall() :
+{
+    final SqlIdentifier qualifiedName;
+    final Span s;
+}
+{
+    <TIME>
+    {
+        return SqlStdOperatorTable.TIME.createCall(getPos());
+    }
+}
+
 
 SqlNode DateAddFunctionCall() :
 {
@@ -1412,7 +1436,7 @@ SqlNode AlternativeTypeConversionLiteralOrIdentifier() :
     (
         q = Literal()
     |
-        q = SimpleIdentifier()
+        q = CompoundIdentifier()
     )
     e = AlternativeTypeConversionQuery(q) { return e; }
 }
@@ -1447,7 +1471,7 @@ SqlNode InlineFormatLiteralOrIdentifier() :
     (
         q = Literal()
     |
-        q = SimpleIdentifier()
+        q = CompoundIdentifier()
     )
     e = InlineFormatQuery(q) { return e; }
 }
@@ -1473,7 +1497,7 @@ SqlNode NamedLiteralOrIdentifier() :
     (
         q = Literal()
     |
-        q = SimpleIdentifier()
+        q = CompoundIdentifier()
     )
     e = NamedQuery(q) { return e; }
 }

@@ -460,4 +460,28 @@ public interface SqlConformance {
    */
   boolean allowQualifyingCommonColumn();
 
+  /**
+   * Whether to allow the rewrite of the insert call in merge call.
+   *
+   * <p>For example, in the query</p>
+   *
+   * <blockquote><pre>
+   * MERGE INTO t1 AS a
+   * USING t2 AS b
+   * ON a.x = b.x
+   * WHEN MATCHED THEN UPDATE SET
+   *   y = b.y
+   * WHEN NOT MATCHED THEN INSERT (x, y) VALUES (b.x, b.y)
+   * </pre></blockquote>
+   *
+   * <p>{@code VALUES (b.x, b.y)} is the inserted value. The default behavior
+   * is to rewrite it as {@code SELECT b.x, b.y FROM t2 AS b}. Which is not
+   * a valid grammar in some dialects.</p>
+   *
+   * <p>Among the built-in conformance levels, false in
+   * {@link SqlConformanceEnum#BABEL},
+   * {@link SqlConformanceEnum#BIG_QUERY},
+   * true otherwise.</p>
+   */
+  boolean allowMergeInsertRewrite();
 }

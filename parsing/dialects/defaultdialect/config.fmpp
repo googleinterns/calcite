@@ -483,6 +483,7 @@ data: {
     allowUpsertFormOfUpdate: false
     allowAbbreviatedKeywords: false
     allowTranslateUsingCharSetWithError: false
+    allowNestedJoins: false
     includePosixOperators: false
     includeCastFormat: false
     includeCompoundIdentifier: true

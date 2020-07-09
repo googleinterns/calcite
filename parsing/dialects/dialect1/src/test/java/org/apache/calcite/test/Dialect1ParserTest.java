@@ -1411,9 +1411,16 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testNamedExpressionIdentifier() {
+  @Test public void testNamedExpressionSimpleIdentifier() {
     final String sql = "select a (named b) from foo";
     final String expected = "SELECT `A` AS `B`\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNamedExpressionCompoundIdentifier() {
+    final String sql = "select a.b (named c) from foo";
+    final String expected = "SELECT `A`.`B` AS `C`\n"
         + "FROM `FOO`";
     sql(sql).ok(expected);
   }
@@ -1492,6 +1499,13 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testSelectDateExpression() {
     final String sql = "SELECT DATE -1 FROM foo";
     final String expected = "SELECT (DATE - 1)\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTimeFunction() {
+    final String sql = "SELECT time-1 FROM foo";
+    final String expected = "SELECT (TIME - 1)\n"
         + "FROM `FOO`";
     sql(sql).ok(expected);
   }
@@ -1700,9 +1714,15 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testInlineFormatIdentifier() {
+  @Test void testInlineFormatSimpleIdentifier() {
     final String sql = "select foo (format 'XXX')";
     final String expected = "SELECT (`FOO` (FORMAT 'XXX'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testInlineFormatCompoundIdentifier() {
+    final String sql = "select foo.bar (format 'XXX')";
+    final String expected = "SELECT (`FOO`.`BAR` (FORMAT 'XXX'))";
     sql(sql).ok(expected);
   }
 
@@ -1732,9 +1752,15 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testAlternativeTypeConversionIdentifier() {
+  @Test void testAlternativeTypeConversionSimpleIdentifier() {
     final String sql = "select foo (integer)";
     final String expected = "SELECT CAST(`FOO` AS INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionCompoundIdentifier() {
+    final String sql = "select foo.bar (integer)";
+    final String expected = "SELECT CAST(`FOO`.`BAR` AS INTEGER)";
     sql(sql).ok(expected);
   }
 
@@ -2212,6 +2238,96 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testNestedJoin() {
+    final String sql = "select * from foo join (bar join baz on bar.a = baz.a)"
+        + " on foo.a = bar.a";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "INNER JOIN (`BAR` INNER JOIN `BAZ` ON (`BAR`.`A` = `BAZ`.`A`))"
+        + " ON (`FOO`.`A` = `BAR`.`A`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedJoinMultiLevel() {
+    final String sql = "select * from foo join (bar join "
+        + "(baz join qux on baz.a = qux.a) on bar.a = baz.a)"
+        + " on foo.a = bar.a";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "INNER JOIN (`BAR` INNER JOIN (`BAZ` INNER JOIN `QUX`"
+        + " ON (`BAZ`.`A` = `QUX`.`A`))"
+        + " ON (`BAR`.`A` = `BAZ`.`A`))"
+        + " ON (`FOO`.`A` = `BAR`.`A`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedLeftJoin() {
+    final String sql = "select * from foo left join"
+        + " (bar left join baz on bar.a = baz.a)"
+        + " on foo.a = bar.a";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "LEFT JOIN (`BAR` LEFT JOIN `BAZ` ON (`BAR`.`A` = `BAZ`.`A`))"
+        + " ON (`FOO`.`A` = `BAR`.`A`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedRightJoin() {
+    final String sql = "select * from foo right join"
+        + " (bar right join baz on bar.a = baz.a)"
+        + " on foo.a = bar.a";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "RIGHT JOIN (`BAR` RIGHT JOIN `BAZ` ON (`BAR`.`A` = `BAZ`.`A`))"
+        + " ON (`FOO`.`A` = `BAR`.`A`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedFullJoin() {
+    final String sql = "select * from foo full join"
+        + " (bar full join baz on bar.a = baz.a)"
+        + " on foo.a = bar.a";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "FULL JOIN (`BAR` FULL JOIN `BAZ` ON (`BAR`.`A` = `BAZ`.`A`))"
+        + " ON (`FOO`.`A` = `BAR`.`A`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedCrossJoin() {
+    final String sql = "select * from foo cross join (bar cross join baz)";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "CROSS JOIN (`BAR` CROSS JOIN `BAZ`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedDifferentJoins() {
+    final String sql = "select * from foo left join"
+        + " (bar cross join baz)"
+        + " on foo.a = bar.a";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "LEFT JOIN (`BAR` CROSS JOIN `BAZ`)"
+        + " ON (`FOO`.`A` = `BAR`.`A`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNestedJoinParenthesizedTableFails() {
+    final String sql = "select * from foo cross join (bar cross join (^baz^))";
+    final String expected =
+        "(?s)Non-query expression encountered in illegal context.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testNestedJoinParenthesizedUnnestFails() {
+    final String sql = "select * from foo cross join"
+        + " (bar cross join ^(^unnest(x)))";
+    final String expected =
+        "(?s)Encountered \"\\( unnest \\( x \\) \\)\" at .*";
+    sql(sql).fails(expected);
+  }
+
   @Test public void testHostVariableExecPositionalParams() {
     final String sql = "exec foo (:bar, :baz, :qux)";
     final String expected = "EXECUTE `FOO` (:BAR, :BAZ, :QUX)";
@@ -2263,6 +2379,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "insert into foo values (:a, :avg)";
     final String expected = "INSERT INTO `FOO`\n"
         + "VALUES (ROW(:A, :AVG))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCastByteInt() {
+    final String sql = "select cast(x as byteint)";
+    final String expected = "SELECT CAST(`X` AS BYTEINT)";
     sql(sql).ok(expected);
   }
 }
