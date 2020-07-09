@@ -394,7 +394,6 @@ BERNOULLI,
 **BOTH**,
 BREADTH,
 **BY**,
-**BYTEINT**,
 C,
 **CALL**,
 **CALLED**,
@@ -1053,7 +1052,6 @@ name will have been converted to upper case also.
 |:----------- |:------------------------- |:--------------------------
 | BOOLEAN     | Logical values            | Values: TRUE, FALSE, UNKNOWN
 | TINYINT     | 1 byte signed integer     | Range is -128 to 127
-| BYTEINT     | 1 byte signed integer     | Range is -128 to 127
 | SMALLINT    | 2 byte signed integer     | Range is -32768 to 32767
 | INTEGER, INT | 4 byte signed integer    | Range is -2147483648 to 2147483647
 | BIGINT      | 8 byte signed integer     | Range is -9223372036854775808 to 9223372036854775807
@@ -1392,7 +1390,6 @@ sqlTypeName:
   |   BINARY [ precision ]
   |   varbinary [ precision ]
   |   TINYINT
-  |   BYTEINT
   |   SMALLINT
   |   BIGINT
   |   REAL
