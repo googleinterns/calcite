@@ -16,8 +16,6 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.sql.SqlIdentifier;
-import org.apache.calcite.sql.SqlWriter;
 
 import java.util.Objects;
 

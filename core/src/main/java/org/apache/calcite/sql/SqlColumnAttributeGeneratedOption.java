@@ -16,7 +16,6 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.sql.SqlWriter;
 
 /**
  * A {@code SqlColumnAttributeGeneratedOption} is an abstract class that
