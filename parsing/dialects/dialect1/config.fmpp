@@ -106,6 +106,7 @@ data: {
       "ARCHIVE"
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
+      "BYTEINT"
       "BYTES"
       "CASESPECIFIC"
       "CHECKSUM"
@@ -1008,6 +1009,7 @@ data: {
     # Return type of method implementation should be "SqlTypeNameSpec".
     # Example: SqlParseTimeStampZ().
     dataTypeParserMethods: [
+      "ByteIntType()"
     ]
 
     # List of methods for parsing builtin function calls.
@@ -1127,7 +1129,6 @@ data: {
     allowAbbreviatedKeywords: true
     allowTranslateUsingCharSetWithError: true
     allowNestedJoins: true
-    allowByteIntType: true
     includePosixOperators: true
     includeCastFormat: true
     includeCompoundIdentifier: true

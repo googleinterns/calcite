@@ -26,6 +26,17 @@
 |   < TILDE: "~" >
 }
 
+SqlTypeNameSpec ByteIntType() :
+{
+    final Span s = Span.of();
+}
+{
+    <BYTEINT>
+    {
+        return new SqlBasicTypeNameSpec(SqlTypeName.BYTEINT, s.end(this));
+    }
+}
+
 SqlNode DateFunctionCall() :
 {
     final SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;

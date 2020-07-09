@@ -144,7 +144,6 @@ public abstract class SqlDialectParserTest {
       "BOTH",                          "92", "99", "2003", "2011", "2014", "c",
       "BREADTH",                             "99",
       "BY",                            "92", "99", "2003", "2011", "2014", "c",
-      "BYTEINT",                                                           "c",
       "CALL",                          "92", "99", "2003", "2011", "2014", "c",
       "CALLED",                                    "2003", "2011", "2014", "c",
       "CARDINALITY",                                       "2011", "2014", "c",
