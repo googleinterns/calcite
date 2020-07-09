@@ -1918,6 +1918,10 @@ SqlTypeNameSpec SqlJsonDataType() :
         )
     )*
     {
+        if (characterSet != null && storageFormat != null) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.illegalQueryExpression());
+        }
         return new SqlJsonTypeNameSpec(getPos(), maxLength, inlineLength,
             characterSet, storageFormat);
     }

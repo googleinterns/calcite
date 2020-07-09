@@ -2503,4 +2503,22 @@ class BabelParserTest extends SqlParserTest {
     final String expected = "Numeric literal '4' out of range";
     sql(sql).fails(expected);
   }
+
+  @Test public void testJsonTypeInLineLengthZeroFails() {
+    final String sql = "create table foo (x json inline length ^0^)";
+    final String expected = "Numeric literal '0' out of range";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testJsonTypeInLineLengthNegativeFails() {
+    final String sql = "create table foo (x json inline length ^-1)";
+    final String expected = "(?s).*Encountered \"-\".*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testJsonTypeCharacterSetAndStorageFormatSpecifiedFails() {
+    final String sql = "create table foo (x json character set latin storage format ^bson^)";
+    final String expected = "Query expression encountered in illegal context";
+    sql(sql).fails(expected);
+  }
 }
