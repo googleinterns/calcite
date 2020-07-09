@@ -1607,6 +1607,6 @@ SqlNode SqlHexCharStringLiteral() :
         hex = tokens[1];
         formatString = tokens[2];
         return new SqlHexCharStringLiteral(hex, getPos(), charSet,
-        formatString);
+            formatString);
     }
 }
