@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.sql.babel;
 
+import org.apache.calcite.sql.SqlColumnAttributeCharacterSet.CharacterSet;
 import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
@@ -28,23 +29,24 @@ import org.apache.calcite.util.NlsString;
 public class SqlHexCharStringLiteral extends SqlLiteral {
 
   final HexCharLiteralFormat format;
-  final BabelCharacterSet charSet;
+  final CharacterSet charSet;
 
   /**
    * Creates a {@code SqlHexCharStringLiteral}.
-   * @param value
-   * @param typeName
-   * @param pos
+   * @param value  NlsString that contains the hex string
+   * @param pos  Parser position, must not be null
+   * @param charSet  Character set enum, can be null
+   * @param format  Format of the hex char literal
    */
-  public SqlHexCharStringLiteral(final NlsString value, final SqlTypeName typeName,
-      final SqlParserPos pos, final BabelCharacterSet charSet,
-      final HexCharLiteralFormat format) {
-    super(value, typeName, pos);
+  public SqlHexCharStringLiteral(final NlsString value, final SqlParserPos pos,
+      final CharacterSet charSet, final HexCharLiteralFormat format) {
+    super(value, SqlTypeName.CHAR, pos);
     this.charSet = charSet;
     this.format = format;
   }
 
-  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
+  @Override public void unparse(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
     if (charSet != null) {
       writer.print("_");
       switch (this.charSet) {
@@ -93,27 +95,5 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
      * CHAR format.
      */
     XCF,
-  }
-
-  public enum BabelCharacterSet {
-    /**
-     * Column has the LATIN character set.
-     */
-    LATIN,
-
-    /**
-     * Column has the UNICODE character set.
-     */
-    UNICODE,
-
-    /**
-     * Column has the GRAPHIC character set.
-     */
-    GRAPHIC,
-
-    /**
-     * Column has the KANJISJIS character set.
-     */
-    KANJISJIS,
   }
 }
