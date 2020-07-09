@@ -2410,7 +2410,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test void testHexCharLiteralCharSetNotSpecifiedDefaultFormat() {
     final String sql = "'c1a'XC";
-    final String expected = "'C1A' XC";
+    final String expected = "'c1a' XC";
     expr(sql).ok(expected);
   }
 
@@ -2422,13 +2422,13 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test void testHexCharLiteralCharSetSpecifiedXCVFormat() {
     final String sql = "_LATIN'c1a'XCV";
-    final String expected = "_LATIN 'C1A' XCV";
+    final String expected = "_LATIN 'c1a' XCV";
     expr(sql).ok(expected);
   }
 
   @Test void testHexCharLiteralCharSetSpecifiedXCFFormat() {
     final String sql = "_unicode'c1a'XCF";
-    final String expected = "_UNICODE 'C1A' XCF";
+    final String expected = "_UNICODE 'c1a' XCF";
     expr(sql).ok(expected);
   }
 
@@ -2441,8 +2441,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   }
 
   @Test void testHexCharLiteralInQuery() {
-    final String sql = "select _LATIN'c1a'XCV";
-    final String expected = "SELECT _LATIN 'C1A' XCV";
+    final String sql = "select _LATIN'c1A'XCV";
+    final String expected = "SELECT _LATIN 'c1A' XCV";
     sql(sql).ok(expected);
   }
 }
