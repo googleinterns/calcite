@@ -165,13 +165,13 @@ public class TypeCoercionImpl extends AbstractTypeCoercion {
   }
 
   /** For NUMERIC and DATE operands, cast NUMERIC to an INTERVAL_DAY.
-   *  <p>Only enable this coercion in Babel conformance mode.
+   *  <p>Only enable this coercion in LENIENT conformance mode.
    */
   protected boolean binaryArithmeticWithDateAndNumeric(
       SqlCallBinding binding, RelDataType left, RelDataType right) {
     // For expression "NUMERIC <OP> DATE" (or vice versa),
     // TeradataSQL and Oracle would coerce the NUMERIC to an INTERVAL_DAY.
-    if (validator.getConformance() != SqlConformanceEnum.BABEL) {
+    if (validator.getConformance() != SqlConformanceEnum.LENIENT) {
       return false;
     }
     int numericIndex;

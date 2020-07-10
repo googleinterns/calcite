@@ -467,7 +467,6 @@ data: {
     # given as part of "statementParserMethods", "literalParserMethods" or
     # "dataTypeParserMethods".
     implementationFiles: [
-      "parserImpls.ftl"
     ]
 
     allowUpdateFromTable: false
@@ -491,5 +490,5 @@ data: {
 }
 
 freemarkerLinks: {
-  includes: includes/
+  templates: includes/
 }

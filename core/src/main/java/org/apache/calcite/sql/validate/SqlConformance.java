@@ -63,16 +63,15 @@ public interface SqlConformance {
 
   /**
    * Whether this dialect supports features from a wide variety of
-   * dialects. This is enabled for the Babel parser, disabled otherwise.
+   * dialects. This is enabled for the Hive dialect parser, disabled otherwise.
    */
-  boolean isLiberal();
+  boolean isLeftSemiJoinAllowed();
 
   /**
    * Whether to allow aliases from the {@code SELECT} clause to be used as
    * column names in the {@code GROUP BY} clause.
    *
    * <p>Among the built-in conformance levels, true in
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#BIG_QUERY},
    * {@link SqlConformanceEnum#LENIENT},
    * {@link SqlConformanceEnum#MYSQL_5};
@@ -85,7 +84,6 @@ public interface SqlConformance {
    * in the select list'.
    *
    * <p>Among the built-in conformance levels, true in
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#LENIENT},
    * {@link SqlConformanceEnum#MYSQL_5},
    * {@link SqlConformanceEnum#PRESTO};
@@ -98,7 +96,6 @@ public interface SqlConformance {
    * column names in the {@code HAVING} clause.
    *
    * <p>Among the built-in conformance levels, true in
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#BIG_QUERY},
    * {@link SqlConformanceEnum#LENIENT},
    * {@link SqlConformanceEnum#MYSQL_5};
@@ -112,7 +109,6 @@ public interface SqlConformance {
    *
    * <p>Among the built-in conformance levels, true in
    * {@link SqlConformanceEnum#DEFAULT},
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#LENIENT},
    * {@link SqlConformanceEnum#MYSQL_5},
    * {@link SqlConformanceEnum#ORACLE_10},
@@ -132,7 +128,6 @@ public interface SqlConformance {
    *
    * <p>Among the built-in conformance levels, true in
    * {@link SqlConformanceEnum#DEFAULT},
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#LENIENT},
    * {@link SqlConformanceEnum#MYSQL_5},
    * {@link SqlConformanceEnum#ORACLE_10},
@@ -171,7 +166,6 @@ public interface SqlConformance {
    * the parser.
    *
    * <p>Among the built-in conformance levels, true in
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#LENIENT},
    * {@link SqlConformanceEnum#MYSQL_5},
    * {@link SqlConformanceEnum#ORACLE_10},
@@ -186,7 +180,6 @@ public interface SqlConformance {
    * {@code mod} function.
    *
    * <p>Among the built-in conformance levels, true in
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#LENIENT},
    * {@link SqlConformanceEnum#MYSQL_5},
    * {@link SqlConformanceEnum#PRESTO};
@@ -199,7 +192,6 @@ public interface SqlConformance {
    * the parser.
    *
    * <p>Among the built-in conformance levels, true in
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#LENIENT},
    * {@link SqlConformanceEnum#ORACLE_10},
    * {@link SqlConformanceEnum#ORACLE_12};
@@ -227,7 +219,6 @@ public interface SqlConformance {
    * </ul>
    *
    * <p>Among the built-in conformance levels, true in
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#LENIENT},
    * {@link SqlConformanceEnum#ORACLE_12},
    * {@link SqlConformanceEnum#SQL_SERVER_2008};
@@ -249,7 +240,6 @@ public interface SqlConformance {
    * column is not declared {@code NOT NULL}.
    *
    * <p>Among the built-in conformance levels, true in
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#LENIENT},
    * {@link SqlConformanceEnum#PRAGMATIC_99},
    * {@link SqlConformanceEnum#PRAGMATIC_2003};
@@ -293,7 +283,6 @@ public interface SqlConformance {
    * not.
    *
    * <p>Among the built-in conformance levels, true in
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#LENIENT},
    * {@link SqlConformanceEnum#MYSQL_5};
    * false otherwise.
@@ -334,7 +323,6 @@ public interface SqlConformance {
    * </blockquote>
    *
    * <p>Among the built-in conformance levels, true in
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#LENIENT};
    * false otherwise.
    */
@@ -350,7 +338,6 @@ public interface SqlConformance {
    * <p>MySQL and CUBRID allow this behavior.
    *
    * <p>Among the built-in conformance levels, true in
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#LENIENT},
    * {@link SqlConformanceEnum#MYSQL_5};
    * false otherwise.
@@ -361,7 +348,6 @@ public interface SqlConformance {
    * Whether to allow geo-spatial extensions, including the GEOMETRY type.
    *
    * <p>Among the built-in conformance levels, true in
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#LENIENT},
    * {@link SqlConformanceEnum#MYSQL_5},
    * {@link SqlConformanceEnum#PRESTO},
@@ -412,7 +398,6 @@ public interface SqlConformance {
    * trim all the characters, resulting in a return value of '__'.
    *
    * <p>Among the built-in conformance levels, true in
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#LENIENT},
    * {@link SqlConformanceEnum#MYSQL_5},
    * {@link SqlConformanceEnum#SQL_SERVER_2008};
@@ -429,7 +414,6 @@ public interface SqlConformance {
    * PostgreSQL allows both; Oracle only allows singular time units.
    *
    * <p>Among the built-in conformance levels, true in
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#LENIENT};
    * false otherwise.
    */
@@ -479,7 +463,6 @@ public interface SqlConformance {
    * a valid grammar in some dialects.</p>
    *
    * <p>Among the built-in conformance levels, false in
-   * {@link SqlConformanceEnum#BABEL},
    * {@link SqlConformanceEnum#BIG_QUERY},
    * true otherwise.</p>
    */

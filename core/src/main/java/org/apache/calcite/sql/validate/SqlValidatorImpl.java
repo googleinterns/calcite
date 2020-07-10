@@ -3372,7 +3372,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     // a NATURAL keyword?
     switch (joinType) {
     case LEFT_SEMI_JOIN:
-      if (!this.config.sqlConformance().isLiberal()) {
+      if (!this.config.sqlConformance().isLeftSemiJoinAllowed()) {
         throw newValidationError(join.getJoinTypeNode(),
             RESOURCE.dialectDoesNotSupportFeature("LEFT SEMI JOIN"));
       }

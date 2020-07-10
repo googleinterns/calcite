@@ -27,10 +27,6 @@ public enum SqlConformanceEnum implements SqlConformance {
    * Calcite. */
   LENIENT,
 
-  /** Conformance value that allows anything supported by any dialect.
-   * Even more liberal than {@link #LENIENT}. */
-  BABEL,
-
   /** Conformance value that instructs Calcite to use SQL semantics strictly
    * consistent with the SQL:92 standard. */
   STRICT_92,
@@ -77,11 +73,31 @@ public enum SqlConformanceEnum implements SqlConformance {
 
   /** Conformance value that instructs Calcite to use SQL semantics
    * consistent with Microsoft SQL Server version 2008. */
-  SQL_SERVER_2008;
+  SQL_SERVER_2008,
 
-  public boolean isLiberal() {
+  /** Conformance value that instructs Calcite to use SQL semantics
+   * consistent with Dialect1. */
+  DIALECT_1,
+
+  /** Conformance value that instructs Calcite to use SQL semantics
+   * consistent with Hive. */
+  HIVE,
+
+  /** Conformance value that instructs Calcite to use SQL semantics
+   * consistent with PostgreSQL. */
+  POSTGRESQL,
+
+  /** Conformance value that instructs Calcite to use SQL semantics
+   * consistent with Redshift. */
+  REDSHIFT,
+
+  /** Conformance value that instructs Calcite to use SQL semantics
+   * consistent with MySQL version 8.x. */
+  MYSQL_8;
+
+  public boolean isLeftSemiJoinAllowed() {
     switch (this) {
-    case BABEL:
+    case HIVE:
       return true;
     default:
       return false;
@@ -90,10 +106,13 @@ public enum SqlConformanceEnum implements SqlConformance {
 
   public boolean isGroupByAlias() {
     switch (this) {
-    case BABEL:
     case LENIENT:
     case BIG_QUERY:
     case MYSQL_5:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -102,10 +121,15 @@ public enum SqlConformanceEnum implements SqlConformance {
 
   public boolean isGroupByOrdinal() {
     switch (this) {
-    case BABEL:
     case LENIENT:
     case MYSQL_5:
     case PRESTO:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -114,10 +138,14 @@ public enum SqlConformanceEnum implements SqlConformance {
 
   public boolean isHavingAlias() {
     switch (this) {
-    case BABEL:
     case LENIENT:
     case BIG_QUERY:
     case MYSQL_5:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -127,7 +155,6 @@ public enum SqlConformanceEnum implements SqlConformance {
   public boolean isSortByOrdinal() {
     switch (this) {
     case DEFAULT:
-    case BABEL:
     case LENIENT:
     case BIG_QUERY:
     case MYSQL_5:
@@ -147,13 +174,18 @@ public enum SqlConformanceEnum implements SqlConformance {
   public boolean isSortByAlias() {
     switch (this) {
     case DEFAULT:
-    case BABEL:
     case LENIENT:
     case MYSQL_5:
     case ORACLE_10:
     case ORACLE_12:
     case STRICT_92:
     case SQL_SERVER_2008:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -180,11 +212,16 @@ public enum SqlConformanceEnum implements SqlConformance {
   public boolean isBangEqualAllowed() {
     switch (this) {
     case LENIENT:
-    case BABEL:
     case MYSQL_5:
     case ORACLE_10:
     case ORACLE_12:
     case PRESTO:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -193,10 +230,15 @@ public enum SqlConformanceEnum implements SqlConformance {
 
   @Override public boolean isMinusAllowed() {
     switch (this) {
-    case BABEL:
     case LENIENT:
     case ORACLE_10:
     case ORACLE_12:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -205,10 +247,15 @@ public enum SqlConformanceEnum implements SqlConformance {
 
   @Override public boolean isPercentRemainderAllowed() {
     switch (this) {
-    case BABEL:
     case LENIENT:
     case MYSQL_5:
     case PRESTO:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -217,10 +264,15 @@ public enum SqlConformanceEnum implements SqlConformance {
 
   public boolean isApplyAllowed() {
     switch (this) {
-    case BABEL:
     case LENIENT:
     case SQL_SERVER_2008:
     case ORACLE_12:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -229,11 +281,15 @@ public enum SqlConformanceEnum implements SqlConformance {
 
   public boolean isInsertSubsetColumnsAllowed() {
     switch (this) {
-    case BABEL:
     case LENIENT:
     case PRAGMATIC_99:
     case PRAGMATIC_2003:
     case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -242,9 +298,14 @@ public enum SqlConformanceEnum implements SqlConformance {
 
   public boolean allowNiladicParentheses() {
     switch (this) {
-    case BABEL:
     case LENIENT:
     case MYSQL_5:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -256,6 +317,11 @@ public enum SqlConformanceEnum implements SqlConformance {
     case DEFAULT:
     case LENIENT:
     case PRESTO:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -264,8 +330,13 @@ public enum SqlConformanceEnum implements SqlConformance {
 
   public boolean allowExtend() {
     switch (this) {
-    case BABEL:
     case LENIENT:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -274,9 +345,14 @@ public enum SqlConformanceEnum implements SqlConformance {
 
   public boolean isLimitStartCountAllowed() {
     switch (this) {
-    case BABEL:
     case LENIENT:
     case MYSQL_5:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -285,11 +361,16 @@ public enum SqlConformanceEnum implements SqlConformance {
 
   public boolean allowGeometry() {
     switch (this) {
-    case BABEL:
     case LENIENT:
     case MYSQL_5:
     case SQL_SERVER_2008:
     case PRESTO:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -306,6 +387,11 @@ public enum SqlConformanceEnum implements SqlConformance {
     case ORACLE_12:
     case SQL_SERVER_2008:
     case PRESTO:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -314,10 +400,15 @@ public enum SqlConformanceEnum implements SqlConformance {
 
   public boolean allowExtendedTrim() {
     switch (this) {
-    case BABEL:
     case LENIENT:
     case MYSQL_5:
     case SQL_SERVER_2008:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -326,8 +417,13 @@ public enum SqlConformanceEnum implements SqlConformance {
 
   @Override public boolean allowPluralTimeUnits() {
     switch (this) {
-    case BABEL:
     case LENIENT:
+    case BIG_QUERY:
+    case MYSQL_8:
+    case DIALECT_1:
+    case HIVE:
+    case POSTGRESQL:
+    case REDSHIFT:
       return true;
     default:
       return false;
@@ -359,8 +455,8 @@ public enum SqlConformanceEnum implements SqlConformance {
 
   @Override public boolean allowMergeInsertRewrite() {
     switch (this) {
-    case BABEL:
     case BIG_QUERY:
+    case LENIENT:
       return false;
     default:
       return true;
