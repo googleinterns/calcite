@@ -2447,7 +2447,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test void testBlobValueWithAttributes() {
     final String sql = "create table foo (bar blob(1g) not null format 'x(4)' "
         + "title 'hello')";
-    final String expected = "CREATE TABLE `FOO` (`BAR` BLOB(1G) NOT NULL FORMAT 'x(4)' TITLE 'hello')";
+    final String expected = "CREATE TABLE `FOO` (`BAR` BLOB(1G) NOT NULL FORMAT 'x(4)' "
+        + "TITLE 'hello')";
     sql(sql).ok(expected);
   }
 

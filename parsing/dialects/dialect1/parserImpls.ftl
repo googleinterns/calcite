@@ -1845,7 +1845,7 @@ SqlBlobTypeNameSpec BlobDataType() :
 
 SqlLobUnitSize LobUnitSize() :
 {
-    SqlLobUnitSize unitSize;
+    final SqlLobUnitSize unitSize;
 }
 {
     (
