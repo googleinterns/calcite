@@ -35,7 +35,6 @@ data: {
       "org.apache.calcite.sql.SqlColumnAttributeUpperCase",
       "org.apache.calcite.sql.SqlColumnAttributeCaseSpecific",
       "org.apache.calcite.sql.SqlColumnAttributeCharacterSet",
-      "org.apache.calcite.sql.SqlColumnAttributeCharacterSet",
       "org.apache.calcite.sql.SqlColumnAttributeCompress",
       "org.apache.calcite.sql.SqlColumnAttributeDefault",
       "org.apache.calcite.sql.CharacterSet"
