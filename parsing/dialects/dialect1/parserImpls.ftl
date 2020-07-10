@@ -415,6 +415,8 @@ void ColumnAttributes(List<SqlColumnAttribute> list) :
             e = ColumnAttributeDateFormat()
         |
             e = ColumnAttributeGenerated()
+        |
+            e = ColumnAttributeTitle()
         ) { list.add(e); }
     )+
 }
@@ -761,6 +763,18 @@ SqlColumnAttribute ColumnAttributeDateFormat() :
     formatString = StringLiteral()
     {
         return new SqlColumnAttributeDateFormat(getPos(), formatString);
+    }
+}
+
+SqlColumnAttribute ColumnAttributeTitle() :
+{
+    final SqlNode titleString;
+}
+{
+    <TITLE>
+    titleString = StringLiteral()
+    {
+        return new SqlColumnAttributeTitle(getPos(), titleString);
     }
 }
 
@@ -1810,9 +1824,6 @@ SqlBlobTypeNameSpec BlobDataType() :
 {
     SqlLiteral maxLength = null;
     SqlLobUnitSize unitSize = SqlLobUnitSize.UNSPECIFIED;
-    SqlNode format = null;
-    SqlNode title = null;
-    boolean notNull = false;
 }
 {
     (
@@ -1829,14 +1840,7 @@ SqlBlobTypeNameSpec BlobDataType() :
         [ unitSize = LobUnitSize() ]
         <RPAREN>
     ]
-    (
-        <FORMAT> format = StringLiteral()
-    |
-        <TITLE> title = StringLiteral()
-    |
-        <NOT> <NULL> { notNull = true; }
-    )*
-    { return new SqlBlobTypeNameSpec(maxLength, unitSize, format, title, notNull, getPos()); }
+    { return new SqlBlobTypeNameSpec(maxLength, unitSize, getPos()); }
 }
 
 SqlLobUnitSize LobUnitSize() :

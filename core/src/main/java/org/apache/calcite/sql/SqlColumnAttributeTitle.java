@@ -16,24 +16,29 @@
  */
 package org.apache.calcite.sql;
 
-public enum SqlLobUnitSize {
-  /**
-   * Unit size in megabytes.
-   */
-  M,
+import org.apache.calcite.sql.parser.SqlParserPos;
+
+/**
+ * A {@code SqlColumnAttributeTitle} is the TITLE column attribute for a data type.
+ */
+public class SqlColumnAttributeTitle extends SqlColumnAttribute {
+
+  private final SqlNode titleString;
 
   /**
-   * Unit size in kilobytes.
+   * Creates a {@code SqlColumnAttributeTitle}.
+   *
+   * @param pos  Parser position, must not be null
+   * @param titleString String after the TITLE keyword
    */
-  K,
+  public SqlColumnAttributeTitle(SqlParserPos pos, SqlNode titleString) {
+    super(pos);
+    this.titleString = titleString;
+  }
 
-  /**
-   * Unit size in gigabytes.
-   */
-  G,
-
-  /**
-   * Unit size is unspecified.
-   */
-  UNSPECIFIED,
+  @Override public void unparse(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
+    writer.keyword("TITLE");
+    titleString.unparse(writer, 0, 0);
+  }
 }

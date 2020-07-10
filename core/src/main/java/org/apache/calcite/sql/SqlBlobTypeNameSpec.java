@@ -18,7 +18,6 @@ package org.apache.calcite.sql;
 
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.util.Litmus;
 
@@ -31,9 +30,6 @@ public class SqlBlobTypeNameSpec extends SqlTypeNameSpec {
 
   private SqlLiteral maxLength;
   private SqlLobUnitSize unitSize;
-  private SqlNode format;
-  private SqlNode title;
-  private boolean notNull;
 
   /**
    * Create a SqlBlobTypeNameSpec instance.
@@ -41,13 +37,10 @@ public class SqlBlobTypeNameSpec extends SqlTypeNameSpec {
    * @param pos The parser position
    */
   public SqlBlobTypeNameSpec(SqlLiteral maxLength, SqlLobUnitSize unitSize,
-      SqlNode format, SqlNode title, boolean notNull, SqlParserPos pos) {
+      SqlParserPos pos) {
     super(new SqlIdentifier("BLOB", pos), pos);
     this.maxLength = maxLength;
     this.unitSize = unitSize;
-    this.format = format;
-    this.title = title;
-    this.notNull = notNull;
     if (maxLength != null && !isValidMaxLength(maxLength, unitSize)) {
       throw SqlUtil.newContextException(maxLength.getParserPosition(),
         RESOURCE.numberLiteralOutOfRange(String.valueOf(maxLength)));
@@ -87,8 +80,8 @@ public class SqlBlobTypeNameSpec extends SqlTypeNameSpec {
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("BLOB");
-    writer.setNeedWhitespace(false);
     if (maxLength != null) {
+      writer.setNeedWhitespace(false);
       writer.sep("(");
       maxLength.unparse(writer, 0, 0);
       if (unitSize != SqlLobUnitSize.UNSPECIFIED) {
@@ -96,17 +89,6 @@ public class SqlBlobTypeNameSpec extends SqlTypeNameSpec {
         writer.print(unitSize.toString());
       }
       writer.sep(")");
-    }
-    if (notNull) {
-      writer.keyword("NOT NULL");
-    }
-    if (format != null) {
-      writer.keyword("FORMAT");
-      format.unparse(writer, 0, 0);
-    }
-    if (title != null) {
-      writer.keyword("TITLE");
-      title.unparse(writer, 0, 0);
     }
   }
 
@@ -116,10 +98,7 @@ public class SqlBlobTypeNameSpec extends SqlTypeNameSpec {
     }
     SqlBlobTypeNameSpec that = (SqlBlobTypeNameSpec) spec;
     if (this.maxLength != that.maxLength
-        || this.unitSize != that.unitSize
-        || this.notNull != that.notNull
-        || this.format != that.format
-        || this.title != that.title) {
+        || this.unitSize != that.unitSize) {
       return litmus.fail("{} != {}", this, spec);
     }
     return litmus.succeed();

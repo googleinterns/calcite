@@ -36,6 +36,7 @@ data: {
       "org.apache.calcite.sql.SqlColumnAttributeCharacterSet.CharacterSet",
       "org.apache.calcite.sql.SqlColumnAttributeCompress",
       "org.apache.calcite.sql.SqlColumnAttributeDefault",
+      "org.apache.calcite.sql.SqlColumnAttributeTitle",
       "org.apache.calcite.sql.SqlAlterTable",
       "org.apache.calcite.sql.SqlAlterTableAddColumns",
       "org.apache.calcite.sql.SqlAlterTableAttributeChecksum",
