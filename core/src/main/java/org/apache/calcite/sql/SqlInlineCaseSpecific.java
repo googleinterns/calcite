@@ -16,9 +16,12 @@
  */
 package org.apache.calcite.sql;
 
+import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.Objects;
+import java.util.List;
 
 /**
  * Parse tree for {@code SqlInlineCaseSpecific} statement.
@@ -61,7 +64,7 @@ public class SqlInlineCaseSpecific extends SqlCall
     if (not) {
       writer.keyword("NOT");
     }
-    writer.keyword("CASE SPECIFIC");
+    writer.keyword("CASESPECIFIC");
     writer.endList(frame);
   }
 

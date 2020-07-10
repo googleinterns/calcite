@@ -2348,6 +2348,38 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).fails(expected);
   }
 
+  @Test public void testInlineCaseSpecificNoneEqualsCaseSpecific() {
+    final String sql = "select * from foo where a = 'Hello' (casespecific)";
+    final String expected = "SELECT *\n"
+     + "FROM `FOO`\n"
+     + "WHERE (`A` = 'Hello'(CASESPECIFIC))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInlineCaseSpecificNotCaseSpecificEqualsNotCaseSpecific() {
+    final String sql = "select * from foo where a (NOT CASESPECIFIC) = 'Hello' (not casespecific)";
+    final String expected = "SELECT *\n"
+     + "FROM `FOO`\n"
+     + "WHERE (`A` = 'Hello'(CASESPECIFIC))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInlineCaseSpecificNotCaseSpecificEqualsCaseSpecific() {
+    final String sql = "select * from foo where a (NOT CASESPECIFIC) = 'Hello' (casespecific)";
+    final String expected = "SELECT *\n"
+     + "FROM `FOO`\n"
+     + "WHERE (`A` (NOT CASESPECIFIC) = 'Hello'(CASESPECIFIC))";
+    sql(sql).ok(expected);
+  }
+
+  /*@Test public void testInlineCaseSpecificFunctionCall() {
+    final String sql = "select * from foo where MY_FUN(a) (CASESPECIFIC) = 'Hello'";
+    final String expected = "SELECT *\n"
+     + "FROM `FOO`\n"
+     + "WHERE (MY_FUN(a) (CASESPECIFIC) = 'Hello')";
+    sql(sql).ok(expected);
+  }*/
+
   @Test public void testHostVariableExecPositionalParams() {
     final String sql = "exec foo (:bar, :baz, :qux)";
     final String expected = "EXECUTE `FOO` (:BAR, :BAZ, :QUX)";

@@ -29,6 +29,7 @@ data: {
       "java.util.HashMap"
       "org.apache.calcite.sql.SqlCreate",
       "org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier",
+      "org.apache.calcite.sql.SqlInlineCaseSpecific",
       "org.apache.calcite.sql.SqlColumnAttribute",
       "org.apache.calcite.sql.SqlColumnAttributeUpperCase",
       "org.apache.calcite.sql.SqlColumnAttributeCaseSpecific",
@@ -1095,6 +1096,7 @@ data: {
     ]
 
     preExpressionMethods: [
+      "InlineCaseSpecific"
       "InlineModOperator"
       "AlternativeTypeConversionLiteralOrIdentifier"
       "InlineFormatLiteralOrIdentifier"
