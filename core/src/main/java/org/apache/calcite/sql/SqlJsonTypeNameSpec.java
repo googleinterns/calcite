@@ -73,7 +73,7 @@ public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
     writer.keyword("JSON");
     if (maxLength != null) {
       final SqlWriter.Frame frame =
-        writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
+          writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
       writer.print(maxLength);
       writer.endList(frame);
     }
