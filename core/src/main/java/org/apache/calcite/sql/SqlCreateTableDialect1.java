@@ -16,11 +16,12 @@
  */
 package org.apache.calcite.sql;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Parse tree for {@code CREATE TABLE} statement.
