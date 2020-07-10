@@ -50,7 +50,7 @@ public class SqlBlobTypeNameSpec extends SqlTypeNameSpec {
     this.notNull = notNull;
     if (maxLength != null && !isValidMaxLength(maxLength, unitSize)) {
       throw SqlUtil.newContextException(maxLength.getParserPosition(),
-          RESOURCE.numberLiteralOutOfRange(String.valueOf(maxLength)));
+        RESOURCE.numberLiteralOutOfRange(String.valueOf(maxLength)));
     }
   }
 
