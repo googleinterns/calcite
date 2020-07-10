@@ -52,7 +52,7 @@ public enum JoinType {
   /**
    * Left semi join.
    *
-   * <p>Not used by Calcite; only in Babel's Hive dialect.
+   * <p>Not used by Calcite; only in Hive dialect.
    */
   LEFT_SEMI_JOIN,
 

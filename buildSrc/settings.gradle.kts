@@ -27,6 +27,7 @@ pluginManagement {
 include("javacc")
 include("fmpp")
 include("buildext")
+include("parser")
 
 val upperCaseLetters = "\\p{Upper}".toRegex()
 
