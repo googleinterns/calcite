@@ -822,16 +822,16 @@ class BabelParserTest extends SqlParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testCreateTableKanjiCharacterSetColumnLevelAttribute() {
-    final String sql = "create table foo (bar int character set kanji)";
-    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET KANJI)";
+  @Test public void testCreateTableKanji1CharacterSetColumnLevelAttribute() {
+    final String sql = "create table foo (bar int character set kanji1)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET KANJI1)";
     sql(sql).ok(expected);
   }
 
   @Test public void testCreateTableCharacterSetAndUppercaseColumnLevelAttributes() {
-    final String sql = "create table foo (bar int character set kanji uppercase)";
+    final String sql = "create table foo (bar int character set kanji1 uppercase)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET "
-        + "KANJI UPPERCASE)";
+        + "KANJI1 UPPERCASE)";
     sql(sql).ok(expected);
   }
 

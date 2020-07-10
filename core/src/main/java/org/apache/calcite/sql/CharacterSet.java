@@ -38,7 +38,7 @@ public enum CharacterSet {
   KANJISJIS,
 
   /**
-   * Column has the KANJI character set.
+   * Column has the KANJI1 character set.
    */
-  KANJI,
+  KANJI1,
 }

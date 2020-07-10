@@ -375,7 +375,7 @@ SqlColumnAttribute ColumnAttributeCharacterSet() :
     |
         <KANJISJIS> { characterSet = CharacterSet.KANJISJIS; }
     |
-        <KANJI> { characterSet = CharacterSet.KANJI; }
+        <KANJI1> { characterSet = CharacterSet.KANJI1; }
     )
     {
         return new SqlColumnAttributeCharacterSet(getPos(), characterSet);
