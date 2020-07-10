@@ -478,13 +478,13 @@ class SqlValidatorTest extends SqlValidatorTestCase {
     expr("exp(3.67)").ok();
 
     expr("CURRENT_DATE+1")
-        .withConformance(SqlConformanceEnum.BABEL).ok();
+        .withConformance(SqlConformanceEnum.LENIENT).ok();
     expr("1+CURRENT_DATE")
-        .withConformance(SqlConformanceEnum.BABEL).ok();
+        .withConformance(SqlConformanceEnum.LENIENT).ok();
     expr("CURRENT_DATE-1")
-        .withConformance(SqlConformanceEnum.BABEL).ok();
+        .withConformance(SqlConformanceEnum.LENIENT).ok();
     expr("-1+CURRENT_DATE")
-        .withConformance(SqlConformanceEnum.BABEL).ok();
+        .withConformance(SqlConformanceEnum.LENIENT).ok();
   }
 
   @Test void testArithmeticOperatorsFails() {
@@ -11528,7 +11528,7 @@ class SqlValidatorTest extends SqlValidatorTestCase {
     sql(sql).withConformance(SqlConformanceEnum.DEFAULT).rewritesTo(expected);
   }
 
-  @Test void testMergeInsertRewriteInBabelDisabled() {
+  @Test void testMergeInsertRewriteInLenientDisabled() {
     final String sql = "MERGE INTO emp AS e\n"
         + "USING dept AS b\n"
         + "ON e.ename = b.name\n"
@@ -11546,7 +11546,7 @@ class SqlValidatorTest extends SqlValidatorTestCase {
         + "`JOB`, `HIREDATE`, `SAL`, `COMM`, `DEPTNO`, `SLACKER`) "
         + "(VALUES ROW(`B`.`NAME`, `B`.`DEPTNO`, "
         + "`B`.`DEPTNO`, TIMESTAMP '1970-01-01 00:00:00', 1, 2, 3, FALSE))";
-    sql(sql).withConformance(SqlConformanceEnum.BABEL).rewritesTo(expected);
+    sql(sql).withConformance(SqlConformanceEnum.LENIENT).rewritesTo(expected);
   }
 
   @Test void testMergeInsertRewriteInBigQueryDisabled() {

@@ -23,8 +23,8 @@ package org.apache.calcite.sql.validate;
  * and behaves the same as in {@link SqlConformanceEnum#DEFAULT}.
  */
 public abstract class SqlAbstractConformance implements SqlConformance {
-  public boolean isLiberal() {
-    return SqlConformanceEnum.DEFAULT.isLiberal();
+  public boolean isLeftSemiJoinAllowed() {
+    return SqlConformanceEnum.DEFAULT.isLeftSemiJoinAllowed();
   }
 
   public boolean isGroupByAlias() {

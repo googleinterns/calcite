@@ -2937,9 +2937,8 @@ SqlMatchRecognize MatchRecognize(SqlNode tableRef) :
                         s1.end(var), var);
                 }
             |
-                // This "LOOKAHEAD({true})" is a workaround for Babel.
-                // Because of babel parser uses option "LOOKAHEAD=2" globally,
-                // JavaCC generates something like "LOOKAHEAD(2, [<LAST>] SimpleIdentifier())"
+                // This "LOOKAHEAD({true})" is a workaround for dialects that use option "LOOKAHEAD=2"
+                // globally, JavaCC generates something like "LOOKAHEAD(2, [<LAST>] SimpleIdentifier())"
                 // here. But the correct LOOKAHEAD should be
                 // "LOOKAHEAD(2, [ LOOKAHEAD(2, <LAST> SimpleIdentifier()) <LAST> ]
                 // SimpleIdentifier())" which have the syntactic lookahead for <LAST> considered.
@@ -7707,7 +7706,7 @@ SqlPostfixOperator PostfixRowOperator() :
  * Parses a non-reserved keyword for use as an identifier.
  *
  * <p>The method is broken up into several sub-methods; without this
- * decomposition, parsers such as Babel with more than ~1,000 non-reserved
+ * decomposition, parsers such as Dialect1 with more than ~1,000 non-reserved
  * keywords would generate such deeply nested 'if' statements that javac would
  * fail with a {@link StackOverflowError}.
  *

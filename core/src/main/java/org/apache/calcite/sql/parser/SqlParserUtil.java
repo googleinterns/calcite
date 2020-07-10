@@ -174,7 +174,7 @@ public final class SqlParserUtil {
     final Format format = Format.PER_THREAD.get();
     DateTimeUtils.PrecisionTime pt = null;
     // Allow timestamp literals with and without time fields (as does
-    // PostgreSQL); TODO: require time fields except in Babel's lenient mode
+    // PostgreSQL); TODO: require time fields except in LENIENT mode
     final DateFormat[] dateFormats = {format.timestamp, format.date};
     for (DateFormat dateFormat : dateFormats) {
       pt = DateTimeUtils.parsePrecisionDateTimeLiteral(dateStr,
