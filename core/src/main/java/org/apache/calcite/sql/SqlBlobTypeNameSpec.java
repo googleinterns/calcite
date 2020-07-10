@@ -42,7 +42,7 @@ public class SqlBlobTypeNameSpec extends SqlTypeNameSpec {
    */
   public SqlBlobTypeNameSpec(SqlLiteral maxLength, SqlLobUnitSize unitSize,
       SqlNode format, SqlNode title, boolean notNull, SqlParserPos pos) {
-    super(new SqlIdentifier(SqlTypeName.BLOB.name(), pos), pos);
+    super(new SqlIdentifier("BLOB", pos), pos);
     this.maxLength = maxLength;
     this.unitSize = unitSize;
     this.format = format;
@@ -115,19 +115,11 @@ public class SqlBlobTypeNameSpec extends SqlTypeNameSpec {
       return litmus.fail("{} != {}", this, spec);
     }
     SqlBlobTypeNameSpec that = (SqlBlobTypeNameSpec) spec;
-    if (this.maxLength != that.maxLength) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-    if (this.unitSize != that.unitSize) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-    if (this.notNull != that.notNull) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-    if (this.format != that.format) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-    if (this.title != that.title) {
+    if (this.maxLength != that.maxLength
+        || this.unitSize != that.unitSize
+        || this.notNull != that.notNull
+        || this.format != that.format
+        || this.title != that.title) {
       return litmus.fail("{} != {}", this, spec);
     }
     return litmus.succeed();
