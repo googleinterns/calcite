@@ -1805,3 +1805,51 @@ SqlHostVariable SqlHostVariable() :
     )
     { return new SqlHostVariable(name, getPos()); }
 }
+
+SqlBlobTypeNameSpec BlobDataType() :
+{
+    SqlLiteral maxLength = null;
+    SqlLobUnitSize unitSize = SqlLobUnitSize.UNSPECIFIED;
+    SqlNode format = null;
+    SqlNode title = null;
+    boolean notNull = false;
+}
+{
+    (
+        <BLOB>
+    |
+        <BINARY> <LARGE> <OBJECT>
+    )
+    [
+        <LPAREN>
+        <UNSIGNED_INTEGER_LITERAL>
+        {
+            maxLength = SqlLiteral.createExactNumeric(token.image, getPos());
+        }
+        [ unitSize = LobUnitSize() ]
+        <RPAREN>
+    ]
+    (
+        <FORMAT> format = StringLiteral()
+    |
+        <TITLE> title = StringLiteral()
+    |
+        <NOT> <NULL> { notNull = true; }
+    )*
+    { return new SqlBlobTypeNameSpec(maxLength, unitSize, format, title, notNull, getPos()); }
+}
+
+SqlLobUnitSize LobUnitSize() :
+{
+    SqlLobUnitSize unitSize;
+}
+{
+    (
+        <K> { unitSize = SqlLobUnitSize.K; }
+    |
+        <M> { unitSize = SqlLobUnitSize.M; }
+    |
+        <G> { unitSize = SqlLobUnitSize.G; }
+    )
+    { return unitSize; }
+}
