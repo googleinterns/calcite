@@ -1802,7 +1802,12 @@ SqlNode InlineCaseSpecific() :
         value = StringLiteral()
     |
         // Required to differentiate between this and CompoundIdentifier().
-        LOOKAHEAD( [<SPECIFIC>] FunctionName() <LPAREN> )
+        LOOKAHEAD([<SPECIFIC>] FunctionName() <LPAREN>,
+        {
+            // Token index breakdown:
+            // NAME(1) <LPAREN>(2) [<NOT>](3) <CASEPECIFIC>(3 or 4) <RPAREN>(4 or 5)
+            getToken(3).kind != NOT && getToken(4).kind != CASESPECIFIC && getToken(3).kind != CASESPECIFIC
+        })
         value = NamedFunctionCall()
     |
         value = CompoundIdentifier()

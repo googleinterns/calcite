@@ -60,7 +60,7 @@ public class SqlInlineCaseSpecific extends SqlCall
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     value.unparse(writer, leftPrec, rightPrec);
     final SqlWriter.Frame frame =
-        writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
+        writer.startList(SqlWriter.FrameTypeEnum.SIMPLE, "(", ")");
     if (not) {
       writer.keyword("NOT");
     }
