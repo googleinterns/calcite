@@ -46,8 +46,8 @@ public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
     assert characterSet == null || storageFormat == null;
 
     if (characterSet != null) {
-      assert characterSet == CharacterSet.LATIN ||
-        characterSet == CharacterSet.UNICODE;
+      assert characterSet == CharacterSet.LATIN
+        || characterSet == CharacterSet.UNICODE;
     }
   }
 
@@ -60,10 +60,10 @@ public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
       return litmus.fail("{} != {}", this, spec);
     }
     SqlJsonTypeNameSpec that = (SqlJsonTypeNameSpec) spec;
-    if (!this.maxLength.equals(that.getMaxLength()) ||
-        !this.inlineLength.equals(that.getInlineLength()) ||
-        this.characterSet != that.getCharacterSet() ||
-        this.storageFormat != that.getStorageFormat()) {
+    if (!this.maxLength.equals(that.getMaxLength())
+        || !this.inlineLength.equals(that.getInlineLength())
+        || this.characterSet != that.getCharacterSet()
+        || this.storageFormat != that.getStorageFormat()) {
       return litmus.fail("{} != {}", this, spec);
     }
     return litmus.succeed();
