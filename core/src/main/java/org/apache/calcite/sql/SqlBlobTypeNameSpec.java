@@ -28,11 +28,11 @@ import static org.apache.calcite.util.Static.RESOURCE;
  */
 public class SqlBlobTypeNameSpec extends SqlTypeNameSpec {
 
-  private SqlLiteral maxLength;
-  private SqlLobUnitSize unitSize;
+  public SqlLiteral maxLength;
+  public SqlLobUnitSize unitSize;
 
   /**
-   * Create a SqlBlobTypeNameSpec instance.
+   * Create a {@code SqlBlobTypeNameSpec} instance.
    *
    * @param pos The parser position
    */
@@ -47,7 +47,8 @@ public class SqlBlobTypeNameSpec extends SqlTypeNameSpec {
     }
   }
 
-  private boolean isValidMaxLength(SqlLiteral maxLength, SqlLobUnitSize unitSize) {
+  private boolean isValidMaxLength(SqlLiteral maxLength,
+      SqlLobUnitSize unitSize) {
     int numericMaxLength = maxLength.getValueAs(Integer.class);
     switch (unitSize) {
     case UNSPECIFIED:

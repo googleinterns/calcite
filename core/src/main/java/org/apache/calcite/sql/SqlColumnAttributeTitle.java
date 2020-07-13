@@ -19,11 +19,12 @@ package org.apache.calcite.sql;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A {@code SqlColumnAttributeTitle} is the TITLE column attribute for a data type.
+ * A {@code SqlColumnAttributeTitle} is the TITLE column attribute for a data
+ * type.
  */
 public class SqlColumnAttributeTitle extends SqlColumnAttribute {
 
-  private final SqlNode titleString;
+  public final SqlNode titleString;
 
   /**
    * Creates a {@code SqlColumnAttributeTitle}.
