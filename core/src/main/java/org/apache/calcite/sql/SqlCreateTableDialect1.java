@@ -22,26 +22,19 @@ import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Parse tree for {@code CREATE TABLE} statement.
  */
-public class SqlCreateTableDialect1 extends SqlCreate
+public class SqlCreateTableDialect1 extends SqlCreateTable
     implements SqlExecutableStatement {
-  public final SqlIdentifier name;
   public final SetType setType;
   public final Volatility volatility;
   public final List<SqlTableAttribute> tableAttributes;
-  public final SqlNodeList columnList;
-  public final SqlNode query;
   public final WithDataType withData;
   public final SqlPrimaryIndex primaryIndex;
   public final List<SqlIndex> indices;
   public final OnCommitType onCommitType;
-
-  private static final SqlOperator OPERATOR =
-      new SqlSpecialOperator("CREATE TABLE", SqlKind.CREATE_TABLE);
 
   public SqlCreateTableDialect1(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
       SetType setType, Volatility volatility, boolean ifNotExists,
@@ -59,13 +52,10 @@ public class SqlCreateTableDialect1 extends SqlCreate
       SqlNodeList columnList, SqlNode query, WithDataType withData,
       SqlPrimaryIndex primaryIndex, List<SqlIndex> indices,
       OnCommitType onCommitType) {
-    super(OPERATOR, pos, createSpecifier, ifNotExists);
-    this.name = Objects.requireNonNull(name);
+    super(pos, createSpecifier, ifNotExists, name, columnList, query);
     this.setType = setType;
     this.volatility = volatility;
     this.tableAttributes = tableAttributes; // may be null
-    this.columnList = columnList; // may be null
-    this.query = query; // for "CREATE TABLE ... AS query"; may be null
     this.withData = withData;
     this.primaryIndex = primaryIndex;
     this.indices = indices;

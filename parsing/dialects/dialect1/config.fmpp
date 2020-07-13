@@ -67,6 +67,8 @@ data: {
       "org.apache.calcite.sql.SqlDrop",
       "org.apache.calcite.sql.SqlExecMacro",
       "org.apache.calcite.sql.SqlExecMacroParam",
+      "org.apache.calcite.sql.SqlHexCharStringLiteral",
+      "org.apache.calcite.sql.SqlHexCharStringLiteral.HexCharLiteralFormat",
       "org.apache.calcite.sql.SqlHostVariable",
       "org.apache.calcite.sql.SqlIndex",
       "org.apache.calcite.sql.SqlLobUnitSize",
@@ -76,6 +78,9 @@ data: {
       "org.apache.calcite.sql.SqlSecondaryIndex",
       "org.apache.calcite.sql.SqlSelectTopN",
       "org.apache.calcite.sql.SqlSetTimeZone",
+      "org.apache.calcite.sql.OnCommitType",
+      "org.apache.calcite.sql.SetType",
+      "org.apache.calcite.sql.SqlCaseSpecific",
       "org.apache.calcite.sql.SqlTableAttribute",
       "org.apache.calcite.sql.SqlTableAttributeBlockCompression",
       "org.apache.calcite.sql.SqlTableAttributeBlockCompression.BlockCompressionOption",
@@ -101,6 +106,13 @@ data: {
       "org.apache.calcite.sql.SqlUsingRequestModifier",
       "org.apache.calcite.sql.Volatility",
       "org.apache.calcite.sql.WithDataType",
+      "org.apache.calcite.sql.SqlCreateFunctionSqlForm",
+      "org.apache.calcite.sql.SqlCreateFunctionSqlForm.DeterministicType",
+      "org.apache.calcite.sql.SqlCreateFunctionSqlForm.ReactToNullInputType",
+      "org.apache.calcite.sql.SqlCharacterSetToCharacterSet",
+      "org.apache.calcite.sql.SqlTranslateUsingCharacterSet",
+      "org.apache.calcite.sql.SqlColumnAttributeDateFormat",
+      "org.apache.calcite.sql.SqlHostVariable",
     ]
 
     # List of keywords.
@@ -108,12 +120,14 @@ data: {
       "ARCHIVE"
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
+      "BYTE"
       "BYTEINT"
       "BYTES"
       "CASESPECIFIC"
       "CHECKSUM"
       "COMPRESS"
       "CONCURRENT"
+      "CS"
       "DATABLOCKSIZE"
       "DEL"
       "DUAL"
@@ -156,6 +170,7 @@ data: {
       "UNICODE"
       "UPD"
       "UPPERCASE"
+      "VARBYTE"
       "VIRTUAL"
       "VOLATILE"
     ]
@@ -479,6 +494,7 @@ data: {
       "ARCHIVE"
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
+      "BYTE"
       "BYTES"
       "CHECKSUM"
       "CONCURRENT"
@@ -515,6 +531,7 @@ data: {
       "TITLE"
       "UNICODE"
       "UPD"
+      "VARBYTE"
       "VIRTUAL"
 
       # The following keywords are reserved in core Calcite,
@@ -1014,8 +1031,10 @@ data: {
     # Example: SqlParseTimeStampZ().
     dataTypeParserMethods: [
       "BlobDataType()"
+      "ByteDataType()"
       "ByteIntType()"
       "ClobDataType()"
+      "VarbyteDataType()"
     ]
 
     # List of methods for parsing builtin function calls.
@@ -1101,6 +1120,8 @@ data: {
     ]
 
     preExpressionMethods: [
+      "InlineCaseSpecific"
+      "InlineCaseSpecificNamedFunctionCall"
       "InlineModOperator"
       "AlternativeTypeConversionLiteralOrIdentifier"
       "InlineFormatLiteralOrIdentifier"
@@ -1128,6 +1149,7 @@ data: {
     allowUpdateFromTable: true
     allowUpsertFormOfUpdate: true
     allowAbbreviatedKeywords: true
+    allowHexCharacterStringLiteral: true
     allowTranslateUsingCharSetWithError: true
     allowNestedJoins: true
     includePosixOperators: true

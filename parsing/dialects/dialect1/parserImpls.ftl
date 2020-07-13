@@ -1806,6 +1806,59 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
     }
 }
 
+SqlNode InlineCaseSpecific() :
+{
+    final SqlNode value;
+    final SqlCaseSpecific caseSpecific;
+}
+{
+    (
+        value = StringLiteral()
+    |
+        LOOKAHEAD( CompoundIdentifier() CaseSpecific() )
+        value = CompoundIdentifier()
+    )
+    caseSpecific = CaseSpecific(value)
+    {
+        return caseSpecific;
+    }
+}
+
+/* This has to be separate from the InlineCaseSpecific() due to the LOOKAHEAD
+   for preExpressionMethods in Parser.jj breaking if both CompoundIdentifier()
+   and NamedFunctionCall() are options.
+ */
+SqlNode InlineCaseSpecificNamedFunctionCall() :
+{
+    final SqlNode value;
+    final SqlCaseSpecific caseSpecific;
+}
+{
+    value = NamedFunctionCall()
+    caseSpecific = CaseSpecific(value)
+    {
+        return caseSpecific;
+    }
+}
+
+SqlCaseSpecific CaseSpecific(SqlNode value) :
+{
+    boolean not = false;
+}
+{
+    <LPAREN>
+    [ <NOT> { not = true; } ]
+    (
+        <CASESPECIFIC>
+    |
+        <CS>
+    )
+    <RPAREN>
+    {
+        return new SqlCaseSpecific(getPos(), not, value);
+    }
+}
+
 SqlHostVariable SqlHostVariable() :
 {
     final String name;
@@ -1818,6 +1871,76 @@ SqlHostVariable SqlHostVariable() :
         name = NonReservedKeyWord()
     )
     { return new SqlHostVariable(name, getPos()); }
+}
+
+SqlNode SqlHexCharStringLiteral() :
+{
+    final String hex;
+    final String formatString;
+    String charSet = null;
+}
+{
+    (
+        <PREFIXED_HEX_STRING_LITERAL>
+        {
+            charSet = SqlParserUtil.getCharacterSet(token.image);
+        }
+    |
+        <QUOTED_HEX_STRING>
+    )
+    {
+        // In the case of matching "PREFIXED_HEX_STRING_LITERAL" or
+        // "QUOTED_HEX_STRING" token, it is guaranteed that the following
+        // Java string manipulation logic is valid.
+        String[] tokens = token.image.split("'");
+        hex = tokens[1];
+        formatString = tokens[2];
+        return new SqlHexCharStringLiteral(hex, getPos(), charSet,
+            formatString);
+    }
+}
+
+SqlTypeNameSpec ByteDataType() :
+{
+    final Span s = Span.of();
+    int precision = -1;
+}
+{
+    <BYTE>
+    [ precision = VariableBinaryTypePrecision() ]
+    {
+        return new SqlBasicTypeNameSpec(SqlTypeName.BYTE, precision, s.end(this));
+    }
+}
+
+SqlTypeNameSpec VarbyteDataType() :
+{
+    final Span s = Span.of();
+    final int precision;
+}
+{
+    <VARBYTE>
+    precision = VariableBinaryTypePrecision()
+    {
+        return new SqlBasicTypeNameSpec(SqlTypeName.VARBYTE, precision, s.end(this));
+    }
+}
+
+int VariableBinaryTypePrecision() :
+{
+    final int precision;
+}
+{
+    <LPAREN>
+    precision = UnsignedIntLiteral()
+    {
+        if (precision > 64000) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.numberLiteralOutOfRange(String.valueOf(precision)));
+        }
+    }
+    <RPAREN>
+    { return precision; }
 }
 
 SqlBlobTypeNameSpec BlobDataType() :

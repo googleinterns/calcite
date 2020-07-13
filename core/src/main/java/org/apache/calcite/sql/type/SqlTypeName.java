@@ -104,6 +104,10 @@ public enum SqlTypeName {
       SqlTypeFamily.BINARY),
   VARBINARY(PrecScale.NO_NO | PrecScale.YES_NO, false, Types.VARBINARY,
       SqlTypeFamily.BINARY),
+  VARBYTE(PrecScale.NO_NO | PrecScale.YES_NO, false, Types.VARBINARY,
+      SqlTypeFamily.BINARY),
+  BYTE(PrecScale.NO_NO | PrecScale.YES_NO, false, Types.VARBINARY,
+      SqlTypeFamily.BINARY),
   BLOB(PrecScale.NO_NO | PrecScale.YES_NO, false, Types.BLOB,
       SqlTypeFamily.BINARY),
   CLOB(PrecScale.NO_NO | PrecScale.YES_NO, false, Types.BLOB,
@@ -151,10 +155,10 @@ public enum SqlTypeName {
   public static final List<SqlTypeName> ALL_TYPES =
       ImmutableList.of(
           BOOLEAN, INTEGER, VARCHAR, DATE, TIME, TIMESTAMP, NULL, DECIMAL,
-          ANY, CHAR, BINARY, VARBINARY, BLOB, CLOB, TINYINT, SMALLINT, BIGINT, BYTEINT, REAL,
-          DOUBLE, SYMBOL, INTERVAL_YEAR, INTERVAL_YEAR_MONTH, INTERVAL_MONTH,
-          INTERVAL_DAY, INTERVAL_DAY_HOUR, INTERVAL_DAY_MINUTE,
-          INTERVAL_DAY_SECOND, INTERVAL_HOUR, INTERVAL_HOUR_MINUTE,
+          ANY, CHAR, BINARY, VARBINARY, VARBYTE, BYTE, BLOB, CLOB, TINYINT,
+          SMALLINT, BIGINT, BYTEINT, REAL, DOUBLE, SYMBOL, INTERVAL_YEAR,
+          INTERVAL_YEAR_MONTH, INTERVAL_MONTH, INTERVAL_DAY, INTERVAL_DAY_HOUR,
+          INTERVAL_DAY_MINUTE, INTERVAL_DAY_SECOND, INTERVAL_HOUR, INTERVAL_HOUR_MINUTE,
           INTERVAL_HOUR_SECOND, INTERVAL_MINUTE, INTERVAL_MINUTE_SECOND,
           INTERVAL_SECOND, TIME_WITH_LOCAL_TIME_ZONE, TIMESTAMP_WITH_LOCAL_TIME_ZONE,
           FLOAT, MULTISET, DISTINCT, STRUCTURED, ROW, CURSOR, COLUMN_LIST);
@@ -163,7 +167,7 @@ public enum SqlTypeName {
       ImmutableList.of(BOOLEAN);
 
   public static final List<SqlTypeName> BINARY_TYPES =
-      ImmutableList.of(BINARY, VARBINARY, BLOB);
+      ImmutableList.of(BINARY, VARBINARY, VARBYTE, BYTE, BLOB);
 
   public static final List<SqlTypeName> INT_TYPES =
       ImmutableList.of(TINYINT, SMALLINT, INTEGER, BIGINT, BYTEINT);
@@ -579,6 +583,8 @@ public enum SqlTypeName {
 
     case BINARY:
     case VARBINARY:
+    case VARBYTE:
+    case BYTE:
       if (!sign) {
         return null; // this type does not have negative values
       }
@@ -750,6 +756,8 @@ public enum SqlTypeName {
     case CHAR:
     case VARBINARY:
     case BINARY:
+    case VARBYTE:
+    case BYTE:
     case TIME:
     case TIME_WITH_LOCAL_TIME_ZONE:
     case TIMESTAMP:
@@ -927,6 +935,8 @@ public enum SqlTypeName {
       return SqlLiteral.createCharString((String) o, pos);
     case VARBINARY:
     case BINARY:
+    case VARBYTE:
+    case BYTE:
       return SqlLiteral.createBinaryString((byte[]) o, pos);
     case DATE:
       return SqlLiteral.createDate(o instanceof Calendar
