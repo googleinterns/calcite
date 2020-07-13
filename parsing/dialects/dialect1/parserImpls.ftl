@@ -1792,6 +1792,59 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
     }
 }
 
+SqlNode InlineCaseSpecific() :
+{
+    final SqlNode value;
+    final SqlCaseSpecific caseSpecific;
+}
+{
+    (
+        value = StringLiteral()
+    |
+        LOOKAHEAD( CompoundIdentifier() CaseSpecific() )
+        value = CompoundIdentifier()
+    )
+    caseSpecific = CaseSpecific(value)
+    {
+        return caseSpecific;
+    }
+}
+
+/* This has to be separate from the InlineCaseSpecific() due to the LOOKAHEAD
+   for preExpressionMethods in Parser.jj breaking if both CompoundIdentifier()
+   and NamedFunctionCall() are options.
+ */
+SqlNode InlineCaseSpecificNamedFunctionCall() :
+{
+    final SqlNode value;
+    final SqlCaseSpecific caseSpecific;
+}
+{
+    value = NamedFunctionCall()
+    caseSpecific = CaseSpecific(value)
+    {
+        return caseSpecific;
+    }
+}
+
+SqlCaseSpecific CaseSpecific(SqlNode value) :
+{
+    boolean not = false;
+}
+{
+    <LPAREN>
+    [ <NOT> { not = true; } ]
+    (
+        <CASESPECIFIC>
+    |
+        <CS>
+    )
+    <RPAREN>
+    {
+        return new SqlCaseSpecific(getPos(), not, value);
+    }
+}
+
 SqlHostVariable SqlHostVariable() :
 {
     final String name;

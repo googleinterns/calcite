@@ -1120,6 +1120,9 @@ public enum SqlKind {
   /** {@code DROP MATERIALIZED VIEW} DDL statement. */
   DROP_MATERIALIZED_VIEW,
 
+  /** {@code CASE_SPECIFIC} statement. */
+  CASE_SPECIFIC,
+
   /** {@code CREATE SEQUENCE} DDL statement. */
   CREATE_SEQUENCE,
 
