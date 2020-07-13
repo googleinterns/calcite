@@ -40,7 +40,7 @@ public class SqlInlineCaseSpecific extends SqlCall
    *
    * @param pos  Parser position, must not be null
    * @param not  Specifies if NOT was parsed before CASE SPECIFIC
-   * @param value  The value preceding
+   * @param value  The value preceding ([NOT] CASEPECIFIC)
    */
   public SqlInlineCaseSpecific(SqlParserPos pos, boolean not, SqlNode value) {
     super(pos);
