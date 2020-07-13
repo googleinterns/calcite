@@ -1097,6 +1097,7 @@ data: {
 
     preExpressionMethods: [
       "InlineCaseSpecific"
+      "InlineCaseSpecificNamedFunctionCall"
       "InlineModOperator"
       "AlternativeTypeConversionLiteralOrIdentifier"
       "InlineFormatLiteralOrIdentifier"

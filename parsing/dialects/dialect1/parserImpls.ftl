@@ -1792,6 +1792,22 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
     }
 }
 
+SqlNode InlineCaseSpecificNamedFunctionCall() :
+{
+    SqlNode value;
+    boolean not = false;
+}
+{
+    value = NamedFunctionCall()
+    <LPAREN>
+    [ <NOT> { not = true; } ]
+    <CASESPECIFIC>
+    <RPAREN>
+    {
+        return new SqlInlineCaseSpecific(getPos(), not, value);
+    }
+}
+
 SqlNode InlineCaseSpecific() :
 {
     SqlNode value;
@@ -1803,8 +1819,6 @@ SqlNode InlineCaseSpecific() :
     |
         LOOKAHEAD( CompoundIdentifier() <LPAREN> [<NOT>] <CASESPECIFIC> <RPAREN> )
         value = CompoundIdentifier()
-    |
-        value = NamedFunctionCall()
     )
     <LPAREN>
     [ <NOT> { not = true; } ]
@@ -1813,7 +1827,6 @@ SqlNode InlineCaseSpecific() :
     {
         return new SqlInlineCaseSpecific(getPos(), not, value);
     }
-
 }
 
 SqlHostVariable SqlHostVariable() :
