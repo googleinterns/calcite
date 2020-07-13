@@ -36,6 +36,7 @@ data: {
       "org.apache.calcite.sql.SqlAlterTableDrop",
       "org.apache.calcite.sql.SqlAlterTableOption",
       "org.apache.calcite.sql.SqlAlterTableRename",
+      "org.apache.calcite.sql.SqlCaseSpecific",
       "org.apache.calcite.sql.SqlCharacterSetToCharacterSet",
       "org.apache.calcite.sql.SqlColumnAttribute",
       "org.apache.calcite.sql.SqlColumnAttributeCaseSpecific",
@@ -118,6 +119,7 @@ data: {
       "CHECKSUM"
       "COMPRESS"
       "CONCURRENT"
+      "CS"
       "DATABLOCKSIZE"
       "DEL"
       "DUAL"
@@ -1112,6 +1114,8 @@ data: {
     ]
 
     preExpressionMethods: [
+      "InlineCaseSpecific"
+      "InlineCaseSpecificNamedFunctionCall"
       "InlineModOperator"
       "AlternativeTypeConversionLiteralOrIdentifier"
       "InlineFormatLiteralOrIdentifier"
