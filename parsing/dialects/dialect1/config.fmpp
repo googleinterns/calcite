@@ -54,7 +54,6 @@ data: {
       "org.apache.calcite.sql.SqlColumnAttributeGeneratedStartWith",
       "org.apache.calcite.sql.SqlColumnAttributeUpperCase",
       "org.apache.calcite.sql.SqlCreate"
-      "org.apache.calcite.sql.SqlCreate",
       "org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier",
       "org.apache.calcite.sql.SqlCreateFunctionSqlForm",
       "org.apache.calcite.sql.SqlCreateFunctionSqlForm.DeterministicType",
