@@ -16,7 +16,6 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.sql.SqlColumnAttributeCharacterSet.CharacterSet;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.parser.SqlParserUtil;
 import org.apache.calcite.sql.type.SqlTypeName;
