@@ -77,6 +77,9 @@ data: {
       "org.apache.calcite.sql.SqlSecondaryIndex",
       "org.apache.calcite.sql.SqlSelectTopN",
       "org.apache.calcite.sql.SqlSetTimeZone",
+      "org.apache.calcite.sql.OnCommitType",
+      "org.apache.calcite.sql.SetType",
+      "org.apache.calcite.sql.SqlCaseSpecific",
       "org.apache.calcite.sql.SqlTableAttribute",
       "org.apache.calcite.sql.SqlTableAttributeBlockCompression",
       "org.apache.calcite.sql.SqlTableAttributeBlockCompression.BlockCompressionOption",
@@ -116,6 +119,7 @@ data: {
       "CHECKSUM"
       "COMPRESS"
       "CONCURRENT"
+      "CS"
       "DATABLOCKSIZE"
       "DEL"
       "DUAL"
@@ -1107,6 +1111,8 @@ data: {
     ]
 
     preExpressionMethods: [
+      "InlineCaseSpecific"
+      "InlineCaseSpecificNamedFunctionCall"
       "InlineModOperator"
       "AlternativeTypeConversionLiteralOrIdentifier"
       "InlineFormatLiteralOrIdentifier"

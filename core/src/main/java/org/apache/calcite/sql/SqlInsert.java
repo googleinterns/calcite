@@ -31,7 +31,7 @@ public class SqlInsert extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("INSERT", SqlKind.INSERT);
 
-  SqlNodeList keywords;
+  public SqlNodeList keywords;
   SqlNode targetTable;
   SqlNode source;
   SqlNodeList columnList;
