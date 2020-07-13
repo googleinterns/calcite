@@ -2750,4 +2750,11 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "(?s).*Numeric literal.*out of range.*";
     sql(sql).fails(expected);
   }
+
+  @Test void testClobZeroFails() {
+    final String sql = "create table foo (bar clob(^0^) character set "
+        + "unicode)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
 }
