@@ -353,7 +353,7 @@ SqlColumnAttribute ColumnAttributeCharacterSet() :
     |
         <KANJISJIS> { characterSet = CharacterSet.KANJISJIS; }
     |
-        <KANJI> { characterSet = CharacterSet.KANJI; }
+        <KANJI1> { characterSet = CharacterSet.KANJI1; }
     )
     {
         return new SqlColumnAttributeCharacterSet(getPos(), characterSet);
@@ -1871,6 +1871,77 @@ SqlHostVariable SqlHostVariable() :
         name = NonReservedKeyWord()
     )
     { return new SqlHostVariable(name, getPos()); }
+}
+
+SqlTypeNameSpec SqlJsonDataType() :
+{
+    SqlLiteral tempLiteral;
+    Integer maxLength = null;
+    Integer inlineLength = null;
+    CharacterSet characterSet = null;
+    StorageFormat storageFormat = null;
+}
+{
+    <JSON>
+    [
+        <LPAREN>
+        tempLiteral = UnsignedNumericLiteral() {
+            maxLength = tempLiteral.getValueAs(Integer.class);
+            if (maxLength < 2) {
+                throw SqlUtil.newContextException(getPos(),
+                    RESOURCE.numberLiteralOutOfRange(String.valueOf(maxLength)));
+            }
+        }
+        <RPAREN>
+    ]
+    (
+        (
+            <INLINE> <LENGTH>
+            tempLiteral = UnsignedNumericLiteral() {
+                inlineLength = tempLiteral.getValueAs(Integer.class);
+                if ((maxLength != null && maxLength < inlineLength) ||
+                    inlineLength <= 0) {
+                    throw SqlUtil.newContextException(getPos(),
+                        RESOURCE.numberLiteralOutOfRange(
+                            String.valueOf(inlineLength)));
+                }
+            }
+        )
+    |
+        (
+            <CHARACTER> <SET>
+            (
+                <LATIN> {
+                    characterSet = CharacterSet.LATIN;
+                }
+            |
+                <UNICODE> {
+                    characterSet = CharacterSet.UNICODE;
+                }
+            )
+        )
+    |
+        (
+            <STORAGE> <FORMAT>
+            (
+                <BSON> {
+                    storageFormat = StorageFormat.BSON;
+                }
+            |
+                <UBJSON> {
+                    storageFormat = StorageFormat.UBJSON;
+                }
+            )
+        )
+    )*
+    {
+        if (characterSet != null && storageFormat != null) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.illegalQueryExpression());
+        }
+        return new SqlJsonTypeNameSpec(getPos(), maxLength, inlineLength,
+            characterSet, storageFormat);
+    }
 }
 
 SqlNode SqlHexCharStringLiteral() :
