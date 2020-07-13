@@ -1805,3 +1805,46 @@ SqlHostVariable SqlHostVariable() :
     )
     { return new SqlHostVariable(name, getPos()); }
 }
+
+SqlTypeNameSpec ByteDataType() :
+{
+    final Span s = Span.of();
+    int precision = -1;
+}
+{
+    <BYTE>
+    [ precision = VariableBinaryTypePrecision() ]
+    {
+        return new SqlBasicTypeNameSpec(SqlTypeName.BYTE, precision, s.end(this));
+    }
+}
+
+SqlTypeNameSpec VarbyteDataType() :
+{
+    final Span s = Span.of();
+    final int precision;
+}
+{
+    <VARBYTE>
+    precision = VariableBinaryTypePrecision()
+    {
+        return new SqlBasicTypeNameSpec(SqlTypeName.VARBYTE, precision, s.end(this));
+    }
+}
+
+int VariableBinaryTypePrecision() :
+{
+    final int precision;
+}
+{
+    <LPAREN>
+    precision = UnsignedIntLiteral()
+    {
+        if (precision > 64000) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.numberLiteralOutOfRange(String.valueOf(precision)));
+        }
+    }
+    <RPAREN>
+    { return precision; }
+}

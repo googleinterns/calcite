@@ -2407,4 +2407,70 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "SELECT CAST(`X` AS BYTEINT)";
     sql(sql).ok(expected);
   }
+
+  @Test public void testVarbyte() {
+    final String sql = "create table foo (bar varbyte(20))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` VARBYTE(20))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testVarbyteMaxValue() {
+    final String sql = "create table foo (bar varbyte(64000))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` VARBYTE(64000))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testVarbyteCast() {
+    final String sql = "select cast(foo as varbyte(100))";
+    final String expected = "SELECT CAST(`FOO` AS VARBYTE(100))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testVarbyteOutOfRangeFails() {
+    final String sql = "create table foo (bar varbyte(^64001^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testVarbyteNegativeFails() {
+    final String sql = "create table foo (bar varbyte(^-^1))";
+    final String expected = "(?s).*Encountered \"-\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testByte() {
+    final String sql = "create table foo (bar byte)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` BYTE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testByteWithValue() {
+    final String sql = "create table foo (bar byte(20))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` BYTE(20))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testByteMaxValue() {
+    final String sql = "create table foo (bar byte(64000))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` BYTE(64000))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testByteCast() {
+    final String sql = "select cast(foo as byte(100))";
+    final String expected = "SELECT CAST(`FOO` AS BYTE(100))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testByteOutOfRangeFails() {
+    final String sql = "create table foo (bar byte(^64001^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testByteNegativeFails() {
+    final String sql = "create table foo (bar byte^(^-1))";
+    final String expected = "(?s).*Encountered \"\\( -\" at .*";
+    sql(sql).fails(expected);
+  }
 }
