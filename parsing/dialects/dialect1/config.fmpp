@@ -54,7 +54,6 @@ data: {
       "org.apache.calcite.sql.SqlColumnAttributeGeneratedStartWith",
       "org.apache.calcite.sql.SqlColumnAttributeTitle",
       "org.apache.calcite.sql.SqlColumnAttributeUpperCase",
-      "org.apache.calcite.sql.SqlCreate
       "org.apache.calcite.sql.SqlCreate",
       "org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier",
       "org.apache.calcite.sql.SqlCreateFunctionSqlForm",
@@ -63,9 +62,8 @@ data: {
       "org.apache.calcite.sql.SqlCreateTableDialect1",
       "org.apache.calcite.sql.SqlDateTimeAtLocal",
       "org.apache.calcite.sql.SqlDateTimeAtTimeZone",
-      "org.apache.calcite.sql.SqlDdlNodes
       "org.apache.calcite.sql.SqlDdlNodes",
-      "org.apache.calcite.sql.SqlDrop
+      "org.apache.calcite.sql.SqlDrop",
       "org.apache.calcite.sql.SqlExecMacro",
       "org.apache.calcite.sql.SqlExecMacroParam",
       "org.apache.calcite.sql.SqlHostVariable",
