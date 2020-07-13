@@ -16,19 +16,13 @@
  */
 package org.apache.calcite.buildtools.parser;
 
-import java.lang.StringBuilder;
-import java.lang.IllegalStateException;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.LinkedHashMap;
-import java.util.Queue;
-import java.util.regex.Matcher;
 import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -39,27 +33,27 @@ public class DialectGenerate {
 
   // Matches foo<body> where body can be [\w\s<>,]. This allows for easy
   // handling of nested angle brackets and comma separated values.
-  private static final String type = "\\w+\\s*(<\\s*[\\w<>,\\s]+>)?";
-  private static final String typeAndName = type + "\\s+\\w+";
-  private static final String splitDelims = "(\\s|\n|\"|//|/\\*|\\*/|'|\\}|\\{)";
+  private static final String TYPE = "\\w+\\s*(<\\s*[\\w<>,\\s]+>)?";
+  private static final String TYPE_AND_NAME = TYPE + "\\s+\\w+";
+  private static final String SPLIT_DELIMS = "(\\s|\n|\"|//|/\\*|\\*/|'|\\}|\\{)";
 
   // Used to split up a string into tokens by the specified deliminators
   // while also keeping the deliminators as tokens.
-  private static final Pattern tokenizerPattern = Pattern.compile("((?<="
-      + splitDelims + ")|(?=" + splitDelims + "))");
+  private static final Pattern TOKENIZER_PATTERN = Pattern.compile("((?<="
+      + SPLIT_DELIMS + ")|(?=" + SPLIT_DELIMS + "))");
 
   // Matches function declarations: <return_type> <name> (<args>) :
-  private static final Pattern functionDeclarationPattern =
-    Pattern.compile("(" + typeAndName + "\\s*\\(\\s*(" + typeAndName + "\\s*(\\,\\s*"
-        + typeAndName + "\\s*)*)?\\)\\s*\\:\n?)");
+  private static final Pattern FUNCTION_DECLARATION_PATTERN =
+    Pattern.compile("(" + TYPE_AND_NAME + "\\s*\\(\\s*(" + TYPE_AND_NAME + "\\s*(\\,\\s*"
+        + TYPE_AND_NAME + "\\s*)*)?\\)\\s*\\:\n?)");
   // Matches the function name within the above function declaration.
-  private static final Pattern functionNamePattern = Pattern.compile("(\\w+)\\s*\\(");
+  private static final Pattern FUNCTION_NAME_PATTERN = Pattern.compile("(\\w+)\\s*\\(");
   // Matches [<OPT1, OPT2, ...>](TOKEN|SKIP|MORE) :
-  private static final Pattern tokenDeclarationPattern =
+  private static final Pattern TOKEN_DECLARATION_PATTERN =
     Pattern.compile("((<\\s*\\w+\\s*(\\s*,\\s*\\w+)*\\s*>\\s*)?(TOKEN|SKIP|MORE)\\s*:\n?)");
 
   public static Queue<String> getTokens(String input) {
-    return new LinkedList<String>(Arrays.asList(tokenizerPattern.split(input)));
+    return new LinkedList<String>(Arrays.asList(TOKENIZER_PATTERN.split(input)));
   }
 
   /**
@@ -85,9 +79,9 @@ public class DialectGenerate {
     fileText = fileText.replaceAll("\\r\\n", "\n");
     fileText = fileText.replaceAll("\\r", "\n");
     Queue<MatchResult> functionDeclarations =
-      getMatches(functionDeclarationPattern, fileText);
+      getMatches(FUNCTION_DECLARATION_PATTERN, fileText);
     Queue<MatchResult> tokenAssignmentDeclarations =
-      getMatches(tokenDeclarationPattern, fileText);
+      getMatches(TOKEN_DECLARATION_PATTERN, fileText);
     parseDeclarations(functionDeclarations, extractedData, fileText,
         /*isFunctionDeclaration=*/ true);
     parseDeclarations(tokenAssignmentDeclarations, extractedData, fileText,
@@ -275,7 +269,7 @@ public class DialectGenerate {
    *                            <return_type> <name> (<args>) :
    */
   public String getFunctionName(String functionDeclaration) {
-    Matcher m = functionNamePattern.matcher(functionDeclaration);
+    Matcher m = FUNCTION_NAME_PATTERN.matcher(functionDeclaration);
     m.find();
     return m.group(1);
   }
