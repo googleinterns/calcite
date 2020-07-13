@@ -2384,7 +2384,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "select * from foo as f where f.a (casespecific) = 'Hello'";
     final String expected = "SELECT *\n"
      + "FROM `FOO` AS `F`\n"
-     + "WHERE ( `F`.`A` (CASESPECIFIC) = 'Hello')";
+     + "WHERE (`F`.`A` (CASESPECIFIC) = 'Hello')";
     sql(sql).ok(expected);
   }
   @Test public void testHostVariableExecPositionalParams() {
