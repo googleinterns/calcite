@@ -2407,4 +2407,22 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "SELECT CAST(`X` AS BYTEINT)";
     sql(sql).ok(expected);
   }
+
+  @Test void testAlternativeTypeConversionWithNamedFunction() {
+    final String sql = "SELECT foo(a) (INT)";
+    final String expected = "SELECT CAST(`FOO`(`A`) AS INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testInlineFormatWithNamedFunction() {
+    final String sql = "select foo(a) (format 'X6')";
+    final String expected = "SELECT (`FOO`(`A`) (FORMAT 'X6'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testInlinNamedWithNamedFunction() {
+    final String sql = "select foo(a) (named b)";
+    final String expected = "SELECT `FOO`(`A`) AS `B`";
+    sql(sql).ok(expected);
+  }
 }
