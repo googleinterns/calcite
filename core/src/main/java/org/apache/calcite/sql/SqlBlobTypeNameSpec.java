@@ -28,8 +28,8 @@ import static org.apache.calcite.util.Static.RESOURCE;
  */
 public class SqlBlobTypeNameSpec extends SqlTypeNameSpec {
 
-  public SqlLiteral maxLength;
-  public SqlLobUnitSize unitSize;
+  public final SqlLiteral maxLength;
+  public final SqlLobUnitSize unitSize;
 
   /**
    * Create a {@code SqlBlobTypeNameSpec} instance.
