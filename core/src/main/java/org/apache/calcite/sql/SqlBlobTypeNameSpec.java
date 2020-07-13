@@ -34,6 +34,8 @@ public class SqlBlobTypeNameSpec extends SqlTypeNameSpec {
   /**
    * Create a {@code SqlBlobTypeNameSpec} instance.
    *
+   * @param maxLength The number of bytes to allocate for BLOB column
+   * @param unitSize The unit size of maxLength
    * @param pos The parser position
    */
   public SqlBlobTypeNameSpec(SqlLiteral maxLength, SqlLobUnitSize unitSize,
