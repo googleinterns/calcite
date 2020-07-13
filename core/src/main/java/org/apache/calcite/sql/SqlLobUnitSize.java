@@ -33,7 +33,7 @@ public enum SqlLobUnitSize {
   G,
 
   /**
-   * Unit size is unspecified.
+   * Unit size is unspecified, defaults to bytes.
    */
   UNSPECIFIED,
 }

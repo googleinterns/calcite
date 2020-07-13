@@ -2634,4 +2634,10 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "(?s).*Numeric literal.*out of range.*";
     sql(sql).fails(expected);
   }
+
+  @Test void testBlobZeroFails() {
+    final String sql = "create table foo (bar blob(^0^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
 }
