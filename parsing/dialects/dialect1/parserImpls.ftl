@@ -1999,3 +1999,33 @@ int VariableBinaryTypePrecision() :
     <RPAREN>
     { return precision; }
 }
+
+SqlNumberTypeNameSpec NumberDataType() :
+{
+    boolean isPrecisionStar = false;
+    SqlLiteral precision = null;
+    SqlLiteral scale = null;
+}
+{
+    <NUMBER>
+    [
+        <LPAREN>
+        (
+            <UNSIGNED_INTEGER_LITERAL>
+            {
+                precision = SqlLiteral.createExactNumeric(token.image, getPos());
+            }
+        |
+            <STAR> { isPrecisionStar = true; }
+        )
+        [
+            <COMMA> <UNSIGNED_INTEGER_LITERAL>
+            {
+                scale = SqlLiteral.createExactNumeric(token.image, getPos());
+            }
+        ]
+        <RPAREN>
+    ]
+    { return new SqlNumberTypeNameSpec(isPrecisionStar, precision, scale, getPos()); }
+}
+
