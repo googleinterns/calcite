@@ -6524,6 +6524,7 @@ SqlNode NamedFunctionCall() :
     SqlLiteral quantifier = null;
     SqlNodeList orderList = null;
     final Span withinGroupSpan;
+    SqlNode e;
 }
 {
     (
@@ -6581,9 +6582,13 @@ SqlNode NamedFunctionCall() :
             call = SqlStdOperatorTable.OVER.createCall(s.end(over), call, over);
         }
     ]
-    {
-        return call;
-    }
+    (
+<#list parser.postExpressionMethods as method>
+        e = ${method}(call) { return e; }
+    |
+</#list>
+        { return call; }
+    )
 }
 
 
