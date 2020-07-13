@@ -1795,7 +1795,7 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
 SqlNode InlineCaseSpecific() :
 {
     final SqlNode value;
-    boolean not = false;
+    final SqlCaseSpecific caseSpecific;
 }
 {
     (
@@ -1804,9 +1804,9 @@ SqlNode InlineCaseSpecific() :
         LOOKAHEAD( CompoundIdentifier() CaseSpecific() )
         value = CompoundIdentifier()
     )
-    not = CaseSpecific()
+    caseSpecific = CaseSpecific(value)
     {
-        return new SqlCaseSpecific(getPos(), not, value);
+        return caseSpecific;
     }
 }
 
@@ -1817,17 +1817,17 @@ SqlNode InlineCaseSpecific() :
 SqlNode InlineCaseSpecificNamedFunctionCall() :
 {
     final SqlNode value;
-    boolean not = false;
+    final SqlCaseSpecific caseSpecific;
 }
 {
     value = NamedFunctionCall()
-    not = CaseSpecific()
+    caseSpecific = CaseSpecific(value)
     {
-        return new SqlCaseSpecific(getPos(), not, value);
+        return caseSpecific;
     }
 }
 
-boolean CaseSpecific() :
+SqlCaseSpecific CaseSpecific(SqlNode value) :
 {
     boolean not = false;
 }
@@ -1841,7 +1841,7 @@ boolean CaseSpecific() :
     )
     <RPAREN>
     {
-        return not;
+        return new SqlCaseSpecific(getPos(), not, value);
     }
 }
 
