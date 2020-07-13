@@ -21,15 +21,17 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.util.Litmus;
 
+import static org.apache.calcite.util.Static.RESOURCE;
+
 /**
  * A sql type name specification of the JSON type.
  */
 public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
 
-  private final Integer maxLength;
-  private final Integer inlineLength;
-  private final CharacterSet characterSet;
-  private final StorageFormat storageFormat;
+  public final Integer maxLength;
+  public final Integer inlineLength;
+  public final CharacterSet characterSet;
+  public final StorageFormat storageFormat;
 
   public SqlJsonTypeNameSpec(SqlParserPos pos,
       Integer maxLength,
@@ -43,11 +45,16 @@ public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
     this.storageFormat = storageFormat;
 
     // These two fields are mutally exclusive.
-    assert characterSet == null || storageFormat == null;
+    if (characterSet != null && storageFormat != null) {
+      throw SqlUtil.newContextException(pos,
+          RESOURCE.illegalQueryExpression());
+    }
 
-    if (characterSet != null) {
-      assert characterSet == CharacterSet.LATIN
-        || characterSet == CharacterSet.UNICODE;
+    // Only LATIN and UNICODE are valid for json.
+    if (characterSet != null && (characterSet != CharacterSet.LATIN
+          && characterSet != CharacterSet.UNICODE)) {
+      throw SqlUtil.newContextException(pos,
+          RESOURCE.illegalQueryExpression());
     }
   }
 
@@ -60,10 +67,10 @@ public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
       return litmus.fail("{} != {}", this, spec);
     }
     SqlJsonTypeNameSpec that = (SqlJsonTypeNameSpec) spec;
-    if (!this.maxLength.equals(that.getMaxLength())
-        || !this.inlineLength.equals(that.getInlineLength())
-        || this.characterSet != that.getCharacterSet()
-        || this.storageFormat != that.getStorageFormat()) {
+    if (!this.maxLength.equals(that.maxLength)
+        || !this.inlineLength.equals(that.inlineLength)
+        || this.characterSet != that.characterSet
+        || this.storageFormat != that.storageFormat) {
       return litmus.fail("{} != {}", this, spec);
     }
     return litmus.succeed();
@@ -85,22 +92,6 @@ public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
     } else if (storageFormat != null) {
       writer.keyword("STORAGE FORMAT " + storageFormat.toString());
     }
-  }
-
-  public Integer getMaxLength() {
-    return maxLength;
-  }
-
-  public Integer getInlineLength() {
-    return inlineLength;
-  }
-
-  public CharacterSet getCharacterSet() {
-    return characterSet;
-  }
-
-  public StorageFormat getStorageFormat() {
-    return storageFormat;
   }
 
   public enum StorageFormat {

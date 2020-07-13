@@ -2456,6 +2456,30 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testJsonTypeFormatAttribute() {
+    final String sql = "create table foo (x json format 'XXX')";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON FORMAT 'XXX')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeDefaultNullAttribute() {
+    final String sql = "create table foo (x json default null)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON DEFAULT NULL)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeNullAttribute() {
+    final String sql = "create table foo (x json null)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeNotNullAttribute() {
+    final String sql = "create table foo (x json not null)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON NOT NULL)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testJsonTypeMaxLengthOneFails() {
     final String sql = "create table foo (x json(^1^))";
     final String expected = "Numeric literal '1' out of range";
