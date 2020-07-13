@@ -107,6 +107,7 @@ data: {
       "ARCHIVE"
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
+      "BYTE"
       "BYTEINT"
       "BYTES"
       "CASESPECIFIC"
@@ -155,6 +156,7 @@ data: {
       "UNICODE"
       "UPD"
       "UPPERCASE"
+      "VARBYTE"
       "VIRTUAL"
       "VOLATILE"
     ]
@@ -478,6 +480,7 @@ data: {
       "ARCHIVE"
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
+      "BYTE"
       "BYTES"
       "CHECKSUM"
       "CONCURRENT"
@@ -514,6 +517,7 @@ data: {
       "TITLE"
       "UNICODE"
       "UPD"
+      "VARBYTE"
       "VIRTUAL"
 
       # The following keywords are reserved in core Calcite,
@@ -1013,7 +1017,9 @@ data: {
     # Example: SqlParseTimeStampZ().
     dataTypeParserMethods: [
       "BlobDataType()"
+      "ByteDataType()"
       "ByteIntType()"
+      "VarbyteDataType()"
     ]
 
     # List of methods for parsing builtin function calls.
