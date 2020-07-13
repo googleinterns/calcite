@@ -1801,7 +1801,7 @@ SqlNode InlineCaseSpecific() :
     (
         value = StringLiteral()
     |
-        LOOKAHEAD( CompoundIdentifier() <LPAREN> [<NOT>] <CASESPECIFIC> <RPAREN> )
+        LOOKAHEAD( CompoundIdentifier() <LPAREN> [ <NOT> ] <CASESPECIFIC> <RPAREN> )
         value = CompoundIdentifier()
     )
     <LPAREN>
