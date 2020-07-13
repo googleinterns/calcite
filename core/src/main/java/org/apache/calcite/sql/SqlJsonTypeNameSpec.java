@@ -67,6 +67,17 @@ public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
       return litmus.fail("{} != {}", this, spec);
     }
     SqlJsonTypeNameSpec that = (SqlJsonTypeNameSpec) spec;
+
+    if ((this.maxLength == null || that.maxLength == null)
+        && this.maxLength != that.maxLength) {
+      return litmus.fail("{} != {}", this, spec);
+    }
+
+    if ((this.inlineLength == null || that.inlineLength == null)
+        && this.inlineLength != that.inlineLength) {
+      return litmus.fail("{} != {}", this, spec);
+    }
+
     if (!this.maxLength.equals(that.maxLength)
         || !this.inlineLength.equals(that.inlineLength)
         || this.characterSet != that.characterSet
