@@ -21,21 +21,12 @@ data: {
 
     # List of import statements.
     imports: [
-      "org.apache.calcite.schema.ColumnStrategy"
-      "org.apache.calcite.sql.SqlCreate"
-      "org.apache.calcite.sql.SqlDrop"
-      "org.apache.calcite.sql.SqlDdlNodes"
-      "java.util.Map"
       "java.util.HashMap"
-      "org.apache.calcite.sql.SqlCreate",
-      "org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier",
-      "org.apache.calcite.sql.SqlColumnAttribute",
-      "org.apache.calcite.sql.SqlColumnAttributeUpperCase",
-      "org.apache.calcite.sql.SqlColumnAttributeCaseSpecific",
-      "org.apache.calcite.sql.SqlColumnAttributeCharacterSet",
-      "org.apache.calcite.sql.SqlColumnAttributeCharacterSet.CharacterSet",
-      "org.apache.calcite.sql.SqlColumnAttributeCompress",
-      "org.apache.calcite.sql.SqlColumnAttributeDefault",
+      "java.util.Map"
+      "org.apache.calcite.schema.ColumnStrategy"
+      "org.apache.calcite.sql.CharacterSet"
+      "org.apache.calcite.sql.OnCommitType",
+      "org.apache.calcite.sql.SetType",
       "org.apache.calcite.sql.SqlAlterTable",
       "org.apache.calcite.sql.SqlAlterTableAddColumns",
       "org.apache.calcite.sql.SqlAlterTableAttributeChecksum",
@@ -45,6 +36,14 @@ data: {
       "org.apache.calcite.sql.SqlAlterTableDrop",
       "org.apache.calcite.sql.SqlAlterTableOption",
       "org.apache.calcite.sql.SqlAlterTableRename",
+      "org.apache.calcite.sql.SqlCaseSpecific",
+      "org.apache.calcite.sql.SqlCharacterSetToCharacterSet",
+      "org.apache.calcite.sql.SqlColumnAttribute",
+      "org.apache.calcite.sql.SqlColumnAttributeCaseSpecific",
+      "org.apache.calcite.sql.SqlColumnAttributeCharacterSet",
+      "org.apache.calcite.sql.SqlColumnAttributeCompress",
+      "org.apache.calcite.sql.SqlColumnAttributeDateFormat",
+      "org.apache.calcite.sql.SqlColumnAttributeDefault",
       "org.apache.calcite.sql.SqlColumnAttributeGenerated",
       "org.apache.calcite.sql.SqlColumnAttributeGenerated.GeneratedType",
       "org.apache.calcite.sql.SqlColumnAttributeGeneratedCycle",
@@ -53,9 +52,32 @@ data: {
       "org.apache.calcite.sql.SqlColumnAttributeGeneratedMinValue",
       "org.apache.calcite.sql.SqlColumnAttributeGeneratedOption",
       "org.apache.calcite.sql.SqlColumnAttributeGeneratedStartWith",
+      "org.apache.calcite.sql.SqlColumnAttributeUpperCase",
+      "org.apache.calcite.sql.SqlCreate"
+      "org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier",
+      "org.apache.calcite.sql.SqlCreateFunctionSqlForm",
+      "org.apache.calcite.sql.SqlCreateFunctionSqlForm.DeterministicType",
+      "org.apache.calcite.sql.SqlCreateFunctionSqlForm.ReactToNullInputType",
+      "org.apache.calcite.sql.SqlCreateTableDialect1",
+      "org.apache.calcite.sql.SqlDateTimeAtLocal",
+      "org.apache.calcite.sql.SqlDateTimeAtTimeZone",
+      "org.apache.calcite.sql.SqlDdlNodes"
+      "org.apache.calcite.sql.SqlDdlNodes",
+      "org.apache.calcite.sql.SqlDrop"
+      "org.apache.calcite.sql.SqlExecMacro",
+      "org.apache.calcite.sql.SqlExecMacroParam",
+      "org.apache.calcite.sql.SqlHexCharStringLiteral",
+      "org.apache.calcite.sql.SqlHexCharStringLiteral.HexCharLiteralFormat",
+      "org.apache.calcite.sql.SqlHostVariable",
+      "org.apache.calcite.sql.SqlIndex",
+      "org.apache.calcite.sql.SqlJsonTypeNameSpec",
+      "org.apache.calcite.sql.SqlJsonTypeNameSpec.StorageFormat",
+      "org.apache.calcite.sql.SqlPrimaryIndex",
+      "org.apache.calcite.sql.SqlRenameTable",
+      "org.apache.calcite.sql.SqlRenameTable.RenameOption",
+      "org.apache.calcite.sql.SqlSecondaryIndex",
+      "org.apache.calcite.sql.SqlSelectTopN",
       "org.apache.calcite.sql.SqlSetTimeZone",
-      "org.apache.calcite.sql.OnCommitType",
-      "org.apache.calcite.sql.SetType",
       "org.apache.calcite.sql.SqlTableAttribute",
       "org.apache.calcite.sql.SqlTableAttributeBlockCompression",
       "org.apache.calcite.sql.SqlTableAttributeBlockCompression.BlockCompressionOption",
@@ -69,38 +91,18 @@ data: {
       "org.apache.calcite.sql.SqlTableAttributeIsolatedLoading",
       "org.apache.calcite.sql.SqlTableAttributeIsolatedLoading.OperationLevel",
       "org.apache.calcite.sql.SqlTableAttributeJournal",
-      "org.apache.calcite.sql.SqlTableAttributeJournal.JournalType",
       "org.apache.calcite.sql.SqlTableAttributeJournal.JournalModifier",
+      "org.apache.calcite.sql.SqlTableAttributeJournal.JournalType",
       "org.apache.calcite.sql.SqlTableAttributeJournalTable",
       "org.apache.calcite.sql.SqlTableAttributeLog",
       "org.apache.calcite.sql.SqlTableAttributeMap",
       "org.apache.calcite.sql.SqlTableAttributeMergeBlockRatio",
       "org.apache.calcite.sql.SqlTableAttributeMergeBlockRatio.MergeBlockRatioModifier",
-      "org.apache.calcite.sql.SqlCreateTableDialect1",
-      "org.apache.calcite.sql.SqlDdlNodes",
-      "org.apache.calcite.sql.SqlExecMacro",
-      "org.apache.calcite.sql.SqlExecMacroParam",
-      "org.apache.calcite.sql.SqlRenameTable",
-      "org.apache.calcite.sql.SqlRenameTable.RenameOption",
-      "org.apache.calcite.sql.SqlSelectTopN",
-      "org.apache.calcite.sql.SqlIndex",
-      "org.apache.calcite.sql.SqlPrimaryIndex",
-      "org.apache.calcite.sql.SqlSecondaryIndex",
+      "org.apache.calcite.sql.SqlTranslateUsingCharacterSet",
       "org.apache.calcite.sql.SqlUpsert",
       "org.apache.calcite.sql.SqlUsingRequestModifier",
       "org.apache.calcite.sql.Volatility",
-      "org.apache.calcite.sql.SqlDateTimeAtLocal",
-      "org.apache.calcite.sql.SqlDateTimeAtTimeZone",
       "org.apache.calcite.sql.WithDataType",
-      "org.apache.calcite.sql.SqlCreateFunctionSqlForm",
-      "org.apache.calcite.sql.SqlCreateFunctionSqlForm.DeterministicType",
-      "org.apache.calcite.sql.SqlCreateFunctionSqlForm.ReactToNullInputType",
-      "org.apache.calcite.sql.SqlCharacterSetToCharacterSet",
-      "org.apache.calcite.sql.SqlTranslateUsingCharacterSet",
-      "org.apache.calcite.sql.SqlColumnAttributeDateFormat",
-      "org.apache.calcite.sql.SqlHexCharStringLiteral",
-      "org.apache.calcite.sql.SqlHexCharStringLiteral.HexCharLiteralFormat",
-      "org.apache.calcite.sql.SqlHostVariable",
     ]
 
     # List of keywords.
@@ -108,6 +110,7 @@ data: {
       "ARCHIVE"
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
+      "BSON"
       "BYTE"
       "BYTEINT"
       "BYTES"
@@ -115,6 +118,7 @@ data: {
       "CHECKSUM"
       "COMPRESS"
       "CONCURRENT"
+      "CS"
       "DATABLOCKSIZE"
       "DEL"
       "DUAL"
@@ -129,7 +133,7 @@ data: {
       "ISOLATED"
       "JAR"
       "JOURNAL"
-      "KANJI"
+      "KANJI1"
       "KANJISJIS"
       "KBYTES"
       "KILOBYTES"
@@ -149,10 +153,12 @@ data: {
       "RENAME"
       "SEL"
       "SEMI"
+      "STORAGE"
       "STORED"
       "SUBSTR"
       "TEMP"
       "TOP"
+      "UBJSON"
       "UNICODE"
       "UPD"
       "UPPERCASE"
@@ -480,6 +486,7 @@ data: {
       "ARCHIVE"
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
+      "BSON"
       "BYTE"
       "BYTES"
       "CHECKSUM"
@@ -496,7 +503,7 @@ data: {
       "ISOLATED"
       "JAR"
       "JOURNAL"
-      "KANJI"
+      "KANJI1"
       "KANJISJIS"
       "KBYTES"
       "KILOBYTES"
@@ -513,7 +520,9 @@ data: {
       "OFF"
       "RENAME"
       "SEMI"
+      "STORAGE"
       "STORED"
+      "UBJSON"
       "UNICODE"
       "UPD"
       "VARBYTE"
@@ -1015,6 +1024,7 @@ data: {
     # Return type of method implementation should be "SqlTypeNameSpec".
     # Example: SqlParseTimeStampZ().
     dataTypeParserMethods: [
+      "SqlJsonDataType()"
       "ByteDataType()"
       "ByteIntType()"
       "VarbyteDataType()"
@@ -1103,6 +1113,8 @@ data: {
     ]
 
     preExpressionMethods: [
+      "InlineCaseSpecific"
+      "InlineCaseSpecificNamedFunctionCall"
       "InlineModOperator"
       "AlternativeTypeConversionLiteralOrIdentifier"
       "InlineFormatLiteralOrIdentifier"

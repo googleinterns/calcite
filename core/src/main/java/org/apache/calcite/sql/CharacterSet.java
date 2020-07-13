@@ -16,28 +16,29 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.sql.parser.SqlParserPos;
-
-/**
- * A <code>SqlColumnAttributeCharactetSet</code> is the column CHARACTER SET attribute.
- */
-public class SqlColumnAttributeCharacterSet extends SqlColumnAttribute {
-
-  private final CharacterSet characterSet;
+public enum CharacterSet {
+  /**
+   * Column has the LATIN character set.
+   */
+  LATIN,
 
   /**
-   * Creates a {@code SqlColumnAttributeCharacterSet}.
-   *
-   * @param pos  Parser position, must not be null
-   * @param characterSet  The specified character set
+   * Column has the UNICODE character set.
    */
-  public SqlColumnAttributeCharacterSet(SqlParserPos pos, CharacterSet characterSet) {
-    super(pos);
-    this.characterSet = characterSet;
-  }
+  UNICODE,
 
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.keyword("CHARACTER SET");
-    writer.keyword(characterSet.toString());
-  }
+  /**
+   * Column has the GRAPHIC character set.
+   */
+  GRAPHIC,
+
+  /**
+   * Column has the KANJISJIS character set.
+   */
+  KANJISJIS,
+
+  /**
+   * Column has the KANJI1 character set.
+   */
+  KANJI1,
 }
