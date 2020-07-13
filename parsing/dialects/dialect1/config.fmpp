@@ -56,7 +56,7 @@ data: {
       "org.apache.calcite.sql.SqlSetTimeZone",
       "org.apache.calcite.sql.OnCommitType",
       "org.apache.calcite.sql.SetType",
-      "org.apache.calcite.sql.SqlInlineCaseSpecific",
+      "org.apache.calcite.sql.SqlCaseSpecific",
       "org.apache.calcite.sql.SqlTableAttribute",
       "org.apache.calcite.sql.SqlTableAttributeBlockCompression",
       "org.apache.calcite.sql.SqlTableAttributeBlockCompression.BlockCompressionOption",

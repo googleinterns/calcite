@@ -1801,19 +1801,12 @@ SqlNode InlineCaseSpecific() :
     (
         value = StringLiteral()
     |
-        LOOKAHEAD( CompoundIdentifier() <LPAREN> [ <NOT> ] (<CASESPECIFIC>|<CS>) <RPAREN> )
+        LOOKAHEAD( CompoundIdentifier() CaseSpecific() )
         value = CompoundIdentifier()
     )
-    <LPAREN>
-    [ <NOT> { not = true; } ]
-    (
-        <CASESPECIFIC>
-    |
-        <CS>
-    )
-    <RPAREN>
+    not = CaseSpecific()
     {
-        return new SqlInlineCaseSpecific(getPos(), not, value);
+        return new SqlCaseSpecific(getPos(), not, value);
     }
 }
 
@@ -1828,6 +1821,17 @@ SqlNode InlineCaseSpecificNamedFunctionCall() :
 }
 {
     value = NamedFunctionCall()
+    not = CaseSpecific()
+    {
+        return new SqlCaseSpecific(getPos(), not, value);
+    }
+}
+
+boolean CaseSpecific() :
+{
+    boolean not = false;
+}
+{
     <LPAREN>
     [ <NOT> { not = true; } ]
     (
@@ -1837,7 +1841,7 @@ SqlNode InlineCaseSpecificNamedFunctionCall() :
     )
     <RPAREN>
     {
-        return new SqlInlineCaseSpecific(getPos(), not, value);
+        return not;
     }
 }
 

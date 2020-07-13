@@ -24,25 +24,25 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Parse tree for {@code SqlInlineCaseSpecific} statement.
+ * Parse tree for {@code SqlCaseSpecific} statement.
  */
-public class SqlInlineCaseSpecific extends SqlCall
+public class SqlCaseSpecific extends SqlCall
     implements SqlExecutableStatement {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("INLINE_CASE_SPECIFIC",
-          SqlKind.INLINE_CASE_SPECIFIC);
+      new SqlSpecialOperator("CASE_SPECIFIC",
+          SqlKind.CASE_SPECIFIC);
 
   private final boolean not;
   private final SqlNode value;
 
   /**
-   * Create an {@code SqlInlineCaseSpecific}.
+   * Create an {@code SqlCaseSpecific}.
    *
    * @param pos  Parser position, must not be null
    * @param not  Specifies if NOT was parsed before CASE SPECIFIC
    * @param value  The value preceding ([NOT] CASEPECIFIC)
    */
-  public SqlInlineCaseSpecific(SqlParserPos pos, boolean not, SqlNode value) {
+  public SqlCaseSpecific(SqlParserPos pos, boolean not, SqlNode value) {
     super(pos);
     this.not = not;
     this.value = Objects.requireNonNull(value);
