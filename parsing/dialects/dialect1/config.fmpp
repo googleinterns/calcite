@@ -66,6 +66,8 @@ data: {
       "org.apache.calcite.sql.SqlDrop",
       "org.apache.calcite.sql.SqlExecMacro",
       "org.apache.calcite.sql.SqlExecMacroParam",
+      "org.apache.calcite.sql.SqlHexCharStringLiteral",
+      "org.apache.calcite.sql.SqlHexCharStringLiteral.HexCharLiteralFormat",
       "org.apache.calcite.sql.SqlHostVariable",
       "org.apache.calcite.sql.SqlIndex",
       "org.apache.calcite.sql.SqlLobUnitSize",
@@ -1132,6 +1134,7 @@ data: {
     allowUpdateFromTable: true
     allowUpsertFormOfUpdate: true
     allowAbbreviatedKeywords: true
+    allowHexCharacterStringLiteral: true
     allowTranslateUsingCharSetWithError: true
     allowNestedJoins: true
     includePosixOperators: true

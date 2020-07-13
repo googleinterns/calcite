@@ -2408,6 +2408,44 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testHexCharLiteralCharSetNotSpecifiedDefaultFormat() {
+    final String sql = "'c1a'XC";
+    final String expected = "'c1a' XC";
+    expr(sql).ok(expected);
+  }
+
+  @Test void testHexCharLiteralCharSetSpecifiedXCFormat() {
+    final String sql = "_KANJISJIS 'ABC'XC";
+    final String expected = "_KANJISJIS 'ABC' XC";
+    expr(sql).ok(expected);
+  }
+
+  @Test void testHexCharLiteralCharSetSpecifiedXCVFormat() {
+    final String sql = "_LATIN'c1a'XCV";
+    final String expected = "_LATIN 'c1a' XCV";
+    expr(sql).ok(expected);
+  }
+
+  @Test void testHexCharLiteralCharSetSpecifiedXCFFormat() {
+    final String sql = "_unicode'c1a'XCF";
+    final String expected = "_UNICODE 'c1a' XCF";
+    expr(sql).ok(expected);
+  }
+
+  @Test void testHexCharLiteralOutsideRangeFails() {
+    // 'g' contains char outside hex range, it would be incorrectly parsed
+    // falling into the <PREFIXED_STRING_LITERAL> which leads to errors
+    final String sql = "^_unicode'cg'^XCF";
+    final String expected = "Unknown character set 'unicode'";
+    expr(sql).fails(expected);
+  }
+
+  @Test void testHexCharLiteralInQuery() {
+    final String sql = "select _LATIN'c1A'XCV";
+    final String expected = "SELECT _LATIN 'c1A' XCV";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testVarbyte() {
     final String sql = "create table foo (bar varbyte(20))";
     final String expected = "CREATE TABLE `FOO` (`BAR` VARBYTE(20))";

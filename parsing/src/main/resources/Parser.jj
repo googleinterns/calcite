@@ -4298,6 +4298,9 @@ SqlNode StringLiteral() :
     int nfrags = 0;
     List<SqlLiteral> frags = null;
     char unicodeEscapeChar = 0;
+<#if parser.allowHexCharacterStringLiteral>
+    SqlNode hexCharLiteral;
+</#if>
 }
 {
     // A continued string literal consists of a head fragment and one or more
@@ -4306,6 +4309,11 @@ SqlNode StringLiteral() :
     // or comments may not occur between the prefix and the first quote, the
     // head fragment, with any prefix, is one token.
 
+<#if parser.allowHexCharacterStringLiteral>
+    hexCharLiteral = SqlHexCharStringLiteral()
+    { return hexCharLiteral; }
+    |
+</#if>
     <BINARY_STRING_LITERAL>
     {
         try {
@@ -7802,10 +7810,19 @@ void NonReservedKeyWord2of3() :
 |
     /* To improve error reporting, we allow all kinds of characters,
      * not just hexits, in a binary string literal. */
+<#if parser.allowHexCharacterStringLiteral>
+    < PREFIXED_HEX_STRING_LITERAL :
+    ("_" <CHARSETNAME>| "_" <CHARSETNAME> " ") <QUOTED_HEX_STRING> >
+|
+</#if>
     < BINARY_STRING_LITERAL: ["x","X"] <QUOTE> ( (~["'"]) | ("''"))* <QUOTE> >
 |
     < QUOTED_STRING: <QUOTE> ( (~["'"]) | ("''"))* <QUOTE> >
 |
+<#if parser.allowHexCharacterStringLiteral>
+    < QUOTED_HEX_STRING : <QUOTE> (<HEXDIGIT>)+ <QUOTE> (("XC") | ("XCV") | ("XCF"))>
+|
+</#if>
     < PREFIXED_STRING_LITERAL: ("_" <CHARSETNAME> | "N") <QUOTED_STRING> >
 |
     < UNICODE_STRING_LITERAL: "U" "&" <QUOTED_STRING> >
