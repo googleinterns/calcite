@@ -2376,7 +2376,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "select * from foo where MY_FUN(a) (CASESPECIFIC) = 'Hello'";
     final String expected = "SELECT *\n"
      + "FROM `FOO`\n"
-     + "WHERE (MY_FUN(a) (CASESPECIFIC) = 'Hello')";
+     + "WHERE (`MY_FUN`(`A`) (CASESPECIFIC) = 'Hello')";
     sql(sql).ok(expected);
   }
 

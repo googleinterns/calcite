@@ -1792,22 +1792,6 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
     }
 }
 
-SqlNode InlineCaseSpecificNamedFunctionCall() :
-{
-    SqlNode value;
-    boolean not = false;
-}
-{
-    value = NamedFunctionCall()
-    <LPAREN>
-    [ <NOT> { not = true; } ]
-    <CASESPECIFIC>
-    <RPAREN>
-    {
-        return new SqlInlineCaseSpecific(getPos(), not, value);
-    }
-}
-
 SqlNode InlineCaseSpecific() :
 {
     SqlNode value;
@@ -1820,6 +1804,26 @@ SqlNode InlineCaseSpecific() :
         LOOKAHEAD( CompoundIdentifier() <LPAREN> [<NOT>] <CASESPECIFIC> <RPAREN> )
         value = CompoundIdentifier()
     )
+    <LPAREN>
+    [ <NOT> { not = true; } ]
+    <CASESPECIFIC>
+    <RPAREN>
+    {
+        return new SqlInlineCaseSpecific(getPos(), not, value);
+    }
+}
+
+/* This has to be separate from the InlineCaseSpecific() due to the LOOKAHEAD
+   for preExpressionMethods in Parser.jj breaking if both CompoundIdentifier()
+   and NamedFunctionCall() are options.
+ */
+SqlNode InlineCaseSpecificNamedFunctionCall() :
+{
+    SqlNode value;
+    boolean not = false;
+}
+{
+    value = NamedFunctionCall()
     <LPAREN>
     [ <NOT> { not = true; } ]
     <CASESPECIFIC>
