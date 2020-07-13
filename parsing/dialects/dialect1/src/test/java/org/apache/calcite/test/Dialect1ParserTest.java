@@ -2524,7 +2524,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testInlinNamedWithNamedFunction() {
+  @Test void testNamedExpressionWithNamedFunction() {
     final String sql = "select foo(a) (named b)";
     final String expected = "SELECT `FOO`(`A`) AS `B`";
     sql(sql).ok(expected);
