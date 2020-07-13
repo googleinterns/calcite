@@ -51,8 +51,8 @@ public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
     }
 
     // Only LATIN and UNICODE are valid for json.
-    if (characterSet != null && (characterSet != CharacterSet.LATIN
-          && characterSet != CharacterSet.UNICODE)) {
+    if (characterSet != CharacterSet.LATIN
+        && characterSet != CharacterSet.UNICODE) {
       throw SqlUtil.newContextException(pos,
           RESOURCE.illegalQueryExpression());
     }
