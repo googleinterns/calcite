@@ -2481,4 +2481,100 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "(?s).*Numeric literal.*out of range.*";
     sql(sql).fails(expected);
   }
+
+  @Test void testClob() {
+    final String sql = "create table foo (bar clob)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` CLOB)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testCharacterLargeObject() {
+    final String sql = "create table foo (bar character large object)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` CLOB)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testClobValue() {
+    final String sql = "create table foo (bar clob(1000))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` CLOB(1000))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testClobValueKilobytes() {
+    final String sql = "create table foo (bar clob(2047937k))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` CLOB(2047937K))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testClobValueMegabytes() {
+    final String sql = "create table foo (bar clob(1999m))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` CLOB(1999M))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testClobValueGigabytes() {
+    final String sql = "create table foo (bar clob(1g))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` CLOB(1G))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testClobValueCharacterSetLatin() {
+    final String sql = "create table foo (bar clob(100) character set latin)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` CLOB(100) CHARACTER SET LATIN)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testClobValueCharacterSetUnicode() {
+    final String sql = "create table foo (bar clob(100) character set unicode)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` CLOB(100) CHARACTER SET UNICODE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testClobLatinOutOfRangeFails() {
+    final String sql = "create table foo (bar clob(^2097088001^) character set latin)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testClobUnicodeOutOfRangeFails() {
+    final String sql = "create table foo (bar clob(^1048544001^) character set unicode)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testClobKilobytesLatinOutOfRangeFails() {
+    final String sql = "create table foo (bar clob(^2047938^k) character set latin)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testClobKilobytesUnicodeOutOfRangeFails() {
+    final String sql = "create table foo (bar clob(^1023969^k) character set unicode)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testClobMegabytesLatinOutOfRangeFails() {
+    final String sql = "create table foo (bar clob(^2000^m) character set latin)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testClobMegabytesUnicodeOutOfRangeFails() {
+    final String sql = "create table foo (bar clob(^1000^m) character set unicode)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testClobGigabytesLatinOutOfRangeFails() {
+    final String sql = "create table foo (bar clob(^2^g) character set latin)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testClobGigabytesUnicodeOutOfRangeFails() {
+    final String sql = "create table foo (bar clob(^1^g) character set unicode)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
 }
