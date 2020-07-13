@@ -113,6 +113,7 @@ data: {
       "CHECKSUM"
       "COMPRESS"
       "CONCURRENT"
+      "CS"
       "DATABLOCKSIZE"
       "DEL"
       "DUAL"

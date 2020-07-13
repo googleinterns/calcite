@@ -2348,43 +2348,51 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).fails(expected);
   }
 
+  @Test public void testInlineCaseSpecificAbbreviated() {
+    final String sql = "select * from foo where a (not cs) = 'Hello' (cs)";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` (NOT CASESPECIFIC) = 'Hello' (CASESPECIFIC))";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testInlineCaseSpecificNoneEqualsCaseSpecific() {
     final String sql = "select * from foo where a = 'Hello' (casespecific)";
     final String expected = "SELECT *\n"
-     + "FROM `FOO`\n"
-     + "WHERE (`A` = 'Hello' (CASESPECIFIC))";
+        + "FROM `FOO`\n"
+        + "WHERE (`A` = 'Hello' (CASESPECIFIC))";
     sql(sql).ok(expected);
   }
 
   @Test public void testInlineCaseSpecificNotCaseSpecificEqualsNotCaseSpecific() {
     final String sql = "select * from foo where a (NOT CASESPECIFIC) = 'Hello' (not casespecific)";
     final String expected = "SELECT *\n"
-     + "FROM `FOO`\n"
-     + "WHERE (`A` (NOT CASESPECIFIC) = 'Hello' (NOT CASESPECIFIC))";
+        + "FROM `FOO`\n"
+        + "WHERE (`A` (NOT CASESPECIFIC) = 'Hello' (NOT CASESPECIFIC))";
     sql(sql).ok(expected);
   }
 
   @Test public void testInlineCaseSpecificNotCaseSpecificEqualsCaseSpecific() {
     final String sql = "select * from foo where a (NOT CASESPECIFIC) = 'Hello' (casespecific)";
     final String expected = "SELECT *\n"
-     + "FROM `FOO`\n"
-     + "WHERE (`A` (NOT CASESPECIFIC) = 'Hello' (CASESPECIFIC))";
+        + "FROM `FOO`\n"
+        + "WHERE (`A` (NOT CASESPECIFIC) = 'Hello' (CASESPECIFIC))";
     sql(sql).ok(expected);
   }
 
   @Test public void testInlineCaseSpecificFunctionCall() {
     final String sql = "select * from foo where MY_FUN(a) (CASESPECIFIC) = 'Hello'";
     final String expected = "SELECT *\n"
-     + "FROM `FOO`\n"
-     + "WHERE (`MY_FUN`(`A`) (CASESPECIFIC) = 'Hello')";
+        + "FROM `FOO`\n"
+        + "WHERE (`MY_FUN`(`A`) (CASESPECIFIC) = 'Hello')";
     sql(sql).ok(expected);
   }
 
   @Test public void testInlineCaseSpecificCompoundIdentifier() {
     final String sql = "select * from foo as f where f.a (casespecific) = 'Hello'";
     final String expected = "SELECT *\n"
-     + "FROM `FOO` AS `F`\n"
-     + "WHERE (`F`.`A` (CASESPECIFIC) = 'Hello')";
+        + "FROM `FOO` AS `F`\n"
+        + "WHERE (`F`.`A` (CASESPECIFIC) = 'Hello')";
     sql(sql).ok(expected);
   }
 
