@@ -99,9 +99,9 @@ public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
       writer.keyword("INLINE LENGTH " + inlineLength);
     }
     if (characterSet != null) {
-      writer.keyword("CHARACTER SET " + characterSet.toString());
+      writer.keyword("CHARACTER SET " + characterSet);
     } else if (storageFormat != null) {
-      writer.keyword("STORAGE FORMAT " + storageFormat.toString());
+      writer.keyword("STORAGE FORMAT " + storageFormat);
     }
   }
 
