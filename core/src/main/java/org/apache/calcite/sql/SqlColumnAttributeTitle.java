@@ -18,6 +18,8 @@ package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
 
+import java.util.Objects;
+
 /**
  * A {@code SqlColumnAttributeTitle} is the TITLE column attribute for a data
  * type.
@@ -34,7 +36,7 @@ public class SqlColumnAttributeTitle extends SqlColumnAttribute {
    */
   public SqlColumnAttributeTitle(SqlParserPos pos, SqlNode titleString) {
     super(pos);
-    this.titleString = titleString;
+    this.titleString = Objects.requireNonNull(titleString);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
