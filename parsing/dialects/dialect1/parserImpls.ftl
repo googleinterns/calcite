@@ -1808,29 +1808,27 @@ SqlHostVariable SqlHostVariable() :
 
 SqlTypeNameSpec ByteDataType() :
 {
-    final SqlTypeName sqlTypeName;
     final Span s = Span.of();
     int precision = -1;
 }
 {
-    <BYTE> { sqlTypeName = SqlTypeName.BYTE; }
+    <BYTE>
     [ precision = VariableBinaryTypePrecision() ]
     {
-        return new SqlBasicTypeNameSpec(sqlTypeName, precision, s.end(this));
+        return new SqlBasicTypeNameSpec(SqlTypeName.BYTE, precision, s.end(this));
     }
 }
 
 SqlTypeNameSpec VarbyteDataType() :
 {
-    final SqlTypeName sqlTypeName;
     final Span s = Span.of();
     final int precision;
 }
 {
-    <VARBYTE> { sqlTypeName = SqlTypeName.VARBYTE; }
+    <VARBYTE>
     precision = VariableBinaryTypePrecision()
     {
-        return new SqlBasicTypeNameSpec(sqlTypeName, precision, s.end(this));
+        return new SqlBasicTypeNameSpec(SqlTypeName.VARBYTE, precision, s.end(this));
     }
 }
 
