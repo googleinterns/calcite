@@ -2583,6 +2583,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     expr(sql).ok(expected);
   }
 
+  @Test void testHexCharLiteralCharSetKanji1Format() {
+    final String sql = "_KANJI1 'ABC'XC";
+    final String expected = "_KANJI1 'ABC' XC";
+    expr(sql).ok(expected);
+  }
+
   @Test void testHexCharLiteralCharSetSpecifiedXCVFormat() {
     final String sql = "_LATIN'c1a'XCV";
     final String expected = "_LATIN 'c1a' XCV";
