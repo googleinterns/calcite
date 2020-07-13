@@ -2365,7 +2365,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   }
 
   @Test public void testInlineCaseSpecificNotCaseSpecificEqualsNotCaseSpecific() {
-    final String sql = "select * from foo where a (NOT CASESPECIFIC) = 'Hello' (not casespecific)";
+    final String sql = "select * from foo where a (NOT CASESPECIFIC) = 'Hello'"
+        + " (not casespecific)";
     final String expected = "SELECT *\n"
         + "FROM `FOO`\n"
         + "WHERE (`A` (NOT CASESPECIFIC) = 'Hello' (NOT CASESPECIFIC))";
