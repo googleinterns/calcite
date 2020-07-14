@@ -2705,4 +2705,10 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE TABLE `FOO` (`A` PERIOD(TIMESTAMP))";
     sql(sql).ok(expected);
   }
+
+  @Test public void testPeriodTypeNameSpecsTimeStampWithPrecision() {
+    final String sql = "create table foo (a period(timestamp(0)))";
+    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(TIMESTAMP(0)))";
+    sql(sql).ok(expected);
+  }
 }

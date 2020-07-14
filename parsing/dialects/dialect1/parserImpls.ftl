@@ -2014,7 +2014,11 @@ SqlTypeNameSpec SqlPeriodDataType() :
             timeScale = TimeScale.DATE;
         }
     |
-        <TIME>
+        (
+            <TIME> { timeScale = TimeScale.TIME; }
+        |
+            <TIMESTAMP> { timeScale = TimeScale.TIMESTAMP; }
+        )
         [
             <LPAREN>
             precision = UnsignedNumericLiteral()
@@ -2023,22 +2027,6 @@ SqlTypeNameSpec SqlPeriodDataType() :
         [
             <WITH> <TIME> <ZONE> { isWithTimezone = true; }
         ]
-        {
-            timeScale = TimeScale.TIME;
-        }
-    |
-        <TIMESTAMP>
-        [
-            <LPAREN>
-            precision = UnsignedNumericLiteral()
-            <RPAREN>
-        ]
-        [
-            <WITH> <TIME> <ZONE> { isWithTimezone = true; }
-        ]
-        {
-            timeScale = TimeScale.TIMESTAMP;
-        }
     )
     <RPAREN>
     {
