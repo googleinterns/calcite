@@ -19,6 +19,8 @@ package org.apache.calcite.test;
 import org.apache.calcite.sql.parser.SqlParserImplFactory;
 import org.apache.calcite.sql.parser.bigquery.BigQueryParserImpl;
 
+import org.junit.jupiter.api.Test;
+
 /**
  * Tests the "BigQuery" SQL parser.
  */
@@ -26,5 +28,32 @@ final class BigQueryParserTest extends SqlDialectParserTest {
 
   @Override protected SqlParserImplFactory parserImplFactory() {
     return BigQueryParserImpl.FACTORY;
+  }
+
+  @Test public void testExceptSingle() {
+    final String sql = "SELECT * EXCEPT(a) FROM foo";
+    final String expected = "SELECT * EXCEPT (`A`)\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testExceptMultiple() {
+    final String sql = "SELECT * EXCEPT(a, b) FROM foo";
+    final String expected = "SELECT * EXCEPT (`A`, `B`)\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testExceptCompound() {
+    final String sql = "SELECT * EXCEPT(f.a) FROM foo as f";
+    final String expected = "SELECT * EXCEPT (`F`.`A`)\n"
+        + "FROM `FOO` AS `F`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testExceptSelectNotStarFails() {
+    final String sql = "SELECT foo EXCEPT(x^)^ FROM bar";
+    final String expected = "Query expression encountered in illegal context";
+    sql(sql).fails(expected);
   }
 }
