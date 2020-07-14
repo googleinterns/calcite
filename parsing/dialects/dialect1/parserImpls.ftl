@@ -2015,6 +2015,11 @@ SqlTypeNameSpec SqlPeriodDataType() :
         }
     |
         <TIME>
+        [
+            <LPAREN>
+            precision = UnsignedNumericLiteral()
+            <RPAREN>
+        ]
         {
             timeScale = TimeScale.TIME;
         }

@@ -46,7 +46,7 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec{
         throw SqlUtil.newContextException(pos,
             RESOURCE.illegalNonQueryExpression());
       }
-      Integer precisionValue = Integer.getInteger(precision.toValue());
+      Integer precisionValue = Integer.valueOf(precision.toValue());
       if (precisionValue < 0 || precisionValue > 6) {
         throw SqlUtil.newContextException(pos,
             RESOURCE.numberLiteralOutOfRange("Precision"));
