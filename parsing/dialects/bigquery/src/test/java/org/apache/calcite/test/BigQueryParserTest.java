@@ -33,21 +33,21 @@ final class BigQueryParserTest extends SqlDialectParserTest {
   @Test public void testExceptSingle() {
     final String sql = "SELECT * EXCEPT(a) FROM foo";
     final String expected = "SELECT * EXCEPT (`A`)\n"
-     + "FROM `FOO`";
+        + "FROM `FOO`";
     sql(sql).ok(expected);
   }
 
   @Test public void testExceptMultiple() {
     final String sql = "SELECT * EXCEPT(a, b) FROM foo";
     final String expected = "SELECT * EXCEPT (`A`, `B`)\n"
-     + "FROM `FOO`";
+        + "FROM `FOO`";
     sql(sql).ok(expected);
   }
 
   @Test public void testExceptCompound() {
     final String sql = "SELECT * EXCEPT(f.a) FROM foo as f";
     final String expected = "SELECT * EXCEPT (`F`.`A`)\n"
-     + "FROM `FOO` AS `F`";
+        + "FROM `FOO` AS `F`";
     sql(sql).ok(expected);
   }
 

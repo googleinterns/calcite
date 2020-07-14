@@ -40,8 +40,8 @@ public class SqlSelect extends SqlCall {
 
   public SqlNodeList keywordList;
   public SqlNode topN;
-  public final SqlNode exceptExpression;
   SqlNodeList selectList;
+  public final SqlNode exceptExpression;
   SqlNode from;
   SqlNode where;
   SqlNodeList groupBy;
