@@ -28,6 +28,9 @@ import static org.apache.calcite.util.Static.RESOURCE;
  */
 public class SqlNumberTypeNameSpec extends SqlTypeNameSpec {
 
+  private final static int MIN_PRECISION = 1;
+  private final static int MIN_SCALE = 0;
+  private final static int MAX_INPUT = 38;
   public final boolean isPrecisionStar;
   public final SqlLiteral precision;
   public final SqlLiteral scale;
@@ -65,7 +68,7 @@ public class SqlNumberTypeNameSpec extends SqlTypeNameSpec {
       return true;
     }
     int numericPrecision = precision.getValueAs(Integer.class);
-    return numericPrecision >= 1 && numericPrecision <= 38;
+    return numericPrecision >= MIN_PRECISION && numericPrecision <= MAX_INPUT;
   }
 
   private boolean isValidScale(boolean isPrecisionStar, SqlLiteral precision,
@@ -74,12 +77,8 @@ public class SqlNumberTypeNameSpec extends SqlTypeNameSpec {
       return true;
     }
     int numericScale = scale.getValueAs(Integer.class);
-    if (isPrecisionStar) {
-      return numericScale >= 0 && numericScale <= 38;
-    } else {
-      int numericPrecision = precision.getValueAs(Integer.class);
-      return numericScale >= 0 && numericScale <= numericPrecision;
-    }
+    int maxNumericScale = isPrecisionStar ? MAX_INPUT : precision.getValueAs(Integer.class);
+    return numericScale >= MIN_SCALE && numericScale <= maxNumericScale;
   }
 
   @Override public RelDataType deriveType(SqlValidator validator) {
