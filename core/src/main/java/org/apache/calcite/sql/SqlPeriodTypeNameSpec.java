@@ -30,18 +30,19 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec {
 
   public final TimeScale timeScale;
   public final Integer precision;
-  public final boolean isWithTimezone;
+  public final boolean containsWithTimeZone;
 
   private static final int PRECISION_UPPERBOUND = 6;
 
   public SqlPeriodTypeNameSpec(TimeScale timeScale,
       SqlNumericLiteral precision,
-      boolean isWithTimezone, SqlParserPos pos) {
+      boolean containsWithTimeZone, SqlParserPos pos) {
     super(new SqlIdentifier("Period", pos), pos);
 
-    // Date period cannot contain precision or with time zone token.
+    // Period of DATE time scale cannot be used with
+    // PRECISION or WITH TIME ZONE token.
     if (timeScale == TimeScale.DATE
-        && (precision != null || isWithTimezone)) {
+        && (precision != null || containsWithTimeZone)) {
       throw SqlUtil.newContextException(pos,
           RESOURCE.illegalNonQueryExpression());
     }
@@ -61,7 +62,7 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec {
       this.precision = null;
     }
     this.timeScale = timeScale;
-    this.isWithTimezone = isWithTimezone;
+    this.containsWithTimeZone = containsWithTimeZone;
   }
 
   @Override public RelDataType deriveType(final SqlValidator validator) {
@@ -80,7 +81,7 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec {
       writer.print(precision);
       writer.endList(frame);
     }
-    if (isWithTimezone) {
+    if (containsWithTimeZone) {
       writer.keyword("WITH TIME ZONE");
     }
     writer.endList(periodFrame);
@@ -90,20 +91,14 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec {
     return false; // Since there is no test for this method, it is left blank.
   }
 
+  /**
+   * A enum for time scales in the period type.
+   */
   public enum TimeScale {
-    /**
-     * Time scale is DATE.
-     */
     DATE,
 
-    /**
-     * Time scale is TIME.
-     */
     TIME,
 
-    /**
-     * Time scale is TIMESTAMP.
-     */
     TIMESTAMP
   }
 }
