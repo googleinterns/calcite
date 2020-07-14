@@ -2026,6 +2026,19 @@ SqlTypeNameSpec SqlPeriodDataType() :
         {
             timeScale = TimeScale.TIME;
         }
+    |
+        <TIMESTAMP>
+        [
+            <LPAREN>
+            precision = UnsignedNumericLiteral()
+            <RPAREN>
+        ]
+        [
+            <WITH> <TIME> <ZONE> { isWithTimezone = true; }
+        ]
+        {
+            timeScale = TimeScale.TIMESTAMP;
+        }
     )
     <RPAREN>
     {
