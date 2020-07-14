@@ -2675,9 +2675,15 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).fails(expected);
   }
 
-  @Test public void testPeriodTypeNameSpecs() {
+  @Test public void testPeriodTypeNameSpecsDate() {
     final String sql = "create table foo (a period(date))";
     final String expected = "CREATE TABLE `FOO` (`A` PERIOD(DATE))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecsTime() {
+    final String sql = "create table foo (a period(time))";
+    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(time))";
     sql(sql).ok(expected);
   }
 }
