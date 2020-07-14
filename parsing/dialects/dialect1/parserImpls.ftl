@@ -2028,6 +2028,6 @@ SqlTypeNameSpec SqlPeriodDataType() :
     <RPAREN>
     {
         return new SqlPeriodTypeNameSpec(timeScale, precision, isWithTimezone,
-        getPos());
+            getPos());
     }
 }

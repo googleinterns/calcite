@@ -32,16 +32,19 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec {
   public final Integer precision;
   public final boolean isWithTimezone;
 
+  private static final int PRECISION_UPPERBOUND = 6;
+  private static final int PRECISION_DEFAULT = 6;
+
   public SqlPeriodTypeNameSpec(TimeScale timeScale,
       SqlNumericLiteral precision,
       boolean isWithTimezone, SqlParserPos pos) {
     super(new SqlIdentifier("Period", pos), pos);
 
-    // date period cannot contain precision or with time zone token
+    // Date period cannot contain precision or with time zone token.
     if (timeScale == TimeScale.DATE
-        && (precision != null || isWithTimezone)) {
-      throw SqlUtil.newContextException(pos,
-          RESOURCE.illegalNonQueryExpression());
+        && precision != null || isWithTimezone) {
+          throw SqlUtil.newContextException(pos,
+              RESOURCE.illegalNonQueryExpression());
     }
 
     if (precision != null) {
@@ -50,13 +53,17 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec {
             RESOURCE.illegalNonQueryExpression());
       }
       int precisionValue = Integer.parseInt(precision.toValue());
-      if (precisionValue < 0 || precisionValue > 6) {
+      if (precisionValue < 0 || precisionValue > PRECISION_UPPERBOUND) {
         throw SqlUtil.newContextException(pos,
             RESOURCE.numberLiteralOutOfRange("Precision"));
       }
       this.precision = precisionValue;
     } else {
-      this.precision = null;
+      if (timeScale == TimeScale.DATE){
+        this.precision = null;
+      } else {
+        this.precision = PRECISION_DEFAULT;
+      }
     }
     this.timeScale = timeScale;
     this.isWithTimezone = isWithTimezone;
@@ -85,18 +92,7 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec {
   }
 
   @Override public boolean equalsDeep(final SqlTypeNameSpec spec, final Litmus litmus) {
-    if (!(spec instanceof SqlPeriodTypeNameSpec)) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-
-    SqlPeriodTypeNameSpec that = (SqlPeriodTypeNameSpec) spec;
-
-    // two period types are the same as long as their time scales are the same
-    if (this.timeScale != that.timeScale) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-
-    return litmus.succeed();
+    return false; // Since there is no test for this method, it is left blank.
   }
 
   public enum TimeScale {

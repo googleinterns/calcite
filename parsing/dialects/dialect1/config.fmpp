@@ -1026,10 +1026,10 @@ data: {
     # Return type of method implementation should be "SqlTypeNameSpec".
     # Example: SqlParseTimeStampZ().
     dataTypeParserMethods: [
-      "SqlPeriodDataType()"
-      "SqlJsonDataType()"
       "ByteDataType()"
       "ByteIntType()"
+      "SqlJsonDataType()"
+      "SqlPeriodDataType()"
       "VarbyteDataType()"
     ]
 
