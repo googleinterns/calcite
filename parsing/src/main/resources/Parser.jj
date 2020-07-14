@@ -6532,6 +6532,9 @@ SqlNode NamedFunctionCall() :
     SqlLiteral quantifier = null;
     SqlNodeList orderList = null;
     final Span withinGroupSpan;
+<#if parser.includePostExpressionMethodsAfterFunction>
+    SqlNode e;
+</#if>
 }
 {
     (
@@ -6589,9 +6592,15 @@ SqlNode NamedFunctionCall() :
             call = SqlStdOperatorTable.OVER.createCall(s.end(over), call, over);
         }
     ]
-    {
-        return call;
-    }
+    (
+<#if parser.includePostExpressionMethodsAfterFunction>
+<#list parser.postExpressionMethods as method>
+        e = ${method}(call) { return e; }
+    |
+</#list>
+</#if>
+        { return call; }
+    )
 }
 
 
