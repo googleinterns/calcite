@@ -28,15 +28,15 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec{
 
   public final TimeScale timeScale;
   public final Integer precision;
-  public final Boolean isWithTimezone;
+  public final boolean isWithTimezone;
 
   public SqlPeriodTypeNameSpec(TimeScale timeScale,
       SqlNumericLiteral precision,
-      Boolean isWithTimezone, SqlParserPos pos) {
+      boolean isWithTimezone, SqlParserPos pos) {
     super(new SqlIdentifier("Period",pos), pos);
 
     if (timeScale == TimeScale.DATE
-        && (precision != null || isWithTimezone != null)) {
+        && (precision != null || isWithTimezone == true)) {
       throw SqlUtil.newContextException(pos,
           RESOURCE.illegalNonQueryExpression());
     }
@@ -77,7 +77,7 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec{
       writer.endList(frame);
     }
 
-    if (isWithTimezone != null) {
+    if (isWithTimezone == true) {
       writer.keyword("WITH TIME ZONE");
     }
 

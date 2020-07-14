@@ -2004,7 +2004,7 @@ SqlTypeNameSpec SqlPeriodDataType() :
 {
     final TimeScale timeScale;
     SqlNumericLiteral precision = null;
-    Boolean isWithTimezone = null;
+    boolean isWithTimezone = false;
 }
 {
     <PERIOD> <LPAREN>
@@ -2019,6 +2019,9 @@ SqlTypeNameSpec SqlPeriodDataType() :
             <LPAREN>
             precision = UnsignedNumericLiteral()
             <RPAREN>
+        ]
+        [
+            <WITH> <TIME> <ZONE> { isWithTimezone = true; }
         ]
         {
             timeScale = TimeScale.TIME;
