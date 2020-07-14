@@ -99,14 +99,6 @@ public class SqlBlobTypeNameSpec extends SqlTypeNameSpec {
   }
 
   @Override public boolean equalsDeep(SqlTypeNameSpec spec, Litmus litmus) {
-    if (!(spec instanceof SqlBlobTypeNameSpec)) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-    SqlBlobTypeNameSpec that = (SqlBlobTypeNameSpec) spec;
-    if (this.maxLength != that.maxLength
-        || this.unitSize != that.unitSize) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-    return litmus.succeed();
+    return false;
   }
 }
