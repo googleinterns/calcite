@@ -26,7 +26,7 @@ import static org.apache.calcite.util.Static.RESOURCE;
 /**
  * A sql type name specification of the PERIOD type.
  */
-public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec{
+public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec {
 
   public final TimeScale timeScale;
   public final Integer precision;
@@ -35,7 +35,7 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec{
   public SqlPeriodTypeNameSpec(TimeScale timeScale,
       SqlNumericLiteral precision,
       boolean isWithTimezone, SqlParserPos pos) {
-    super(new SqlIdentifier("Period",pos), pos);
+    super(new SqlIdentifier("Period", pos), pos);
 
     // date period cannot contain precision or with time zone token
     if (timeScale == TimeScale.DATE
