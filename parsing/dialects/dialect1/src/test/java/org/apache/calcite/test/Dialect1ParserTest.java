@@ -2863,6 +2863,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testCharacterLargeObjectValue() {
+    final String sql = "create table foo (bar character large object(50))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` CLOB(50))";
+    sql(sql).ok(expected);
+  }
+
   @Test void testClobValue() {
     final String sql = "create table foo (bar clob(1000))";
     final String expected = "CREATE TABLE `FOO` (`BAR` CLOB(1000))";

@@ -46,7 +46,8 @@ public class SqlClobTypeNameSpec extends SqlTypeNameSpec {
     this.maxLength = maxLength;
     this.unitSize = unitSize;
     this.characterSet = characterSet;
-    if (maxLength != null && !isValidMaxLength(maxLength, unitSize, characterSet)) {
+    if (maxLength != null && characterSet != null
+        && !isValidMaxLength(maxLength, unitSize, characterSet)) {
       throw SqlUtil.newContextException(maxLength.getParserPosition(),
         RESOURCE.numberLiteralOutOfRange(String.valueOf(maxLength)));
     }
@@ -58,32 +59,28 @@ public class SqlClobTypeNameSpec extends SqlTypeNameSpec {
     if (numericMaxLength == 0) {
       return false;
     }
-    switch (unitSize) {
-    case UNSPECIFIED:
-      if (characterSet == CharacterSet.LATIN && numericMaxLength > 2097088000) {
+    switch (characterSet) {
+    case LATIN:
+      if (unitSize == SqlLobUnitSize.UNSPECIFIED
+          && numericMaxLength > 2097088000) {
         return false;
-      } else if (characterSet == CharacterSet.UNICODE && numericMaxLength > 1048544000) {
+      } else if (unitSize == SqlLobUnitSize.K && numericMaxLength > 2047937) {
         return false;
-      }
-      break;
-    case K:
-      if (characterSet == CharacterSet.LATIN && numericMaxLength > 2047937) {
+      } else if (unitSize == SqlLobUnitSize.M && numericMaxLength > 1999) {
         return false;
-      } else if (characterSet == CharacterSet.UNICODE && numericMaxLength > 1023968) {
+      } else if (unitSize == SqlLobUnitSize.G && numericMaxLength > 1) {
         return false;
       }
       break;
-    case M:
-      if (characterSet == CharacterSet.LATIN && numericMaxLength > 1999) {
+    case UNICODE:
+      if (unitSize == SqlLobUnitSize.UNSPECIFIED
+          && numericMaxLength > 1048544000) {
         return false;
-      } else if (characterSet == CharacterSet.UNICODE && numericMaxLength > 999) {
+      } else if (unitSize == SqlLobUnitSize.K && numericMaxLength > 1023968) {
         return false;
-      }
-      break;
-    case G:
-      if (characterSet == CharacterSet.LATIN && numericMaxLength > 1) {
+      } else if (unitSize == SqlLobUnitSize.M && numericMaxLength > 999) {
         return false;
-      } else if (characterSet == CharacterSet.UNICODE) {
+      } else if (unitSize == SqlLobUnitSize.G) {
         return false;
       }
       break;
