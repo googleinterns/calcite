@@ -1951,6 +1951,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testAlterTableCompoundIdentifier() {
+    final String sql = "alter table foo.baz add bar integer";
+    final String expected = "ALTER TABLE `FOO`.`BAZ` ADD (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test void testAlterAddMultiColumns() {
     final String sql = "alter table foo add (bar integer, baz integer)";
     final String expected = "ALTER TABLE `FOO` ADD"

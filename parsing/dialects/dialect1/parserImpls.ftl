@@ -1576,7 +1576,7 @@ SqlAlter SqlAlterTable(Span s, String scope) :
 }
 {
     <TABLE>
-    tableName = SimpleIdentifier()
+    tableName = CompoundIdentifier()
     (
         tableAttributes = AlterTableAttributes()
         (
