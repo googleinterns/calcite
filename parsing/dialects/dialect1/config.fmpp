@@ -36,6 +36,7 @@ data: {
       "org.apache.calcite.sql.SqlAlterTableDrop",
       "org.apache.calcite.sql.SqlAlterTableOption",
       "org.apache.calcite.sql.SqlAlterTableRename",
+      "org.apache.calcite.sql.SqlBlobTypeNameSpec",
       "org.apache.calcite.sql.SqlCaseSpecific",
       "org.apache.calcite.sql.SqlCharacterSetToCharacterSet",
       "org.apache.calcite.sql.SqlColumnAttribute",
@@ -52,8 +53,9 @@ data: {
       "org.apache.calcite.sql.SqlColumnAttributeGeneratedMinValue",
       "org.apache.calcite.sql.SqlColumnAttributeGeneratedOption",
       "org.apache.calcite.sql.SqlColumnAttributeGeneratedStartWith",
+      "org.apache.calcite.sql.SqlColumnAttributeTitle",
       "org.apache.calcite.sql.SqlColumnAttributeUpperCase",
-      "org.apache.calcite.sql.SqlCreate"
+      "org.apache.calcite.sql.SqlCreate",
       "org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier",
       "org.apache.calcite.sql.SqlCreateFunctionSqlForm",
       "org.apache.calcite.sql.SqlCreateFunctionSqlForm.DeterministicType",
@@ -63,7 +65,7 @@ data: {
       "org.apache.calcite.sql.SqlDateTimeAtTimeZone",
       "org.apache.calcite.sql.SqlDdlNodes"
       "org.apache.calcite.sql.SqlDdlNodes",
-      "org.apache.calcite.sql.SqlDrop"
+      "org.apache.calcite.sql.SqlDrop",
       "org.apache.calcite.sql.SqlExecMacro",
       "org.apache.calcite.sql.SqlExecMacroParam",
       "org.apache.calcite.sql.SqlHexCharStringLiteral",
@@ -72,6 +74,7 @@ data: {
       "org.apache.calcite.sql.SqlIndex",
       "org.apache.calcite.sql.SqlJsonTypeNameSpec",
       "org.apache.calcite.sql.SqlJsonTypeNameSpec.StorageFormat",
+      "org.apache.calcite.sql.SqlLobUnitSize",
       "org.apache.calcite.sql.SqlNumberTypeNameSpec",
       "org.apache.calcite.sql.SqlPrimaryIndex",
       "org.apache.calcite.sql.SqlRenameTable",
@@ -159,6 +162,7 @@ data: {
       "STORED"
       "SUBSTR"
       "TEMP"
+      "TITLE"
       "TOP"
       "UBJSON"
       "UNICODE"
@@ -524,6 +528,7 @@ data: {
       "SEMI"
       "STORAGE"
       "STORED"
+      "TITLE"
       "UBJSON"
       "UNICODE"
       "UPD"
@@ -1026,10 +1031,11 @@ data: {
     # Return type of method implementation should be "SqlTypeNameSpec".
     # Example: SqlParseTimeStampZ().
     dataTypeParserMethods: [
-      "SqlJsonDataType()"
+      "BlobDataType()"
       "ByteDataType()"
       "ByteIntType()"
       "NumberDataType()"
+      "SqlJsonDataType()"
       "VarbyteDataType()"
     ]
 
