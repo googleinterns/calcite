@@ -2013,6 +2013,11 @@ SqlTypeNameSpec SqlPeriodDataType() :
         {
             timeScale = TimeScale.DATE;
         }
+    |
+        <TIME>
+        {
+            timeScale = TimeScale.TIME;
+        }
     )
     <RPAREN>
     {
