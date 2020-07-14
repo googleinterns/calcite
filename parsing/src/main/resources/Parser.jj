@@ -1285,6 +1285,7 @@ SqlSelect SqlSelect() :
     final List<SqlLiteral> keywords = new ArrayList<SqlLiteral>();
     final SqlNodeList keywordList;
     SqlNode topN = null;
+    SqlNode exceptExpression = null;
     List<SqlNode> selectList;
     final SqlNode fromClause;
     final SqlNode where;
@@ -1333,6 +1334,11 @@ SqlSelect SqlSelect() :
         keywordList = new SqlNodeList(keywords, s.addAll(keywords).pos());
     }
     selectList = SelectList()
+<#if parser.includeExceptExpression>
+    [
+        exceptExpression = ExceptExpression(selectList)
+    ]
+</#if>
     (
         <FROM> fromClause = FromClause()
         where = WhereOpt()
@@ -1355,8 +1361,8 @@ SqlSelect SqlSelect() :
     {
         return new SqlSelect(s.end(this), keywordList, topN,
             new SqlNodeList(selectList, Span.of(selectList).pos()),
-            fromClause, where, groupBy, having, qualify, windowDecls,
-            /*orderBy=*/ null, /*offset=*/ null, /*fetch=*/ null,
+            exceptExpression, fromClause, where, groupBy, having, qualify,
+            windowDecls, /*orderBy=*/ null, /*offset=*/ null, /*fetch=*/ null,
             new SqlNodeList(hints, getPos()));
     }
 }
@@ -6539,6 +6545,9 @@ SqlNode NamedFunctionCall() :
     SqlLiteral quantifier = null;
     SqlNodeList orderList = null;
     final Span withinGroupSpan;
+<#if parser.includePostExpressionMethodsAfterFunction>
+    SqlNode e;
+</#if>
 }
 {
     (
@@ -6596,9 +6605,15 @@ SqlNode NamedFunctionCall() :
             call = SqlStdOperatorTable.OVER.createCall(s.end(over), call, over);
         }
     ]
-    {
-        return call;
-    }
+    (
+<#if parser.includePostExpressionMethodsAfterFunction>
+<#list parser.postExpressionMethods as method>
+        e = ${method}(call) { return e; }
+    |
+</#list>
+</#if>
+        { return call; }
+    )
 }
 
 

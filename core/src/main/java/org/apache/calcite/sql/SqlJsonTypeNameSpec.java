@@ -63,28 +63,7 @@ public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
   }
 
   @Override public boolean equalsDeep(SqlTypeNameSpec spec, Litmus litmus) {
-    if (!(spec instanceof SqlJsonTypeNameSpec)) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-    SqlJsonTypeNameSpec that = (SqlJsonTypeNameSpec) spec;
-
-    if ((this.maxLength == null || that.maxLength == null)
-        && this.maxLength != that.maxLength) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-
-    if ((this.inlineLength == null || that.inlineLength == null)
-        && this.inlineLength != that.inlineLength) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-
-    if (!this.maxLength.equals(that.maxLength)
-        || !this.inlineLength.equals(that.inlineLength)
-        || this.characterSet != that.characterSet
-        || this.storageFormat != that.storageFormat) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-    return litmus.succeed();
+    return false;
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
@@ -99,9 +78,9 @@ public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
       writer.keyword("INLINE LENGTH " + inlineLength);
     }
     if (characterSet != null) {
-      writer.keyword("CHARACTER SET " + characterSet.toString());
+      writer.keyword("CHARACTER SET " + characterSet);
     } else if (storageFormat != null) {
-      writer.keyword("STORAGE FORMAT " + storageFormat.toString());
+      writer.keyword("STORAGE FORMAT " + storageFormat);
     }
   }
 

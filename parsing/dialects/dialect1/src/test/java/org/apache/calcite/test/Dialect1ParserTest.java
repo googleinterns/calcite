@@ -1951,6 +1951,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testAlterTableCompoundIdentifier() {
+    final String sql = "alter table foo.baz add bar integer";
+    final String expected = "ALTER TABLE `FOO`.`BAZ` ADD (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test void testAlterAddMultiColumns() {
     final String sql = "alter table foo add (bar integer, baz integer)";
     final String expected = "ALTER TABLE `FOO` ADD"
@@ -2583,6 +2589,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     expr(sql).ok(expected);
   }
 
+  @Test void testHexCharLiteralCharSetKanji1Format() {
+    final String sql = "_KANJI1 'ABC'XC";
+    final String expected = "_KANJI1 'ABC' XC";
+    expr(sql).ok(expected);
+  }
+
   @Test void testHexCharLiteralCharSetSpecifiedXCVFormat() {
     final String sql = "_LATIN'c1a'XCV";
     final String expected = "_LATIN 'c1a' XCV";
@@ -2722,6 +2734,90 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "SELECT *\n"
         + "FROM `FOO`\n"
         + "WHERE (`BAR` LIKE ALL ('a', 'b'))";
+    sql(sql).ok(expected);
+  }
+=======
+  @Test public void testNumberDataType() {
+    final String sql = "create table foo (bar number)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypePrecision() {
+    final String sql = "create table foo (bar number(3))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER(3))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypePrecisionStar() {
+    final String sql = "create table foo (bar number(*))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER(*))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypePrecisionScale() {
+    final String sql = "create table foo (bar number(*, 3))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER(*, 3))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypePrecisionScaleMaxValues() {
+    final String sql = "create table foo (bar number(38, 38))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER(38, 38))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypePrecisionScaleMinValues() {
+    final String sql = "create table foo (bar number(1, 0))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER(1, 0))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypeMinPrecisionOutOfRangeFails() {
+    final String sql = "create table foo (bar number(^0^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testNumberDataTypeMaxPrecisionOutOfRangeFails() {
+    final String sql = "create table foo (bar number(^39^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testNumberDataTypeScaleGreaterThanPrecisionFails() {
+    final String sql = "create table foo (bar number(12, ^13^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testNumberDataTypeMinScaleOutOfRangeFails() {
+    final String sql = "create table foo (bar number(*^,^ -1))";
+    final String expected = "(?s).*Encountered \", -\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testNumberDataTypeMaxScaleOutOfRangeFails() {
+    final String sql = "create table foo (bar number(*, ^39^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testAlternativeTypeConversionWithNamedFunction() {
+    final String sql = "SELECT foo(a) (INT)";
+    final String expected = "SELECT CAST(`FOO`(`A`) AS INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testInlineFormatWithNamedFunction() {
+    final String sql = "select foo(a) (format 'X6')";
+    final String expected = "SELECT (`FOO`(`A`) (FORMAT 'X6'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testNamedExpressionWithNamedFunction() {
+    final String sql = "select foo(a) (named b)";
+    final String expected = "SELECT `FOO`(`A`) AS `B`";
     sql(sql).ok(expected);
   }
 }
