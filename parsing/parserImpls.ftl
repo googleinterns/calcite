@@ -48,20 +48,30 @@ boolean IsNullable() :
     )
 }
 
-SqlCreate SqlCreateSchema(Span s, SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateSchema() :
 {
+    Span s;
+    SqlCreateSpecifier createSpecifier;
     final boolean ifNotExists;
     final SqlIdentifier id;
 }
 {
+    <CREATE> { s = span(); }
+    (
+        <OR> <REPLACE> { createSpecifier = SqlCreateSpecifier.CREATE_OR_REPLACE; }
+    |
+        { createSpecifier = SqlCreateSpecifier.CREATE; }
+    )
     <SCHEMA> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
     {
         return SqlDdlNodes.createSchema(s.end(this), createSpecifier, ifNotExists, id);
     }
 }
 
-SqlCreate SqlCreateForeignSchema(Span s, SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateForeignSchema() :
 {
+    Span s;
+    SqlCreateSpecifier createSpecifier;
     final boolean ifNotExists;
     final SqlIdentifier id;
     SqlNode type = null;
@@ -69,6 +79,12 @@ SqlCreate SqlCreateForeignSchema(Span s, SqlCreateSpecifier createSpecifier) :
     SqlNodeList optionList = null;
 }
 {
+    <CREATE> { s = span(); }
+    (
+        <OR> <REPLACE> { createSpecifier = SqlCreateSpecifier.CREATE_OR_REPLACE; }
+    |
+        { createSpecifier = SqlCreateSpecifier.CREATE; }
+    )
     <FOREIGN> <SCHEMA> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
     (
          <TYPE> type = StringLiteral()
@@ -237,13 +253,21 @@ void AttributeDef(List<SqlNode> list) :
     }
 }
 
-SqlCreate SqlCreateType(Span s, SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateType() :
 {
+    Span s;
+    SqlCreateSpecifier createSpecifier;
     final SqlIdentifier id;
     SqlNodeList attributeDefList = null;
     SqlDataTypeSpec type = null;
 }
 {
+    <CREATE> { s = span(); }
+    (
+        <OR> <REPLACE> { createSpecifier = SqlCreateSpecifier.CREATE_OR_REPLACE; }
+    |
+        { createSpecifier = SqlCreateSpecifier.CREATE; }
+    )
     <TYPE>
     id = CompoundIdentifier()
     <AS>
@@ -257,14 +281,22 @@ SqlCreate SqlCreateType(Span s, SqlCreateSpecifier createSpecifier) :
     }
 }
 
-SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateTable() :
 {
+    Span s;
+    SqlCreateSpecifier createSpecifier;
     final boolean ifNotExists;
     final SqlIdentifier id;
     SqlNodeList tableElementList = null;
     SqlNode query = null;
 }
 {
+    <CREATE> { s = span(); }
+    (
+        <OR> <REPLACE> { createSpecifier = SqlCreateSpecifier.CREATE_OR_REPLACE; }
+    |
+        { createSpecifier = SqlCreateSpecifier.CREATE; }
+    )
     <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
     [ tableElementList = TableElementList() ]
     [ <AS> query = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY) ]
@@ -274,8 +306,10 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
     }
 }
 
-SqlCreate SqlCreateView(Span s, SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateView() :
 {
+    Span s;
+    SqlCreateSpecifier createSpecifier;
     final SqlIdentifier id;
     final Pair<SqlNodeList, SqlNodeList> p;
     SqlNodeList columnList = null;
@@ -283,6 +317,17 @@ SqlCreate SqlCreateView(Span s, SqlCreateSpecifier createSpecifier) :
     boolean withCheckOption = false;
 }
 {
+    (
+        <CREATE> { s = span(); }
+        (
+            <OR> <REPLACE> { createSpecifier = SqlCreateSpecifier.CREATE_OR_REPLACE; }
+        |
+            { createSpecifier = SqlCreateSpecifier.CREATE; }
+        )
+    |
+        <REPLACE> { createSpecifier = SqlCreateSpecifier.REPLACE; }
+    )
+    { s = span(); }
     <VIEW> id = CompoundIdentifier()
     [ p = ParenthesizedCompoundIdentifierList() { columnList = p.left; } ]
     <AS> query = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
@@ -295,14 +340,22 @@ SqlCreate SqlCreateView(Span s, SqlCreateSpecifier createSpecifier) :
     }
 }
 
-SqlCreate SqlCreateMaterializedView(Span s, SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateMaterializedView() :
 {
+    Span s;
+    SqlCreateSpecifier createSpecifier;
     final boolean ifNotExists;
     final SqlIdentifier id;
     SqlNodeList columnList = null;
     final SqlNode query;
 }
 {
+    <CREATE> { s = span(); }
+    (
+        <OR> <REPLACE> { createSpecifier = SqlCreateSpecifier.CREATE_OR_REPLACE; }
+    |
+        { createSpecifier = SqlCreateSpecifier.CREATE; }
+    )
     <MATERIALIZED> <VIEW> ifNotExists = IfNotExistsOpt()
     id = CompoundIdentifier()
     [ columnList = ParenthesizedSimpleIdentifierList() ]
@@ -332,14 +385,22 @@ private void FunctionJarDef(SqlNodeList usingList) :
     }
 }
 
-SqlCreate SqlCreateFunction(Span s, SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateFunction() :
 {
+    Span s;
+    SqlCreateSpecifier createSpecifier;
     final boolean ifNotExists;
     final SqlIdentifier id;
     final SqlNode className;
     SqlNodeList usingList = SqlNodeList.EMPTY;
 }
 {
+    <CREATE> { s = span(); }
+    (
+        <OR> <REPLACE> { createSpecifier = SqlCreateSpecifier.CREATE_OR_REPLACE; }
+    |
+        { createSpecifier = SqlCreateSpecifier.CREATE; }
+    )
     <FUNCTION> ifNotExists = IfNotExistsOpt()
     id = CompoundIdentifier()
     <AS>
@@ -438,11 +499,10 @@ SqlCreate SqlReplace() :
     final SqlCreate create;
 }
 {
-    <REPLACE> { s = span(); }
     (
 <#-- additional literal parser methods are included here -->
 <#list parser.replaceStatementParserMethods as method>
-        create = ${method}(s, SqlCreateSpecifier.REPLACE)
+        create = ${method}()
         <#sep>| LOOKAHEAD(2) </#sep>
 </#list>
     )

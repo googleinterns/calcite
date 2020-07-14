@@ -4045,22 +4045,15 @@ String Scope() :
  */
 SqlCreate SqlCreate() :
 {
-    final Span s;
-    SqlCreateSpecifier createSpecifier = SqlCreateSpecifier.CREATE;
     final SqlCreate create;
 }
 {
-    <CREATE> { s = span(); }
-    [
-        <OR> <REPLACE> {
-            createSpecifier = SqlCreateSpecifier.CREATE_OR_REPLACE;
-        }
-    ]
     (
 <#-- additional literal parser methods are included here -->
 <#list parser.createStatementParserMethods as method>
-        create = ${method}(s, createSpecifier)
-        <#sep>| LOOKAHEAD(2) </#sep>
+        LOOKAHEAD(4)
+        create = ${method}()
+        <#sep>|</#sep>
 </#list>
     )
     {
