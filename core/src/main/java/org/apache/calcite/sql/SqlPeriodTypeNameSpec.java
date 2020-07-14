@@ -59,7 +59,7 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec {
       }
       this.precision = precisionValue;
     } else {
-      if (timeScale == TimeScale.DATE){
+      if (timeScale == TimeScale.DATE) {
         this.precision = null;
       } else {
         this.precision = PRECISION_DEFAULT;
