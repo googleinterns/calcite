@@ -2009,10 +2009,7 @@ SqlTypeNameSpec SqlPeriodDataType() :
 {
     <PERIOD> <LPAREN>
     (
-        <DATE>
-        {
-            timeScale = TimeScale.DATE;
-        }
+        <DATE> { timeScale = TimeScale.DATE; }
     |
         (
             <TIME> { timeScale = TimeScale.TIME; }

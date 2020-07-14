@@ -23,6 +23,9 @@ import org.apache.calcite.util.Litmus;
 
 import static org.apache.calcite.util.Static.RESOURCE;
 
+/**
+ * A sql type name specification of the PERIOD type.
+ */
 public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec{
 
   public final TimeScale timeScale;
@@ -34,8 +37,9 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec{
       boolean isWithTimezone, SqlParserPos pos) {
     super(new SqlIdentifier("Period",pos), pos);
 
+    // date period cannot contain precision or with time zone token
     if (timeScale == TimeScale.DATE
-        && (precision != null || isWithTimezone == true)) {
+        && (precision != null || isWithTimezone)) {
       throw SqlUtil.newContextException(pos,
           RESOURCE.illegalNonQueryExpression());
     }
@@ -45,7 +49,7 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec{
         throw SqlUtil.newContextException(pos,
             RESOURCE.illegalNonQueryExpression());
       }
-      Integer precisionValue = Integer.valueOf(precision.toValue());
+      int precisionValue = Integer.parseInt(precision.toValue());
       if (precisionValue < 0 || precisionValue > 6) {
         throw SqlUtil.newContextException(pos,
             RESOURCE.numberLiteralOutOfRange("Precision"));
@@ -54,7 +58,6 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec{
     } else {
       this.precision = null;
     }
-
     this.timeScale = timeScale;
     this.isWithTimezone = isWithTimezone;
   }
@@ -75,11 +78,9 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec{
       writer.print(precision);
       writer.endList(frame);
     }
-
-    if (isWithTimezone == true) {
+    if (isWithTimezone) {
       writer.keyword("WITH TIME ZONE");
     }
-
     writer.endList(periodFrame);
   }
 
@@ -90,6 +91,7 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec{
 
     SqlPeriodTypeNameSpec that = (SqlPeriodTypeNameSpec) spec;
 
+    // two period types are the same as long as their time scales are the same
     if (this.timeScale != that.timeScale) {
       return litmus.fail("{} != {}", this, spec);
     }
@@ -98,8 +100,19 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec{
   }
 
   public enum TimeScale {
+    /**
+     * Time scale is DATE.
+     */
     DATE,
+
+    /**
+     * Time scale is TIME.
+     */
     TIME,
+
+    /**
+     * Time scale is TIMESTAMP.
+     */
     TIMESTAMP
   }
 }
