@@ -2729,4 +2729,10 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "(?s).*Numeric literal.*out of range.*";
     sql(sql).fails(expected);
   }
+
+  @Test public void testPeriodTypeNameSpecsNegativePrecisionFails() {
+    final String sql = "create table foo (a period(time^(^-1)))";
+    final String expected = "(?s).*Encountered \"\\( -\" at .*";
+    sql(sql).fails(expected);
+  }
 }
