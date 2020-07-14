@@ -479,25 +479,26 @@ data: {
       "parserImpls.ftl"
     ]
 
+    allowAbbreviatedKeywords: false
+    allowColonSeparatorInCompoundIdentifier: false
+    allowHexCharacterStringLiteral: false
+    allowNestedJoins: false
+    allowTranslateUsingCharSetWithError: false
     allowUpdateFromTable: false
     allowUpsertFormOfUpdate: false
-    allowAbbreviatedKeywords: false
-    allowHexCharacterStringLiteral: false
-    allowTranslateUsingCharSetWithError: false
-    allowNestedJoins: false
-    includePosixOperators: false
+    includeAdditionalDeclarations: false
+    includeBraces: true
     includeCastFormat: false
     includeCompoundIdentifier: true
-    allowColonSeparatorInCompoundIdentifier: false
-    includeBraces: true
-    includeAdditionalDeclarations: false
-    includeSubstrKeyword: false
+    includeExceptExpression: false
+    includeHostVariables: false
+    includeInsertWithOmittedValues: false
+    includePosixOperators: false
+    includePostExpressionMethodsAfterFunction: false
     includeQualifyClause: false
     includeRankWithSortingExpressions: false
+    includeSubstrKeyword: false
     includeTopN: false
-    includeInsertWithOmittedValues: false
-    includeHostVariables: false
-    includePostExpressionMethodsAfterFunction: false
   }
 }
 
