@@ -62,6 +62,9 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
       case "KANJISJIS":
         charSet = CharacterSet.KANJISJIS;
         break;
+      case "KANJI1":
+        charSet = CharacterSet.KANJI1;
+        break;
       default:
         throw SqlUtil.newContextException(pos,
             RESOURCE.unknownCharacterSet(charSetString));
@@ -96,6 +99,9 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
         break;
       case KANJISJIS:
         writer.keyword("KANJISJIS");
+        break;
+      case KANJI1:
+        writer.keyword("KANJI1");
         break;
       }
     }
