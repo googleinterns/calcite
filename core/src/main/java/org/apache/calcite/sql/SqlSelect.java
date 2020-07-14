@@ -41,6 +41,7 @@ public class SqlSelect extends SqlCall {
   public SqlNodeList keywordList;
   public SqlNode topN;
   SqlNodeList selectList;
+  public final SqlNode exceptExpression;
   SqlNode from;
   SqlNode where;
   SqlNodeList groupBy;
@@ -66,8 +67,9 @@ public class SqlSelect extends SqlCall {
       SqlNode offset,
       SqlNode fetch,
       SqlNodeList hints) {
-    this(pos, keywordList, /*topN=*/ null, selectList, from, where, groupBy,
-        having, /*qualify=*/ null, windowDecls, orderBy, offset, fetch, hints);
+    this(pos, keywordList, /*topN=*/ null, selectList, /*exceptExpression=*/ null,
+        from, where, groupBy, having, /*qualify=*/ null, windowDecls, orderBy,
+        offset, fetch, hints);
   }
 
   public SqlSelect(SqlParserPos pos,
@@ -83,8 +85,9 @@ public class SqlSelect extends SqlCall {
                    SqlNode offset,
                    SqlNode fetch,
                    SqlNodeList hints) {
-    this(pos, keywordList, /*topN=*/ null, selectList, from, where, groupBy,
-        having, qualify, windowDecls, orderBy, offset, fetch, hints);
+    this(pos, keywordList, /*topN=*/ null, selectList, /*exceptExpression=*/ null,
+        from, where, groupBy, having, qualify, windowDecls, orderBy, offset,
+        fetch, hints);
   }
 
   public SqlSelect(SqlParserPos pos,
@@ -101,11 +104,32 @@ public class SqlSelect extends SqlCall {
       SqlNode offset,
       SqlNode fetch,
       SqlNodeList hints) {
+    this(pos, keywordList, topN, selectList, /*exceptExpression=*/ null,
+        from, where, groupBy, having, qualify, windowDecls, orderBy, offset,
+        fetch, hints);
+  }
+
+  public SqlSelect(SqlParserPos pos,
+      SqlNodeList keywordList,
+      SqlNode topN,
+      SqlNodeList selectList,
+      SqlNode exceptExpression,
+      SqlNode from,
+      SqlNode where,
+      SqlNodeList groupBy,
+      SqlNode having,
+      SqlNode qualify,
+      SqlNodeList windowDecls,
+      SqlNodeList orderBy,
+      SqlNode offset,
+      SqlNode fetch,
+      SqlNodeList hints) {
     super(pos);
     this.keywordList = Objects.requireNonNull(keywordList != null
         ? keywordList : new SqlNodeList(pos));
     this.topN = topN;
     this.selectList = selectList;
+    this.exceptExpression = exceptExpression;
     this.from = from;
     this.where = where;
     this.groupBy = groupBy;
@@ -132,7 +156,7 @@ public class SqlSelect extends SqlCall {
   @Override public List<SqlNode> getOperandList() {
     return ImmutableNullableList.of(keywordList, selectList, from, where,
         groupBy, having, qualify, windowDecls, orderBy, offset, fetch,
-        hints, topN);
+        hints, topN, exceptExpression);
   }
 
   @Override public void setOperand(int i, SqlNode operand) {
