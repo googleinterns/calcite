@@ -42,9 +42,9 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec {
 
     // Date period cannot contain precision or with time zone token.
     if (timeScale == TimeScale.DATE
-        && precision != null || isWithTimezone) {
-          throw SqlUtil.newContextException(pos,
-              RESOURCE.illegalNonQueryExpression());
+        && (precision != null || isWithTimezone)) {
+      throw SqlUtil.newContextException(pos,
+          RESOURCE.illegalNonQueryExpression());
     }
 
     if (precision != null) {
