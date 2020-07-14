@@ -6591,10 +6591,12 @@ SqlNode NamedFunctionCall() :
         }
     ]
     (
+<#if parser.includePostExpressionMethodsAfterFunction>
 <#list parser.postExpressionMethods as method>
         e = ${method}(call) { return e; }
     |
 </#list>
+</#if>
         { return call; }
     )
 }
