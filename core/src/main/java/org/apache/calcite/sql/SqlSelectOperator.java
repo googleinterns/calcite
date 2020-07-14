@@ -173,7 +173,7 @@ public class SqlSelectOperator extends SqlOperator {
     writer.list(SqlWriter.FrameTypeEnum.SELECT_LIST, SqlWriter.COMMA,
         selectClause);
     if (select.exceptExpression != null) {
-      writer.sep("EXCEPT");
+      writer.setNeedWhitespace(true);
       select.exceptExpression.unparse(writer, leftPrec, rightPrec);
     }
     if (select.from != null) {

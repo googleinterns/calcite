@@ -52,6 +52,7 @@ public class SqlExcept extends SqlCall implements SqlExecutableStatement {
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    writer.keyword("EXCEPT");
     SqlWriter.Frame frame = writer.startList("(", ")");
     for (SqlNode e : exceptList) {
       writer.sep(",", false);
