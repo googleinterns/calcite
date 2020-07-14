@@ -1999,3 +1999,24 @@ int VariableBinaryTypePrecision() :
     <RPAREN>
     { return precision; }
 }
+
+SqlTypeNameSpec SqlPeriodDataType() :
+{
+    final TimeScale timeScale;
+    SqlNumericLiteral precision = null;
+    Boolean isWithTimezone = null;
+}
+{
+    <PERIOD> <LPAREN>
+    (
+        <DATE>
+        {
+            timeScale = TimeScale.DATE;
+        }
+    )
+    <RPAREN>
+    {
+        return new SqlPeriodTypeNameSpec(timeScale, precision, isWithTimezone,
+        getPos());
+    }
+}

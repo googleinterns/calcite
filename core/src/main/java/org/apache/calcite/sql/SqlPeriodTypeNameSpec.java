@@ -69,7 +69,7 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec{
     writer.keyword("PERIOD");
     final SqlWriter.Frame periodFrame =
         writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
-
+    writer.keyword(timeScale.toString());
     if (precision != null) {
       final SqlWriter.Frame frame =
           writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");

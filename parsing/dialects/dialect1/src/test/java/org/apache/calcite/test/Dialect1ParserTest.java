@@ -2674,4 +2674,10 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "(?s).*Encountered \"\\( -\" at .*";
     sql(sql).fails(expected);
   }
+
+  @Test public void testPeriodTypeNameSpecs() {
+    final String sql = "create table foo (a period(date))";
+    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(DATE))";
+    sql(sql).ok(expected);
+  }
 }

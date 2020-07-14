@@ -72,6 +72,8 @@ data: {
       "org.apache.calcite.sql.SqlIndex",
       "org.apache.calcite.sql.SqlJsonTypeNameSpec",
       "org.apache.calcite.sql.SqlJsonTypeNameSpec.StorageFormat",
+      "org.apache.calcite.sql.SqlPeriodTypeNameSpec",
+      "org.apache.calcite.sql.SqlPeriodTypeNameSpec.TimeScale",
       "org.apache.calcite.sql.SqlPrimaryIndex",
       "org.apache.calcite.sql.SqlRenameTable",
       "org.apache.calcite.sql.SqlRenameTable.RenameOption",
@@ -1024,6 +1026,7 @@ data: {
     # Return type of method implementation should be "SqlTypeNameSpec".
     # Example: SqlParseTimeStampZ().
     dataTypeParserMethods: [
+      "SqlPeriodDataType()"
       "SqlJsonDataType()"
       "ByteDataType()"
       "ByteIntType()"
