@@ -28,9 +28,9 @@ import static org.apache.calcite.util.Static.RESOURCE;
  */
 public class SqlNumberTypeNameSpec extends SqlTypeNameSpec {
 
-  private final static int MIN_PRECISION = 1;
-  private final static int MIN_SCALE = 0;
-  private final static int MAX_INPUT = 38;
+  private static final int MIN_PRECISION = 1;
+  private static final int MIN_SCALE = 0;
+  private static final int MAX_INPUT = 38;
   public final boolean isPrecisionStar;
   public final SqlLiteral precision;
   public final SqlLiteral scale;
