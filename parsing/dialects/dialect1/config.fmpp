@@ -493,7 +493,6 @@ data: {
       "BYTES"
       "CHECKSUM"
       "CONCURRENT"
-      "CT"
       "DATABLOCKSIZE"
       "DUAL"
       "FILE"
