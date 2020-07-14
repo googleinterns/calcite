@@ -499,6 +499,7 @@ data: {
     includeInsertWithOmittedValues: false
     includeHostVariables: false
     includeExceptExpression: true
+    includePostExpressionMethodsAfterFunction: false
   }
 }
 
