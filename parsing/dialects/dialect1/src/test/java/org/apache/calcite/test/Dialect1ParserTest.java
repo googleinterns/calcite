@@ -2687,6 +2687,72 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).fails(expected);
   }
 
+  @Test public void testNumberDataType() {
+    final String sql = "create table foo (bar number)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypePrecision() {
+    final String sql = "create table foo (bar number(3))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER(3))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypePrecisionStar() {
+    final String sql = "create table foo (bar number(*))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER(*))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypePrecisionScale() {
+    final String sql = "create table foo (bar number(*, 3))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER(*, 3))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypePrecisionScaleMaxValues() {
+    final String sql = "create table foo (bar number(38, 38))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER(38, 38))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypePrecisionScaleMinValues() {
+    final String sql = "create table foo (bar number(1, 0))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER(1, 0))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypeMinPrecisionOutOfRangeFails() {
+    final String sql = "create table foo (bar number(^0^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testNumberDataTypeMaxPrecisionOutOfRangeFails() {
+    final String sql = "create table foo (bar number(^39^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testNumberDataTypeScaleGreaterThanPrecisionFails() {
+    final String sql = "create table foo (bar number(12, ^13^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testNumberDataTypeMinScaleOutOfRangeFails() {
+    final String sql = "create table foo (bar number(*^,^ -1))";
+    final String expected = "(?s).*Encountered \", -\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testNumberDataTypeMaxScaleOutOfRangeFails() {
+    final String sql = "create table foo (bar number(*, ^39^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
   @Test void testAlternativeTypeConversionWithNamedFunction() {
     final String sql = "SELECT foo(a) (INT)";
     final String expected = "SELECT CAST(`FOO`(`A`) AS INTEGER)";
@@ -2704,4 +2770,5 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "SELECT `FOO`(`A`) AS `B`";
     sql(sql).ok(expected);
   }
+
 }
