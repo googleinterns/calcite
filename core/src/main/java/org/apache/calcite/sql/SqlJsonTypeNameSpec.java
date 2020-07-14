@@ -63,28 +63,7 @@ public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
   }
 
   @Override public boolean equalsDeep(SqlTypeNameSpec spec, Litmus litmus) {
-    if (!(spec instanceof SqlJsonTypeNameSpec)) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-    SqlJsonTypeNameSpec that = (SqlJsonTypeNameSpec) spec;
-
-    if ((this.maxLength == null || that.maxLength == null)
-        && !this.maxLength.equals(that.maxLength)) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-
-    if ((this.inlineLength == null || that.inlineLength == null)
-        && !this.inlineLength.equals(that.inlineLength)) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-
-    if (!this.maxLength.equals(that.maxLength)
-        || !this.inlineLength.equals(that.inlineLength)
-        || this.characterSet != that.characterSet
-        || this.storageFormat != that.storageFormat) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-    return litmus.succeed();
+    return false;
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
