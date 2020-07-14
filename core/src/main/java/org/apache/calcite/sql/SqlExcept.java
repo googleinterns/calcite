@@ -21,7 +21,6 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Parse tree for {@code SqlExcept} statement.
