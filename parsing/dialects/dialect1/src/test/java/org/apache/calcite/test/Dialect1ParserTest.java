@@ -2693,6 +2693,13 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testPeriodTypeNameSpecsTimeWithTimezone() {
+    final String sql = "create table foo (a period(time with time zone))";
+    final String expected =
+        "CREATE TABLE `FOO` (`A` PERIOD(TIME WITH TIME ZONE))";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testPeriodTypeNameSpecsTimeWithPrecisionWithTimezone() {
     final String sql = "create table foo (a period(time(2) with time zone))";
     final String expected =
