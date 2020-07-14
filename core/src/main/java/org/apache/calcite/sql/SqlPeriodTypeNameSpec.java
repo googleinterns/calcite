@@ -33,7 +33,6 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec {
   public final boolean isWithTimezone;
 
   private static final int PRECISION_UPPERBOUND = 6;
-  private static final int PRECISION_DEFAULT = 6;
 
   public SqlPeriodTypeNameSpec(TimeScale timeScale,
       SqlNumericLiteral precision,
@@ -59,11 +58,7 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec {
       }
       this.precision = precisionValue;
     } else {
-      if (timeScale == TimeScale.DATE) {
-        this.precision = null;
-      } else {
-        this.precision = PRECISION_DEFAULT;
-      }
+      this.precision = null;
     }
     this.timeScale = timeScale;
     this.isWithTimezone = isWithTimezone;

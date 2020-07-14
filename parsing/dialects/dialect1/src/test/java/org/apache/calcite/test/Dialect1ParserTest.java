@@ -2695,7 +2695,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testPeriodTypeNameSpecTime() {
     final String sql = "create table foo (a period(time))";
-    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(TIME(6)))";
+    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(TIME))";
     sql(sql).ok(expected);
   }
 
@@ -2708,7 +2708,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testPeriodTypeNameSpecTimeWithTimezone() {
     final String sql = "create table foo (a period(time with time zone))";
     final String expected =
-        "CREATE TABLE `FOO` (`A` PERIOD(TIME(6) WITH TIME ZONE))";
+        "CREATE TABLE `FOO` (`A` PERIOD(TIME WITH TIME ZONE))";
     sql(sql).ok(expected);
   }
 
@@ -2721,7 +2721,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testPeriodTypeNameSpecTimeStamp() {
     final String sql = "create table foo (a period(timestamp))";
-    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(TIMESTAMP(6)))";
+    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(TIMESTAMP))";
     sql(sql).ok(expected);
   }
 
