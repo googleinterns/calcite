@@ -61,6 +61,7 @@ public enum SqlTypeName {
   FLOAT(PrecScale.NO_NO, false, Types.FLOAT, SqlTypeFamily.NUMERIC),
   REAL(PrecScale.NO_NO, false, Types.REAL, SqlTypeFamily.NUMERIC),
   DOUBLE(PrecScale.NO_NO, false, Types.DOUBLE, SqlTypeFamily.NUMERIC),
+  NUMBER(PrecScale.NO_NO, false, Types.NUMERIC, SqlTypeFamily.NUMERIC),
   DATE(PrecScale.NO_NO, false, Types.DATE, SqlTypeFamily.DATE),
   TIME(PrecScale.NO_NO | PrecScale.YES_NO, false, Types.TIME,
       SqlTypeFamily.TIME),
@@ -152,7 +153,7 @@ public enum SqlTypeName {
       ImmutableList.of(
           BOOLEAN, INTEGER, VARCHAR, DATE, TIME, TIMESTAMP, NULL, DECIMAL,
           ANY, CHAR, BINARY, VARBINARY, VARBYTE, BYTE, TINYINT, SMALLINT, BIGINT, BYTEINT, REAL,
-          DOUBLE, SYMBOL, INTERVAL_YEAR, INTERVAL_YEAR_MONTH, INTERVAL_MONTH,
+          DOUBLE, NUMBER, SYMBOL, INTERVAL_YEAR, INTERVAL_YEAR_MONTH, INTERVAL_MONTH,
           INTERVAL_DAY, INTERVAL_DAY_HOUR, INTERVAL_DAY_MINUTE,
           INTERVAL_DAY_SECOND, INTERVAL_HOUR, INTERVAL_HOUR_MINUTE,
           INTERVAL_HOUR_SECOND, INTERVAL_MINUTE, INTERVAL_MINUTE_SECOND,
@@ -172,7 +173,7 @@ public enum SqlTypeName {
       combine(INT_TYPES, ImmutableList.of(DECIMAL));
 
   public static final List<SqlTypeName> APPROX_TYPES =
-      ImmutableList.of(FLOAT, REAL, DOUBLE);
+      ImmutableList.of(FLOAT, REAL, DOUBLE, NUMBER);
 
   public static final List<SqlTypeName> NUMERIC_TYPES =
       combine(EXACT_TYPES, APPROX_TYPES);
