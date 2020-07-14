@@ -104,8 +104,8 @@ public class SqlNumberTypeNameSpec extends SqlTypeNameSpec {
     }
     SqlNumberTypeNameSpec that = (SqlNumberTypeNameSpec) spec;
     if (this.isPrecisionStar != that.isPrecisionStar
-        || this.precision != that.precision
-        || this.scale != that.scale) {
+        || this.precision.equalsDeep(that.precision, litmus)
+        || this.scale.equalsDeep(that.scale, litmus)) {
       return litmus.fail("{} != {}", this, spec);
     }
     return litmus.succeed();

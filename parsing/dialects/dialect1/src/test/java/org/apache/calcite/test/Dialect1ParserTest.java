@@ -2705,6 +2705,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testNumberDataTypePrecisionScaleMinValues() {
+    final String sql = "create table foo (bar number(1, 0))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER(1, 0))";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testNumberDataTypeMinPrecisionOutOfRangeFails() {
     final String sql = "create table foo (bar number(^0^))";
     final String expected = "(?s).*Numeric literal.*out of range.*";
