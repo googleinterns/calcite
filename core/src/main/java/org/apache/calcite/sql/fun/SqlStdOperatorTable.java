@@ -2596,12 +2596,15 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
     }
   }
 
-  /** Returns the operator for LIKE SOME and LIKE ALL */
-  public static SqlQuantifyOperator like(SqlKind kind, boolean isLike) {
-    SqlKind like = isLike ? SqlKind.LIKE : SqlKind.NOT_LIKE;
-    if (kind == SqlKind.SOME || kind == SqlKind.ALL) {
+  /** Returns the operator for LIKE SOME and LIKE ALL. */
+  public static SqlQuantifyOperator like(SqlKind kind, boolean notLike) {
+    SqlKind like = notLike ? SqlKind.NOT_LIKE : SqlKind.LIKE;
+    switch(kind) {
+    case SOME:
+      //fall through
+    case ALL:
       return new SqlQuantifyOperator(kind, like);
-    } else {
+    default:
       throw new AssertionError(kind);
     }
   }

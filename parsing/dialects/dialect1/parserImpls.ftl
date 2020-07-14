@@ -2007,18 +2007,18 @@ int VariableBinaryTypePrecision() :
 void LikeAnyAllSome(List<Object> list, Span s) :
 {
     final SqlOperator op;
-    boolean isLike = true;
+    boolean notLike = false;
     SqlNodeList nodeList;
 }
 {
-    [ <NOT> { isLike = false; } ]
+    [ <NOT> { notLike = true; } ]
     <LIKE>
     (
-        <SOME> { op = SqlStdOperatorTable.like(SqlKind.SOME, isLike); }
+        <SOME> { op = SqlStdOperatorTable.like(SqlKind.SOME, notLike); }
     |
-        <ANY> { op = SqlStdOperatorTable.like(SqlKind.SOME, isLike); }
+        <ANY> { op = SqlStdOperatorTable.like(SqlKind.SOME, notLike); }
     |
-        <ALL> { op = SqlStdOperatorTable.like(SqlKind.ALL, isLike); }
+        <ALL> { op = SqlStdOperatorTable.like(SqlKind.ALL, notLike); }
     )
     { s.clear().add(this); }
     nodeList = ParenthesizedQueryOrCommaList(ExprContext.ACCEPT_NONCURSOR)

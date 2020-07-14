@@ -2195,8 +2195,8 @@ public abstract class SqlDialectParserTest {
         + "where name like some (select name from emp)";
     final String expected4 = "SELECT *\n"
         + "FROM `EMP`\n"
-        + "WHERE (`NAME` LIKE SOME (SELECT `NAME`\n"
-        +  "FROM `EMP`))";
+        + "WHERE (`NAME` LIKE SOME((SELECT `NAME`\n"
+        +  "FROM `EMP`)))";
     sql(sql4).ok(expected4);
 
     final String sql5 = "select * from emp where empno = any (10,20)";

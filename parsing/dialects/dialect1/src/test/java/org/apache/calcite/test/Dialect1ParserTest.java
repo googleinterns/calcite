@@ -2736,7 +2736,40 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "WHERE (`BAR` LIKE ALL ('a', 'b'))";
     sql(sql).ok(expected);
   }
-=======
+
+  @Override @Test public void testSome() {
+    final String sql = "select * from emp\n"
+        + "where sal > some (select comm from emp)";
+    final String expected = "SELECT *\n"
+        + "FROM `EMP`\n"
+        + "WHERE (`SAL` > SOME (SELECT `COMM`\n"
+        + "FROM `EMP`))";
+    sql(sql).ok(expected);
+
+    // ANY is a synonym for SOME
+    final String sql2 = "select * from emp\n"
+        + "where sal > any (select comm from emp)";
+    sql(sql2).ok(expected);
+
+    final String sql3 = "select * from emp\n"
+        + "where name like (select ^some^ name from emp)";
+    sql(sql3).fails("(?s).*Encountered \"some name\" at .*");
+
+    final String sql4 = "select * from emp\n"
+        + "where name like some (select name from emp)";
+    final String expected4 = "SELECT *\n"
+        + "FROM `EMP`\n"
+        + "WHERE (`NAME` LIKE SOME (SELECT `NAME`\n"
+        +  "FROM `EMP`))";
+    sql(sql4).ok(expected4);
+
+    final String sql5 = "select * from emp where empno = any (10,20)";
+    final String expected5 = "SELECT *\n"
+        + "FROM `EMP`\n"
+        + "WHERE (`EMPNO` = SOME (10, 20))";
+    sql(sql5).ok(expected5);
+  }
+
   @Test public void testNumberDataType() {
     final String sql = "create table foo (bar number)";
     final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER)";
