@@ -17,7 +17,6 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.rel.type.RelDataType;
-import org.apache.calcite.sql.SqlColumnAttributeCharacterSet.CharacterSet;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.util.Litmus;
@@ -115,15 +114,6 @@ public class SqlClobTypeNameSpec extends SqlTypeNameSpec {
   }
 
   @Override public boolean equalsDeep(SqlTypeNameSpec spec, Litmus litmus) {
-    if (!(spec instanceof SqlClobTypeNameSpec)) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-    SqlClobTypeNameSpec that = (SqlClobTypeNameSpec) spec;
-    if (this.maxLength != that.maxLength
-        || this.unitSize != that.unitSize
-        || this.characterSet != that.characterSet) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-    return litmus.succeed();
+    return false;
   }
 }

@@ -2894,6 +2894,13 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testClobValueCharacterSetUnicode() {
+    final String sql = "create table foo (bar clob(100) character set unicode)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` CLOB(100) CHARACTER SET "
+        + "UNICODE)";
+    sql(sql).ok(expected);
+  }
+
   @Test void testClobValueWithCharacterSetAndAttributes() {
     final String sql = "create table foo (bar clob(1g) character set latin not "
         + "null format 'x(4)' "
@@ -2901,13 +2908,6 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE TABLE `FOO` (`BAR` CLOB(1G) CHARACTER SET "
         + "LATIN NOT NULL FORMAT 'x(4)' "
         + "TITLE 'hello')";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testClobValueCharacterSetUnicode() {
-    final String sql = "create table foo (bar clob(100) character set unicode)";
-    final String expected = "CREATE TABLE `FOO` (`BAR` CLOB(100) CHARACTER SET "
-        + "UNICODE)";
     sql(sql).ok(expected);
   }
 
