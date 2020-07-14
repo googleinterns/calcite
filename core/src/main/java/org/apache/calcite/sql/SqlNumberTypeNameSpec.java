@@ -35,6 +35,12 @@ public class SqlNumberTypeNameSpec extends SqlTypeNameSpec {
   /**
    * Create a {@code SqlNumberTypeNameSpec} instance.
    *
+   * @param isPrecisionStar Whether the precision element is the symbol "*"
+   * @param precision The precision, an unsigned integer in the range [1-38].
+   *                  May be null
+   * @param scale The scale, an unsigned integer in the range [0-38] if
+   *              isPrecisionStar = true. If isPrecisionStar = false, the valid
+   *              range is [0, precision]. May be null
    * @param pos The parser position
    */
   public SqlNumberTypeNameSpec(boolean isPrecisionStar, SqlLiteral precision,
@@ -53,7 +59,8 @@ public class SqlNumberTypeNameSpec extends SqlTypeNameSpec {
     }
   }
 
-  private boolean isValidPrecision(boolean isPrecisionStar, SqlLiteral precision) {
+  private boolean isValidPrecision(boolean isPrecisionStar,
+      SqlLiteral precision) {
     if (isPrecisionStar || precision == null) {
       return true;
     }
