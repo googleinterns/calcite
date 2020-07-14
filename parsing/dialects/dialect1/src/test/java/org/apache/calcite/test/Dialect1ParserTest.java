@@ -2583,6 +2583,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     expr(sql).ok(expected);
   }
 
+  @Test void testHexCharLiteralCharSetKanji1Format() {
+    final String sql = "_KANJI1 'ABC'XC";
+    final String expected = "_KANJI1 'ABC' XC";
+    expr(sql).ok(expected);
+  }
+
   @Test void testHexCharLiteralCharSetSpecifiedXCVFormat() {
     final String sql = "_LATIN'c1a'XCV";
     final String expected = "_LATIN 'c1a' XCV";
@@ -2740,4 +2746,23 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "(?s).*Numeric literal.*out of range.*";
     sql(sql).fails(expected);
   }
+
+  @Test void testAlternativeTypeConversionWithNamedFunction() {
+    final String sql = "SELECT foo(a) (INT)";
+    final String expected = "SELECT CAST(`FOO`(`A`) AS INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testInlineFormatWithNamedFunction() {
+    final String sql = "select foo(a) (format 'X6')";
+    final String expected = "SELECT (`FOO`(`A`) (FORMAT 'X6'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testNamedExpressionWithNamedFunction() {
+    final String sql = "select foo(a) (named b)";
+    final String expected = "SELECT `FOO`(`A`) AS `B`";
+    sql(sql).ok(expected);
+  }
+
 }

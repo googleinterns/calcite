@@ -69,12 +69,12 @@ public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
     SqlJsonTypeNameSpec that = (SqlJsonTypeNameSpec) spec;
 
     if ((this.maxLength == null || that.maxLength == null)
-        && this.maxLength != that.maxLength) {
+        && !this.maxLength.equals(that.maxLength)) {
       return litmus.fail("{} != {}", this, spec);
     }
 
     if ((this.inlineLength == null || that.inlineLength == null)
-        && this.inlineLength != that.inlineLength) {
+        && !this.inlineLength.equals(that.inlineLength)) {
       return litmus.fail("{} != {}", this, spec);
     }
 
@@ -99,9 +99,9 @@ public class SqlJsonTypeNameSpec extends SqlTypeNameSpec {
       writer.keyword("INLINE LENGTH " + inlineLength);
     }
     if (characterSet != null) {
-      writer.keyword("CHARACTER SET " + characterSet.toString());
+      writer.keyword("CHARACTER SET " + characterSet);
     } else if (storageFormat != null) {
-      writer.keyword("STORAGE FORMAT " + storageFormat.toString());
+      writer.keyword("STORAGE FORMAT " + storageFormat);
     }
   }
 
