@@ -914,8 +914,8 @@ SqlCreate SqlCreateTable() :
 
 SqlCreate SqlCreateFunctionSqlForm() :
 {
-    Span s;
-    SqlCreateSpecifier createSpecifier;
+    final Span s;
+    final SqlCreateSpecifier createSpecifier;
     SqlIdentifier functionName = null;
     SqlNodeList fieldNames = new SqlNodeList(getPos());
     SqlNodeList fieldTypes = new SqlNodeList(getPos());

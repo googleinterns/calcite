@@ -50,8 +50,8 @@ boolean IsNullable() :
 
 SqlCreate SqlCreateSchema() :
 {
-    Span s;
-    SqlCreateSpecifier createSpecifier;
+    final Span s;
+    final SqlCreateSpecifier createSpecifier;
     final boolean ifNotExists;
     final SqlIdentifier id;
 }
@@ -70,8 +70,8 @@ SqlCreate SqlCreateSchema() :
 
 SqlCreate SqlCreateForeignSchema() :
 {
-    Span s;
-    SqlCreateSpecifier createSpecifier;
+    final Span s;
+    final SqlCreateSpecifier createSpecifier;
     final boolean ifNotExists;
     final SqlIdentifier id;
     SqlNode type = null;
@@ -255,8 +255,8 @@ void AttributeDef(List<SqlNode> list) :
 
 SqlCreate SqlCreateType() :
 {
-    Span s;
-    SqlCreateSpecifier createSpecifier;
+    final Span s;
+    final SqlCreateSpecifier createSpecifier;
     final SqlIdentifier id;
     SqlNodeList attributeDefList = null;
     SqlDataTypeSpec type = null;
@@ -283,8 +283,8 @@ SqlCreate SqlCreateType() :
 
 SqlCreate SqlCreateTable() :
 {
-    Span s;
-    SqlCreateSpecifier createSpecifier;
+    final Span s;
+    final SqlCreateSpecifier createSpecifier;
     final boolean ifNotExists;
     final SqlIdentifier id;
     SqlNodeList tableElementList = null;
@@ -308,8 +308,8 @@ SqlCreate SqlCreateTable() :
 
 SqlCreate SqlCreateView() :
 {
-    Span s;
-    SqlCreateSpecifier createSpecifier;
+    final Span s;
+    final SqlCreateSpecifier createSpecifier;
     final SqlIdentifier id;
     final Pair<SqlNodeList, SqlNodeList> p;
     SqlNodeList columnList = null;
@@ -325,9 +325,12 @@ SqlCreate SqlCreateView() :
             { createSpecifier = SqlCreateSpecifier.CREATE; }
         )
     |
-        <REPLACE> { createSpecifier = SqlCreateSpecifier.REPLACE; }
+        <REPLACE>
+        {
+            s = span();
+            createSpecifier = SqlCreateSpecifier.REPLACE;
+        }
     )
-    { s = span(); }
     <VIEW> id = CompoundIdentifier()
     [ p = ParenthesizedCompoundIdentifierList() { columnList = p.left; } ]
     <AS> query = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
@@ -342,8 +345,8 @@ SqlCreate SqlCreateView() :
 
 SqlCreate SqlCreateMaterializedView() :
 {
-    Span s;
-    SqlCreateSpecifier createSpecifier;
+    final Span s;
+    final SqlCreateSpecifier createSpecifier;
     final boolean ifNotExists;
     final SqlIdentifier id;
     SqlNodeList columnList = null;
@@ -387,8 +390,8 @@ private void FunctionJarDef(SqlNodeList usingList) :
 
 SqlCreate SqlCreateFunction() :
 {
-    Span s;
-    SqlCreateSpecifier createSpecifier;
+    final Span s;
+    final SqlCreateSpecifier createSpecifier;
     final boolean ifNotExists;
     final SqlIdentifier id;
     final SqlNode className;
