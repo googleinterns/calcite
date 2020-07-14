@@ -1157,6 +1157,7 @@ data: {
     includeTopN: true
     includeInsertWithOmittedValues: true
     includeHostVariables: true
+    includeExceptExpression: false
   }
 }
 
