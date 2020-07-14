@@ -2717,4 +2717,10 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "(?s).*Encountered \"\\(\" at .*";
     sql(sql).fails(expected);
   }
+
+  @Test public void testPeriodTypeNameSpecsDateWithTimezoneFails() {
+    final String sql = "create table foo (a period(date ^with^ time zone))";
+    final String expected = "(?s).*Encountered \"with\" at .*";
+    sql(sql).fails(expected);
+  }
 }
