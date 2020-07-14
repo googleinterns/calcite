@@ -49,8 +49,7 @@ public class SqlBlobTypeNameSpec extends SqlTypeNameSpec {
     }
   }
 
-  private boolean isValidMaxLength(SqlLiteral maxLength,
-      SqlLobUnitSize unitSize) {
+  private static boolean isValidMaxLength(SqlLiteral maxLength, SqlLobUnitSize unitSize) {
     int numericMaxLength = maxLength.getValueAs(Integer.class);
     if (numericMaxLength == 0) {
       return false;
