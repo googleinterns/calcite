@@ -2599,7 +2599,7 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
   /** Returns the operator for LIKE SOME and LIKE ALL. */
   public static SqlQuantifyOperator like(SqlKind kind, boolean notLike) {
     SqlKind like = notLike ? SqlKind.NOT_LIKE : SqlKind.LIKE;
-    switch(kind) {
+    switch (kind) {
     case SOME:
     case ALL:
       return new SqlQuantifyOperator(kind, like);
