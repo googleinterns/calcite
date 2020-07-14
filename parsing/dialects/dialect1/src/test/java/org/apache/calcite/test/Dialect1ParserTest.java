@@ -2771,4 +2771,84 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testBlob() {
+    final String sql = "create table foo (bar blob)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` BLOB)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testBinaryLargeObject() {
+    final String sql = "create table foo (bar binary large object)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` BLOB)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testBlobValue() {
+    final String sql = "create table foo (bar blob(1000))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` BLOB(1000))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testBlobValueKilobytes() {
+    final String sql = "create table foo (bar blob(2047937k))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` BLOB(2047937K))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testBlobValueMegabytes() {
+    final String sql = "create table foo (bar blob(1999m))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` BLOB(1999M))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testBlobValueGigabytes() {
+    final String sql = "create table foo (bar blob(1g))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` BLOB(1G))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testBlobValueWithAttributes() {
+    final String sql = "create table foo (bar blob(1g) not null format 'x(4)' "
+        + "title 'hello')";
+    final String expected = "CREATE TABLE `FOO` (`BAR` BLOB(1G) NOT NULL FORMAT 'x(4)' "
+        + "TITLE 'hello')";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testBlobValueCast() {
+    final String sql = "select cast(foo as blob(10000) format 'x(6)')";
+    final String expected = "SELECT CAST(`FOO` AS BLOB(10000) FORMAT 'x(6)')";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testBlobOutOfRangeFails() {
+    final String sql = "create table foo (bar blob(^2097088001^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testBlobKilobytesOutOfRangeFails() {
+    final String sql = "create table foo (bar blob(^2047938^k))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testBlobMegabytesOutOfRangeFails() {
+    final String sql = "create table foo (bar blob(^2000^m))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testBlobGigabytesOutOfRangeFails() {
+    final String sql = "create table foo (bar blob(^2^g))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testBlobZeroFails() {
+    final String sql = "create table foo (bar blob(^0^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
 }
