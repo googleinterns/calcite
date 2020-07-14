@@ -415,6 +415,8 @@ void ColumnAttributes(List<SqlColumnAttribute> list) :
             e = ColumnAttributeDateFormat()
         |
             e = ColumnAttributeGenerated()
+        |
+            e = ColumnAttributeTitle()
         ) { list.add(e); }
     )+
 }
@@ -761,6 +763,18 @@ SqlColumnAttribute ColumnAttributeDateFormat() :
     formatString = StringLiteral()
     {
         return new SqlColumnAttributeDateFormat(getPos(), formatString);
+    }
+}
+
+SqlColumnAttribute ColumnAttributeTitle() :
+{
+    final SqlNode titleString;
+}
+{
+    <TITLE>
+    titleString = StringLiteral()
+    {
+        return new SqlColumnAttributeTitle(getPos(), titleString);
     }
 }
 
@@ -2030,6 +2044,44 @@ SqlTypeNameSpec SqlPeriodDataType() :
         return new SqlPeriodTypeNameSpec(timeScale, precision, isWithTimezone,
             getPos());
     }
+}
+
+SqlBlobTypeNameSpec BlobDataType() :
+{
+    SqlLiteral maxLength = null;
+    SqlLobUnitSize unitSize = SqlLobUnitSize.UNSPECIFIED;
+}
+{
+    (
+        <BLOB>
+    |
+        <BINARY> <LARGE> <OBJECT>
+    )
+    [
+        <LPAREN>
+        <UNSIGNED_INTEGER_LITERAL>
+        {
+            maxLength = SqlLiteral.createExactNumeric(token.image, getPos());
+        }
+        [ unitSize = LobUnitSize() ]
+        <RPAREN>
+    ]
+    { return new SqlBlobTypeNameSpec(maxLength, unitSize, getPos()); }
+}
+
+SqlLobUnitSize LobUnitSize() :
+{
+    final SqlLobUnitSize unitSize;
+}
+{
+    (
+        <K> { unitSize = SqlLobUnitSize.K; }
+    |
+        <M> { unitSize = SqlLobUnitSize.M; }
+    |
+        <G> { unitSize = SqlLobUnitSize.G; }
+    )
+    { return unitSize; }
 }
 
 SqlNumberTypeNameSpec NumberDataType() :
