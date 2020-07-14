@@ -109,7 +109,6 @@ public class SqlClobTypeNameSpec extends SqlTypeNameSpec {
     }
     if (characterSet != null) {
       writer.keyword("CHARACTER SET " + characterSet.toString());
-
     }
   }
 
