@@ -14,3 +14,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 -->
+
+SqlNode ExceptExpression(List<SqlNode> selectList):
+{
+    final Pair<SqlNodeList, SqlNodeList> nameAndTypePair;
+    final SqlNodeList exceptList;
+}
+{
+    <EXCEPT> nameAndTypePair = ParenthesizedCompoundIdentifierList()
+    {
+        exceptList = nameAndTypePair.getKey();
+        if (selectList.size() > 0) {
+            SqlIdentifier identifier = (SqlIdentifier) selectList.get(0);
+            if (!identifier.toString().equals("*") || selectList.size() != 1) {
+                throw SqlUtil.newContextException(getPos(),
+                    RESOURCE.illegalQueryExpression());
+            }
+        }
+        return new SqlExcept(getPos(), exceptList);
+    }
+}

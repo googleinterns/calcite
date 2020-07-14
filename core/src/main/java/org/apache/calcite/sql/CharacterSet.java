@@ -16,24 +16,29 @@
  */
 package org.apache.calcite.sql;
 
-public enum SqlLobUnitSize {
+public enum CharacterSet {
   /**
-   * Unit size in megabytes.
+   * Column has the LATIN character set.
    */
-  M,
+  LATIN,
 
   /**
-   * Unit size in kilobytes.
+   * Column has the UNICODE character set.
    */
-  K,
+  UNICODE,
 
   /**
-   * Unit size in gigabytes.
+   * Column has the GRAPHIC character set.
    */
-  G,
+  GRAPHIC,
 
   /**
-   * Unit size is unspecified, defaults to bytes.
+   * Column has the KANJISJIS character set.
    */
-  UNSPECIFIED,
+  KANJISJIS,
+
+  /**
+   * Column has the KANJI1 character set.
+   */
+  KANJI1,
 }

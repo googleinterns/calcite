@@ -798,16 +798,16 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testCreateTableKanjiCharacterSetColumnLevelAttribute() {
-    final String sql = "create table foo (bar int character set kanji)";
-    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET KANJI)";
+  @Test public void testCreateTableKanji1CharacterSetColumnLevelAttribute() {
+    final String sql = "create table foo (bar int character set kanji1)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET KANJI1)";
     sql(sql).ok(expected);
   }
 
   @Test public void testCreateTableCharacterSetAndUppercaseColumnLevelAttributes() {
-    final String sql = "create table foo (bar int character set kanji uppercase)";
+    final String sql = "create table foo (bar int character set kanji1 uppercase)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER CHARACTER SET "
-        + "KANJI UPPERCASE)";
+        + "KANJI1 UPPERCASE)";
     sql(sql).ok(expected);
   }
 
@@ -1951,6 +1951,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testAlterTableCompoundIdentifier() {
+    final String sql = "alter table foo.baz add bar integer";
+    final String expected = "ALTER TABLE `FOO`.`BAZ` ADD (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test void testAlterAddMultiColumns() {
     final String sql = "alter table foo add (bar integer, baz integer)";
     final String expected = "ALTER TABLE `FOO` ADD"
@@ -2457,6 +2463,120 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testJsonType() {
+    final String sql = "create table foo (x json)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeMaxLength() {
+    final String sql = "create table foo (x json(33))";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON(33))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeInlineLength() {
+    final String sql = "create table foo (x json inline length 33)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON INLINE LENGTH 33)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeMaxLengthAndInlineLength() {
+    final String sql = "create table foo (x json(33) inline length 20)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON(33) INLINE LENGTH 20)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeCharacterSetLatin() {
+    final String sql = "create table foo (x json character set latin)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON CHARACTER SET LATIN)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeCharacterSetUnicode() {
+    final String sql = "create table foo (x json character set unicode)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON CHARACTER SET UNICODE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeStorageFormatBson() {
+    final String sql = "create table foo (x json storage format bson)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON STORAGE FORMAT BSON)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeStorageFormatUbjson() {
+    final String sql = "create table foo (x json storage format ubjson)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON STORAGE FORMAT UBJSON)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeFormatAttribute() {
+    final String sql = "create table foo (x json format 'XXX')";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON FORMAT 'XXX')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeDefaultNullAttribute() {
+    final String sql = "create table foo (x json default null)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON DEFAULT NULL)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeNullAttribute() {
+    final String sql = "create table foo (x json null)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeNotNullAttribute() {
+    final String sql = "create table foo (x json not null)";
+    final String expected = "CREATE TABLE `FOO` (`X` JSON NOT NULL)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testJsonTypeMaxLengthOneFails() {
+    final String sql = "create table foo (x json(^1^))";
+    final String expected = "Numeric literal '1' out of range";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testJsonTypeMaxLengthZeroFails() {
+    final String sql = "create table foo (x json(^0^))";
+    final String expected = "Numeric literal '0' out of range";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testJsonTypeMaxLengthNegativeFails() {
+    final String sql = "create table foo (x json^(^-1))";
+    final String expected = "(?s).*Encountered \"\\( -\".*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testJsonTypeInlineLengthLargerThanMaxLengthFails() {
+    final String sql = "create table foo (x json(3) inline length ^4^)";
+    final String expected = "Numeric literal '4' out of range";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testJsonTypeInLineLengthZeroFails() {
+    final String sql = "create table foo (x json inline length ^0^)";
+    final String expected = "Numeric literal '0' out of range";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testJsonTypeInLineLengthNegativeFails() {
+    final String sql = "create table foo (x json inline length ^-1)";
+    final String expected = "(?s).*Encountered \"-\".*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testJsonTypeCharacterSetAndStorageFormatSpecifiedFails() {
+    final String sql = "create table foo (x json character set latin storage format ^bson^)";
+    final String expected = "Query expression encountered in illegal context";
+    sql(sql).fails(expected);
+  }
+
   @Test void testHexCharLiteralCharSetNotSpecifiedDefaultFormat() {
     final String sql = "'c1a'XC";
     final String expected = "'c1a' XC";
@@ -2466,6 +2586,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test void testHexCharLiteralCharSetSpecifiedXCFormat() {
     final String sql = "_KANJISJIS 'ABC'XC";
     final String expected = "_KANJISJIS 'ABC' XC";
+    expr(sql).ok(expected);
+  }
+
+  @Test void testHexCharLiteralCharSetKanji1Format() {
+    final String sql = "_KANJI1 'ABC'XC";
+    final String expected = "_KANJI1 'ABC' XC";
     expr(sql).ok(expected);
   }
 
@@ -2561,6 +2687,89 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).fails(expected);
   }
 
+  @Test public void testNumberDataType() {
+    final String sql = "create table foo (bar number)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypePrecision() {
+    final String sql = "create table foo (bar number(3))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER(3))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypePrecisionStar() {
+    final String sql = "create table foo (bar number(*))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER(*))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypePrecisionScale() {
+    final String sql = "create table foo (bar number(*, 3))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER(*, 3))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypePrecisionScaleMaxValues() {
+    final String sql = "create table foo (bar number(38, 38))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER(38, 38))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypePrecisionScaleMinValues() {
+    final String sql = "create table foo (bar number(1, 0))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER(1, 0))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNumberDataTypeMinPrecisionOutOfRangeFails() {
+    final String sql = "create table foo (bar number(^0^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testNumberDataTypeMaxPrecisionOutOfRangeFails() {
+    final String sql = "create table foo (bar number(^39^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testNumberDataTypeScaleGreaterThanPrecisionFails() {
+    final String sql = "create table foo (bar number(12, ^13^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testNumberDataTypeMinScaleOutOfRangeFails() {
+    final String sql = "create table foo (bar number(*^,^ -1))";
+    final String expected = "(?s).*Encountered \", -\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testNumberDataTypeMaxScaleOutOfRangeFails() {
+    final String sql = "create table foo (bar number(*, ^39^))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testAlternativeTypeConversionWithNamedFunction() {
+    final String sql = "SELECT foo(a) (INT)";
+    final String expected = "SELECT CAST(`FOO`(`A`) AS INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testInlineFormatWithNamedFunction() {
+    final String sql = "select foo(a) (format 'X6')";
+    final String expected = "SELECT (`FOO`(`A`) (FORMAT 'X6'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testNamedExpressionWithNamedFunction() {
+    final String sql = "select foo(a) (named b)";
+    final String expected = "SELECT `FOO`(`A`) AS `B`";
+    sql(sql).ok(expected);
+  }
 
   @Test void testBlob() {
     final String sql = "create table foo (bar blob)";
@@ -2632,6 +2841,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test void testBlobGigabytesOutOfRangeFails() {
     final String sql = "create table foo (bar blob(^2^g))";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testBlobZeroFails() {
+    final String sql = "create table foo (bar blob(^0^))";
     final String expected = "(?s).*Numeric literal.*out of range.*";
     sql(sql).fails(expected);
   }

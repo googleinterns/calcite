@@ -110,8 +110,6 @@ public enum SqlTypeName {
       SqlTypeFamily.BINARY),
   BLOB(PrecScale.NO_NO | PrecScale.YES_NO, false, Types.BLOB,
       SqlTypeFamily.BINARY),
-  CLOB(PrecScale.NO_NO | PrecScale.YES_NO, false, Types.BLOB,
-      SqlTypeFamily.CHARACTER),
   NULL(PrecScale.NO_NO, true, Types.NULL, SqlTypeFamily.NULL),
   ANY(PrecScale.NO_NO | PrecScale.YES_NO | PrecScale.YES_YES, true,
       Types.JAVA_OBJECT, SqlTypeFamily.ANY),
@@ -155,10 +153,10 @@ public enum SqlTypeName {
   public static final List<SqlTypeName> ALL_TYPES =
       ImmutableList.of(
           BOOLEAN, INTEGER, VARCHAR, DATE, TIME, TIMESTAMP, NULL, DECIMAL,
-          ANY, CHAR, BINARY, VARBINARY, VARBYTE, BYTE, BLOB, CLOB, TINYINT,
-          SMALLINT, BIGINT, BYTEINT, REAL, DOUBLE, SYMBOL, INTERVAL_YEAR,
-          INTERVAL_YEAR_MONTH, INTERVAL_MONTH, INTERVAL_DAY, INTERVAL_DAY_HOUR,
-          INTERVAL_DAY_MINUTE, INTERVAL_DAY_SECOND, INTERVAL_HOUR, INTERVAL_HOUR_MINUTE,
+          ANY, CHAR, BINARY, VARBINARY, VARBYTE, BYTE, BLOB, TINYINT, SMALLINT,
+          BIGINT, BYTEINT, REAL, DOUBLE, SYMBOL, INTERVAL_YEAR, INTERVAL_YEAR_MONTH,
+          INTERVAL_MONTH, INTERVAL_DAY, INTERVAL_DAY_HOUR, INTERVAL_DAY_MINUTE,
+          INTERVAL_DAY_SECOND, INTERVAL_HOUR, INTERVAL_HOUR_MINUTE,
           INTERVAL_HOUR_SECOND, INTERVAL_MINUTE, INTERVAL_MINUTE_SECOND,
           INTERVAL_SECOND, TIME_WITH_LOCAL_TIME_ZONE, TIMESTAMP_WITH_LOCAL_TIME_ZONE,
           FLOAT, MULTISET, DISTINCT, STRUCTURED, ROW, CURSOR, COLUMN_LIST);
@@ -185,7 +183,7 @@ public enum SqlTypeName {
       combine(APPROX_TYPES, ImmutableList.of(DECIMAL));
 
   public static final List<SqlTypeName> CHAR_TYPES =
-      ImmutableList.of(CHAR, VARCHAR, CLOB);
+      ImmutableList.of(CHAR, VARCHAR);
 
   public static final List<SqlTypeName> STRING_TYPES =
       combine(CHAR_TYPES, BINARY_TYPES);

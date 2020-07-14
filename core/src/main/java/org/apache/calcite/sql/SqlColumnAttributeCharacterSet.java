@@ -40,31 +40,4 @@ public class SqlColumnAttributeCharacterSet extends SqlColumnAttribute {
     writer.keyword("CHARACTER SET");
     writer.keyword(characterSet.toString());
   }
-
-  public enum CharacterSet {
-    /**
-     * Column has the LATIN character set.
-     */
-    LATIN,
-
-    /**
-     * Column has the UNICODE character set.
-     */
-    UNICODE,
-
-    /**
-     * Column has the GRAPHIC character set.
-     */
-    GRAPHIC,
-
-    /**
-     * Column has the KANJISJIS character set.
-     */
-    KANJISJIS,
-
-    /**
-     * Column has the KANJI character set.
-     */
-    KANJI,
-  }
 }
