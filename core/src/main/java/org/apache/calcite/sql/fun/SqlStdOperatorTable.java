@@ -2601,7 +2601,6 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
     SqlKind like = notLike ? SqlKind.NOT_LIKE : SqlKind.LIKE;
     switch(kind) {
     case SOME:
-      //fall through
     case ALL:
       return new SqlQuantifyOperator(kind, like);
     default:
