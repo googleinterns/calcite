@@ -1999,3 +1999,41 @@ int VariableBinaryTypePrecision() :
     <RPAREN>
     { return precision; }
 }
+
+/**
+ * Parses LIKE ANY, LIKE ALL, and LIKE SOME statements, and appends operands
+ * to given list.
+ */
+void LikeAnyAllSome(List<Object> list, Span s) :
+{
+    final SqlOperator op;
+    boolean isLike = true;
+    SqlNodeList nodeList;
+}
+{
+    [ <NOT> { isLike = false; } ]
+    <LIKE>
+    (
+        <SOME> { op = SqlStdOperatorTable.like(SqlKind.SOME, isLike); }
+    |
+        <ANY> { op = SqlStdOperatorTable.like(SqlKind.SOME, isLike); }
+    |
+        <ALL> { op = SqlStdOperatorTable.like(SqlKind.ALL, isLike); }
+    )
+    { s.clear().add(this); }
+    nodeList = ParenthesizedQueryOrCommaList(ExprContext.ACCEPT_NONCURSOR)
+    {
+        list.add(new SqlParserUtil.ToTreeListItem(op, s.pos()));
+        s.add(nodeList);
+        if (nodeList.size() == 1) {
+            SqlNode item = nodeList.get(0);
+            if (item.isA(SqlKind.QUERY)) {
+                list.add(item);
+            } else {
+                list.add(nodeList);
+            }
+        } else {
+            list.add(nodeList);
+        }
+    }
+}

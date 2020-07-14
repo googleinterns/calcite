@@ -2674,4 +2674,54 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "(?s).*Encountered \"\\( -\" at .*";
     sql(sql).fails(expected);
   }
+
+  @Test public void testLikeAnySingleOption() {
+    final String sql = "select * from foo where bar like any ('a')";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`BAR` LIKE SOME ('a'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotLikeAny() {
+    final String sql = "select * from foo where bar not like any ('a')";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`BAR` NOT LIKE SOME ('a'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLikeSubquery() {
+    final String sql = "select * from foo where bar like any"
+        + " (select * from baz)";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`BAR` LIKE SOME (SELECT *\n"
+        + "FROM `BAZ`))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLikeAnyMultipleOptions() {
+    final String sql = "select * from foo where bar like any ('a', 'b')";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`BAR` LIKE SOME ('a', 'b'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLikeSomeMultipleOptions() {
+    final String sql = "select * from foo where bar like some ('a', 'b')";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`BAR` LIKE SOME ('a', 'b'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLikeAllMultipleOptions() {
+    final String sql = "select * from foo where bar like all ('a', 'b')";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`BAR` LIKE ALL ('a', 'b'))";
+    sql(sql).ok(expected);
+  }
 }
