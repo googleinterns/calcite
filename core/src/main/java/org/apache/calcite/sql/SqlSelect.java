@@ -40,7 +40,7 @@ public class SqlSelect extends SqlCall {
 
   public SqlNodeList keywordList;
   public SqlNode topN;
-  SqlNode exceptExpression;
+  public final SqlNode exceptExpression;
   SqlNodeList selectList;
   SqlNode from;
   SqlNode where;
@@ -67,7 +67,7 @@ public class SqlSelect extends SqlCall {
       SqlNode offset,
       SqlNode fetch,
       SqlNodeList hints) {
-    this(pos, keywordList, /*topN=*/ null, /*exceptExpression=*/ null, selectList,
+    this(pos, keywordList, /*topN=*/ null, selectList, /*exceptExpression=*/ null,
         from, where, groupBy, having, /*qualify=*/ null, windowDecls, orderBy,
         offset, fetch, hints);
   }
@@ -85,7 +85,26 @@ public class SqlSelect extends SqlCall {
                    SqlNode offset,
                    SqlNode fetch,
                    SqlNodeList hints) {
-    this(pos, keywordList, /*topN=*/ null, /*exceptExpression=*/ null, selectList,
+    this(pos, keywordList, /*topN=*/ null, selectList, /*exceptExpression=*/ null,
+        from, where, groupBy, having, qualify, windowDecls, orderBy, offset,
+        fetch, hints);
+  }
+
+  public SqlSelect(SqlParserPos pos,
+      SqlNodeList keywordList,
+      SqlNode topN,
+      SqlNodeList selectList,
+      SqlNode from,
+      SqlNode where,
+      SqlNodeList groupBy,
+      SqlNode having,
+      SqlNode qualify,
+      SqlNodeList windowDecls,
+      SqlNodeList orderBy,
+      SqlNode offset,
+      SqlNode fetch,
+      SqlNodeList hints) {
+    this(pos, keywordList, topN, selectList, /*exceptExpression=*/ null,
         from, where, groupBy, having, qualify, windowDecls, orderBy, offset,
         fetch, hints);
   }
@@ -265,10 +284,6 @@ public class SqlSelect extends SqlCall {
 
   public void setFetch(SqlNode fetch) {
     this.fetch = fetch;
-  }
-
-  public final SqlNode getExceptExpression() {
-    return exceptExpression;
   }
 
   public void setHints(SqlNodeList hints) {

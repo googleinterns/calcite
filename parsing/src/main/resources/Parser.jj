@@ -1335,9 +1335,9 @@ SqlSelect SqlSelect() :
     }
     selectList = SelectList()
 <#if parser.includeExceptExpression>
-    (
+    [
         exceptExpression = ExceptExpression(selectList)
-    )?
+    ]
 </#if>
     (
         <FROM> fromClause = FromClause()
