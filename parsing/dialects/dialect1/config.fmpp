@@ -1163,6 +1163,7 @@ data: {
     includeTopN: true
     includeInsertWithOmittedValues: true
     includeHostVariables: true
+    includePostExpressionMethodsAfterFunction: true
   }
 }
 
