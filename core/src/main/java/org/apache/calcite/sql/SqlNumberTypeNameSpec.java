@@ -105,15 +105,6 @@ public class SqlNumberTypeNameSpec extends SqlTypeNameSpec {
   }
 
   @Override public boolean equalsDeep(SqlTypeNameSpec spec, Litmus litmus) {
-    if (!(spec instanceof SqlNumberTypeNameSpec)) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-    SqlNumberTypeNameSpec that = (SqlNumberTypeNameSpec) spec;
-    if (this.isPrecisionStar != that.isPrecisionStar
-        || this.precision.equalsDeep(that.precision, litmus)
-        || this.scale.equalsDeep(that.scale, litmus)) {
-      return litmus.fail("{} != {}", this, spec);
-    }
-    return litmus.succeed();
+    return false;
   }
 }
