@@ -1100,8 +1100,8 @@ data: {
 
     # List of methods for parsing extentions to "RENAME" calls.
     renameStatementParserMethods: [
-      "SqlRenameTable"
       "SqlRenameMacro"
+      "SqlRenameTable"
     ]
 
     # List of methods for parsing expressions to "EXEC" calls.
