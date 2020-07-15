@@ -827,7 +827,7 @@ WithDataType WithDataOpt() :
 
 SqlCreate SqlCreateTable() :
 {
-    Span s;
+    final Span s;
     SqlCreateSpecifier createSpecifier = SqlCreateSpecifier.CREATE;
     SetType setType = SetType.UNSPECIFIED;
     Volatility volatility = Volatility.UNSPECIFIED;
