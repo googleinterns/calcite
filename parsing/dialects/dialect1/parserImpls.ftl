@@ -825,8 +825,10 @@ WithDataType WithDataOpt() :
     { return WithDataType.UNSPECIFIED; }
 }
 
-SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateTable() :
 {
+    final Span s;
+    SqlCreateSpecifier createSpecifier = SqlCreateSpecifier.CREATE;
     SetType setType = SetType.UNSPECIFIED;
     Volatility volatility = Volatility.UNSPECIFIED;
     final boolean ifNotExists;
@@ -841,18 +843,29 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
     final OnCommitType onCommitType;
 }
 {
-    [
-        setType = SetTypeOpt()
-        volatility = VolatilityOpt()
+    (
+        <CT> { s = span(); }
     |
-        volatility = VolatilityOpt()
-        setType = SetTypeOpt()
-    |
-        setType = SetTypeOpt()
-    |
-        volatility = VolatilityOpt()
-    ]
-    <TABLE> ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
+        <CREATE> { s = span(); }
+        [
+            <OR> <REPLACE> {
+                createSpecifier = SqlCreateSpecifier.CREATE_OR_REPLACE;
+            }
+        ]
+        [
+            setType = SetTypeOpt()
+            volatility = VolatilityOpt()
+        |
+            volatility = VolatilityOpt()
+            setType = SetTypeOpt()
+        |
+            setType = SetTypeOpt()
+        |
+            volatility = VolatilityOpt()
+        ]
+        <TABLE>
+    )
+    ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
     (
         tableAttributes = CreateTableAttributes()
     |
@@ -899,9 +912,10 @@ SqlCreate SqlCreateTable(Span s, SqlCreateSpecifier createSpecifier) :
     }
 }
 
-SqlCreate SqlCreateFunctionSqlForm(Span s,
-        SqlCreateSpecifier createSpecifier) :
+SqlCreate SqlCreateFunctionSqlForm() :
 {
+    final Span s;
+    final SqlCreateSpecifier createSpecifier;
     SqlIdentifier functionName = null;
     SqlNodeList fieldNames = new SqlNodeList(getPos());
     SqlNodeList fieldTypes = new SqlNodeList(getPos());
@@ -915,6 +929,12 @@ SqlCreate SqlCreateFunctionSqlForm(Span s,
     final SqlNode returnExpression;
 }
 {
+    <CREATE> { s = span(); }
+    (
+        <OR> <REPLACE> { createSpecifier = SqlCreateSpecifier.CREATE_OR_REPLACE; }
+    |
+        { createSpecifier = SqlCreateSpecifier.CREATE; }
+    )
     <FUNCTION>
     functionName = CompoundIdentifier()
     <LPAREN>
@@ -2051,6 +2071,38 @@ void LikeAnyAllSome(List<Object> list, Span s) :
         } else {
             list.add(nodeList);
         }
+    }
+}
+
+SqlTypeNameSpec SqlPeriodDataType() :
+{
+    final TimeScale timeScale;
+    SqlNumericLiteral precision = null;
+    boolean isWithTimezone = false;
+}
+{
+    <PERIOD> <LPAREN>
+    (
+        <DATE> { timeScale = TimeScale.DATE; }
+    |
+        (
+            <TIME> { timeScale = TimeScale.TIME; }
+        |
+            <TIMESTAMP> { timeScale = TimeScale.TIMESTAMP; }
+        )
+        [
+            <LPAREN>
+            precision = UnsignedNumericLiteral()
+            <RPAREN>
+        ]
+        [
+            <WITH> <TIME> <ZONE> { isWithTimezone = true; }
+        ]
+    )
+    <RPAREN>
+    {
+        return new SqlPeriodTypeNameSpec(timeScale, precision, isWithTimezone,
+            getPos());
     }
 }
 
