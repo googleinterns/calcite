@@ -761,6 +761,32 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableCompressWithStringLiteralColumnLevelAttribute() {
+    final String sql = "create table foo (bar char(3) compress 'xyz')";
+    final String expected = "CREATE TABLE `FOO` (`BAR` CHAR(3) COMPRESS 'xyz')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableCompressWithNumericLiteralColumnLevelAttribute() {
+    final String sql = "create table foo (bar integer compress 3)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER COMPRESS 3)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableCompressWithNullColumnLevelAttribute() {
+    final String sql = "create table foo (bar integer compress (NULL))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER COMPRESS (NULL))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableCompressWithMixedTypesColumnLevelAttribute() {
+    final String sql = "create table foo (bar integer compress (1, 'x', "
+        + "DATE '1972-02-28'))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER COMPRESS (1, 'x',"
+        + " DATE '1972-02-28'))";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTableNullColumnLevelAttribute() {
     final String sql = "create table foo (bar int null)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER)";
