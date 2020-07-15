@@ -384,13 +384,58 @@ SqlColumnAttribute ColumnAttributeUpperCase() :
 
 SqlColumnAttribute ColumnAttributeCompress() :
 {
-    SqlNodeList values = null;
+    SqlNode value = null;
 }
 {
     <COMPRESS>
-    [ values = ParenthesizedQueryOrCommaList(ExprContext.ACCEPT_NONCURSOR) ]
+    [
+        value = StringLiteral()
+    |
+        value = NumericLiteral()
+    |
+        value = ParenthesizedCompressCommaList()
+    ]
     {
-        return new SqlColumnAttributeCompress(getPos(), values);
+        return new SqlColumnAttributeCompress(getPos(), value);
+    }
+}
+
+SqlNodeList ParenthesizedCompressCommaList() :
+{
+    final List<SqlNode> values = new ArrayList<SqlNode>();
+    SqlNode value = null;
+}
+{
+    <LPAREN>
+    value = CompressOption() { values.add(value); }
+    (
+        <COMMA>
+        value = CompressOption() { values.add(value); }
+    )*
+    <RPAREN>
+    {
+        return new SqlNodeList(values, getPos());
+    }
+}
+
+SqlNode CompressOption() :
+{
+    SqlNode value;
+}
+{
+    (
+        value = StringLiteral()
+    |
+        value = NumericLiteral()
+    |
+        value = DateTimeLiteral()
+    |
+        <NULL> {
+            value = SqlLiteral.createNull(getPos());
+        }
+    )
+    {
+        return value;
     }
 }
 

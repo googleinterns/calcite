@@ -23,30 +23,36 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public class SqlColumnAttributeCompress extends SqlColumnAttribute {
 
-  private final SqlNodeList values;
+  private final SqlNode value;
 
   /**
    * Creates a {@code SqlColumnAttributeCompress}.
    *
    * @param pos  Parser position, must not be null
-   * @param values  Values to be compressed in a particular column. These can be string literals,
-   *                numeric literals or DATEs.
+   * @param value  Value(s) to be compressed in a particular column. These can
+   *               be an individual string or numeric literal or a list
+   *               of string literals, numeric literals, nulls, and DATEs.
    */
-  public SqlColumnAttributeCompress(SqlParserPos pos, SqlNodeList values) {
+  public SqlColumnAttributeCompress(SqlParserPos pos, SqlNode value) {
     super(pos);
-    this.values = values;
+    this.value = value;
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("COMPRESS");
-    if (values == null) {
+    if (value == null) {
       return;
     }
-    SqlWriter.Frame frame = writer.startList("(", ")");
-    for (SqlNode value : values) {
-      writer.sep(",", false);
-      value.unparse(writer, 0, 0);
+    if (value instanceof SqlNodeList) {
+      SqlNodeList values = (SqlNodeList) value;
+      SqlWriter.Frame frame = writer.startList("(", ")");
+      for (SqlNode v : values) {
+        writer.sep(",", false);
+        v.unparse(writer, 0, 0);
+      }
+      writer.endList(frame);
+    } else {
+      value.unparse(writer, leftPrec, rightPrec);
     }
-    writer.endList(frame);
   }
 }
