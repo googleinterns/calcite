@@ -29,7 +29,7 @@ public class SqlColumnAttributeNamed extends SqlColumnAttribute {
   public final SqlNode namedString;
 
   /**
-   * Creates a {@code SqlColumnAttributeTitle}.
+   * Creates a {@code SqlColumnAttributeNamed}.
    *
    * @param pos  Parser position, must not be null
    * @param namedString String after the NAMED keyword
