@@ -39,6 +39,7 @@ data: {
       "org.apache.calcite.sql.SqlBlobTypeNameSpec",
       "org.apache.calcite.sql.SqlCaseSpecific",
       "org.apache.calcite.sql.SqlCharacterSetToCharacterSet",
+      "org.apache.calcite.sql.SqlClobTypeNameSpec",
       "org.apache.calcite.sql.SqlColumnAttribute",
       "org.apache.calcite.sql.SqlColumnAttributeCaseSpecific",
       "org.apache.calcite.sql.SqlColumnAttributeCharacterSet",
@@ -1037,6 +1038,7 @@ data: {
       "BlobDataType()"
       "ByteDataType()"
       "ByteIntType()"
+      "ClobDataType()"
       "NumberDataType()"
       "SqlJsonDataType()"
       "SqlPeriodDataType()"

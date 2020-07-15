@@ -2129,6 +2129,38 @@ SqlBlobTypeNameSpec BlobDataType() :
     { return new SqlBlobTypeNameSpec(maxLength, unitSize, getPos()); }
 }
 
+SqlClobTypeNameSpec ClobDataType() :
+{
+    SqlLiteral maxLength = null;
+    SqlLobUnitSize unitSize = SqlLobUnitSize.UNSPECIFIED;
+    CharacterSet characterSet = null;
+}
+{
+    (
+        <CLOB>
+    |
+        <CHARACTER> <LARGE> <OBJECT>
+    )
+    [
+        <LPAREN>
+        <UNSIGNED_INTEGER_LITERAL>
+        {
+            maxLength = SqlLiteral.createExactNumeric(token.image, getPos());
+        }
+        [ unitSize = LobUnitSize() ]
+        <RPAREN>
+    ]
+    [
+        ( <CHARACTER> | <CHAR> ) <SET>
+        (
+            <LATIN> { characterSet = CharacterSet.LATIN; }
+        |
+            <UNICODE> { characterSet = CharacterSet.UNICODE; }
+        )
+    ]
+    { return new SqlClobTypeNameSpec(maxLength, unitSize, characterSet, getPos()); }
+}
+
 SqlLobUnitSize LobUnitSize() :
 {
     final SqlLobUnitSize unitSize;
