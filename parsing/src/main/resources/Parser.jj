@@ -1027,10 +1027,6 @@ SqlNode SqlStmt() :
         stmt = SqlCreate()
     |
 </#if>
-<#if parser.replaceStatementParserMethods?size != 0>
-        stmt = SqlReplace()
-    |
-</#if>
 <#if parser.renameStatementParserMethods?size != 0>
         stmt = SqlRename()
     |
@@ -1855,9 +1851,10 @@ SqlInsert WhenNotMatchedClause(SqlNode table) :
     final Span insertSpan, valuesSpan;
     final List<SqlLiteral> keywords = new ArrayList<SqlLiteral>();
     final SqlNodeList keywordList;
+    final Pair<SqlNodeList, SqlNodeList> nameAndTypePair;
     SqlNodeList insertColumnList = null;
-    SqlNode rowConstructor;
-    SqlNode insertValues;
+    final SqlNode rowConstructor;
+    final SqlNode insertValues;
 }
 {
     <WHEN> <NOT> <MATCHED> <THEN> <INSERT> {
@@ -1868,7 +1865,8 @@ SqlInsert WhenNotMatchedClause(SqlNode table) :
     }
     [
         LOOKAHEAD(2)
-        insertColumnList = ParenthesizedSimpleIdentifierList()
+        nameAndTypePair = ParenthesizedCompoundIdentifierList()
+        { insertColumnList = nameAndTypePair.getKey(); }
     ]
     [ <LPAREN> ]
     <VALUES> { valuesSpan = span(); }
@@ -4045,22 +4043,15 @@ String Scope() :
  */
 SqlCreate SqlCreate() :
 {
-    final Span s;
-    SqlCreateSpecifier createSpecifier = SqlCreateSpecifier.CREATE;
     final SqlCreate create;
 }
 {
-    <CREATE> { s = span(); }
-    [
-        <OR> <REPLACE> {
-            createSpecifier = SqlCreateSpecifier.CREATE_OR_REPLACE;
-        }
-    ]
     (
 <#-- additional literal parser methods are included here -->
 <#list parser.createStatementParserMethods as method>
-        create = ${method}(s, createSpecifier)
-        <#sep>| LOOKAHEAD(2) </#sep>
+        LOOKAHEAD(4)
+        create = ${method}()
+        <#sep>|</#sep>
 </#list>
     )
     {

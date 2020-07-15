@@ -77,6 +77,8 @@ data: {
       "org.apache.calcite.sql.SqlJsonTypeNameSpec.StorageFormat",
       "org.apache.calcite.sql.SqlLobUnitSize",
       "org.apache.calcite.sql.SqlNumberTypeNameSpec",
+      "org.apache.calcite.sql.SqlPeriodTypeNameSpec",
+      "org.apache.calcite.sql.SqlPeriodTypeNameSpec.TimeScale",
       "org.apache.calcite.sql.SqlPrimaryIndex",
       "org.apache.calcite.sql.SqlRenameTable",
       "org.apache.calcite.sql.SqlRenameTable.RenameOption",
@@ -124,6 +126,7 @@ data: {
       "COMPRESS"
       "CONCURRENT"
       "CS"
+      "CT"
       "DATABLOCKSIZE"
       "DEL"
       "DUAL"
@@ -1037,6 +1040,7 @@ data: {
       "ClobDataType()"
       "NumberDataType()"
       "SqlJsonDataType()"
+      "SqlPeriodDataType()"
       "VarbyteDataType()"
     ]
 
@@ -1058,9 +1062,8 @@ data: {
       "SqlAlterTable"
     ]
 
-    # List of methods for parsing extensions to "CREATE [OR REPLACE]" calls.
-    # Each must accept arguments:
-    # "(SqlParserPos pos, SqlCreateSpecifier createSpecifier)".
+    # List of methods for parsing extensions to
+    # "(CREATE [OR REPLACE] | REPLACE)" calls.
     createStatementParserMethods: [
       "SqlCreateForeignSchema"
       "SqlCreateMaterializedView"
@@ -1069,13 +1072,6 @@ data: {
       "SqlCreateType"
       "SqlCreateView"
       "SqlCreateFunctionSqlForm"
-    ]
-
-    # List of methods for parsing extensions to "REPLACE" calls.
-    # Each must accept arguments:
-    # "(SqlParserPos pos, SqlCreateSpecifier createSpecifier)".
-    replaceStatementParserMethods: [
-      "SqlCreateView"
     ]
 
     # list of methods for parsing extensions to "SET" calls

@@ -1554,7 +1554,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testMergeInto() {
+  @Test public void testMergeIntoSimpleIdentifier() {
     final String sql = "merge into t1 a using t2 b on a.x = b.x when matched then "
         + "update set y = b.y when not matched then insert (x,y) values (b.x, b.y)";
     final String expected = "MERGE INTO `T1` AS `A`\n"
@@ -1562,6 +1562,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "ON (`A`.`X` = `B`.`X`)\n"
         + "WHEN MATCHED THEN UPDATE SET `Y` = `B`.`Y`\n"
         + "WHEN NOT MATCHED THEN INSERT (`X`, `Y`) (VALUES (ROW(`B`.`X`, `B`.`Y`)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testMergeIntoCompoundIdentifier() {
+    final String sql = "merge into t1 a using t2 b on a.x = b.x when matched then "
+        + "update set y = b.y when not matched then insert (x.w, y.z) values (b.x.w, b.y.z)";
+    final String expected = "MERGE INTO `T1` AS `A`\n"
+        + "USING `T2` AS `B`\n"
+        + "ON (`A`.`X` = `B`.`X`)\n"
+        + "WHEN MATCHED THEN UPDATE SET `Y` = `B`.`Y`\n"
+        + "WHEN NOT MATCHED THEN INSERT (`X`.`W`, `Y`.`Z`) "
+        + "(VALUES (ROW(`B`.`X`.`W`, `B`.`Y`.`Z`)))";
     sql(sql).ok(expected);
   }
 
@@ -2687,6 +2699,74 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).fails(expected);
   }
 
+  @Test public void testPeriodTypeNameSpecDate() {
+    final String sql = "create table foo (a period(date))";
+    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(DATE))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecTime() {
+    final String sql = "create table foo (a period(time))";
+    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(TIME))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecTimeWithPrecision() {
+    final String sql = "create table foo (a period(time(2)))";
+    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(TIME(2)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecTimeWithTimezone() {
+    final String sql = "create table foo (a period(time with time zone))";
+    final String expected =
+        "CREATE TABLE `FOO` (`A` PERIOD(TIME WITH TIME ZONE))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecTimeWithPrecisionWithTimezone() {
+    final String sql = "create table foo (a period(time(2) with time zone))";
+    final String expected =
+        "CREATE TABLE `FOO` (`A` PERIOD(TIME(2) WITH TIME ZONE))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecTimeStamp() {
+    final String sql = "create table foo (a period(timestamp))";
+    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(TIMESTAMP))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecTimeStampWithPrecision() {
+    final String sql = "create table foo (a period(timestamp(0)))";
+    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(TIMESTAMP(0)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecDateWithPrecisionFails() {
+    final String sql = "create table foo (a period(date^(^0)))";
+    final String expected = "(?s).*Encountered \"\\(\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecDateWithTimezoneFails() {
+    final String sql = "create table foo (a period(date ^with^ time zone))";
+    final String expected = "(?s).*Encountered \"with\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecPrecisionOutOfRangeFails() {
+    final String sql = "create table foo (a period(timestamp(7)^)^)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecNegativePrecisionFails() {
+    final String sql = "create table foo (a period(time^(^-1)))";
+    final String expected = "(?s).*Encountered \"\\( -\" at .*";
+    sql(sql).fails(expected);
+  }
+
   @Test public void testNumberDataType() {
     final String sql = "create table foo (bar number)";
     final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER)";
@@ -2976,6 +3056,42 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "create table foo (bar clob(^0^) character set "
         + "unicode)";
     final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testCreateTableAlias() {
+    final String sql = "ct foo (bar integer)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testCreateTableAliasTableFails() {
+    final String sql = "^ct^ table foo (bar integer)";
+    final String expected = "(?s).*Encountered \"ct table\" at.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testCreateTableAliasOrReplaceFails() {
+    final String sql = "ct or ^replace^ foo (bar integer)";
+    final String expected = "(?s).*Encountered \"replace\" at.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testCreateTableAliasMultisetFails() {
+    final String sql = "ct multiset ^foo^ (bar integer)";
+    final String expected = "(?s).*Encountered \"foo\" at.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testCreateTableAliasSetFails() {
+    final String sql = "^ct^ set foo (bar integer)";
+    final String expected = "(?s).*Encountered \"ct set\" at.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testCreateTableAliasVolatileFails() {
+    final String sql = "^ct^ volatile foo (bar integer)";
+    final String expected = "(?s).*Encountered \"ct volatile\" at.*";
     sql(sql).fails(expected);
   }
 }
