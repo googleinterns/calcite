@@ -2863,4 +2863,39 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).fails(expected);
   }
 
+  @Test void testCreateTableAlias() {
+    final String sql = "ct foo (bar integer)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testCreateTableAliasTableFails() {
+    final String sql = "^ct^ table foo (bar integer)";
+    final String expected = "(?s).*Encountered \"ct table\" at.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testCreateTableAliasOrReplaceFails() {
+    final String sql = "ct or ^replace^ foo (bar integer)";
+    final String expected = "(?s).*Encountered \"replace\" at.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testCreateTableAliasMultisetFails() {
+    final String sql = "ct multiset ^foo^ (bar integer)";
+    final String expected = "(?s).*Encountered \"foo\" at.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testCreateTableAliasSetFails() {
+    final String sql = "^ct^ set foo (bar integer)";
+    final String expected = "(?s).*Encountered \"ct set\" at.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test void testCreateTableAliasVolatileFails() {
+    final String sql = "^ct^ volatile foo (bar integer)";
+    final String expected = "(?s).*Encountered \"ct volatile\" at.*";
+    sql(sql).fails(expected);
+  }
 }
