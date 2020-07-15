@@ -1124,8 +1124,8 @@ data: {
       "InlineCaseSpecific"
       "InlineCaseSpecificNamedFunctionCall"
       "InlineModOperator"
-      "AlternativeTypeConversionLiteralOrIdentifier"
       "NamedLiteralOrIdentifier"
+      "AlternativeTypeConversionLiteralOrIdentifier"
     ]
 
     postExpressionMethods: [
