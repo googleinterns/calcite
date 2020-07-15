@@ -766,6 +766,18 @@ SqlColumnAttribute ColumnAttributeDateFormat() :
     }
 }
 
+SqlColumnAttribute ColumnAttributeNamed() :
+{
+    SqlNode namedString = null;
+}
+{
+    <NAMED>
+    namedString = StringLiteral()
+    {
+        return new SqlColumnAttributeNamed(getPos(), namedString);
+    }
+}
+
 SqlColumnAttribute ColumnAttributeTitle() :
 {
     final SqlNode titleString;
@@ -1474,22 +1486,64 @@ SqlNode AlternativeTypeConversionLiteralOrIdentifier() :
     e = AlternativeTypeConversionQuery(q) { return e; }
 }
 
+SqlColumnAttribute AlternativeTypeConversionAttribute():
+{
+    SqlColumnAttribute e;
+}
+{
+    (
+        e = ColumnAttributeUpperCase()
+    |
+        e = ColumnAttributeCharacterSet()
+    |
+        e = ColumnAttributeDateFormat()
+    |
+        e = ColumnAttributeTitle()
+    |
+        e = ColumnAttributeNamed()
+    )
+    { return e; }
+}
+
+void AlternativeTypeConversionAttributeList(List<SqlNode> attributes):
+{
+    SqlColumnAttribute e;
+}
+{
+    e = AlternativeTypeConversionAttribute() { attributes.add(e); }
+    (
+        <COMMA>
+        e = AlternativeTypeConversionAttribute() { attributes.add(e); }
+    )*
+}
+
 SqlNode AlternativeTypeConversionQuery(SqlNode q) :
 {
     final Span s = span();
     final List<SqlNode> args = startList(q);
     final SqlDataTypeSpec dt;
     final SqlNode interval;
-    final SqlNode format;
 }
 {
     <LPAREN>
     (
-        dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
+        (
+            dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
+        |
+            <INTERVAL> interval = IntervalQualifier() { args.add(interval); }
+        )
+        [ <COMMA> AlternativeTypeConversionAttributeList(args) ]
     |
-        <INTERVAL> interval = IntervalQualifier() { args.add(interval); }
+        AlternativeTypeConversionAttributeList(args)
+        [
+            (
+                <COMMA> dt = DataTypeAlternativeCastSyntax() { args.add(1, dt); }
+            |
+                <COMMA> <INTERVAL> interval = IntervalQualifier() { args.add(1, interval); }
+            )
+            [ <COMMA> AlternativeTypeConversionAttributeList(args) ]
+        ]
     )
-    [ <FORMAT> format = StringLiteral() { args.add(format); } ]
     <RPAREN> {
         return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
     }

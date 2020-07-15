@@ -484,7 +484,7 @@ data: {
     allowUpsertFormOfUpdate: false
     includeAdditionalDeclarations: false
     includeBraces: true
-    includeCastFormat: false
+    includeCastDataAttributes: false
     includeCompoundIdentifier: true
     includeExceptExpression: false
     includeHostVariables: false

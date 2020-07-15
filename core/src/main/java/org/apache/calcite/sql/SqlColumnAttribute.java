@@ -17,6 +17,10 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.util.SqlVisitor;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
+import org.apache.calcite.util.Litmus;
 
 /**
  * A <code>SqlColumnAttribute</code> is a base class that can be used
@@ -26,8 +30,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  * <p>To customize column attribute unparsing, override the method.</p>
  * {@link #unparse(SqlWriter, int, int)}.
  */
-public abstract class SqlColumnAttribute {
-  private final SqlParserPos pos;
+public abstract class SqlColumnAttribute extends SqlNode {
 
   /**
    * Creates a {@code SqlColumnAttribute}.
@@ -35,13 +38,22 @@ public abstract class SqlColumnAttribute {
    * @param pos  Parser position, must not be null
    */
   protected SqlColumnAttribute(SqlParserPos pos) {
-    this.pos = pos;
+    super(pos);
   }
 
-  /** Writes a SQL representation of this column attribute to a writer. */
-  public abstract void unparse(SqlWriter writer, int leftPrec, int rightPrec);
+  @Override public SqlNode clone(final SqlParserPos pos) {
+    return null;
+  }
 
-  public SqlParserPos getParserPos() {
-    return pos;
+  @Override public void validate(final SqlValidator validator,
+      final SqlValidatorScope scope) {
+  }
+
+  @Override public <R> R accept(final SqlVisitor<R> visitor) {
+    return null;
+  }
+
+  @Override public boolean equalsDeep(final SqlNode node, final Litmus litmus) {
+    return false;
   }
 }

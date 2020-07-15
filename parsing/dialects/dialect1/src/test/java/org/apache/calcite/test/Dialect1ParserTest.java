@@ -1802,12 +1802,6 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testAlternativeTypeConversionFormat() {
-    final String sql = "select '15h33m' (time(0) format 'HHhMIm')";
-    final String expected = "SELECT CAST('15h33m' AS TIME(0) FORMAT 'HHhMIm')";
-    sql(sql).ok(expected);
-  }
-
   @Test void testAlternativeTypeConversionInterval() {
     final String sql = "select '3700 sec' (interval minute)";
     final String expected = "SELECT CAST('3700 sec' AS INTERVAL MINUTE)";
@@ -1823,7 +1817,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   }
 
   @Test void testAlternativeTypeConversionQueryFormat() {
-    final String sql = "select (select foo from bar) (time(0) format 'HHhMIm') from baz";
+    final String sql = "select (select foo from bar) (time(0), format 'HHhMIm') from baz";
     final String expected = "SELECT CAST((SELECT `FOO`\n"
         + "FROM `BAR`) AS TIME(0) FORMAT 'HHhMIm')\n"
         + "FROM `BAZ`";
@@ -1843,6 +1837,84 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "SELECT CAST((SELECT CAST(`FOO` AS INTEGER)\n"
         + "FROM `BAR`) AS CHAR)\n"
         + "FROM `BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionFormatAttribute() {
+    final String sql = "select '15h33m' (time(0), format 'HHhMIm')";
+    final String expected = "SELECT CAST('15h33m' AS TIME(0) FORMAT 'HHhMIm')";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionTitleAttribute() {
+    final String sql = "select foo (char, title 'hello')";
+    final String expected = "SELECT CAST(`FOO` AS CHAR TITLE 'hello')";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionNamedAttribute() {
+    final String sql = "select foo (char, named 'hello')";
+    final String expected = "SELECT CAST(`FOO` AS CHAR NAMED 'hello')";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionCharacterSetAttribute() {
+    final String sql = "select foo (char, character set latin)";
+    final String expected = "SELECT CAST(`FOO` AS CHAR CHARACTER SET LATIN)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionUppercaseAttribute() {
+    final String sql = "select foo (char, uppercase)";
+    final String expected = "SELECT CAST(`FOO` AS CHAR UPPERCASE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionAttributesNoDataType() {
+    final String sql = "select foo (uppercase, format 'X6', character set "
+        + "unicode)";
+    final String expected = "SELECT CAST(`FOO` AS UPPERCASE FORMAT 'X6' "
+        + "CHARACTER SET UNICODE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionAttributesAfterDataType() {
+    final String sql = "select foo (char, uppercase, format 'X6', character "
+        + "set unicode)";
+    final String expected = "SELECT CAST(`FOO` AS CHAR UPPERCASE FORMAT 'X6' "
+        + "CHARACTER SET UNICODE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionAttributesBeforeDataType() {
+    final String sql = "select foo (uppercase, format 'X6', character set "
+        + "unicode, char)";
+    final String expected = "SELECT CAST(`FOO` AS CHAR UPPERCASE FORMAT 'X6' "
+        + "CHARACTER SET UNICODE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionAttributesBeforeAndAfterDataType() {
+    final String sql = "select foo (uppercase, format 'X6', character set "
+        + "unicode, char, title 'hello', named 'hello')";
+    final String expected = "SELECT CAST(`FOO` AS CHAR UPPERCASE FORMAT 'X6' "
+        + "CHARACTER SET UNICODE TITLE 'hello' NAMED 'hello')";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testExplicitCastWithAttributes() {
+    final String sql = "select cast(foo as char uppercase format 'X6' "
+        + "character set unicode title 'hello' named 'hello')";
+    final String expected = "SELECT CAST(`FOO` AS CHAR UPPERCASE FORMAT 'X6' "
+        + "CHARACTER SET UNICODE TITLE 'hello' NAMED 'hello')";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testExplicitCastWithAttributesNoDateType() {
+    final String sql = "select cast(foo as uppercase format 'X6' character "
+        + "set unicode title 'hello' named 'hello')";
+    final String expected = "SELECT CAST(`FOO` AS UPPERCASE FORMAT 'X6' "
+        + "CHARACTER SET UNICODE TITLE 'hello' NAMED 'hello')";
     sql(sql).ok(expected);
   }
 
