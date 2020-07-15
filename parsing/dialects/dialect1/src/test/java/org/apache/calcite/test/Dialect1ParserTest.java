@@ -1772,6 +1772,24 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testRenameMacroWithTo() {
+    final String sql = "rename macro foo to bar";
+    final String expected = "RENAME MACRO `FOO` TO `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameMacroWithAs() {
+    final String sql = "rename macro foo as bar";
+    final String expected = "RENAME MACRO `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameMacroWithCompoundIdentifiers() {
+    final String sql = "rename macro foo.bar as bar.foo";
+    final String expected = "RENAME MACRO `FOO`.`BAR` AS `BAR`.`FOO`";
+    sql(sql).ok(expected);
+  }
+
   @Test void testInlineFormatSimpleIdentifier() {
     final String sql = "select foo (format 'XXX')";
     final String expected = "SELECT (`FOO` (FORMAT 'XXX'))";

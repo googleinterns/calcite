@@ -1477,6 +1477,27 @@ SqlRename SqlRenameTable() :
     }
 }
 
+SqlRename SqlRenameMacro() :
+{
+    SqlIdentifier targetMacro;
+    SqlIdentifier sourceMacro;
+    RenameOption renameOption;
+}
+{
+    <MACRO>
+    targetMacro = CompoundIdentifier()
+    (
+        <TO> { renameOption = RenameOption.TO; }
+    |
+        <AS> { renameOption = RenameOption.AS; }
+    )
+    sourceMacro = CompoundIdentifier()
+    {
+        return new SqlRenameMacro(getPos(), targetMacro, sourceMacro,
+            renameOption);
+    }
+}
+
 // This excludes CompoundIdentifier() as a type name that's found in the
 // original TypeName() function. Custom data types can be parsed
 // in parser.dataTypeParserMethods.

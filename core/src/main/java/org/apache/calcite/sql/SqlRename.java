@@ -38,28 +38,28 @@ public abstract class SqlRename extends SqlDdl {
     AS
   }
 
-  private final SqlIdentifier targetTable;
-  private final SqlIdentifier sourceTable;
+  private final SqlIdentifier targetStructure;
+  private final SqlIdentifier sourceStructure;
   private final RenameOption renameOption;
 
   /** Creates a SqlRename. */
   protected SqlRename(SqlOperator operator, SqlParserPos pos,
-      SqlIdentifier targetTable, SqlIdentifier sourceTable,
+      SqlIdentifier targetStructure, SqlIdentifier sourceStructure,
       RenameOption renameOption) {
     super(operator, pos);
-    this.targetTable = targetTable;
-    this.sourceTable = sourceTable;
+    this.targetStructure = targetStructure;
+    this.sourceStructure = sourceStructure;
     this.renameOption = renameOption;
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(targetTable, sourceTable);
+    return ImmutableNullableList.of(targetStructure, sourceStructure);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword(getOperator().getName());
-    targetTable.unparse(writer, leftPrec, rightPrec);
+    targetStructure.unparse(writer, leftPrec, rightPrec);
     writer.keyword(renameOption.toString());
-    sourceTable.unparse(writer, leftPrec, rightPrec);
+    sourceStructure.unparse(writer, leftPrec, rightPrec);
   }
 }
