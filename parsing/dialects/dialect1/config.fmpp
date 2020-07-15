@@ -1120,6 +1120,10 @@ data: {
     extraBinaryExpressions: [
     ]
 
+    # NamedLiteralOrIdentifier needs to come before
+    # AlternativeTypeConversionLiteralOrIdentifier. Otherwise, a query such as
+    # "select foo (named 'hello')" will be parsed as a CAST call rather than
+    # NAMED which should unparse to an AS clause.
     preExpressionMethods: [
       "InlineCaseSpecific"
       "InlineCaseSpecificNamedFunctionCall"
@@ -1128,6 +1132,9 @@ data: {
       "AlternativeTypeConversionLiteralOrIdentifier"
     ]
 
+    # NamedQuery needs to come before AlternativeTypeConversionQuery. Otherwise,
+    # a query such as "select foo (named 'hello')" will be parsed as a CAST call
+    # rather than NAMED which should unparse to an AS clause.
     postExpressionMethods: [
       "NamedQuery"
       "AlternativeTypeConversionQuery"

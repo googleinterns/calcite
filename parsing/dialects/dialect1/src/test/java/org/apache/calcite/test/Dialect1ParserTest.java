@@ -1746,37 +1746,37 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testAlternativeCastAttributeSimpleIdentifier() {
+  @Test void testAlternativeCastFormatAttributeSimpleIdentifier() {
     final String sql = "select foo (format 'XXX')";
     final String expected = "SELECT CAST(`FOO` AS FORMAT 'XXX')";
     sql(sql).ok(expected);
   }
 
-  @Test void testAlternativeCastAttributeCompoundIdentifier() {
+  @Test void testAlternativeCastFormatAttributeCompoundIdentifier() {
     final String sql = "select foo.bar (format 'XXX')";
     final String expected = "SELECT CAST(`FOO`.`BAR` AS FORMAT 'XXX')";
     sql(sql).ok(expected);
   }
 
-  @Test void testAlternativeCastAttributeNumericLiteral() {
+  @Test void testAlternativeCastFormatAttributeNumericLiteral() {
     final String sql = "select 12.5 (format '9.99E99')";
     final String expected = "SELECT CAST(12.5 AS FORMAT '9.99E99')";
     sql(sql).ok(expected);
   }
 
-  @Test void testAlternativeCastAttributeStringLiteral() {
+  @Test void testAlternativeCastFormatAttributeStringLiteral() {
     final String sql = "select 12.5 (format 'XXX')";
     final String expected = "SELECT CAST(12.5 AS FORMAT 'XXX')";
     sql(sql).ok(expected);
   }
 
-  @Test void testAlternativeCastAttributeDateLiteral() {
+  @Test void testAlternativeCastFormatAttributeDateLiteral() {
     final String sql = "select current_date (format 'yyyy-mm-dd')";
     final String expected = "SELECT CAST(CURRENT_DATE AS FORMAT 'yyyy-mm-dd')";
     sql(sql).ok(expected);
   }
 
-  @Test void testAlternativeCastAttributeQuery() {
+  @Test void testAlternativeCastFormatAttributeQuery() {
     final String sql = "select (select foo from bar) (format 'XXX') from baz";
     final String expected = "SELECT CAST((SELECT `FOO`\n"
         + "FROM `BAR`) AS FORMAT 'XXX')\n"

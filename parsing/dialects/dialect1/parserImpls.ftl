@@ -1537,9 +1537,15 @@ SqlNode AlternativeTypeConversionQuery(SqlNode q) :
         AlternativeTypeConversionAttributeList(args)
         [
             (
-                <COMMA> dt = DataTypeAlternativeCastSyntax() { args.add(1, dt); }
+                <COMMA> dt = DataTypeAlternativeCastSyntax()
+                {
+                    args.add(1, dt);
+                }
             |
-                <COMMA> <INTERVAL> interval = IntervalQualifier() { args.add(1, interval); }
+                <COMMA> <INTERVAL> interval = IntervalQualifier()
+                {
+                    args.add(1, interval);
+                }
             )
             [ <COMMA> AlternativeTypeConversionAttributeList(args) ]
         ]
