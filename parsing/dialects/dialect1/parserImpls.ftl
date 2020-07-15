@@ -1520,33 +1520,36 @@ void AlternativeTypeConversionAttributeList(List<SqlNode> attributes):
 SqlNode AlternativeTypeConversionQuery(SqlNode q) :
 {
     final Span s = span();
-    final List<SqlNode> args = startList(q);
-    final SqlDataTypeSpec dt;
-    final SqlNode interval;
+    List<SqlNode> args;
+    SqlDataTypeSpec dt;
+    SqlNode interval;
 }
 {
-    <LPAREN>
     (
+        <LPAREN> { args = startList(q); }
         (
-            dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
-        |
-            <INTERVAL> interval = IntervalQualifier() { args.add(interval); }
-        )
-        [ <COMMA> AlternativeTypeConversionAttributeList(args) ]
-    |
-        AlternativeTypeConversionAttributeList(args)
-        [
             (
-                <COMMA> dt = DataTypeAlternativeCastSyntax() { args.add(1, dt); }
+                dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
             |
-                <COMMA> <INTERVAL> interval = IntervalQualifier() { args.add(1, interval); }
+                <INTERVAL> interval = IntervalQualifier() { args.add(interval); }
             )
             [ <COMMA> AlternativeTypeConversionAttributeList(args) ]
-        ]
-    )
-    <RPAREN> {
-        return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
-    }
+        |
+            AlternativeTypeConversionAttributeList(args)
+            [
+                (
+                    <COMMA> dt = DataTypeAlternativeCastSyntax() { args.add(1, dt); }
+                |
+                    <COMMA> <INTERVAL> interval = IntervalQualifier() { args.add(1, interval); }
+                )
+                [ <COMMA> AlternativeTypeConversionAttributeList(args) ]
+            ]
+        )
+        <RPAREN> {
+            q = SqlStdOperatorTable.CAST.createCall(s.end(this), args);
+        }
+    )+
+    { return q; }
 }
 
 SqlNode NamedLiteralOrIdentifier() :
