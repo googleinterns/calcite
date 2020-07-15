@@ -97,17 +97,17 @@ public class SqlClobTypeNameSpec extends SqlTypeNameSpec {
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("CLOB");
     if (maxLength != null) {
-      writer.setNeedWhitespace(false);
-      writer.sep("(");
+      final SqlWriter.Frame frame =
+          writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
       maxLength.unparse(writer, 0, 0);
       if (unitSize != SqlLobUnitSize.UNSPECIFIED) {
         writer.setNeedWhitespace(false);
         writer.print(unitSize.toString());
       }
-      writer.sep(")");
+      writer.endList(frame);
     }
     if (characterSet != null) {
-      writer.keyword("CHARACTER SET " + characterSet.toString());
+      writer.keyword("CHARACTER SET " + characterSet);
     }
   }
 

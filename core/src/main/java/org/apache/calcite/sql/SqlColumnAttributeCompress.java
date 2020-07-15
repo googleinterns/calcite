@@ -23,7 +23,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public class SqlColumnAttributeCompress extends SqlColumnAttribute {
 
-  private final SqlNode value;
+  public final SqlNode value;
 
   /**
    * Creates a {@code SqlColumnAttributeCompress}.
