@@ -1549,32 +1549,6 @@ SqlNode AlternativeTypeConversionQuery(SqlNode q) :
     }
 }
 
-SqlNode InlineFormatLiteralOrIdentifier() :
-{
-     final SqlNode q;
-     final SqlNode e;
-}
-{
-    (
-        q = Literal()
-    |
-        q = CompoundIdentifier()
-    )
-    e = InlineFormatQuery(q) { return e; }
-}
-
-SqlNode InlineFormatQuery(SqlNode q) :
-{
-    final Span s = span();
-    final SqlNode format;
-}
-{
-    <LPAREN> <FORMAT> format = StringLiteral() <RPAREN>
-    {
-        return SqlStdOperatorTable.FORMAT.createCall(s.end(this), q, format);
-    }
-}
-
 SqlNode NamedLiteralOrIdentifier() :
 {
      final SqlNode q;

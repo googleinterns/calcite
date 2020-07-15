@@ -26,9 +26,6 @@ import org.apache.calcite.util.Litmus;
  * A <code>SqlColumnAttribute</code> is a base class that can be used
  * to create custom attributes for columns created by the SQL CREATE TABLE
  * function.
- *
- * <p>To customize column attribute unparsing, override the method.</p>
- * {@link #unparse(SqlWriter, int, int)}.
  */
 public abstract class SqlColumnAttribute extends SqlNode {
 
@@ -41,19 +38,19 @@ public abstract class SqlColumnAttribute extends SqlNode {
     super(pos);
   }
 
-  @Override public SqlNode clone(final SqlParserPos pos) {
+  @Override public SqlNode clone(SqlParserPos pos) {
     return null;
   }
 
-  @Override public void validate(final SqlValidator validator,
+  @Override public void validate(SqlValidator validator,
       final SqlValidatorScope scope) {
   }
 
-  @Override public <R> R accept(final SqlVisitor<R> visitor) {
+  @Override public <R> R accept(SqlVisitor<R> visitor) {
     return null;
   }
 
-  @Override public boolean equalsDeep(final SqlNode node, final Litmus litmus) {
+  @Override public boolean equalsDeep(SqlNode node, Litmus litmus) {
     return false;
   }
 }

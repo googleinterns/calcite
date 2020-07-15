@@ -1746,40 +1746,40 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testInlineFormatSimpleIdentifier() {
+  @Test void testAlternativeCastAttributeSimpleIdentifier() {
     final String sql = "select foo (format 'XXX')";
-    final String expected = "SELECT (`FOO` (FORMAT 'XXX'))";
+    final String expected = "SELECT CAST(`FOO` AS FORMAT 'XXX')";
     sql(sql).ok(expected);
   }
 
-  @Test void testInlineFormatCompoundIdentifier() {
+  @Test void testAlternativeCastAttributeCompoundIdentifier() {
     final String sql = "select foo.bar (format 'XXX')";
-    final String expected = "SELECT (`FOO`.`BAR` (FORMAT 'XXX'))";
+    final String expected = "SELECT CAST(`FOO`.`BAR` AS FORMAT 'XXX')";
     sql(sql).ok(expected);
   }
 
-  @Test void testInlineFormatNumericLiteral() {
+  @Test void testAlternativeCastAttributeNumericLiteral() {
     final String sql = "select 12.5 (format '9.99E99')";
-    final String expected = "SELECT (12.5 (FORMAT '9.99E99'))";
+    final String expected = "SELECT CAST(12.5 AS FORMAT '9.99E99')";
     sql(sql).ok(expected);
   }
 
-  @Test void testInlineFormatStringLiteral() {
+  @Test void testAlternativeCastAttributeStringLiteral() {
     final String sql = "select 12.5 (format 'XXX')";
-    final String expected = "SELECT (12.5 (FORMAT 'XXX'))";
+    final String expected = "SELECT CAST(12.5 AS FORMAT 'XXX')";
     sql(sql).ok(expected);
   }
 
-  @Test void testInlineFormatDateLiteral() {
+  @Test void testAlternativeCastAttributeDateLiteral() {
     final String sql = "select current_date (format 'yyyy-mm-dd')";
-    final String expected = "SELECT (CURRENT_DATE (FORMAT 'yyyy-mm-dd'))";
+    final String expected = "SELECT CAST(CURRENT_DATE AS FORMAT 'yyyy-mm-dd')";
     sql(sql).ok(expected);
   }
 
-  @Test void testInlineFormatQuery() {
+  @Test void testAlternativeCastAttributeQuery() {
     final String sql = "select (select foo from bar) (format 'XXX') from baz";
-    final String expected = "SELECT ((SELECT `FOO`\n"
-        + "FROM `BAR`) (FORMAT 'XXX'))\n"
+    final String expected = "SELECT CAST((SELECT `FOO`\n"
+        + "FROM `BAR`) AS FORMAT 'XXX')\n"
         + "FROM `BAZ`";
     sql(sql).ok(expected);
   }
@@ -2994,9 +2994,9 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testInlineFormatWithNamedFunction() {
+  @Test void testAlternativeCastAttributeNamedFunction() {
     final String sql = "select foo(a) (format 'X6')";
-    final String expected = "SELECT (`FOO`(`A`) (FORMAT 'X6'))";
+    final String expected = "SELECT CAST(`FOO`(`A`) AS FORMAT 'X6')";
     sql(sql).ok(expected);
   }
 
