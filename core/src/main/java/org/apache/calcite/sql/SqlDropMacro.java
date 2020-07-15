@@ -25,7 +25,7 @@ public class SqlDropMacro extends SqlDropObject {
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("DROP MACRO", SqlKind.DROP_MACRO);
 
-  /** Creates a SqlDropMacro. */
+  /** Creates a {@code SqlDropMacro}. */
   SqlDropMacro(SqlParserPos pos, boolean ifExists, SqlIdentifier name) {
     super(OPERATOR, pos, ifExists, name);
   }
