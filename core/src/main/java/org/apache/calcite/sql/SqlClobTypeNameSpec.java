@@ -84,6 +84,8 @@ public class SqlClobTypeNameSpec extends SqlTypeNameSpec {
         return false;
       }
       break;
+    default:
+      return false;
     }
     return true;
   }
