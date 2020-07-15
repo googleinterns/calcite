@@ -1910,7 +1910,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testExplicitCastWithAttributesNoDateType() {
+  @Test void testExplicitCastWithAttributesNoDataType() {
     final String sql = "select cast(foo as uppercase format 'X6' character "
         + "set unicode title 'hello' named 'hello')";
     final String expected = "SELECT CAST(`FOO` AS UPPERCASE FORMAT 'X6' "

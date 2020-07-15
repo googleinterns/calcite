@@ -1124,15 +1124,15 @@ data: {
       "InlineCaseSpecific"
       "InlineCaseSpecificNamedFunctionCall"
       "InlineModOperator"
-      "AlternativeTypeConversionLiteralOrIdentifier"
       "InlineFormatLiteralOrIdentifier"
+      "AlternativeTypeConversionLiteralOrIdentifier"
       "NamedLiteralOrIdentifier"
     ]
 
     postExpressionMethods: [
-      "AlternativeTypeConversionQuery"
-      "InlineFormatQuery"
       "NamedQuery"
+      "InlineFormatQuery"
+      "AlternativeTypeConversionQuery"
     ]
 
     dateTimeExpressionMethods: [
