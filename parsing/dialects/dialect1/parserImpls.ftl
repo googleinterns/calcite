@@ -2034,6 +2034,46 @@ int VariableBinaryTypePrecision() :
     { return precision; }
 }
 
+/**
+ * Parses LIKE ANY, LIKE ALL, and LIKE SOME statements, and appends operands
+ * to given list.
+ */
+void LikeAnyAllSome(List<Object> list, Span s) :
+{
+    final SqlOperator op;
+    final SqlKind kind;
+    boolean notLike = false;
+    SqlNodeList nodeList;
+}
+{
+    [ <NOT> { notLike = true; } ]
+    <LIKE>
+    (
+        ( <SOME> | <ANY> ) { kind = SqlKind.SOME; }
+    |
+        <ALL> { kind = SqlKind.ALL; }
+    )
+    {
+        op = SqlStdOperatorTable.like(kind, notLike);
+        s.clear().add(this);
+    }
+    nodeList = ParenthesizedQueryOrCommaList(ExprContext.ACCEPT_NONCURSOR)
+    {
+        list.add(new SqlParserUtil.ToTreeListItem(op, s.pos()));
+        s.add(nodeList);
+        if (nodeList.size() == 1) {
+            SqlNode item = nodeList.get(0);
+            if (item.isA(SqlKind.QUERY)) {
+                list.add(item);
+            } else {
+                list.add(nodeList);
+            }
+        } else {
+            list.add(nodeList);
+        }
+    }
+}
+
 SqlTypeNameSpec SqlPeriodDataType() :
 {
     final TimeScale timeScale;

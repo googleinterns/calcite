@@ -55,7 +55,9 @@ public class SqlQuantifyOperator extends SqlInOperator {
         || comparisonKind == SqlKind.LESS_THAN_OR_EQUAL
         || comparisonKind == SqlKind.LESS_THAN
         || comparisonKind == SqlKind.GREATER_THAN_OR_EQUAL
-        || comparisonKind == SqlKind.GREATER_THAN);
+        || comparisonKind == SqlKind.GREATER_THAN
+        || comparisonKind == SqlKind.LIKE
+        || comparisonKind == SqlKind.NOT_LIKE);
     Preconditions.checkArgument(kind == SqlKind.SOME
         || kind == SqlKind.ALL);
   }

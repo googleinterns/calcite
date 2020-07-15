@@ -2699,6 +2699,89 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).fails(expected);
   }
 
+  @Test public void testLikeAnySingleOption() {
+    final String sql = "select * from foo where bar like any ('a')";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`BAR` LIKE SOME ('a'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotLikeAny() {
+    final String sql = "select * from foo where bar not like any ('a')";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`BAR` NOT LIKE SOME ('a'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLikeSubquery() {
+    final String sql = "select * from foo where bar like any"
+        + " (select * from baz)";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`BAR` LIKE SOME (SELECT *\n"
+        + "FROM `BAZ`))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLikeAnyMultipleOptions() {
+    final String sql = "select * from foo where bar like any ('a', 'b')";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`BAR` LIKE SOME ('a', 'b'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLikeSomeMultipleOptions() {
+    final String sql = "select * from foo where bar like some ('a', 'b')";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`BAR` LIKE SOME ('a', 'b'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLikeAllMultipleOptions() {
+    final String sql = "select * from foo where bar like all ('a', 'b')";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`BAR` LIKE ALL ('a', 'b'))";
+    sql(sql).ok(expected);
+  }
+
+  @Override @Test public void testSome() {
+    final String sql = "select * from emp\n"
+        + "where sal > some (select comm from emp)";
+    final String expected = "SELECT *\n"
+        + "FROM `EMP`\n"
+        + "WHERE (`SAL` > SOME (SELECT `COMM`\n"
+        + "FROM `EMP`))";
+    sql(sql).ok(expected);
+
+    // ANY is a synonym for SOME
+    final String sql2 = "select * from emp\n"
+        + "where sal > any (select comm from emp)";
+    sql(sql2).ok(expected);
+
+    final String sql3 = "select * from emp\n"
+        + "where name like (select ^some^ name from emp)";
+    sql(sql3).fails("(?s).*Encountered \"some name\" at .*");
+
+    final String sql4 = "select * from emp\n"
+        + "where name like some (select name from emp)";
+    final String expected4 = "SELECT *\n"
+        + "FROM `EMP`\n"
+        + "WHERE (`NAME` LIKE SOME (SELECT `NAME`\n"
+        +  "FROM `EMP`))";
+    sql(sql4).ok(expected4);
+
+    final String sql5 = "select * from emp where empno = any (10,20)";
+    final String expected5 = "SELECT *\n"
+        + "FROM `EMP`\n"
+        + "WHERE (`EMPNO` = SOME (10, 20))";
+    sql(sql5).ok(expected5);
+  }
+
   @Test public void testPeriodTypeNameSpecDate() {
     final String sql = "create table foo (a period(date))";
     final String expected = "CREATE TABLE `FOO` (`A` PERIOD(DATE))";

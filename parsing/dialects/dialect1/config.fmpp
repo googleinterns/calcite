@@ -74,6 +74,7 @@ data: {
       "org.apache.calcite.sql.SqlIndex",
       "org.apache.calcite.sql.SqlJsonTypeNameSpec",
       "org.apache.calcite.sql.SqlJsonTypeNameSpec.StorageFormat",
+      "org.apache.calcite.sql.SqlKind"
       "org.apache.calcite.sql.SqlLobUnitSize",
       "org.apache.calcite.sql.SqlNumberTypeNameSpec",
       "org.apache.calcite.sql.SqlPeriodTypeNameSpec",
@@ -1157,6 +1158,7 @@ data: {
     includeExceptExpression: false
     includeHostVariables: true
     includeInsertWithOmittedValues: true
+    includeLikeAnyAllSome: true
     includePosixOperators: true
     includePostExpressionMethodsAfterFunction: true
     includeQualifyClause: true

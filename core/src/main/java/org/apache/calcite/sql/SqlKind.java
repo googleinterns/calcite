@@ -432,6 +432,11 @@ public enum SqlKind {
   LIKE,
 
   /**
+   * Negation of the "LIKE" operator.
+   */
+  NOT_LIKE("NOT LIKE"),
+
+  /**
    * The "SIMILAR" operator.
    */
   SIMILAR,

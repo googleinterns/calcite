@@ -486,6 +486,7 @@ data: {
     includeExceptExpression: true
     includeHostVariables: false
     includeInsertWithOmittedValues: false
+    includeLikeAnyAllSome: false
     includePosixOperators: false
     includePostExpressionMethodsAfterFunction: false
     includeQualifyClause: false
