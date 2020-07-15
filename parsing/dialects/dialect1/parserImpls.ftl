@@ -2034,6 +2034,38 @@ int VariableBinaryTypePrecision() :
     { return precision; }
 }
 
+SqlTypeNameSpec SqlPeriodDataType() :
+{
+    final TimeScale timeScale;
+    SqlNumericLiteral precision = null;
+    boolean isWithTimezone = false;
+}
+{
+    <PERIOD> <LPAREN>
+    (
+        <DATE> { timeScale = TimeScale.DATE; }
+    |
+        (
+            <TIME> { timeScale = TimeScale.TIME; }
+        |
+            <TIMESTAMP> { timeScale = TimeScale.TIMESTAMP; }
+        )
+        [
+            <LPAREN>
+            precision = UnsignedNumericLiteral()
+            <RPAREN>
+        ]
+        [
+            <WITH> <TIME> <ZONE> { isWithTimezone = true; }
+        ]
+    )
+    <RPAREN>
+    {
+        return new SqlPeriodTypeNameSpec(timeScale, precision, isWithTimezone,
+            getPos());
+    }
+}
+
 SqlBlobTypeNameSpec BlobDataType() :
 {
     SqlLiteral maxLength = null;

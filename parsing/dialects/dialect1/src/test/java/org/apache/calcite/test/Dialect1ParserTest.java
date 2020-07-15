@@ -2699,6 +2699,74 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).fails(expected);
   }
 
+  @Test public void testPeriodTypeNameSpecDate() {
+    final String sql = "create table foo (a period(date))";
+    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(DATE))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecTime() {
+    final String sql = "create table foo (a period(time))";
+    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(TIME))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecTimeWithPrecision() {
+    final String sql = "create table foo (a period(time(2)))";
+    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(TIME(2)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecTimeWithTimezone() {
+    final String sql = "create table foo (a period(time with time zone))";
+    final String expected =
+        "CREATE TABLE `FOO` (`A` PERIOD(TIME WITH TIME ZONE))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecTimeWithPrecisionWithTimezone() {
+    final String sql = "create table foo (a period(time(2) with time zone))";
+    final String expected =
+        "CREATE TABLE `FOO` (`A` PERIOD(TIME(2) WITH TIME ZONE))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecTimeStamp() {
+    final String sql = "create table foo (a period(timestamp))";
+    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(TIMESTAMP))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecTimeStampWithPrecision() {
+    final String sql = "create table foo (a period(timestamp(0)))";
+    final String expected = "CREATE TABLE `FOO` (`A` PERIOD(TIMESTAMP(0)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecDateWithPrecisionFails() {
+    final String sql = "create table foo (a period(date^(^0)))";
+    final String expected = "(?s).*Encountered \"\\(\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecDateWithTimezoneFails() {
+    final String sql = "create table foo (a period(date ^with^ time zone))";
+    final String expected = "(?s).*Encountered \"with\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecPrecisionOutOfRangeFails() {
+    final String sql = "create table foo (a period(timestamp(7)^)^)";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testPeriodTypeNameSpecNegativePrecisionFails() {
+    final String sql = "create table foo (a period(time^(^-1)))";
+    final String expected = "(?s).*Encountered \"\\( -\" at .*";
+    sql(sql).fails(expected);
+  }
+
   @Test public void testNumberDataType() {
     final String sql = "create table foo (bar number)";
     final String expected = "CREATE TABLE `FOO` (`BAR` NUMBER)";

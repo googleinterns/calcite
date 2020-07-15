@@ -76,6 +76,8 @@ data: {
       "org.apache.calcite.sql.SqlJsonTypeNameSpec.StorageFormat",
       "org.apache.calcite.sql.SqlLobUnitSize",
       "org.apache.calcite.sql.SqlNumberTypeNameSpec",
+      "org.apache.calcite.sql.SqlPeriodTypeNameSpec",
+      "org.apache.calcite.sql.SqlPeriodTypeNameSpec.TimeScale",
       "org.apache.calcite.sql.SqlPrimaryIndex",
       "org.apache.calcite.sql.SqlRenameTable",
       "org.apache.calcite.sql.SqlRenameTable.RenameOption",
@@ -1036,6 +1038,7 @@ data: {
       "ByteIntType()"
       "NumberDataType()"
       "SqlJsonDataType()"
+      "SqlPeriodDataType()"
       "VarbyteDataType()"
     ]
 
