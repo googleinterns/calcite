@@ -1554,7 +1554,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testMergeInto() {
+  @Test public void testMergeIntoSimpleIdentifier() {
     final String sql = "merge into t1 a using t2 b on a.x = b.x when matched then "
         + "update set y = b.y when not matched then insert (x,y) values (b.x, b.y)";
     final String expected = "MERGE INTO `T1` AS `A`\n"
@@ -1562,6 +1562,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "ON (`A`.`X` = `B`.`X`)\n"
         + "WHEN MATCHED THEN UPDATE SET `Y` = `B`.`Y`\n"
         + "WHEN NOT MATCHED THEN INSERT (`X`, `Y`) (VALUES (ROW(`B`.`X`, `B`.`Y`)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testMergeIntoCompoundIdentifier() {
+    final String sql = "merge into t1 a using t2 b on a.x = b.x when matched then "
+        + "update set y = b.y when not matched then insert (x.w, y.z) values (b.x.w, b.y.z)";
+    final String expected = "MERGE INTO `T1` AS `A`\n"
+        + "USING `T2` AS `B`\n"
+        + "ON (`A`.`X` = `B`.`X`)\n"
+        + "WHEN MATCHED THEN UPDATE SET `Y` = `B`.`Y`\n"
+        + "WHEN NOT MATCHED THEN INSERT (`X`.`W`, `Y`.`Z`) "
+        + "(VALUES (ROW(`B`.`X`.`W`, `B`.`Y`.`Z`)))";
     sql(sql).ok(expected);
   }
 

@@ -1855,9 +1855,10 @@ SqlInsert WhenNotMatchedClause(SqlNode table) :
     final Span insertSpan, valuesSpan;
     final List<SqlLiteral> keywords = new ArrayList<SqlLiteral>();
     final SqlNodeList keywordList;
+    final Pair<SqlNodeList, SqlNodeList> nameAndTypePair;
     SqlNodeList insertColumnList = null;
-    SqlNode rowConstructor;
-    SqlNode insertValues;
+    final SqlNode rowConstructor;
+    final SqlNode insertValues;
 }
 {
     <WHEN> <NOT> <MATCHED> <THEN> <INSERT> {
@@ -1868,7 +1869,8 @@ SqlInsert WhenNotMatchedClause(SqlNode table) :
     }
     [
         LOOKAHEAD(2)
-        insertColumnList = ParenthesizedSimpleIdentifierList()
+        nameAndTypePair = ParenthesizedCompoundIdentifierList()
+        { insertColumnList = nameAndTypePair.getKey(); }
     ]
     [ <LPAREN> ]
     <VALUES> { valuesSpan = span(); }
