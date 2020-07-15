@@ -4107,9 +4107,9 @@ SqlNode SqlUpsert() :
 /**
  * Parses a RENAME statement
  */
-SqlNode SqlRename() :
+SqlRename SqlRename() :
 {
-    SqlNode source;
+    SqlRename source;
 }
 {
     <RENAME>

@@ -18,57 +18,20 @@ package org.apache.calcite.sql;
 
 import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.util.ImmutableNullableList;
-
-import java.util.List;
 
 /**
  * Parse tree for {@code RENAME TABLE} statement.
  */
-public class SqlRenameTable extends SqlCall implements SqlExecutableStatement {
+public class SqlRenameTable extends SqlRename implements SqlExecutableStatement {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("RENAME TABLE", SqlKind.RENAME_TABLE);
-
-  private final SqlIdentifier targetTable;
-  private final SqlIdentifier sourceTable;
-  private final RenameOption renameOption;
 
   /** Creates a SqlRename. */
   public SqlRenameTable(SqlParserPos pos, SqlIdentifier targetTable,
       SqlIdentifier sourceTable, RenameOption renameOption) {
-    super(pos);
-    this.targetTable = targetTable;
-    this.sourceTable = sourceTable;
-    this.renameOption = renameOption;
-  }
-
-  @Override public SqlOperator getOperator() {
-    return OPERATOR;
-  }
-
-  @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(targetTable, sourceTable);
-  }
-
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.keyword("RENAME TABLE");
-    targetTable.unparse(writer, leftPrec, rightPrec);
-    writer.keyword(renameOption.toString());
-    sourceTable.unparse(writer, leftPrec, rightPrec);
+    super(OPERATOR, pos, targetTable, sourceTable, renameOption);
   }
 
   // Intentionally left empty.
   @Override public void execute(CalcitePrepare.Context context) {}
-
-  public enum RenameOption {
-    /**
-     * Query used the TO keyword.
-     */
-    TO,
-
-    /**
-     * Query used the AS keyword.
-     */
-    AS
-  }
 }

@@ -1456,7 +1456,7 @@ SqlDataTypeSpec DataTypeAlternativeCastSyntax() :
     }
 }
 
-SqlRenameTable SqlRenameTable() :
+SqlRename SqlRenameTable() :
 {
     SqlIdentifier targetTable;
     SqlIdentifier sourceTable;
