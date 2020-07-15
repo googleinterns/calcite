@@ -2857,6 +2857,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testCreateTableAliasTableFails() {
+    final String sql = "^ct^ table foo (bar integer)";
+    final String expected = "(?s).*Encountered \"ct table\" at.*";
+    sql(sql).fails(expected);
+  }
+
   @Test void testCreateTableAliasOrReplaceFails() {
     final String sql = "ct or ^replace^ foo (bar integer)";
     final String expected = "(?s).*Encountered \"replace\" at.*";
