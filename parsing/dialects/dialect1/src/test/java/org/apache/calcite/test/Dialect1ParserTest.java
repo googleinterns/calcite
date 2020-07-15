@@ -3203,4 +3203,10 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "(?s).*Encountered \"ct volatile\" at.*";
     sql(sql).fails(expected);
   }
+
+  @Test public void testDropMacro() {
+    final String sql = "drop macro foo";
+    final String expected = "DROP MACRO `FOO`";
+    sql(sql).ok(expected);
+  }
 }
