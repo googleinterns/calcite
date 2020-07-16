@@ -2308,7 +2308,7 @@ SqlCreateJoinIndex SqlCreateJoinIndex() :
     [
         index = SqlCreateTableIndex(s) { indices.add(index); }
         (
-           [<COMMA>] index = SqlCreateTableIndex(s) { indices.add(index); }
+           [ <COMMA> ] index = SqlCreateTableIndex(s) { indices.add(index); }
         )*
     ]
     {

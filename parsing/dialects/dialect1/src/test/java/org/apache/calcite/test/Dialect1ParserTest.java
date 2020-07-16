@@ -3282,7 +3282,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testCreateJoinIndexIndexList() {
+  @Test public void testCreateJoinIndexIndicesList() {
     final String sql = "create join index foo as select bar, baz from qux "
         + "primary index (bar), no primary index index (bar, baz)";
     final String expected = "CREATE JOIN INDEX `FOO` AS SELECT `BAR`, "
