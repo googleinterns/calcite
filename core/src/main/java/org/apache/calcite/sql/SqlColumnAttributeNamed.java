@@ -17,40 +17,31 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.sql.util.SqlVisitor;
-import org.apache.calcite.sql.validate.SqlValidator;
-import org.apache.calcite.sql.validate.SqlValidatorScope;
-import org.apache.calcite.util.Litmus;
+
+import java.util.Objects;
 
 /**
- * A <code>SqlColumnAttribute</code> is a base class that can be used
- * to create custom attributes for columns created by the SQL CREATE TABLE
- * function.
+ * A {@code SqlColumnAttributeNamed} is the NAMED column attribute for a data
+ * type.
  */
-public abstract class SqlColumnAttribute extends SqlNode {
+public class SqlColumnAttributeNamed extends SqlColumnAttribute {
+
+  public final SqlNode namedString;
 
   /**
-   * Creates a {@code SqlColumnAttribute}.
+   * Creates a {@code SqlColumnAttributeNamed}.
    *
    * @param pos  Parser position, must not be null
+   * @param namedString String after the NAMED keyword
    */
-  protected SqlColumnAttribute(SqlParserPos pos) {
+  public SqlColumnAttributeNamed(SqlParserPos pos, SqlNode namedString) {
     super(pos);
+    this.namedString = Objects.requireNonNull(namedString);
   }
 
-  @Override public SqlNode clone(SqlParserPos pos) {
-    return null;
-  }
-
-  @Override public void validate(SqlValidator validator,
-      final SqlValidatorScope scope) {
-  }
-
-  @Override public <R> R accept(SqlVisitor<R> visitor) {
-    return null;
-  }
-
-  @Override public boolean equalsDeep(SqlNode node, Litmus litmus) {
-    return false;
+  @Override public void unparse(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
+    writer.keyword("NAMED");
+    namedString.unparse(writer, 0, 0);
   }
 }

@@ -54,6 +54,7 @@ data: {
       "org.apache.calcite.sql.SqlColumnAttributeGeneratedMinValue",
       "org.apache.calcite.sql.SqlColumnAttributeGeneratedOption",
       "org.apache.calcite.sql.SqlColumnAttributeGeneratedStartWith",
+      "org.apache.calcite.sql.SqlColumnAttributeNamed",
       "org.apache.calcite.sql.SqlColumnAttributeTitle",
       "org.apache.calcite.sql.SqlColumnAttributeUpperCase",
       "org.apache.calcite.sql.SqlCreate",
@@ -1122,19 +1123,24 @@ data: {
     extraBinaryExpressions: [
     ]
 
+    # NamedLiteralOrIdentifier needs to come before
+    # AlternativeTypeConversionLiteralOrIdentifier. Otherwise, a query such as
+    # "select foo (named 'hello')" will be parsed as a CAST call rather than
+    # NAMED which should unparse to an AS clause.
     preExpressionMethods: [
       "InlineCaseSpecific"
       "InlineCaseSpecificNamedFunctionCall"
       "InlineModOperator"
-      "AlternativeTypeConversionLiteralOrIdentifier"
-      "InlineFormatLiteralOrIdentifier"
       "NamedLiteralOrIdentifier"
+      "AlternativeTypeConversionLiteralOrIdentifier"
     ]
 
+    # NamedQuery needs to come before AlternativeTypeConversionQuery. Otherwise,
+    # a query such as "select foo (named 'hello')" will be parsed as a CAST call
+    # rather than NAMED which should unparse to an AS clause.
     postExpressionMethods: [
-      "AlternativeTypeConversionQuery"
-      "InlineFormatQuery"
       "NamedQuery"
+      "AlternativeTypeConversionQuery"
     ]
 
     dateTimeExpressionMethods: [
@@ -1159,7 +1165,7 @@ data: {
     allowUpsertFormOfUpdate: true
     includeAdditionalDeclarations: false
     includeBraces: true
-    includeCastFormat: true
+    includeCastDataAttributes: true
     includeCompoundIdentifier: true
     includeExceptExpression: false
     includeHostVariables: true
