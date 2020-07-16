@@ -3241,7 +3241,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "VALUES (ROW(:DOB)); SELECT *\n"
         + "FROM `BAR`\n"
         + "WHERE (`DOB` = :DOB);)";
+    sql(sql).ok(expected);
+  }
 
+  @Test public void testCreateMacroUpdateAndSelectStatements() {
+    final String sql = "create macro foo (num int default 99, val varchar"
+        + " not null) as (update bar set num = :num where val = :val;"
+        + " select * from bar where num = :num)";
+    final String expected = "CREATE MACRO `FOO` (`NUM` INTEGER DEFAULT 99, `VAL`"
+        + " VARCHAR NOT NULL) AS (UPDATE `BAR` SET `NUM` = :NUM\n"
+        + "WHERE (`VAL` = :VAL); SELECT *\n"
+        + "FROM `BAR`\n"
+        + "WHERE (`NUM` = :NUM);)";
     sql(sql).ok(expected);
   }
 }

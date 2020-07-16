@@ -67,8 +67,9 @@ public class SqlCreateMacro extends SqlCreate implements SqlExecutableStatement 
     final SqlWriter.Frame frame =
         writer.startList(SqlWriter.FrameTypeEnum.CREATE_MACRO, "(", ")");
     for (SqlNode s : sqlStatements) {
-      writer.sep(";", false);
       s.unparse(writer, 0, 0);
+      writer.setNeedWhitespace(false);
+      writer.sep(";");
     }
     writer.endList(frame);
   }
