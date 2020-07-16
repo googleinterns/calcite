@@ -2266,7 +2266,6 @@ List<SqlTableAttribute> CreateJoinIndexTableAttributes() :
 {
     final List<SqlTableAttribute> list = new ArrayList<SqlTableAttribute>();
     SqlTableAttribute e;
-    Span s;
 }
 {
     (
@@ -2306,7 +2305,12 @@ SqlCreateJoinIndex SqlCreateJoinIndex() :
     where = WhereOpt()
     groupBy = GroupByOpt()
     [ orderBy = OrderBy(true) ]
-    ( [<COMMA>] index = SqlCreateTableIndex(s) { indices.add(index); } )*
+    [
+        index = SqlCreateTableIndex(s) { indices.add(index); }
+        (
+           [<COMMA>] index = SqlCreateTableIndex(s) { indices.add(index); }
+        )*
+    ]
     {
         return new SqlCreateJoinIndex(s.end(this), name, tableAttributes,
             new SqlNodeList(select, Span.of(select).pos()), from, where,
