@@ -1124,7 +1124,6 @@ data: {
 
     preExpressionMethods: [
       "InlineCaseSpecific"
-      "InlineCaseSpecificNamedFunctionCall"
       "InlineModOperator"
       "AlternativeTypeConversionLiteralOrIdentifier"
       "InlineFormatLiteralOrIdentifier"
@@ -1135,6 +1134,13 @@ data: {
       "AlternativeTypeConversionQuery"
       "InlineFormatQuery"
       "NamedQuery"
+    ]
+
+    postNamedFunctionCallMethods: [
+      "AlternativeTypeConversionQuery"
+      "InlineFormatQuery"
+      "NamedQuery"
+      "CaseSpecific"
     ]
 
     dateTimeExpressionMethods: [
@@ -1166,7 +1172,6 @@ data: {
     includeInsertWithOmittedValues: true
     includeLikeAnyAllSome: true
     includePosixOperators: true
-    includePostExpressionMethodsAfterFunction: true
     includeQualifyClause: true
     includeRankWithSortingExpressions: true
     includeSubstrKeyword: true
