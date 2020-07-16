@@ -1306,7 +1306,7 @@ SqlNode InlineModOperator() :
     (
         e = NumericLiteral()
     |
-        e = SimpleIdentifier()
+        e = CompoundIdentifier()
     )
     {
         s = span();
@@ -1318,7 +1318,7 @@ SqlNode InlineModOperator() :
     (
         e = NumericLiteral()
     |
-        e = SimpleIdentifier()
+        e = CompoundIdentifier()
     )
     {
         args.add(e);
