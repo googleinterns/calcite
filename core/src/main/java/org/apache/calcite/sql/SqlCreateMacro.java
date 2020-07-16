@@ -30,9 +30,9 @@ public class SqlCreateMacro extends SqlCreate implements SqlExecutableStatement 
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("CREATE MACRO", SqlKind.CREATE_MACRO);
 
-  private final SqlIdentifier macroName;
-  private final SqlNodeList attributes;
-  private final SqlNodeList sqlStatements;
+  public final SqlIdentifier macroName;
+  public final SqlNodeList attributes;
+  public final SqlNodeList sqlStatements;
 
   /** Creates a {@code SqlCreateMacro}. */
   public SqlCreateMacro(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
