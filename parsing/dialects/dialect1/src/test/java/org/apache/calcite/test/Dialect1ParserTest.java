@@ -3267,26 +3267,26 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   }
 
   @Test public void testCreateJoinIndexGroupByClause() {
-    final String sql = "create join index foo as select (bar, sum(baz)) from "
+    final String sql = "create join index foo as select bar, sum(baz) from "
         + "qux group by bar";
-    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT (ROW(`BAR`, "
-        + "SUM(`BAZ`))) FROM `QUX` GROUP BY `BAR`";
+    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT `BAR`, "
+        + "SUM(`BAZ`) FROM `QUX` GROUP BY `BAR`";
     sql(sql).ok(expected);
   }
 
   @Test public void testCreateJoinIndexOrderByClause() {
-    final String sql = "create join index foo as select (bar, sum(baz)) from "
+    final String sql = "create join index foo as select bar, sum(baz) from "
         + "qux order by bar";
-    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT (ROW(`BAR`, "
-        + "SUM(`BAZ`))) FROM `QUX` ORDER BY `BAR`";
+    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT `BAR`, "
+        + "SUM(`BAZ`) FROM `QUX` ORDER BY `BAR`";
     sql(sql).ok(expected);
   }
 
   @Test public void testCreateJoinIndexIndexList() {
-    final String sql = "create join index foo as select (bar, baz) from qux "
+    final String sql = "create join index foo as select bar, baz from qux "
         + "primary index (bar), no primary index index (bar, baz)";
-    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT (ROW(`BAR`, "
-        + "`BAZ`)) FROM `QUX` PRIMARY INDEX (`BAR`), NO PRIMARY INDEX, INDEX "
+    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT `BAR`, "
+        + "`BAZ` FROM `QUX` PRIMARY INDEX (`BAR`), NO PRIMARY INDEX, INDEX "
         + "(`BAR`, `BAZ`)";
     sql(sql).ok(expected);
   }

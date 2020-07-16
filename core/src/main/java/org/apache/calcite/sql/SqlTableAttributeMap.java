@@ -25,21 +25,29 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 public class SqlTableAttributeMap extends SqlTableAttribute {
 
   private final SqlIdentifier mapName;
+  private final SqlIdentifier colocateName;
 
   /**
    * Creates a {@code SqlTableAttributeMap}.
    *
    * @param mapName  Name of an existing contiguous map
+   * @param colocateName  Name of colocation, may be null
    * @param pos  Parser position, must not be null
    */
-  public SqlTableAttributeMap(SqlIdentifier mapName, SqlParserPos pos) {
+  public SqlTableAttributeMap(SqlIdentifier mapName, SqlIdentifier colocateName,
+      SqlParserPos pos) {
     super(pos);
     this.mapName = mapName;
+    this.colocateName = colocateName;
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
     writer.keyword("MAP");
     writer.sep("=");
     mapName.unparse(writer, 0, 0);
+    if (colocateName != null) {
+      writer.keyword("COLOCATE USING");
+      colocateName.unparse(writer, 0, 0);
+    }
   }
 }

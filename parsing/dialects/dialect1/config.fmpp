@@ -126,6 +126,7 @@ data: {
       "BYTES"
       "CASESPECIFIC"
       "CHECKSUM"
+      "COLOCATE"
       "COMPRESS"
       "CONCURRENT"
       "CS"

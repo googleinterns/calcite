@@ -517,10 +517,12 @@ SqlTableAttribute TableAttributeJournalTable() :
 SqlTableAttribute TableAttributeMap() :
 {
     final SqlIdentifier id;
+    SqlIdentifier colocateName = null;
 }
 {
     <MAP> <EQ> id = CompoundIdentifier()
-    { return new SqlTableAttributeMap(id, getPos()); }
+    [ <COLOCATE> <USING> colocateName = SimpleIdentifier() ]
+    { return new SqlTableAttributeMap(id, colocateName, getPos()); }
 }
 
 // FREESPACE attribute can take in decimals but should be truncated to an integer.
