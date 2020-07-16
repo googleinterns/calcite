@@ -30,13 +30,16 @@ public class SqlCreateMacro extends SqlCreate implements SqlExecutableStatement 
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("CREATE MACRO", SqlKind.CREATE_MACRO);
 
+  private final SqlIdentifier macroName;
   private final SqlNodeList attributes;
   private final SqlNodeList sqlStatements;
 
   /** Creates a {@code SqlCreateMacro}. */
   public SqlCreateMacro(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
-      boolean ifNotExists, SqlNodeList attributes, SqlNodeList sqlStatements) {
-    super(OPERATOR, pos, createSpecifier, ifNotExists);
+      SqlIdentifier macroName, SqlNodeList attributes,
+      SqlNodeList sqlStatements) {
+    super(OPERATOR, pos, createSpecifier, false);
+    this.macroName = Objects.requireNonNull(macroName);
     this.attributes = attributes; // May be null.
     this.sqlStatements = Objects.requireNonNull(sqlStatements);
   }
@@ -48,6 +51,7 @@ public class SqlCreateMacro extends SqlCreate implements SqlExecutableStatement 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword(getCreateSpecifier().toString());
     writer.keyword("MACRO");
+    macroName.unparse(writer, leftPrec, rightPrec);
     if (attributes != null) {
       SqlWriter.Frame frame = writer.startList("(", ")");
       for (SqlNode a : attributes) {
@@ -57,9 +61,13 @@ public class SqlCreateMacro extends SqlCreate implements SqlExecutableStatement 
       writer.endList(frame);
     }
     writer.keyword("AS");
-    SqlWriter.Frame frame = writer.startList("(", ")");
+
+    // Custom FrameType.CREATE_MACRO required to avoid SELECT statements
+    // being treated as sub queries and being unparsed with parentheses.
+    final SqlWriter.Frame frame =
+        writer.startList(SqlWriter.FrameTypeEnum.CREATE_MACRO, "(", ")");
     for (SqlNode s : sqlStatements) {
-      writer.sep(";");
+      writer.sep(";", false);
       s.unparse(writer, 0, 0);
     }
     writer.endList(frame);
