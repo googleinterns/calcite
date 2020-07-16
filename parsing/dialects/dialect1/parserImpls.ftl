@@ -1593,7 +1593,10 @@ SqlNode AlternativeTypeConversionQuery(SqlNode q) :
             (
                 dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
             |
-                <INTERVAL> interval = IntervalQualifier() { args.add(interval); }
+                <INTERVAL> interval = IntervalQualifier()
+                {
+                    args.add(interval);
+                }
             )
             [ <COMMA> AlternativeTypeConversionAttributeList(args) ]
         |
