@@ -170,6 +170,11 @@ public enum SqlKind {
   RENAME_TABLE,
 
   /**
+   * RENAME_MACRO statement.
+   */
+  RENAME_MACRO,
+
+  /**
    * "ALTER scope SET option = value" statement.
    */
   SET_OPTION,
@@ -1100,6 +1105,9 @@ public enum SqlKind {
 
   /** {@code DROP TABLE} DDL statement. */
   DROP_TABLE,
+
+  /** {@code DROP MACRO} DDL statement. */
+  DROP_MACRO,
 
   /** {@code CREATE VIEW} DDL statement. */
   CREATE_VIEW,

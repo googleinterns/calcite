@@ -147,6 +147,12 @@ public class SqlDdlNodes {
     return new SqlDropFunction(pos, ifExists, name);
   }
 
+  /** Creates a DROP MACRO. */
+  public static SqlDropMacro dropMacro(SqlParserPos pos, boolean ifExists,
+      SqlIdentifier name) {
+    return new SqlDropMacro(pos, ifExists, name);
+  }
+
   /** Creates a column declaration. */
   public static SqlNode column(SqlParserPos pos, SqlIdentifier name,
       SqlDataTypeSpec dataType, SqlNode expression, ColumnStrategy strategy) {

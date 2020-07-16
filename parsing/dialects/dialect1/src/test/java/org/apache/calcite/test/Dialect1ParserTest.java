@@ -108,6 +108,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testDeleteWithoutFrom() {
+    final String sql = "delete t";
+    final String expected = "DELETE FROM `T`";
+    sql(sql).ok(expected);
+  }
+
   @Test void testYearIsNotReserved() {
     final String sql = "select 1 as year from t";
     final String expected = "SELECT 1 AS `YEAR`\n"
@@ -758,6 +764,32 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "timestamp '2006-11-23 15:30:23', timestamp '2006-11-23 15:30:24'))";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER COMPRESS ("
         + "TIMESTAMP '2006-11-23 15:30:23', TIMESTAMP '2006-11-23 15:30:24'))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableCompressWithStringLiteralColumnLevelAttribute() {
+    final String sql = "create table foo (bar char(3) compress 'xyz')";
+    final String expected = "CREATE TABLE `FOO` (`BAR` CHAR(3) COMPRESS 'xyz')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableCompressWithNumericLiteralColumnLevelAttribute() {
+    final String sql = "create table foo (bar integer compress 3)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER COMPRESS 3)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableCompressWithNullColumnLevelAttribute() {
+    final String sql = "create table foo (bar integer compress (NULL))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER COMPRESS (NULL))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableCompressWithMixedTypesColumnLevelAttribute() {
+    final String sql = "create table foo (bar integer compress (1, 'x', "
+        + "DATE '1972-02-28'))";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER COMPRESS (1, 'x',"
+        + " DATE '1972-02-28'))";
     sql(sql).ok(expected);
   }
 
@@ -1496,9 +1528,15 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testInlineModSyntaxIdentifier() {
+  @Test public void testInlineModSyntaxSimpleIdentifiers() {
     final String sql = "select foo mod bar";
     final String expected = "SELECT MOD(`FOO`, `BAR`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInlineModSyntaxCompoundIdentifiers() {
+    final String sql = "select foo.bar mod baz.qux";
+    final String expected = "SELECT MOD(`FOO`.`BAR`, `BAZ`.`QUX`)";
     sql(sql).ok(expected);
   }
 
@@ -1730,7 +1768,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testRenameTableWithTo() {
     final String sql = "rename table foo to bar";
-    final String expected = "RENAME TABLE `FOO` TO `BAR`";
+    final String expected = "RENAME TABLE `FOO` AS `BAR`";
     sql(sql).ok(expected);
   }
 
@@ -1746,37 +1784,55 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testAlternativeCastAttributeSimpleIdentifier() {
+  @Test public void testRenameMacroWithTo() {
+    final String sql = "rename macro foo to bar";
+    final String expected = "RENAME MACRO `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameMacroWithAs() {
+    final String sql = "rename macro foo as bar";
+    final String expected = "RENAME MACRO `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameMacroWithCompoundIdentifiers() {
+    final String sql = "rename macro foo.bar as bar.foo";
+    final String expected = "RENAME MACRO `FOO`.`BAR` AS `BAR`.`FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeCastFormatAttributeSimpleIdentifier() {
     final String sql = "select foo (format 'XXX')";
     final String expected = "SELECT CAST(`FOO` AS FORMAT 'XXX')";
     sql(sql).ok(expected);
   }
 
-  @Test void testAlternativeCastAttributeCompoundIdentifier() {
+  @Test void testAlternativeCastFormatAttributeCompoundIdentifier() {
     final String sql = "select foo.bar (format 'XXX')";
     final String expected = "SELECT CAST(`FOO`.`BAR` AS FORMAT 'XXX')";
     sql(sql).ok(expected);
   }
 
-  @Test void testAlternativeCastAttributeNumericLiteral() {
+  @Test void testAlternativeCastFormatAttributeNumericLiteral() {
     final String sql = "select 12.5 (format '9.99E99')";
     final String expected = "SELECT CAST(12.5 AS FORMAT '9.99E99')";
     sql(sql).ok(expected);
   }
 
-  @Test void testAlternativeCastAttributeStringLiteral() {
+  @Test void testAlternativeCastFormatAttributeStringLiteral() {
     final String sql = "select 12.5 (format 'XXX')";
     final String expected = "SELECT CAST(12.5 AS FORMAT 'XXX')";
     sql(sql).ok(expected);
   }
 
-  @Test void testAlternativeCastAttributeDateLiteral() {
+  @Test void testAlternativeCastFormatAttributeDateLiteral() {
     final String sql = "select current_date (format 'yyyy-mm-dd')";
     final String expected = "SELECT CAST(CURRENT_DATE AS FORMAT 'yyyy-mm-dd')";
     sql(sql).ok(expected);
   }
 
-  @Test void testAlternativeCastAttributeQuery() {
+  @Test void testAlternativeCastFormatAttributeQuery() {
     final String sql = "select (select foo from bar) (format 'XXX') from baz";
     final String expected = "SELECT CAST((SELECT `FOO`\n"
         + "FROM `BAR`) AS FORMAT 'XXX')\n"
@@ -3255,5 +3311,11 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "^ct^ volatile foo (bar integer)";
     final String expected = "(?s).*Encountered \"ct volatile\" at.*";
     sql(sql).fails(expected);
+  }
+
+  @Test public void testDropMacro() {
+    final String sql = "drop macro foo";
+    final String expected = "DROP MACRO `FOO`";
+    sql(sql).ok(expected);
   }
 }

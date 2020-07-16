@@ -384,13 +384,58 @@ SqlColumnAttribute ColumnAttributeUpperCase() :
 
 SqlColumnAttribute ColumnAttributeCompress() :
 {
-    SqlNodeList values = null;
+    SqlNode value = null;
 }
 {
     <COMPRESS>
-    [ values = ParenthesizedQueryOrCommaList(ExprContext.ACCEPT_NONCURSOR) ]
+    [
+        value = StringLiteral()
+    |
+        value = NumericLiteral()
+    |
+        value = ParenthesizedCompressCommaList()
+    ]
     {
-        return new SqlColumnAttributeCompress(getPos(), values);
+        return new SqlColumnAttributeCompress(getPos(), value);
+    }
+}
+
+SqlNodeList ParenthesizedCompressCommaList() :
+{
+    final List<SqlNode> values = new ArrayList<SqlNode>();
+    SqlNode value = null;
+}
+{
+    <LPAREN>
+    value = CompressOption() { values.add(value); }
+    (
+        <COMMA>
+        value = CompressOption() { values.add(value); }
+    )*
+    <RPAREN>
+    {
+        return new SqlNodeList(values, getPos());
+    }
+}
+
+SqlNode CompressOption() :
+{
+    SqlNode value;
+}
+{
+    (
+        value = StringLiteral()
+    |
+        value = NumericLiteral()
+    |
+        value = DateTimeLiteral()
+    |
+        <NULL> {
+            value = SqlLiteral.createNull(getPos());
+        }
+    )
+    {
+        return value;
     }
 }
 
@@ -1273,7 +1318,7 @@ SqlNode InlineModOperator() :
     (
         e = NumericLiteral()
     |
-        e = SimpleIdentifier()
+        e = CompoundIdentifier()
     )
     {
         s = span();
@@ -1285,7 +1330,7 @@ SqlNode InlineModOperator() :
     (
         e = NumericLiteral()
     |
-        e = SimpleIdentifier()
+        e = CompoundIdentifier()
     )
     {
         args.add(e);
@@ -1425,22 +1470,39 @@ SqlDataTypeSpec DataTypeAlternativeCastSyntax() :
 
 SqlRenameTable SqlRenameTable() :
 {
-    SqlIdentifier targetTable;
-    SqlIdentifier sourceTable;
-    RenameOption renameOption;
+    final SqlIdentifier oldTable;
+    final SqlIdentifier newTable;
 }
 {
     <TABLE>
-    targetTable = CompoundIdentifier()
+    oldTable = CompoundIdentifier()
     (
-        <TO> { renameOption = RenameOption.TO; }
+        <TO>
     |
-        <AS> { renameOption = RenameOption.AS; }
+        <AS>
     )
-    sourceTable = CompoundIdentifier()
+    newTable = CompoundIdentifier()
     {
-        return new SqlRenameTable(getPos(), targetTable, sourceTable,
-            renameOption);
+        return new SqlRenameTable(getPos(), oldTable, newTable);
+    }
+}
+
+SqlRenameMacro SqlRenameMacro() :
+{
+    final SqlIdentifier oldMacro;
+    final SqlIdentifier newMacro;
+}
+{
+    <MACRO>
+    oldMacro = CompoundIdentifier()
+    (
+        <TO>
+    |
+        <AS>
+    )
+    newMacro = CompoundIdentifier()
+    {
+        return new SqlRenameMacro(getPos(), oldMacro, newMacro);
     }
 }
 
@@ -1538,9 +1600,15 @@ SqlNode AlternativeTypeConversionQuery(SqlNode q) :
             AlternativeTypeConversionAttributeList(args)
             [
                 (
-                    <COMMA> dt = DataTypeAlternativeCastSyntax() { args.add(1, dt); }
+                    <COMMA> dt = DataTypeAlternativeCastSyntax()
+                    {
+                        args.add(1, dt);
+                    }
                 |
-                    <COMMA> <INTERVAL> interval = IntervalQualifier() { args.add(1, interval); }
+                    <COMMA> <INTERVAL> interval = IntervalQualifier()
+                    {
+                        args.add(1, interval);
+                    }
                 )
                 [ <COMMA> AlternativeTypeConversionAttributeList(args) ]
             ]
@@ -2234,4 +2302,14 @@ SqlNumberTypeNameSpec NumberDataType() :
         <RPAREN>
     ]
     { return new SqlNumberTypeNameSpec(isPrecisionStar, precision, scale, getPos()); }
+}
+
+SqlDrop SqlDropMacro(Span s, boolean replace) :
+{
+    final SqlIdentifier id;
+}
+{
+    <MACRO> id = CompoundIdentifier() {
+        return SqlDdlNodes.dropMacro(s.end(this), false, id);
+    }
 }

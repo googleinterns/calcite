@@ -17,42 +17,40 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.util.ImmutableNullableList;
+
+import java.util.List;
 
 /**
- * A <code>SqlColumnAttributeCompress</code> is the column COMPRESS attribute.
+ * Base class for {@code RENAME} statement parse tree nodes.
  */
-public class SqlColumnAttributeCompress extends SqlColumnAttribute {
+public abstract class SqlRename extends SqlDdl {
 
-  public final SqlNode value;
+  public final SqlIdentifier oldName;
+  public final SqlIdentifier newName;
 
   /**
-   * Creates a {@code SqlColumnAttributeCompress}.
-   *
+   * Creates a {@code SqlRename}.
+   * @param operator  The specific RENAME operator
    * @param pos  Parser position, must not be null
-   * @param value  Value(s) to be compressed in a particular column. These can
-   *               be an individual string or numeric literal or a list
-   *               of string literals, numeric literals, nulls, and DATEs.
+   * @param oldName  The old name of the structure
+   * @param newName  The new name of the structure
    */
-  public SqlColumnAttributeCompress(SqlParserPos pos, SqlNode value) {
-    super(pos);
-    this.value = value;
+  protected SqlRename(SqlOperator operator, SqlParserPos pos,
+      SqlIdentifier oldName, SqlIdentifier newName) {
+    super(operator, pos);
+    this.oldName = oldName;
+    this.newName = newName;
+  }
+
+  @Override public List<SqlNode> getOperandList() {
+    return ImmutableNullableList.of(oldName, newName);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.keyword("COMPRESS");
-    if (value == null) {
-      return;
-    }
-    if (value instanceof SqlNodeList) {
-      SqlNodeList values = (SqlNodeList) value;
-      SqlWriter.Frame frame = writer.startList("(", ")");
-      for (SqlNode v : values) {
-        writer.sep(",", false);
-        v.unparse(writer, 0, 0);
-      }
-      writer.endList(frame);
-    } else {
-      value.unparse(writer, leftPrec, rightPrec);
-    }
+    writer.keyword(getOperator().getName());
+    oldName.unparse(writer, leftPrec, rightPrec);
+    writer.keyword("AS");
+    newName.unparse(writer, leftPrec, rightPrec);
   }
 }

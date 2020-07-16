@@ -68,6 +68,7 @@ data: {
       "org.apache.calcite.sql.SqlDdlNodes"
       "org.apache.calcite.sql.SqlDdlNodes",
       "org.apache.calcite.sql.SqlDrop",
+      "org.apache.calcite.sql.SqlDropMacro",
       "org.apache.calcite.sql.SqlExecMacro",
       "org.apache.calcite.sql.SqlExecMacroParam",
       "org.apache.calcite.sql.SqlHexCharStringLiteral",
@@ -82,8 +83,9 @@ data: {
       "org.apache.calcite.sql.SqlPeriodTypeNameSpec",
       "org.apache.calcite.sql.SqlPeriodTypeNameSpec.TimeScale",
       "org.apache.calcite.sql.SqlPrimaryIndex",
+      "org.apache.calcite.sql.SqlRename",
+      "org.apache.calcite.sql.SqlRenameMacro",
       "org.apache.calcite.sql.SqlRenameTable",
-      "org.apache.calcite.sql.SqlRenameTable.RenameOption",
       "org.apache.calcite.sql.SqlSecondaryIndex",
       "org.apache.calcite.sql.SqlSelectTopN",
       "org.apache.calcite.sql.SqlSetTimeZone",
@@ -150,6 +152,7 @@ data: {
       "LATIN"
       "LOADING"
       "LOG"
+      "MACRO"
       "MANUAL"
       "MATERIALIZED"
       "MAXIMUM"
@@ -1084,12 +1087,13 @@ data: {
     # List of methods for parsing extensions to "DROP" calls.
     # Each must accept arguments "(SqlParserPos pos)".
     dropStatementParserMethods: [
+      "SqlDropFunction"
+      "SqlDropMacro"
       "SqlDropMaterializedView"
       "SqlDropSchema"
       "SqlDropTable"
       "SqlDropType"
       "SqlDropView"
-      "SqlDropFunction"
     ]
 
     # List of methods for parsing extensions to "INSERT" calls.
@@ -1099,6 +1103,7 @@ data: {
 
     # List of methods for parsing extentions to "RENAME" calls.
     renameStatementParserMethods: [
+      "SqlRenameMacro"
       "SqlRenameTable"
     ]
 
@@ -1120,6 +1125,10 @@ data: {
     extraBinaryExpressions: [
     ]
 
+    # NamedLiteralOrIdentifier needs to come before
+    # AlternativeTypeConversionLiteralOrIdentifier. Otherwise, a query such as
+    # "select foo (named 'hello')" will be parsed as a CAST call rather than
+    # NAMED which should unparse to an AS clause.
     preExpressionMethods: [
       "InlineCaseSpecific"
       "InlineCaseSpecificNamedFunctionCall"
@@ -1128,6 +1137,9 @@ data: {
       "AlternativeTypeConversionLiteralOrIdentifier"
     ]
 
+    # NamedQuery needs to come before AlternativeTypeConversionQuery. Otherwise,
+    # a query such as "select foo (named 'hello')" will be parsed as a CAST call
+    # rather than NAMED which should unparse to an AS clause.
     postExpressionMethods: [
       "NamedQuery"
       "AlternativeTypeConversionQuery"
@@ -1149,6 +1161,7 @@ data: {
     allowColonSeparatorInCompoundIdentifier: true
     allowHexCharacterStringLiteral: true
     allowNestedJoins: true
+    allowOptionalFromInDelete: true
     allowTranslateUsingCharSetWithError: true
     allowUpdateFromTable: true
     allowUpsertFormOfUpdate: true
