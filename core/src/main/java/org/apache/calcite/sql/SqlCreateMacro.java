@@ -20,8 +20,8 @@ import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
-import java.util.Objects;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Parse tree for {@code CREATE MACRO} statement.
