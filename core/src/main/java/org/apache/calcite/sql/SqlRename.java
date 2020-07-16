@@ -35,7 +35,6 @@ public abstract class SqlRename extends SqlDdl {
    * @param pos  Parser position, must not be null
    * @param targetStructure  The structure being renamed
    * @param sourceStructure  What the structure is being renamed to
-   * @param renameOption  Whether the query was specified using TO or AS
    */
   protected SqlRename(SqlOperator operator, SqlParserPos pos,
       SqlIdentifier targetStructure, SqlIdentifier sourceStructure) {
