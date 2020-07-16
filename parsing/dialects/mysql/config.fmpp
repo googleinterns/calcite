@@ -475,6 +475,7 @@ data: {
     allowColonSeparatorInCompoundIdentifier: false
     allowHexCharacterStringLiteral: false
     allowNestedJoins: false
+    allowOptionalFromInDelete: false
     allowTranslateUsingCharSetWithError: false
     allowUpdateFromTable: false
     allowUpsertFormOfUpdate: false

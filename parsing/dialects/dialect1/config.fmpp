@@ -1153,6 +1153,7 @@ data: {
     allowColonSeparatorInCompoundIdentifier: true
     allowHexCharacterStringLiteral: true
     allowNestedJoins: true
+    allowOptionalFromInDelete: true
     allowTranslateUsingCharSetWithError: true
     allowUpdateFromTable: true
     allowUpsertFormOfUpdate: true
