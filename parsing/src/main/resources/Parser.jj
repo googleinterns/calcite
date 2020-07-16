@@ -1679,7 +1679,12 @@ SqlNode SqlDelete() :
 </#if>
     )
     { s = span(); }
-    <FROM> table = TableRefWithHintsOpt()
+<#if parser.allowOptionalFromInDelete>
+    [ <FROM> ]
+<#else>
+    <FROM>
+</#if>
+    table = TableRefWithHintsOpt()
     [
         [ <EXTEND> ]
         extendList = ExtendList() {
