@@ -1017,6 +1017,7 @@ SqlNodeList ParenthesizedSqlStmtList() :
         return new SqlNodeList(stmtList, Span.of(stmtList).pos());
     }
 }
+
 SqlCreate SqlCreateFunctionSqlForm() :
 {
     final Span s;
