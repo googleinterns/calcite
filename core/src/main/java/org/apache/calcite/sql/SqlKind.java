@@ -170,7 +170,7 @@ public enum SqlKind {
   RENAME_TABLE,
 
   /**
-   * RENAME_MACRO statement
+   * RENAME_MACRO statement.
    */
   RENAME_MACRO,
 

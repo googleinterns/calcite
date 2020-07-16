@@ -22,7 +22,7 @@ import org.apache.calcite.util.ImmutableNullableList;
 import java.util.List;
 
 /**
- * Base class for RENAME statements parse tree nodes.
+ * Base class for {@code RENAME} statement parse tree nodes.
  */
 public abstract class SqlRename extends SqlDdl {
 
@@ -42,7 +42,14 @@ public abstract class SqlRename extends SqlDdl {
   private final SqlIdentifier sourceStructure;
   private final RenameOption renameOption;
 
-  /** Creates a SqlRename. */
+  /**
+   * Creates a {@code SqlRename}.
+   * @param operator   The specific RENAME operator
+   * @param pos  Parser position, must not be null
+   * @param targetStructure  The structure being renamed
+   * @param sourceStructure  What the structure is being renamed to
+   * @param renameOption  Whether the query was specified using TO or AS
+   */
   protected SqlRename(SqlOperator operator, SqlParserPos pos,
       SqlIdentifier targetStructure, SqlIdentifier sourceStructure,
       RenameOption renameOption) {
