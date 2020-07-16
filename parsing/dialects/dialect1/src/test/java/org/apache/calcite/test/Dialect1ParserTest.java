@@ -1528,9 +1528,15 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testInlineModSyntaxIdentifier() {
+  @Test public void testInlineModSyntaxSimpleIdentifiers() {
     final String sql = "select foo mod bar";
     final String expected = "SELECT MOD(`FOO`, `BAR`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInlineModSyntaxCompoundIdentifiers() {
+    final String sql = "select foo.bar mod baz.qux";
+    final String expected = "SELECT MOD(`FOO`.`BAR`, `BAZ`.`QUX`)";
     sql(sql).ok(expected);
   }
 
