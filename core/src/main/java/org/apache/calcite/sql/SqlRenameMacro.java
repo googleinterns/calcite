@@ -28,8 +28,8 @@ public class SqlRenameMacro extends SqlRename implements SqlExecutableStatement 
 
   /** Creates a {@code SqlRenameMacro}. */
   public SqlRenameMacro(SqlParserPos pos, SqlIdentifier targetMacro,
-      SqlIdentifier sourceMacro, RenameOption renameOption) {
-    super(OPERATOR, pos, targetMacro, sourceMacro, renameOption);
+      SqlIdentifier sourceMacro) {
+    super(OPERATOR, pos, targetMacro, sourceMacro);
   }
 
   // Intentionally left empty.

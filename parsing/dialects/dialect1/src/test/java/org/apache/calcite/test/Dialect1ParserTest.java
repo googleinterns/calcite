@@ -1762,7 +1762,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testRenameTableWithTo() {
     final String sql = "rename table foo to bar";
-    final String expected = "RENAME TABLE `FOO` TO `BAR`";
+    final String expected = "RENAME TABLE `FOO` AS `BAR`";
     sql(sql).ok(expected);
   }
 
@@ -1780,7 +1780,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testRenameMacroWithTo() {
     final String sql = "rename macro foo to bar";
-    final String expected = "RENAME MACRO `FOO` TO `BAR`";
+    final String expected = "RENAME MACRO `FOO` AS `BAR`";
     sql(sql).ok(expected);
   }
 

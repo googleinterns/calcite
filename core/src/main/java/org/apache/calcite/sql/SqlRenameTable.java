@@ -28,8 +28,8 @@ public class SqlRenameTable extends SqlRename implements SqlExecutableStatement 
 
   /** Creates a {@code SqlRenameTable}. */
   public SqlRenameTable(SqlParserPos pos, SqlIdentifier targetTable,
-      SqlIdentifier sourceTable, RenameOption renameOption) {
-    super(OPERATOR, pos, targetTable, sourceTable, renameOption);
+      SqlIdentifier sourceTable) {
+    super(OPERATOR, pos, targetTable, sourceTable);
   }
 
   // Intentionally left empty.

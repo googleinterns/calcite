@@ -1456,45 +1456,41 @@ SqlDataTypeSpec DataTypeAlternativeCastSyntax() :
     }
 }
 
-SqlRename SqlRenameTable() :
+SqlRenameTable SqlRenameTable() :
 {
-    SqlIdentifier targetTable;
-    SqlIdentifier sourceTable;
-    RenameOption renameOption;
+    final SqlIdentifier targetTable;
+    final SqlIdentifier sourceTable;
 }
 {
     <TABLE>
     targetTable = CompoundIdentifier()
     (
-        <TO> { renameOption = RenameOption.TO; }
+        <TO>
     |
-        <AS> { renameOption = RenameOption.AS; }
+        <AS>
     )
     sourceTable = CompoundIdentifier()
     {
-        return new SqlRenameTable(getPos(), targetTable, sourceTable,
-            renameOption);
+        return new SqlRenameTable(getPos(), targetTable, sourceTable);
     }
 }
 
-SqlRename SqlRenameMacro() :
+SqlRenameMacro SqlRenameMacro() :
 {
-    SqlIdentifier targetMacro;
-    SqlIdentifier sourceMacro;
-    RenameOption renameOption;
+    final SqlIdentifier targetMacro;
+    final SqlIdentifier sourceMacro;
 }
 {
     <MACRO>
     targetMacro = CompoundIdentifier()
     (
-        <TO> { renameOption = RenameOption.TO; }
+        <TO>
     |
-        <AS> { renameOption = RenameOption.AS; }
+        <AS>
     )
     sourceMacro = CompoundIdentifier()
     {
-        return new SqlRenameMacro(getPos(), targetMacro, sourceMacro,
-            renameOption);
+        return new SqlRenameMacro(getPos(), targetMacro, sourceMacro);
     }
 }
 

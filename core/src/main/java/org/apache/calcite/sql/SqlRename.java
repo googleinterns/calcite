@@ -26,21 +26,8 @@ import java.util.List;
  */
 public abstract class SqlRename extends SqlDdl {
 
-  public enum RenameOption {
-    /**
-     * Query used the TO keyword.
-     */
-    TO,
-
-    /**
-     * Query used the AS keyword.
-     */
-    AS
-  }
-
-  private final SqlIdentifier targetStructure;
-  private final SqlIdentifier sourceStructure;
-  private final RenameOption renameOption;
+  public final SqlIdentifier targetStructure;
+  public final SqlIdentifier sourceStructure;
 
   /**
    * Creates a {@code SqlRename}.
@@ -51,12 +38,10 @@ public abstract class SqlRename extends SqlDdl {
    * @param renameOption  Whether the query was specified using TO or AS
    */
   protected SqlRename(SqlOperator operator, SqlParserPos pos,
-      SqlIdentifier targetStructure, SqlIdentifier sourceStructure,
-      RenameOption renameOption) {
+      SqlIdentifier targetStructure, SqlIdentifier sourceStructure) {
     super(operator, pos);
     this.targetStructure = targetStructure;
     this.sourceStructure = sourceStructure;
-    this.renameOption = renameOption;
   }
 
   @Override public List<SqlNode> getOperandList() {
@@ -66,7 +51,7 @@ public abstract class SqlRename extends SqlDdl {
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword(getOperator().getName());
     targetStructure.unparse(writer, leftPrec, rightPrec);
-    writer.keyword(renameOption.toString());
+    writer.keyword("AS");
     sourceStructure.unparse(writer, leftPrec, rightPrec);
   }
 }

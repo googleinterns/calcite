@@ -83,7 +83,6 @@ data: {
       "org.apache.calcite.sql.SqlPeriodTypeNameSpec.TimeScale",
       "org.apache.calcite.sql.SqlPrimaryIndex",
       "org.apache.calcite.sql.SqlRename",
-      "org.apache.calcite.sql.SqlRename.RenameOption",
       "org.apache.calcite.sql.SqlRenameMacro",
       "org.apache.calcite.sql.SqlRenameTable",
       "org.apache.calcite.sql.SqlSecondaryIndex",
