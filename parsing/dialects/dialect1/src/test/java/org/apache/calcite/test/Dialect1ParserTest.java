@@ -1528,9 +1528,15 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testInlineModSyntaxIdentifier() {
+  @Test public void testInlineModSyntaxSimpleIdentifiers() {
     final String sql = "select foo mod bar";
     final String expected = "SELECT MOD(`FOO`, `BAR`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInlineModSyntaxCompoundIdentifiers() {
+    final String sql = "select foo.bar mod baz.qux";
+    final String expected = "SELECT MOD(`FOO`.`BAR`, `BAZ`.`QUX`)";
     sql(sql).ok(expected);
   }
 
@@ -1796,40 +1802,40 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testInlineFormatSimpleIdentifier() {
+  @Test void testAlternativeCastFormatAttributeSimpleIdentifier() {
     final String sql = "select foo (format 'XXX')";
-    final String expected = "SELECT (`FOO` (FORMAT 'XXX'))";
+    final String expected = "SELECT CAST(`FOO` AS FORMAT 'XXX')";
     sql(sql).ok(expected);
   }
 
-  @Test void testInlineFormatCompoundIdentifier() {
+  @Test void testAlternativeCastFormatAttributeCompoundIdentifier() {
     final String sql = "select foo.bar (format 'XXX')";
-    final String expected = "SELECT (`FOO`.`BAR` (FORMAT 'XXX'))";
+    final String expected = "SELECT CAST(`FOO`.`BAR` AS FORMAT 'XXX')";
     sql(sql).ok(expected);
   }
 
-  @Test void testInlineFormatNumericLiteral() {
+  @Test void testAlternativeCastFormatAttributeNumericLiteral() {
     final String sql = "select 12.5 (format '9.99E99')";
-    final String expected = "SELECT (12.5 (FORMAT '9.99E99'))";
+    final String expected = "SELECT CAST(12.5 AS FORMAT '9.99E99')";
     sql(sql).ok(expected);
   }
 
-  @Test void testInlineFormatStringLiteral() {
+  @Test void testAlternativeCastFormatAttributeStringLiteral() {
     final String sql = "select 12.5 (format 'XXX')";
-    final String expected = "SELECT (12.5 (FORMAT 'XXX'))";
+    final String expected = "SELECT CAST(12.5 AS FORMAT 'XXX')";
     sql(sql).ok(expected);
   }
 
-  @Test void testInlineFormatDateLiteral() {
+  @Test void testAlternativeCastFormatAttributeDateLiteral() {
     final String sql = "select current_date (format 'yyyy-mm-dd')";
-    final String expected = "SELECT (CURRENT_DATE (FORMAT 'yyyy-mm-dd'))";
+    final String expected = "SELECT CAST(CURRENT_DATE AS FORMAT 'yyyy-mm-dd')";
     sql(sql).ok(expected);
   }
 
-  @Test void testInlineFormatQuery() {
+  @Test void testAlternativeCastFormatAttributeQuery() {
     final String sql = "select (select foo from bar) (format 'XXX') from baz";
-    final String expected = "SELECT ((SELECT `FOO`\n"
-        + "FROM `BAR`) (FORMAT 'XXX'))\n"
+    final String expected = "SELECT CAST((SELECT `FOO`\n"
+        + "FROM `BAR`) AS FORMAT 'XXX')\n"
         + "FROM `BAZ`";
     sql(sql).ok(expected);
   }
@@ -1852,12 +1858,6 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testAlternativeTypeConversionFormat() {
-    final String sql = "select '15h33m' (time(0) format 'HHhMIm')";
-    final String expected = "SELECT CAST('15h33m' AS TIME(0) FORMAT 'HHhMIm')";
-    sql(sql).ok(expected);
-  }
-
   @Test void testAlternativeTypeConversionInterval() {
     final String sql = "select '3700 sec' (interval minute)";
     final String expected = "SELECT CAST('3700 sec' AS INTERVAL MINUTE)";
@@ -1873,7 +1873,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   }
 
   @Test void testAlternativeTypeConversionQueryFormat() {
-    final String sql = "select (select foo from bar) (time(0) format 'HHhMIm') from baz";
+    final String sql = "select (select foo from bar) (time(0), format 'HHhMIm') from baz";
     final String expected = "SELECT CAST((SELECT `FOO`\n"
         + "FROM `BAR`) AS TIME(0) FORMAT 'HHhMIm')\n"
         + "FROM `BAZ`";
@@ -1893,6 +1893,84 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "SELECT CAST((SELECT CAST(`FOO` AS INTEGER)\n"
         + "FROM `BAR`) AS CHAR)\n"
         + "FROM `BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionFormatAttribute() {
+    final String sql = "select '15h33m' (time(0), format 'HHhMIm')";
+    final String expected = "SELECT CAST('15h33m' AS TIME(0) FORMAT 'HHhMIm')";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionTitleAttribute() {
+    final String sql = "select foo (char, title 'hello')";
+    final String expected = "SELECT CAST(`FOO` AS CHAR TITLE 'hello')";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionNamedAttribute() {
+    final String sql = "select foo (char, named 'hello')";
+    final String expected = "SELECT CAST(`FOO` AS CHAR NAMED 'hello')";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionCharacterSetAttribute() {
+    final String sql = "select foo (char, character set latin)";
+    final String expected = "SELECT CAST(`FOO` AS CHAR CHARACTER SET LATIN)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionUppercaseAttribute() {
+    final String sql = "select foo (char, uppercase)";
+    final String expected = "SELECT CAST(`FOO` AS CHAR UPPERCASE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionAttributesNoDataType() {
+    final String sql = "select foo (uppercase, format 'X6', character set "
+        + "unicode)";
+    final String expected = "SELECT CAST(`FOO` AS UPPERCASE FORMAT 'X6' "
+        + "CHARACTER SET UNICODE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionAttributesAfterDataType() {
+    final String sql = "select foo (char, uppercase, format 'X6', character "
+        + "set unicode)";
+    final String expected = "SELECT CAST(`FOO` AS CHAR UPPERCASE FORMAT 'X6' "
+        + "CHARACTER SET UNICODE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionAttributesBeforeDataType() {
+    final String sql = "select foo (uppercase, format 'X6', character set "
+        + "unicode, char)";
+    final String expected = "SELECT CAST(`FOO` AS CHAR UPPERCASE FORMAT 'X6' "
+        + "CHARACTER SET UNICODE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testAlternativeTypeConversionAttributesBeforeAndAfterDataType() {
+    final String sql = "select foo (uppercase, format 'X6', character set "
+        + "unicode, char, title 'hello', named 'hello')";
+    final String expected = "SELECT CAST(`FOO` AS CHAR UPPERCASE FORMAT 'X6' "
+        + "CHARACTER SET UNICODE TITLE 'hello' NAMED 'hello')";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testExplicitCastWithAttributes() {
+    final String sql = "select cast(foo as char uppercase format 'X6' "
+        + "character set unicode title 'hello' named 'hello')";
+    final String expected = "SELECT CAST(`FOO` AS CHAR UPPERCASE FORMAT 'X6' "
+        + "CHARACTER SET UNICODE TITLE 'hello' NAMED 'hello')";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testExplicitCastWithAttributesNoDataType() {
+    final String sql = "select cast(foo as uppercase format 'X6' character "
+        + "set unicode title 'hello' named 'hello')";
+    final String expected = "SELECT CAST(`FOO` AS UPPERCASE FORMAT 'X6' "
+        + "CHARACTER SET UNICODE TITLE 'hello' NAMED 'hello')";
     sql(sql).ok(expected);
   }
 
@@ -2972,9 +3050,9 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testInlineFormatWithNamedFunction() {
+  @Test void testAlternativeCastAttributeNamedFunction() {
     final String sql = "select foo(a) (format 'X6')";
-    final String expected = "SELECT (`FOO`(`A`) (FORMAT 'X6'))";
+    final String expected = "SELECT CAST(`FOO`(`A`) AS FORMAT 'X6')";
     sql(sql).ok(expected);
   }
 

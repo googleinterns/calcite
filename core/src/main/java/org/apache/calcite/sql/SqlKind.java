@@ -739,12 +739,6 @@ public enum SqlKind {
   CAST,
 
   /**
-   * The "FORMAT" operator.
-   */
-  FORMAT,
-
-
-  /**
    * The "NEXT VALUE OF sequence" operator.
    */
   NEXT_VALUE,

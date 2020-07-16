@@ -5526,13 +5526,23 @@ SqlNode BuiltinFunctionCall() :
         <CAST> { s = span(); }
         <LPAREN> e = Expression(ExprContext.ACCEPT_SUB_QUERY) { args = startList(e); }
         <AS>
+<#if parser.includeCastDataAttributes>
+        (
+            (
+                dt = DataType() { args.add(dt); }
+            |
+                <INTERVAL> e = IntervalQualifier() { args.add(e); }
+            )
+            ( e = AlternativeTypeConversionAttribute() { args.add(e); } )*
+        |
+            ( e = AlternativeTypeConversionAttribute() { args.add(e); } )+
+        )
+<#else>
         (
             dt = DataType() { args.add(dt); }
         |
             <INTERVAL> e = IntervalQualifier() { args.add(e); }
         )
-<#if parser.includeCastFormat>
-        [ <FORMAT> e = StringLiteral() { args.add(e); } ]
 </#if>
         <RPAREN> {
             return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
