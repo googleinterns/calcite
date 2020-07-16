@@ -83,8 +83,9 @@ data: {
       "org.apache.calcite.sql.SqlPeriodTypeNameSpec",
       "org.apache.calcite.sql.SqlPeriodTypeNameSpec.TimeScale",
       "org.apache.calcite.sql.SqlPrimaryIndex",
+      "org.apache.calcite.sql.SqlRename",
+      "org.apache.calcite.sql.SqlRenameMacro",
       "org.apache.calcite.sql.SqlRenameTable",
-      "org.apache.calcite.sql.SqlRenameTable.RenameOption",
       "org.apache.calcite.sql.SqlSecondaryIndex",
       "org.apache.calcite.sql.SqlSelectTopN",
       "org.apache.calcite.sql.SqlSetTimeZone",
@@ -1102,6 +1103,7 @@ data: {
 
     # List of methods for parsing extentions to "RENAME" calls.
     renameStatementParserMethods: [
+      "SqlRenameMacro"
       "SqlRenameTable"
     ]
 

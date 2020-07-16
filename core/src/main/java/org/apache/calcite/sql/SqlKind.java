@@ -170,6 +170,11 @@ public enum SqlKind {
   RENAME_TABLE,
 
   /**
+   * RENAME_MACRO statement.
+   */
+  RENAME_MACRO,
+
+  /**
    * "ALTER scope SET option = value" statement.
    */
   SET_OPTION,
