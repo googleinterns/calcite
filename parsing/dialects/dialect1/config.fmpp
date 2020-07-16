@@ -61,6 +61,7 @@ data: {
       "org.apache.calcite.sql.SqlCreateFunctionSqlForm",
       "org.apache.calcite.sql.SqlCreateFunctionSqlForm.DeterministicType",
       "org.apache.calcite.sql.SqlCreateFunctionSqlForm.ReactToNullInputType",
+      "org.apache.calcite.sql.SqlCreateJoinIndex",
       "org.apache.calcite.sql.SqlCreateTableDialect1",
       "org.apache.calcite.sql.SqlDateTimeAtLocal",
       "org.apache.calcite.sql.SqlDateTimeAtTimeZone",
@@ -509,7 +510,6 @@ data: {
       "FREESPACE"
       "GRAPHIC"
       "IF"
-      "INDEX"
       "INLINE"
       "INS"
       "ISOLATED"
@@ -809,7 +809,6 @@ data: {
       "NCLOB"
 #     "NEW"
 #     "NEXT"
-      "NO"
       "NONE"
       "NORMALIZE"
       "NOT"
@@ -861,7 +860,6 @@ data: {
       "PREPARE"
       "PRESERVE"
       "PREV"
-      "PRIMARY"
       "PRIOR"
       "PRIVILEGES"
       "PROCEDURE"
@@ -976,7 +974,6 @@ data: {
       "UNDER"
 #     "UNDO" # not a keyword in Calcite
 #     "UNION"
-      "UNIQUE"
       "UNKNOWN"
 #     "UNNEST"
 #     "UNTIL" # not a keyword in Calcite
@@ -1075,6 +1072,7 @@ data: {
       "SqlCreateType"
       "SqlCreateView"
       "SqlCreateFunctionSqlForm"
+      "SqlCreateJoinIndex"
     ]
 
     # list of methods for parsing extensions to "SET" calls

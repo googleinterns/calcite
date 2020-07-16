@@ -2259,3 +2259,55 @@ SqlDrop SqlDropMacro(Span s, boolean replace) :
         return SqlDdlNodes.dropMacro(s.end(this), false, id);
     }
 }
+
+List<SqlTableAttribute> CreateJoinIndexTableAttributes() :
+{
+    final List<SqlTableAttribute> list = new ArrayList<SqlTableAttribute>();
+    SqlTableAttribute e;
+    Span s;
+}
+{
+    (
+        <COMMA>
+        (
+            e = TableAttributeMap()
+        |
+            e = TableAttributeFallback()
+        |
+            e = TableAttributeChecksum()
+        |
+            e = TableAttributeBlockCompression()
+        ) { list.add(e); }
+    )+
+    { return list; }
+}
+
+SqlCreateJoinIndex SqlCreateJoinIndex() :
+{
+    final Span s;
+    final SqlIdentifier name;
+    List<SqlTableAttribute> tableAttributes = null;
+    final List<SqlNode> select;
+    final SqlNode from;
+    SqlNode where = null;
+    SqlNodeList groupBy = null;
+    SqlNodeList orderBy = null;
+    List<SqlIndex> indices = new ArrayList<SqlIndex>();
+    SqlIndex index;
+}
+{
+    <CREATE> { s = span(); }
+    <JOIN> <INDEX> name = CompoundIdentifier()
+    [ tableAttributes = CreateJoinIndexTableAttributes() ]
+    <AS> <SELECT> select = SelectList()
+    <FROM> from = FromClause()
+    where = WhereOpt()
+    groupBy = GroupByOpt()
+    [ orderBy = OrderBy(true) ]
+    ( [<COMMA>] index = SqlCreateTableIndex(s) { indices.add(index); } )*
+    {
+        return new SqlCreateJoinIndex(s.end(this), name, tableAttributes,
+            new SqlNodeList(select, Span.of(select).pos()), from, where,
+            groupBy, orderBy, indices);
+    }
+}
