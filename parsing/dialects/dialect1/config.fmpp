@@ -67,6 +67,7 @@ data: {
       "org.apache.calcite.sql.SqlDdlNodes"
       "org.apache.calcite.sql.SqlDdlNodes",
       "org.apache.calcite.sql.SqlDrop",
+      "org.apache.calcite.sql.SqlDropMacro",
       "org.apache.calcite.sql.SqlExecMacro",
       "org.apache.calcite.sql.SqlExecMacroParam",
       "org.apache.calcite.sql.SqlHexCharStringLiteral",
@@ -151,6 +152,7 @@ data: {
       "LATIN"
       "LOADING"
       "LOG"
+      "MACRO"
       "MANUAL"
       "MATERIALIZED"
       "MAXIMUM"
@@ -1085,12 +1087,13 @@ data: {
     # List of methods for parsing extensions to "DROP" calls.
     # Each must accept arguments "(SqlParserPos pos)".
     dropStatementParserMethods: [
+      "SqlDropFunction"
+      "SqlDropMacro"
       "SqlDropMaterializedView"
       "SqlDropSchema"
       "SqlDropTable"
       "SqlDropType"
       "SqlDropView"
-      "SqlDropFunction"
     ]
 
     # List of methods for parsing extensions to "INSERT" calls.
@@ -1153,6 +1156,7 @@ data: {
     allowColonSeparatorInCompoundIdentifier: true
     allowHexCharacterStringLiteral: true
     allowNestedJoins: true
+    allowOptionalFromInDelete: true
     allowTranslateUsingCharSetWithError: true
     allowUpdateFromTable: true
     allowUpsertFormOfUpdate: true

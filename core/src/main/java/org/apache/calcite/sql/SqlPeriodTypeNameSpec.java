@@ -96,9 +96,7 @@ public class SqlPeriodTypeNameSpec extends SqlTypeNameSpec {
    */
   public enum TimeScale {
     DATE,
-
     TIME,
-
-    TIMESTAMP
+    TIMESTAMP,
   }
 }

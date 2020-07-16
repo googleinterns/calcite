@@ -2270,3 +2270,13 @@ SqlNumberTypeNameSpec NumberDataType() :
     ]
     { return new SqlNumberTypeNameSpec(isPrecisionStar, precision, scale, getPos()); }
 }
+
+SqlDrop SqlDropMacro(Span s, boolean replace) :
+{
+    final SqlIdentifier id;
+}
+{
+    <MACRO> id = CompoundIdentifier() {
+        return SqlDdlNodes.dropMacro(s.end(this), false, id);
+    }
+}
