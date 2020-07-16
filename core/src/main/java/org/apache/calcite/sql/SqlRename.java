@@ -26,31 +26,32 @@ import java.util.List;
  */
 public abstract class SqlRename extends SqlDdl {
 
-  public final SqlIdentifier targetStructure;
-  public final SqlIdentifier sourceStructure;
+  public final SqlIdentifier oldName;
+  public final SqlIdentifier newName;
 
   /**
    * Creates a {@code SqlRename}.
    * @param operator   The specific RENAME operator
    * @param pos  Parser position, must not be null
-   * @param targetStructure  The structure being renamed
-   * @param sourceStructure  What the structure is being renamed to
+   * @param oldName  The old name of the structure
+   * @param newName  The new name of the structure
+   * @param renameOption  Whether the query was specified using TO or AS
    */
   protected SqlRename(SqlOperator operator, SqlParserPos pos,
-      SqlIdentifier targetStructure, SqlIdentifier sourceStructure) {
+      SqlIdentifier oldName, SqlIdentifier newName) {
     super(operator, pos);
-    this.targetStructure = targetStructure;
-    this.sourceStructure = sourceStructure;
+    this.oldName = oldName;
+    this.newName = newName;
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(targetStructure, sourceStructure);
+    return ImmutableNullableList.of(oldName, newName);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword(getOperator().getName());
-    targetStructure.unparse(writer, leftPrec, rightPrec);
+    oldName.unparse(writer, leftPrec, rightPrec);
     writer.keyword("AS");
-    sourceStructure.unparse(writer, leftPrec, rightPrec);
+    newName.unparse(writer, leftPrec, rightPrec);
   }
 }

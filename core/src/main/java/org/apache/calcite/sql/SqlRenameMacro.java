@@ -27,9 +27,9 @@ public class SqlRenameMacro extends SqlRename implements SqlExecutableStatement 
       new SqlSpecialOperator("RENAME MACRO", SqlKind.RENAME_MACRO);
 
   /** Creates a {@code SqlRenameMacro}. */
-  public SqlRenameMacro(SqlParserPos pos, SqlIdentifier targetMacro,
-      SqlIdentifier sourceMacro) {
-    super(OPERATOR, pos, targetMacro, sourceMacro);
+  public SqlRenameMacro(SqlParserPos pos, SqlIdentifier oldMacro,
+      SqlIdentifier newMacro) {
+    super(OPERATOR, pos, oldMacro, newMacro);
   }
 
   // Intentionally left empty.

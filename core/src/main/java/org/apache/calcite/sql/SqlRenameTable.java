@@ -27,9 +27,9 @@ public class SqlRenameTable extends SqlRename implements SqlExecutableStatement 
       new SqlSpecialOperator("RENAME TABLE", SqlKind.RENAME_TABLE);
 
   /** Creates a {@code SqlRenameTable}. */
-  public SqlRenameTable(SqlParserPos pos, SqlIdentifier targetTable,
-      SqlIdentifier sourceTable) {
-    super(OPERATOR, pos, targetTable, sourceTable);
+  public SqlRenameTable(SqlParserPos pos, SqlIdentifier oldTable,
+      SqlIdentifier newTable) {
+    super(OPERATOR, pos, oldTable, newTable);
   }
 
   // Intentionally left empty.

@@ -1458,39 +1458,39 @@ SqlDataTypeSpec DataTypeAlternativeCastSyntax() :
 
 SqlRenameTable SqlRenameTable() :
 {
-    final SqlIdentifier targetTable;
-    final SqlIdentifier sourceTable;
+    final SqlIdentifier oldTable;
+    final SqlIdentifier newTable;
 }
 {
     <TABLE>
-    targetTable = CompoundIdentifier()
+    oldTable = CompoundIdentifier()
     (
         <TO>
     |
         <AS>
     )
-    sourceTable = CompoundIdentifier()
+    newTable = CompoundIdentifier()
     {
-        return new SqlRenameTable(getPos(), targetTable, sourceTable);
+        return new SqlRenameTable(getPos(), oldTable, newTable);
     }
 }
 
 SqlRenameMacro SqlRenameMacro() :
 {
-    final SqlIdentifier targetMacro;
-    final SqlIdentifier sourceMacro;
+    final SqlIdentifier oldMacro;
+    final SqlIdentifier newMacro;
 }
 {
     <MACRO>
-    targetMacro = CompoundIdentifier()
+    oldMacro = CompoundIdentifier()
     (
         <TO>
     |
         <AS>
     )
-    sourceMacro = CompoundIdentifier()
+    newMacro = CompoundIdentifier()
     {
-        return new SqlRenameMacro(getPos(), targetMacro, sourceMacro);
+        return new SqlRenameMacro(getPos(), oldMacro, newMacro);
     }
 }
 
