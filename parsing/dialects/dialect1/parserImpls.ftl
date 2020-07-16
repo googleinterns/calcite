@@ -521,7 +521,7 @@ SqlTableAttribute TableAttributeMap() :
 }
 {
     <MAP> <EQ> id = CompoundIdentifier()
-    [ <COLOCATE> <USING> colocateName = SimpleIdentifier() ]
+    [ <COLOCATE> <USING> colocateName = CompoundIdentifier() ]
     { return new SqlTableAttributeMap(id, colocateName, getPos()); }
 }
 
@@ -2288,11 +2288,7 @@ SqlCreateJoinIndex SqlCreateJoinIndex() :
     final Span s;
     final SqlIdentifier name;
     List<SqlTableAttribute> tableAttributes = null;
-    final List<SqlNode> select;
-    final SqlNode from;
-    SqlNode where = null;
-    SqlNodeList groupBy = null;
-    SqlNodeList orderBy = null;
+    SqlNode select;
     List<SqlIndex> indices = new ArrayList<SqlIndex>();
     SqlIndex index;
 }
@@ -2300,11 +2296,8 @@ SqlCreateJoinIndex SqlCreateJoinIndex() :
     <CREATE> { s = span(); }
     <JOIN> <INDEX> name = CompoundIdentifier()
     [ tableAttributes = CreateJoinIndexTableAttributes() ]
-    <AS> <SELECT> select = SelectList()
-    <FROM> from = FromClause()
-    where = WhereOpt()
-    groupBy = GroupByOpt()
-    [ orderBy = OrderBy(true) ]
+    <AS>
+    select = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
     [
         index = SqlCreateTableIndex(s) { indices.add(index); }
         (
@@ -2313,7 +2306,6 @@ SqlCreateJoinIndex SqlCreateJoinIndex() :
     ]
     {
         return new SqlCreateJoinIndex(s.end(this), name, tableAttributes,
-            new SqlNodeList(select, Span.of(select).pos()), from, where,
-            groupBy, orderBy, indices);
+            select, indices);
     }
 }

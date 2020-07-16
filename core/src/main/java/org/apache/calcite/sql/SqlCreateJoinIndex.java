@@ -26,36 +26,27 @@ import java.util.List;
  */
 public class SqlCreateJoinIndex extends SqlCreate {
   private static final SqlOperator OPERATOR =
-      new SqlSpecialOperator("CREATE JOIN INDEX", SqlKind.CREATE_TABLE);
+      new SqlSpecialOperator("CREATE JOIN INDEX",
+          SqlKind.CREATE_JOIN_INDEX);
 
   public final SqlIdentifier name;
   public final List<SqlTableAttribute> tableAttributes;
-  public final SqlNodeList select;
-  public final SqlNode from;
-  public final SqlNode where;
-  public final SqlNodeList groupBy;
-  public final SqlNodeList orderBy;
+  public final SqlNode select;
   public final List<SqlIndex> indices;
 
   /** Creates a {@code SqlCreateJoinIndex}. */
   public SqlCreateJoinIndex(SqlParserPos pos, SqlIdentifier name,
-      List<SqlTableAttribute> tableAttributes, SqlNodeList select, SqlNode from,
-      SqlNode where, SqlNodeList groupBy, SqlNodeList orderBy,
+      List<SqlTableAttribute> tableAttributes, SqlNode select,
       List<SqlIndex> indices) {
     super(OPERATOR, pos, SqlCreateSpecifier.CREATE, false);
     this.name = name;
     this.tableAttributes = tableAttributes;
     this.select = select;
-    this.from = from;
-    this.where = where;
-    this.groupBy = groupBy;
-    this.orderBy = orderBy;
     this.indices = indices;
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(name, select, from, where,
-        groupBy, orderBy);
+    return ImmutableNullableList.of(name, select);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
@@ -69,28 +60,8 @@ public class SqlCreateJoinIndex extends SqlCreate {
       }
       writer.endList(frame);
     }
-    writer.keyword("AS SELECT");
+    writer.keyword("AS");
     select.unparse(writer, 0, 0);
-    writer.keyword("FROM");
-    final SqlWriter.Frame fromFrame =
-        writer.startList(SqlWriter.FrameTypeEnum.FROM_LIST);
-    from.unparse(
-        writer,
-        SqlJoin.OPERATOR.getLeftPrec() - 1,
-        SqlJoin.OPERATOR.getRightPrec() - 1);
-    writer.endList(fromFrame);
-    if (where != null) {
-      writer.keyword("WHERE");
-      where.unparse(writer, 0, 0);
-    }
-    if (groupBy != null) {
-      writer.keyword("GROUP BY");
-      groupBy.unparse(writer, 0, 0);
-    }
-    if (orderBy != null) {
-      writer.keyword("ORDER BY");
-      orderBy.unparse(writer, 0, 0);
-    }
     if (!indices.isEmpty()) {
       SqlWriter.Frame frame = writer.startList("", "");
       for (SqlIndex index : indices) {

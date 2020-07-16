@@ -3225,7 +3225,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testCreateJoinIndex() {
     final String sql = "create join index foo as select (bar, baz) from qux";
     final String expected = "CREATE JOIN INDEX `FOO` AS SELECT (ROW(`BAR`, "
-        + "`BAZ`)) FROM `QUX`";
+        + "`BAZ`))\n"
+        + "FROM `QUX`";
     sql(sql).ok(expected);
   }
 
@@ -3235,17 +3236,19 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "qux";
     final String expected = "CREATE JOIN INDEX `FOO`, MAP = `A`, FALLBACK "
         + "PROTECTION, CHECKSUM = ON, BLOCKCOMPRESSION = AUTOTEMP AS SELECT "
-        + "(ROW(`BAR`, `BAZ`)) FROM `QUX`";
+        + "(ROW(`BAR`, `BAZ`))\n"
+        + "FROM `QUX`";
     sql(sql).ok(expected);
   }
 
   @Test public void testCreateJoinIndexMapColocateUsing() {
-    final String sql = "create join index foo, map=a colocate using b, "
+    final String sql = "create join index foo, map=a colocate using b.c, "
         + "fallback protection, checksum=on, blockcompression=autotemp as "
         + "select (bar, baz) from qux";
     final String expected = "CREATE JOIN INDEX `FOO`, MAP = `A` COLOCATE USING "
-        + "`B`, FALLBACK PROTECTION, CHECKSUM = ON, BLOCKCOMPRESSION = "
-        + "AUTOTEMP AS SELECT (ROW(`BAR`, `BAZ`)) FROM `QUX`";
+        + "`B`.`C`, FALLBACK PROTECTION, CHECKSUM = ON, BLOCKCOMPRESSION = "
+        + "AUTOTEMP AS SELECT (ROW(`BAR`, `BAZ`))\n"
+        + "FROM `QUX`";
     sql(sql).ok(expected);
   }
 
@@ -3253,7 +3256,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "create join index foo as select (bar, baz) from qux "
         + "inner join quux on bar.a = baz.b";
     final String expected = "CREATE JOIN INDEX `FOO` AS SELECT (ROW(`BAR`, "
-        + "`BAZ`)) FROM `QUX`\n"
+        + "`BAZ`))\n"
+        + "FROM `QUX`\n"
         + "INNER JOIN `QUUX` ON (`BAR`.`A` = `BAZ`.`B`)";
     sql(sql).ok(expected);
   }
@@ -3262,7 +3266,9 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "create join index foo as select (bar, baz) from qux "
         + "where bar = 1";
     final String expected = "CREATE JOIN INDEX `FOO` AS SELECT (ROW(`BAR`, "
-        + "`BAZ`)) FROM `QUX` WHERE (`BAR` = 1)";
+        + "`BAZ`))\n"
+        + "FROM `QUX`\n"
+        + "WHERE (`BAR` = 1)";
     sql(sql).ok(expected);
   }
 
@@ -3270,7 +3276,9 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "create join index foo as select bar, sum(baz) from "
         + "qux group by bar";
     final String expected = "CREATE JOIN INDEX `FOO` AS SELECT `BAR`, "
-        + "SUM(`BAZ`) FROM `QUX` GROUP BY `BAR`";
+        + "SUM(`BAZ`)\n"
+        + "FROM `QUX`\n"
+        + "GROUP BY `BAR`";
     sql(sql).ok(expected);
   }
 
@@ -3278,7 +3286,9 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "create join index foo as select bar, sum(baz) from "
         + "qux order by bar";
     final String expected = "CREATE JOIN INDEX `FOO` AS SELECT `BAR`, "
-        + "SUM(`BAZ`) FROM `QUX` ORDER BY `BAR`";
+        + "SUM(`BAZ`)\n"
+        + "FROM `QUX`\n"
+        + "ORDER BY `BAR`";
     sql(sql).ok(expected);
   }
 
@@ -3286,7 +3296,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "create join index foo as select bar, baz from qux "
         + "primary index (bar), no primary index index (bar, baz)";
     final String expected = "CREATE JOIN INDEX `FOO` AS SELECT `BAR`, "
-        + "`BAZ` FROM `QUX` PRIMARY INDEX (`BAR`), NO PRIMARY INDEX, INDEX "
+        + "`BAZ`\n"
+        + "FROM `QUX` PRIMARY INDEX (`BAR`), NO PRIMARY INDEX, INDEX "
         + "(`BAR`, `BAZ`)";
     sql(sql).ok(expected);
   }

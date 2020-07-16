@@ -1161,6 +1161,9 @@ public enum SqlKind {
   /** {@code DROP FUNCTION} DDL statement. */
   DROP_FUNCTION,
 
+  /** {@code CREATE JOIN INDEX} DDL statement. */
+  CREATE_JOIN_INDEX,
+
   /** DDL statement not handled above.
    *
    * <p><b>Note to other projects</b>: If you are extending Calcite's SQL parser
