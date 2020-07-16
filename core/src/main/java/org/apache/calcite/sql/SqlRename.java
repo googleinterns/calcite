@@ -31,7 +31,7 @@ public abstract class SqlRename extends SqlDdl {
 
   /**
    * Creates a {@code SqlRename}.
-   * @param operator   The specific RENAME operator
+   * @param operator  The specific RENAME operator
    * @param pos  Parser position, must not be null
    * @param oldName  The old name of the structure
    * @param newName  The new name of the structure
