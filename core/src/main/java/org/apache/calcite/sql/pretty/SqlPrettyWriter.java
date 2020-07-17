@@ -278,20 +278,15 @@ public class SqlPrettyWriter implements SqlWriter {
 
   //~ Constructors -----------------------------------------------------------
 
-  private SqlPrettyWriter(SqlWriterConfig config,
-      StringBuilder buf, boolean ignore) {
+  /** Creates a writer with the given configuration
+   * and a given buffer to write to. */
+  public SqlPrettyWriter(@Nonnull SqlWriterConfig config,
+      @Nonnull StringBuilder buf) {
     this.buf = Objects.requireNonNull(buf);
     this.dialect = Objects.requireNonNull(config.dialect());
     this.config = Objects.requireNonNull(config);
     lineStart = 0;
     reset();
-  }
-
-  /** Creates a writer with the given configuration
-   * and a given buffer to write to. */
-  public SqlPrettyWriter(@Nonnull SqlWriterConfig config,
-      @Nonnull StringBuilder buf) {
-    this(config, Objects.requireNonNull(buf), false);
   }
 
   /** Creates a writer with the given configuration and dialect,
@@ -338,7 +333,7 @@ public class SqlPrettyWriter implements SqlWriter {
   /** Creates a writer with the given configuration,
    * and a private builder. */
   public SqlPrettyWriter(@Nonnull SqlWriterConfig config) {
-    this(config, new StringBuilder(), true);
+    this(config, new StringBuilder());
   }
 
   /** Creates a writer with the default configuration.
@@ -654,6 +649,9 @@ public class SqlPrettyWriter implements SqlWriter {
       newlineBeforeSep = newline;
       newlineBeforeClose = newline;
       sepIndent = 0;
+      break;
+
+    default:
       break;
     }
 
@@ -1333,6 +1331,9 @@ public class SqlPrettyWriter implements SqlWriter {
               if (newlineAfterOpen != config.clauseEndsLine()) {
                 return false;
               }
+              break;
+            default:
+              break;
             }
             save.restore();
             newlineAndIndent();
