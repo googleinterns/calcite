@@ -981,40 +981,12 @@ SqlCreate SqlCreateMacro() :
         { attributes = null; }
     )
     <AS>
-    sqlStatements = ParenthesizedSqlStmtList()
+    <LPAREN>
+    sqlStatements = SqlStmtList()
+    <RPAREN>
     {
         return new SqlCreateMacro(s.end(this), createSpecifier, macroName,
             attributes, sqlStatements);
-    }
-}
-
-/**
- * Parses a list of SQL statements enclosed in parentheses and
- * separated by semicolon. The semicolon is required between statements, but is
- * optional at the end. Can't use existing SqlStmtList() as that function
- * expects <EOF> at the end.
- */
-SqlNodeList ParenthesizedSqlStmtList() :
-{
-    final List<SqlNode> stmtList = new ArrayList<SqlNode>();
-    SqlNode stmt;
-}
-{
-    <LPAREN>
-    stmt = SqlStmt() {
-        stmtList.add(stmt);
-    }
-    (
-        <SEMICOLON>
-        [
-            stmt = SqlStmt() {
-                stmtList.add(stmt);
-            }
-        ]
-    )*
-    <RPAREN>
-    {
-        return new SqlNodeList(stmtList, Span.of(stmtList).pos());
     }
 }
 
