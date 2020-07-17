@@ -20,6 +20,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Parse tree for {@code CREATE JOIN INDEX} statement.
@@ -39,10 +40,10 @@ public class SqlCreateJoinIndex extends SqlCreate {
       List<SqlTableAttribute> tableAttributes, SqlNode select,
       List<SqlIndex> indices) {
     super(OPERATOR, pos, SqlCreateSpecifier.CREATE, false);
-    this.name = name;
-    this.tableAttributes = tableAttributes;
-    this.select = select;
-    this.indices = indices;
+    this.name = Objects.requireNonNull(name);
+    this.tableAttributes = Objects.requireNonNull(tableAttributes);
+    this.select = Objects.requireNonNull(select);
+    this.indices = Objects.requireNonNull(indices);
   }
 
   @Override public List<SqlNode> getOperandList() {
