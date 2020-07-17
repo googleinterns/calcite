@@ -27,7 +27,7 @@ void foo(int a) :
 }
 
 
-void bar( int a, int b ) :
+void bar( final int a, int b ) :
 {
     String x = " ' } ' ";
     char y = '\'';
