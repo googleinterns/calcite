@@ -3389,6 +3389,9 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "`BAZ`\n"
         + "FROM `QUX` PRIMARY INDEX (`BAR`), NO PRIMARY INDEX, INDEX "
         + "(`BAR`, `BAZ`)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateMacroNoAttributes() {
     final String sql = "create macro foo as (select * from bar;)";
     final String expected = "CREATE MACRO `FOO` AS (SELECT *\n"
