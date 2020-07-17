@@ -6567,7 +6567,7 @@ SqlNode NamedFunctionCall() :
     SqlLiteral quantifier = null;
     SqlNodeList orderList = null;
     final Span withinGroupSpan;
-<#if parser.includePostExpressionMethodsAfterFunction>
+<#if parser.postNamedFunctionCallMethods?size != 0>
     SqlNode e;
 </#if>
 }
@@ -6628,12 +6628,10 @@ SqlNode NamedFunctionCall() :
         }
     ]
     (
-<#if parser.includePostExpressionMethodsAfterFunction>
-<#list parser.postExpressionMethods as method>
+<#list parser.postNamedFunctionCallMethods as method>
         e = ${method}(call) { return e; }
     |
 </#list>
-</#if>
         { return call; }
     )
 }

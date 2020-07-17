@@ -1133,7 +1133,6 @@ data: {
     # NAMED which should unparse to an AS clause.
     preExpressionMethods: [
       "InlineCaseSpecific"
-      "InlineCaseSpecificNamedFunctionCall"
       "InlineModOperator"
       "NamedLiteralOrIdentifier"
       "AlternativeTypeConversionLiteralOrIdentifier"
@@ -1145,6 +1144,12 @@ data: {
     postExpressionMethods: [
       "NamedQuery"
       "AlternativeTypeConversionQuery"
+    ]
+
+    postNamedFunctionCallMethods: [
+      "NamedQuery"
+      "AlternativeTypeConversionQuery"
+      "CaseSpecific"
     ]
 
     dateTimeExpressionMethods: [
@@ -1176,7 +1181,6 @@ data: {
     includeInsertWithOmittedValues: true
     includeLikeAnyAllSome: true
     includePosixOperators: true
-    includePostExpressionMethodsAfterFunction: true
     includeQualifyClause: true
     includeRankWithSortingExpressions: true
     includeSubstrKeyword: true

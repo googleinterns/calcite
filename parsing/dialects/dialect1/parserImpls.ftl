@@ -1973,23 +1973,6 @@ SqlNode InlineCaseSpecific() :
     }
 }
 
-/* This has to be separate from the InlineCaseSpecific() due to the LOOKAHEAD
-   for preExpressionMethods in Parser.jj breaking if both CompoundIdentifier()
-   and NamedFunctionCall() are options.
- */
-SqlNode InlineCaseSpecificNamedFunctionCall() :
-{
-    final SqlNode value;
-    final SqlCaseSpecific caseSpecific;
-}
-{
-    value = NamedFunctionCall()
-    caseSpecific = CaseSpecific(value)
-    {
-        return caseSpecific;
-    }
-}
-
 SqlCaseSpecific CaseSpecific(SqlNode value) :
 {
     boolean not = false;
