@@ -245,4 +245,9 @@ public class DialectGenerateTest {
     String declaration = "Map<String, String> foo(String x, int y) :";
     assertFunctionNameExtracted(declaration, "foo");
   }
+
+  @Test public void getFunctionNameWithDot() {
+    String declaration = "Foo.Bar baz() :";
+    assertFunctionNameExtracted(declaration, "baz");
+  }
 }
