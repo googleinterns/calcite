@@ -1958,6 +1958,13 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testAlternativeTypeConversionChaining() {
+    final String sql = "select foo (int) (char, format 'X6')";
+    final String expected = "SELECT CAST(CAST(`FOO` AS INTEGER) AS CHAR FORMAT "
+        + "'X6')";
+    sql(sql).ok(expected);
+  }
+
   @Test void testExplicitCastWithAttributes() {
     final String sql = "select cast(foo as char uppercase format 'X6' "
         + "character set unicode title 'hello' named 'hello')";
