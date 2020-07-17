@@ -6541,7 +6541,9 @@ SqlNode NamedFunctionCall() :
     SqlLiteral quantifier = null;
     SqlNodeList orderList = null;
     final Span withinGroupSpan;
+<#if parser.postNamedFunctionCallMethods?size != 0>
     SqlNode e;
+</#if>
 }
 {
     (
