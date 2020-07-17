@@ -517,10 +517,12 @@ SqlTableAttribute TableAttributeJournalTable() :
 SqlTableAttribute TableAttributeMap() :
 {
     final SqlIdentifier id;
+    SqlIdentifier colocateName = null;
 }
 {
     <MAP> <EQ> id = CompoundIdentifier()
-    { return new SqlTableAttributeMap(id, getPos()); }
+    [ <COLOCATE> <USING> colocateName = CompoundIdentifier() ]
+    { return new SqlTableAttributeMap(id, colocateName, getPos()); }
 }
 
 // FREESPACE attribute can take in decimals but should be truncated to an integer.
@@ -2330,5 +2332,53 @@ SqlDrop SqlDropMacro(Span s, boolean replace) :
 {
     <MACRO> id = CompoundIdentifier() {
         return SqlDdlNodes.dropMacro(s.end(this), false, id);
+    }
+}
+
+List<SqlTableAttribute> CreateJoinIndexTableAttributes() :
+{
+    final List<SqlTableAttribute> list = new ArrayList<SqlTableAttribute>();
+    SqlTableAttribute e;
+}
+{
+    (
+        <COMMA>
+        (
+            e = TableAttributeMap()
+        |
+            e = TableAttributeFallback()
+        |
+            e = TableAttributeChecksum()
+        |
+            e = TableAttributeBlockCompression()
+        ) { list.add(e); }
+    )*
+    { return list; }
+}
+
+SqlCreateJoinIndex SqlCreateJoinIndex() :
+{
+    final Span s;
+    final SqlIdentifier name;
+    final List<SqlTableAttribute> tableAttributes;
+    final SqlNode select;
+    final List<SqlIndex> indices = new ArrayList<SqlIndex>();
+    SqlIndex index;
+}
+{
+    <CREATE> { s = span(); }
+    <JOIN> <INDEX> name = CompoundIdentifier()
+    tableAttributes = CreateJoinIndexTableAttributes()
+    <AS>
+    select = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+    [
+        index = SqlCreateTableIndex(s) { indices.add(index); }
+        (
+           [ <COMMA> ] index = SqlCreateTableIndex(s) { indices.add(index); }
+        )*
+    ]
+    {
+        return new SqlCreateJoinIndex(s.end(this), name, tableAttributes,
+            select, indices);
     }
 }

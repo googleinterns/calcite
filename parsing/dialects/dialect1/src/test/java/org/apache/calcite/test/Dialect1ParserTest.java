@@ -3319,6 +3319,86 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateJoinIndex() {
+    final String sql = "create join index foo as select (bar, baz) from qux";
+    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT (ROW(`BAR`, "
+        + "`BAZ`))\n"
+        + "FROM `QUX`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateJoinIndexTableAttributes() {
+    final String sql = "create join index foo, map=a, fallback protection, "
+        + "checksum=on, blockcompression=autotemp as select (bar, baz) from "
+        + "qux";
+    final String expected = "CREATE JOIN INDEX `FOO`, MAP = `A`, FALLBACK "
+        + "PROTECTION, CHECKSUM = ON, BLOCKCOMPRESSION = AUTOTEMP AS SELECT "
+        + "(ROW(`BAR`, `BAZ`))\n"
+        + "FROM `QUX`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateJoinIndexMapColocateUsing() {
+    final String sql = "create join index foo, map=a colocate using b.c, "
+        + "fallback protection, checksum=on, blockcompression=autotemp as "
+        + "select (bar, baz) from qux";
+    final String expected = "CREATE JOIN INDEX `FOO`, MAP = `A` COLOCATE USING "
+        + "`B`.`C`, FALLBACK PROTECTION, CHECKSUM = ON, BLOCKCOMPRESSION = "
+        + "AUTOTEMP AS SELECT (ROW(`BAR`, `BAZ`))\n"
+        + "FROM `QUX`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateJoinIndexJoinedTables() {
+    final String sql = "create join index foo as select (bar, baz) from qux "
+        + "inner join quux on bar.a = baz.b";
+    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT (ROW(`BAR`, "
+        + "`BAZ`))\n"
+        + "FROM `QUX`\n"
+        + "INNER JOIN `QUUX` ON (`BAR`.`A` = `BAZ`.`B`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateJoinIndexWhereClause() {
+    final String sql = "create join index foo as select (bar, baz) from qux "
+        + "where bar = 1";
+    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT (ROW(`BAR`, "
+        + "`BAZ`))\n"
+        + "FROM `QUX`\n"
+        + "WHERE (`BAR` = 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateJoinIndexGroupByClause() {
+    final String sql = "create join index foo as select bar, sum(baz) from "
+        + "qux group by bar";
+    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT `BAR`, "
+        + "SUM(`BAZ`)\n"
+        + "FROM `QUX`\n"
+        + "GROUP BY `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateJoinIndexOrderByClause() {
+    final String sql = "create join index foo as select bar, sum(baz) from "
+        + "qux order by bar";
+    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT `BAR`, "
+        + "SUM(`BAZ`)\n"
+        + "FROM `QUX`\n"
+        + "ORDER BY `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateJoinIndexIndicesList() {
+    final String sql = "create join index foo as select bar, baz from qux "
+        + "primary index (bar), no primary index index (bar, baz)";
+    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT `BAR`, "
+        + "`BAZ`\n"
+        + "FROM `QUX` PRIMARY INDEX (`BAR`), NO PRIMARY INDEX, INDEX "
+        + "(`BAR`, `BAZ`)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateMacroNoAttributes() {
     final String sql = "create macro foo as (select * from bar;)";
     final String expected = "CREATE MACRO `FOO` AS (SELECT *\n"
