@@ -20,16 +20,16 @@ import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * Parse tree for {@code RENAME TABLE} statement.
+ * Parse tree for {@code RENAME MACRO} statement.
  */
-public class SqlRenameTable extends SqlRename implements SqlExecutableStatement {
+public class SqlRenameMacro extends SqlRename implements SqlExecutableStatement {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("RENAME TABLE", SqlKind.RENAME_TABLE);
+      new SqlSpecialOperator("RENAME MACRO", SqlKind.RENAME_MACRO);
 
-  /** Creates a {@code SqlRenameTable}. */
-  public SqlRenameTable(SqlParserPos pos, SqlIdentifier oldTable,
-      SqlIdentifier newTable) {
-    super(OPERATOR, pos, oldTable, newTable);
+  /** Creates a {@code SqlRenameMacro}. */
+  public SqlRenameMacro(SqlParserPos pos, SqlIdentifier oldMacro,
+      SqlIdentifier newMacro) {
+    super(OPERATOR, pos, oldMacro, newMacro);
   }
 
   // Intentionally left empty.

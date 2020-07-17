@@ -230,7 +230,7 @@ public class ${parser.class} extends SqlAbstractParserImpl
     }
 
     public SqlNodeList parseSqlStmtList() throws Exception {
-        return SqlStmtList();
+        return SqlStmtListEof();
     }
 
     private SqlNode extend(SqlNode table, SqlNodeList extendList) {
@@ -978,6 +978,23 @@ SqlNode SqlQueryEof() :
 }
 
 /**
+ * Parses a list of SQL statements separated by semicolon with an <EOF> expected.
+ * The semicolon is required between statements, but is
+ * optional at the end.
+ */
+SqlNodeList SqlStmtListEof() :
+{
+    final SqlNodeList stmtList;
+}
+{
+    stmtList = SqlStmtList()
+    <EOF>
+    {
+        return stmtList;
+    }
+}
+
+/**
  * Parses a list of SQL statements separated by semicolon.
  * The semicolon is required between statements, but is
  * optional at the end.
@@ -999,7 +1016,6 @@ SqlNodeList SqlStmtList() :
             }
         ]
     )*
-    <EOF>
     {
         return new SqlNodeList(stmtList, Span.of(stmtList).pos());
     }
@@ -4112,9 +4128,9 @@ SqlNode SqlUpsert() :
 /**
  * Parses a RENAME statement
  */
-SqlNode SqlRename() :
+SqlRename SqlRename() :
 {
-    SqlNode source;
+    SqlRename source;
 }
 {
     <RENAME>
@@ -5526,13 +5542,23 @@ SqlNode BuiltinFunctionCall() :
         <CAST> { s = span(); }
         <LPAREN> e = Expression(ExprContext.ACCEPT_SUB_QUERY) { args = startList(e); }
         <AS>
+<#if parser.includeCastDataAttributes>
+        (
+            (
+                dt = DataType() { args.add(dt); }
+            |
+                <INTERVAL> e = IntervalQualifier() { args.add(e); }
+            )
+            ( e = AlternativeTypeConversionAttribute() { args.add(e); } )*
+        |
+            ( e = AlternativeTypeConversionAttribute() { args.add(e); } )+
+        )
+<#else>
         (
             dt = DataType() { args.add(dt); }
         |
             <INTERVAL> e = IntervalQualifier() { args.add(e); }
         )
-<#if parser.includeCastFormat>
-        [ <FORMAT> e = StringLiteral() { args.add(e); } ]
 </#if>
         <RPAREN> {
             return SqlStdOperatorTable.CAST.createCall(s.end(this), args);

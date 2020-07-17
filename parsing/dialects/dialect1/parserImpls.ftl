@@ -813,6 +813,18 @@ SqlColumnAttribute ColumnAttributeDateFormat() :
     }
 }
 
+SqlColumnAttribute ColumnAttributeNamed() :
+{
+    SqlNode namedString = null;
+}
+{
+    <NAMED>
+    namedString = StringLiteral()
+    {
+        return new SqlColumnAttributeNamed(getPos(), namedString);
+    }
+}
+
 SqlColumnAttribute ColumnAttributeTitle() :
 {
     final SqlNode titleString;
@@ -956,6 +968,39 @@ SqlCreate SqlCreateTable() :
         return new SqlCreateTableDialect1(s.end(this), createSpecifier, setType,
          volatility, ifNotExists, id, tableAttributes, columnList, query,
          withData, primaryIndex, indices, onCommitType);
+    }
+}
+
+SqlCreate SqlCreateMacro() :
+{
+    final Span s;
+    final SqlCreateSpecifier createSpecifier;
+    final SqlIdentifier macroName;
+    final SqlNodeList attributes;
+    final SqlNodeList sqlStatements;
+}
+{
+    (
+        <CREATE> { createSpecifier = SqlCreateSpecifier.CREATE; }
+    |
+        <REPLACE> { createSpecifier = SqlCreateSpecifier.REPLACE; }
+    )
+    {
+        s = span();
+    }
+    <MACRO> macroName = CompoundIdentifier()
+    (
+        attributes = ExtendColumnList()
+    |
+        { attributes = null; }
+    )
+    <AS>
+    <LPAREN>
+    sqlStatements = SqlStmtList()
+    <RPAREN>
+    {
+        return new SqlCreateMacro(s.end(this), createSpecifier, macroName,
+            attributes, sqlStatements);
     }
 }
 
@@ -1460,22 +1505,39 @@ SqlDataTypeSpec DataTypeAlternativeCastSyntax() :
 
 SqlRenameTable SqlRenameTable() :
 {
-    SqlIdentifier targetTable;
-    SqlIdentifier sourceTable;
-    RenameOption renameOption;
+    final SqlIdentifier oldTable;
+    final SqlIdentifier newTable;
 }
 {
     <TABLE>
-    targetTable = CompoundIdentifier()
+    oldTable = CompoundIdentifier()
     (
-        <TO> { renameOption = RenameOption.TO; }
+        <TO>
     |
-        <AS> { renameOption = RenameOption.AS; }
+        <AS>
     )
-    sourceTable = CompoundIdentifier()
+    newTable = CompoundIdentifier()
     {
-        return new SqlRenameTable(getPos(), targetTable, sourceTable,
-            renameOption);
+        return new SqlRenameTable(getPos(), oldTable, newTable);
+    }
+}
+
+SqlRenameMacro SqlRenameMacro() :
+{
+    final SqlIdentifier oldMacro;
+    final SqlIdentifier newMacro;
+}
+{
+    <MACRO>
+    oldMacro = CompoundIdentifier()
+    (
+        <TO>
+    |
+        <AS>
+    )
+    newMacro = CompoundIdentifier()
+    {
+        return new SqlRenameMacro(getPos(), oldMacro, newMacro);
     }
 }
 
@@ -1521,50 +1583,72 @@ SqlNode AlternativeTypeConversionLiteralOrIdentifier() :
     e = AlternativeTypeConversionQuery(q) { return e; }
 }
 
+SqlColumnAttribute AlternativeTypeConversionAttribute():
+{
+    SqlColumnAttribute e;
+}
+{
+    (
+        e = ColumnAttributeUpperCase()
+    |
+        e = ColumnAttributeCharacterSet()
+    |
+        e = ColumnAttributeDateFormat()
+    |
+        e = ColumnAttributeTitle()
+    |
+        e = ColumnAttributeNamed()
+    )
+    { return e; }
+}
+
+void AlternativeTypeConversionAttributeList(List<SqlNode> attributes):
+{
+    SqlColumnAttribute e;
+}
+{
+    e = AlternativeTypeConversionAttribute() { attributes.add(e); }
+    (
+        <COMMA>
+        e = AlternativeTypeConversionAttribute() { attributes.add(e); }
+    )*
+}
+
 SqlNode AlternativeTypeConversionQuery(SqlNode q) :
 {
     final Span s = span();
     final List<SqlNode> args = startList(q);
     final SqlDataTypeSpec dt;
     final SqlNode interval;
-    final SqlNode format;
 }
 {
     <LPAREN>
     (
-        dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
+        (
+            dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
+        |
+            <INTERVAL> interval = IntervalQualifier() { args.add(interval); }
+        )
+        [ <COMMA> AlternativeTypeConversionAttributeList(args) ]
     |
-        <INTERVAL> interval = IntervalQualifier() { args.add(interval); }
+        AlternativeTypeConversionAttributeList(args)
+        [
+            (
+                <COMMA> dt = DataTypeAlternativeCastSyntax()
+                {
+                    args.add(1, dt);
+                }
+            |
+                <COMMA> <INTERVAL> interval = IntervalQualifier()
+                {
+                    args.add(1, interval);
+                }
+            )
+            [ <COMMA> AlternativeTypeConversionAttributeList(args) ]
+        ]
     )
-    [ <FORMAT> format = StringLiteral() { args.add(format); } ]
     <RPAREN> {
         return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
-    }
-}
-
-SqlNode InlineFormatLiteralOrIdentifier() :
-{
-     final SqlNode q;
-     final SqlNode e;
-}
-{
-    (
-        q = Literal()
-    |
-        q = CompoundIdentifier()
-    )
-    e = InlineFormatQuery(q) { return e; }
-}
-
-SqlNode InlineFormatQuery(SqlNode q) :
-{
-    final Span s = span();
-    final SqlNode format;
-}
-{
-    <LPAREN> <FORMAT> format = StringLiteral() <RPAREN>
-    {
-        return SqlStdOperatorTable.FORMAT.createCall(s.end(this), q, format);
     }
 }
 
