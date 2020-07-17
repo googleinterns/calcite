@@ -1145,9 +1145,8 @@ data: {
     ]
 
     postNamedFunctionCallMethods: [
-      "AlternativeTypeConversionQuery"
-      "InlineFormatQuery"
       "NamedQuery"
+      "AlternativeTypeConversionQuery"
       "CaseSpecific"
     ]
 
