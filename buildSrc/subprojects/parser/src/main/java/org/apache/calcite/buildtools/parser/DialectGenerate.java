@@ -35,7 +35,8 @@ public class DialectGenerate {
   // handling of nested angle brackets and comma separated values.
   private static final String TYPE = "\\w+\\s*(<\\s*[\\w<>,\\s]+>)?";
   private static final String TYPE_AND_NAME = TYPE + "\\s+\\w+";
-  private static final String SPLIT_DELIMS = "(\\s|\n|\"|//|/\\*|\\*/|'|\\}|\\{)";
+  // The \\\\ delim splits by \.
+  private static final String SPLIT_DELIMS = "(\\s|\\\\|\n|\"|//|/\\*|\\*/|'|\\}|\\{)";
 
   // Used to split up a string into tokens by the specified deliminators
   // while also keeping the deliminators as tokens.
