@@ -52,7 +52,7 @@ public class SqlCreateJoinIndex extends SqlCreate {
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("CREATE JOIN INDEX");
     name.unparse(writer, 0, 0);
-    if (tableAttributes != null) {
+    if (!tableAttributes.isEmpty()) {
       SqlWriter.Frame frame = writer.startList("", "");
       for (SqlTableAttribute a : tableAttributes) {
         writer.sep(",", true);

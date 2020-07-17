@@ -2279,7 +2279,7 @@ List<SqlTableAttribute> CreateJoinIndexTableAttributes() :
         |
             e = TableAttributeBlockCompression()
         ) { list.add(e); }
-    )+
+    )*
     { return list; }
 }
 
@@ -2287,15 +2287,15 @@ SqlCreateJoinIndex SqlCreateJoinIndex() :
 {
     final Span s;
     final SqlIdentifier name;
-    List<SqlTableAttribute> tableAttributes = null;
-    SqlNode select;
-    List<SqlIndex> indices = new ArrayList<SqlIndex>();
+    final List<SqlTableAttribute> tableAttributes;
+    final SqlNode select;
+    final List<SqlIndex> indices = new ArrayList<SqlIndex>();
     SqlIndex index;
 }
 {
     <CREATE> { s = span(); }
     <JOIN> <INDEX> name = CompoundIdentifier()
-    [ tableAttributes = CreateJoinIndexTableAttributes() ]
+    tableAttributes = CreateJoinIndexTableAttributes()
     <AS>
     select = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
     [
