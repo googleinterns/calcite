@@ -969,6 +969,39 @@ SqlCreate SqlCreateTable() :
     }
 }
 
+SqlCreate SqlCreateMacro() :
+{
+    final Span s;
+    final SqlCreateSpecifier createSpecifier;
+    final SqlIdentifier macroName;
+    final SqlNodeList attributes;
+    final SqlNodeList sqlStatements;
+}
+{
+    (
+        <CREATE> { createSpecifier = SqlCreateSpecifier.CREATE; }
+    |
+        <REPLACE> { createSpecifier = SqlCreateSpecifier.REPLACE; }
+    )
+    {
+        s = span();
+    }
+    <MACRO> macroName = CompoundIdentifier()
+    (
+        attributes = ExtendColumnList()
+    |
+        { attributes = null; }
+    )
+    <AS>
+    <LPAREN>
+    sqlStatements = SqlStmtList()
+    <RPAREN>
+    {
+        return new SqlCreateMacro(s.end(this), createSpecifier, macroName,
+            attributes, sqlStatements);
+    }
+}
+
 SqlCreate SqlCreateFunctionSqlForm() :
 {
     final Span s;

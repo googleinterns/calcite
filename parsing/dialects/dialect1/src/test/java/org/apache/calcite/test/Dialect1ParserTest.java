@@ -3311,4 +3311,44 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "DROP MACRO `FOO`";
     sql(sql).ok(expected);
   }
+
+  @Test public void testCreateMacroNoAttributes() {
+    final String sql = "create macro foo as (select * from bar;)";
+    final String expected = "CREATE MACRO `FOO` AS (SELECT *\n"
+        + "FROM `BAR`;)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateMacroInsertStatement() {
+    final String sql = "create macro foo (num int) as (insert into bar (num)"
+        + " values (:num);)";
+    final String expected = "CREATE MACRO `FOO` (`NUM` INTEGER) AS "
+        + "(INSERT INTO `BAR` (`NUM`)\n"
+        + "VALUES (ROW(:NUM));)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateMacroInsertAndSelectStatements() {
+    final String sql = "create macro foo (dob date format 'mmddyy') as "
+        + "(insert into bar (dob) values(:dob);"
+        + " select * from bar where dob = :dob; )";
+    final String expected = "CREATE MACRO `FOO` (`DOB` DATE FORMAT 'mmddyy') AS"
+        + " (INSERT INTO `BAR` (`DOB`)\n"
+        + "VALUES (ROW(:DOB)); SELECT *\n"
+        + "FROM `BAR`\n"
+        + "WHERE (`DOB` = :DOB);)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateMacroUpdateAndSelectStatements() {
+    final String sql = "create macro foo (num int default 99, val varchar"
+        + " not null) as (update bar set num = :num where val = :val;"
+        + " select * from bar where num = :num)";
+    final String expected = "CREATE MACRO `FOO` (`NUM` INTEGER DEFAULT 99, `VAL`"
+        + " VARCHAR NOT NULL) AS (UPDATE `BAR` SET `NUM` = :NUM\n"
+        + "WHERE (`VAL` = :VAL); SELECT *\n"
+        + "FROM `BAR`\n"
+        + "WHERE (`NUM` = :NUM);)";
+    sql(sql).ok(expected);
+  }
 }

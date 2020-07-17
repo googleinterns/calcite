@@ -132,7 +132,7 @@ public class SqlInsert extends SqlCall {
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.startList(SqlWriter.FrameTypeEnum.SELECT);
+    SqlWriter.Frame frame = writer.startList(SqlWriter.FrameTypeEnum.SELECT);
     writer.sep(isUpsert() ? "UPSERT INTO" : "INSERT INTO");
     final int opLeft = getOperator().getLeftPrec();
     final int opRight = getOperator().getRightPrec();
@@ -142,6 +142,7 @@ public class SqlInsert extends SqlCall {
     }
     writer.newlineAndIndent();
     source.unparse(writer, 0, 0);
+    writer.endList(frame);
   }
 
   public void validate(SqlValidator validator, SqlValidatorScope scope) {
