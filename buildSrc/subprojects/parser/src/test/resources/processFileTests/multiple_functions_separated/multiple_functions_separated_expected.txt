@@ -32,3 +32,10 @@ void bar( int a, int b ) :
         // }
     */
 }
+Foo.Bar baz () :
+{
+
+}
+{
+
+}
