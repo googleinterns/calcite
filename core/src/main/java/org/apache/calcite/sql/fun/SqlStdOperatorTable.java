@@ -1939,16 +1939,6 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
   public static final SqlFunction CAST = new SqlCastFunction();
 
   /**
-   * The SQL <code>FORMAT</code> operator.
-   *
-   * <p>The SQL syntax is
-   *
-   * <blockquote><code>FORMAT(<i>expression</i> <i>literal</i>)</code>
-   * </blockquote>
-   */
-  public static final SqlFunction FORMAT = new SqlFormatFunction();
-
-  /**
    * The SQL <code>EXTRACT</code> operator. Extracts a specified field value
    * from a DATETIME or an INTERVAL. E.g.<br>
    * <code>EXTRACT(HOUR FROM INTERVAL '364 23:59:59')</code> returns <code>

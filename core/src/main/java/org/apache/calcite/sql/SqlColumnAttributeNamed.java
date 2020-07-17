@@ -16,22 +16,32 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-/**
- * Parse tree for {@code RENAME TABLE} statement.
- */
-public class SqlRenameTable extends SqlRename implements SqlExecutableStatement {
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("RENAME TABLE", SqlKind.RENAME_TABLE);
+import java.util.Objects;
 
-  /** Creates a {@code SqlRenameTable}. */
-  public SqlRenameTable(SqlParserPos pos, SqlIdentifier oldTable,
-      SqlIdentifier newTable) {
-    super(OPERATOR, pos, oldTable, newTable);
+/**
+ * A {@code SqlColumnAttributeNamed} is the NAMED column attribute for a data
+ * type.
+ */
+public class SqlColumnAttributeNamed extends SqlColumnAttribute {
+
+  public final SqlNode namedString;
+
+  /**
+   * Creates a {@code SqlColumnAttributeNamed}.
+   *
+   * @param pos  Parser position, must not be null
+   * @param namedString String after the NAMED keyword
+   */
+  public SqlColumnAttributeNamed(SqlParserPos pos, SqlNode namedString) {
+    super(pos);
+    this.namedString = Objects.requireNonNull(namedString);
   }
 
-  // Intentionally left empty.
-  @Override public void execute(CalcitePrepare.Context context) {}
+  @Override public void unparse(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
+    writer.keyword("NAMED");
+    namedString.unparse(writer, 0, 0);
+  }
 }

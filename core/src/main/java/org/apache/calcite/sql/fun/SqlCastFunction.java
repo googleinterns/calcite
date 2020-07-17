@@ -183,17 +183,15 @@ public class SqlCastFunction extends SqlFunction {
       SqlCall call,
       int leftPrec,
       int rightPrec) {
-    assert call.operandCount() == 2 || call.operandCount() == 3;
+    assert call.operandCount() >= 2;
     final SqlWriter.Frame frame = writer.startFunCall(getName());
     call.operand(0).unparse(writer, 0, 0);
     writer.sep("AS");
-    if (call.operand(1) instanceof SqlIntervalQualifier) {
-      writer.sep("INTERVAL");
-    }
-    call.operand(1).unparse(writer, 0, 0);
-    if (call.operandCount() == 3) {
-      writer.sep("FORMAT");
-      call.operand(2).unparse(writer, 0, 0);
+    for (int i = 1; i < call.operandCount(); i++) {
+      if (call.operand(i) instanceof SqlIntervalQualifier) {
+        writer.sep("INTERVAL");
+      }
+      call.operand(i).unparse(writer, 0, 0);
     }
     writer.endFunCall(frame);
   }
