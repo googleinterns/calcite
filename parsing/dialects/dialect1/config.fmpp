@@ -62,6 +62,7 @@ data: {
       "org.apache.calcite.sql.SqlCreateFunctionSqlForm",
       "org.apache.calcite.sql.SqlCreateFunctionSqlForm.DeterministicType",
       "org.apache.calcite.sql.SqlCreateFunctionSqlForm.ReactToNullInputType",
+      "org.apache.calcite.sql.SqlCreateMacro",
       "org.apache.calcite.sql.SqlCreateTableDialect1",
       "org.apache.calcite.sql.SqlDateTimeAtLocal",
       "org.apache.calcite.sql.SqlDateTimeAtTimeZone",
@@ -1071,6 +1072,7 @@ data: {
     # "(CREATE [OR REPLACE] | REPLACE)" calls.
     createStatementParserMethods: [
       "SqlCreateForeignSchema"
+      "SqlCreateMacro"
       "SqlCreateMaterializedView"
       "SqlCreateSchema"
       "SqlCreateTable"

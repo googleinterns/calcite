@@ -230,7 +230,7 @@ public class ${parser.class} extends SqlAbstractParserImpl
     }
 
     public SqlNodeList parseSqlStmtList() throws Exception {
-        return SqlStmtList();
+        return SqlStmtListEof();
     }
 
     private SqlNode extend(SqlNode table, SqlNodeList extendList) {
@@ -978,6 +978,23 @@ SqlNode SqlQueryEof() :
 }
 
 /**
+ * Parses a list of SQL statements separated by semicolon with an <EOF> expected.
+ * The semicolon is required between statements, but is
+ * optional at the end.
+ */
+SqlNodeList SqlStmtListEof() :
+{
+    final SqlNodeList stmtList;
+}
+{
+    stmtList = SqlStmtList()
+    <EOF>
+    {
+        return stmtList;
+    }
+}
+
+/**
  * Parses a list of SQL statements separated by semicolon.
  * The semicolon is required between statements, but is
  * optional at the end.
@@ -999,7 +1016,6 @@ SqlNodeList SqlStmtList() :
             }
         ]
     )*
-    <EOF>
     {
         return new SqlNodeList(stmtList, Span.of(stmtList).pos());
     }

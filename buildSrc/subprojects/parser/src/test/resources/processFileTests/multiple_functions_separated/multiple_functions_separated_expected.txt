@@ -17,6 +17,7 @@
 void foo(int a) :
 {
     String x = "}";
+    String y = "\"";
 }
 {
     /*
@@ -26,9 +27,17 @@ void foo(int a) :
 void bar( int a, int b ) :
 {
     String x = " ' } ' ";
+    char y = '\'';
 }
 {
     /*
         // }
     */
+}
+Foo.Bar baz () :
+{
+
+}
+{
+
 }

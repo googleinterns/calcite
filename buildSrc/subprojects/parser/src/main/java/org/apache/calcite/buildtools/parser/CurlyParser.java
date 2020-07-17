@@ -64,6 +64,8 @@ public class CurlyParser {
   // legally encountered (those that are not within any structure).
   private int curlyCounter = 0;
 
+  private String previousToken = "";
+
   /**
    * Parses the given token and updates the state. It is assumed that the
    * tokens are provided as a sequence:
@@ -90,13 +92,13 @@ public class CurlyParser {
       if (insideState == InsideState.SINGLE_COMMENT) {
         insideState = InsideState.NONE;
       }
-    } else if (token.equals("\"")) {
+    } else if (token.equals("\"") && !previousToken.equals("\\")) {
       if (insideState == InsideState.NONE) {
         insideState = InsideState.STRING;
       } else if (insideState == InsideState.STRING) {
         insideState = InsideState.NONE;
       }
-    } else if (token.equals("'")) {
+    } else if (token.equals("'") && !previousToken.equals("\\")) {
       if (insideState == InsideState.NONE) {
         insideState = InsideState.CHARACTER;
       } else if (insideState == InsideState.CHARACTER) {
@@ -123,5 +125,6 @@ public class CurlyParser {
         curlyCounter--;
       }
     }
+    previousToken = token;
   }
 }

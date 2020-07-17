@@ -66,6 +66,16 @@ public class CurlyParserTest {
     assertCurlyParserSucceeds(input);
   }
 
+  @Test public void testCurlyParserParsesDoubleQuoteInString() {
+    String input = "{ \"abc\\\" \"  }";
+    assertCurlyParserSucceeds(input);
+  }
+
+  @Test public void testCurlyParserParsesSingleQuoteInSingleQuotes() {
+    String input = "{ 'abc\\''  }";
+    assertCurlyParserSucceeds(input);
+  }
+
   @Test public void testCurlyParserParsesNestedValidCurlyBlocks() {
     String input = "{ {  } }";
     assertCurlyParserSucceeds(input);

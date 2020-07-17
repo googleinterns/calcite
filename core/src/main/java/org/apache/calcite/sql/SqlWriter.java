@@ -243,6 +243,11 @@ public interface SqlWriter {
     CASE,
 
     /**
+     * CREATE_MACRO expression.
+     */
+    CREATE_MACRO,
+
+    /**
      * Same behavior as user-defined frame type.
      */
     OTHER;
