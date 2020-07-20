@@ -76,6 +76,16 @@ public class CurlyParserTest {
     assertCurlyParserSucceeds(input);
   }
 
+  @Test public void testCurlyParserParsesEscapedBackslashInSingleQuotes() {
+    String input = "{ '\\\\'  }";
+    assertCurlyParserSucceeds(input);
+  }
+
+  @Test public void testCurlyParserParsesEscapedBackslash() {
+    String input = "{ String x = \"\\\\\" }";
+    assertCurlyParserSucceeds(input);
+  }
+
   @Test public void testCurlyParserParsesNestedValidCurlyBlocks() {
     String input = "{ {  } }";
     assertCurlyParserSucceeds(input);

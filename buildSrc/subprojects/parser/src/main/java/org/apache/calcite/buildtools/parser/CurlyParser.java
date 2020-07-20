@@ -64,7 +64,9 @@ public class CurlyParser {
   // legally encountered (those that are not within any structure).
   private int curlyCounter = 0;
 
-  private String previousToken = "";
+  // Keeps track of the number of consecutive backslashes so it can be
+  // determined if the current token is escaped or not.
+  private int consecutiveBackslashes = 0;
 
   /**
    * Parses the given token and updates the state. It is assumed that the
@@ -92,13 +94,13 @@ public class CurlyParser {
       if (insideState == InsideState.SINGLE_COMMENT) {
         insideState = InsideState.NONE;
       }
-    } else if (token.equals("\"") && !previousToken.equals("\\")) {
+    } else if (token.equals("\"") && !isEscaped()) {
       if (insideState == InsideState.NONE) {
         insideState = InsideState.STRING;
       } else if (insideState == InsideState.STRING) {
         insideState = InsideState.NONE;
       }
-    } else if (token.equals("'") && !previousToken.equals("\\")) {
+    } else if (token.equals("'") && !isEscaped()) {
       if (insideState == InsideState.NONE) {
         insideState = InsideState.CHARACTER;
       } else if (insideState == InsideState.CHARACTER) {
@@ -125,6 +127,20 @@ public class CurlyParser {
         curlyCounter--;
       }
     }
-    previousToken = token;
+    if (token.equals("\\")) {
+      consecutiveBackslashes++;
+    } else {
+      consecutiveBackslashes = 0;
+    }
+  }
+
+  /**
+   * Determines if the current token is escaped based on how many consecutive
+   * backslashes precede it. An even number of backslashes implies the token
+   * is not escaped (as in that case the backslash itself is escaped), while
+   * an odd number implies that the token is escaped.
+   */
+  private boolean isEscaped() {
+    return consecutiveBackslashes % 2 == 1;
   }
 }
