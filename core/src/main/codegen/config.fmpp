@@ -490,8 +490,6 @@ data: {
   }
 }
 
-# TODO: This is a temporary solution and a permanent one in which SqlParserImpl
-# is created within the parsing/ directory.
 freemarkerLinks: {
   templates: includes/
 }
