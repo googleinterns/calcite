@@ -250,4 +250,9 @@ public class DialectGenerateTest {
     String declaration = "Foo.Bar baz() :";
     assertFunctionNameExtracted(declaration, "baz");
   }
+
+  @Test public void getFunctionNameWithFinal() {
+    String declaration = "final void foo() :";
+    assertFunctionNameExtracted(declaration, "foo");
+  }
 }

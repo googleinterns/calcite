@@ -45,3 +45,11 @@ Foo.Bar baz () :
 {
 
 }
+
+final void qux(final String x) :
+{
+
+}
+{
+
+}
