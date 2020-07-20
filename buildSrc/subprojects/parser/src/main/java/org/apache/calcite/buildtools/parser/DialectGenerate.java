@@ -33,7 +33,7 @@ public class DialectGenerate {
 
   // Matches foo<body> where body can be [\w\s<>,]. This allows for easy
   // handling of nested angle brackets and comma separated values.
-  private static final String TYPE = "[\\w\\.]+\\s*(<\\s*[\\w<>,\\s]+>)?";
+  private static final String TYPE = "(final\\s+)?[\\w\\.]+\\s*(<\\s*[\\w<>,\\s]+>)?";
   private static final String TYPE_AND_NAME = TYPE + "\\s+\\w+";
   // The \\\\ delim splits by \.
   private static final String SPLIT_DELIMS = "(\\s|\\\\|\n|\"|//|/\\*|\\*/|'|\\}|\\{)";
