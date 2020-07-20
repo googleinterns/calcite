@@ -19,6 +19,8 @@ void foo(int a) :
 {
     String x = "}";
     String y = "\"";
+    String z = "\\";
+    char l = '\\';
 }
 {
     /*
