@@ -136,9 +136,9 @@ public class CurlyParser {
 
   /**
    * Determines if the current token is escaped based on how many consecutive
-   * backslashes preceeded it. An even number of backslashes implies the token
+   * backslashes precede it. An even number of backslashes implies the token
    * is not escaped (as in that case the backslash itself is escaped), while
-   * and odd number implies that the token is escaped.
+   * an odd number implies that the token is escaped.
    */
   private boolean isEscaped() {
     return consecutiveBackslashes % 2 == 1;
