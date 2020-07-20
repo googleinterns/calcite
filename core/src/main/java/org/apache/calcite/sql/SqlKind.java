@@ -1097,6 +1097,9 @@ public enum SqlKind {
   /** {@code DROP SCHEMA} DDL statement. */
   DROP_SCHEMA,
 
+  /** {@code CREATE MACRO} DDL statement. */
+  CREATE_MACRO,
+
   /** {@code CREATE TABLE} DDL statement. */
   CREATE_TABLE,
 
@@ -1159,6 +1162,9 @@ public enum SqlKind {
 
   /** {@code DROP FUNCTION} DDL statement. */
   DROP_FUNCTION,
+
+  /** {@code CREATE JOIN INDEX} DDL statement. */
+  CREATE_JOIN_INDEX,
 
   /** DDL statement not handled above.
    *

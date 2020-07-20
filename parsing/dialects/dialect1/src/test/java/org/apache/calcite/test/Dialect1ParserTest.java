@@ -1958,6 +1958,13 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testAlternativeTypeConversionChaining() {
+    final String sql = "select foo (int) (char, format 'X6')";
+    final String expected = "SELECT CAST(CAST(`FOO` AS INTEGER) AS CHAR FORMAT "
+        + "'X6')";
+    sql(sql).ok(expected);
+  }
+
   @Test void testExplicitCastWithAttributes() {
     final String sql = "select cast(foo as char uppercase format 'X6' "
         + "character set unicode title 'hello' named 'hello')";
@@ -3310,5 +3317,190 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "drop macro foo";
     final String expected = "DROP MACRO `FOO`";
     sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateJoinIndex() {
+    final String sql = "create join index foo as select (bar, baz) from qux";
+    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT (ROW(`BAR`, "
+        + "`BAZ`))\n"
+        + "FROM `QUX`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateJoinIndexTableAttributes() {
+    final String sql = "create join index foo, map=a, fallback protection, "
+        + "checksum=on, blockcompression=autotemp as select (bar, baz) from "
+        + "qux";
+    final String expected = "CREATE JOIN INDEX `FOO`, MAP = `A`, FALLBACK "
+        + "PROTECTION, CHECKSUM = ON, BLOCKCOMPRESSION = AUTOTEMP AS SELECT "
+        + "(ROW(`BAR`, `BAZ`))\n"
+        + "FROM `QUX`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateJoinIndexMapColocateUsing() {
+    final String sql = "create join index foo, map=a colocate using b.c, "
+        + "fallback protection, checksum=on, blockcompression=autotemp as "
+        + "select (bar, baz) from qux";
+    final String expected = "CREATE JOIN INDEX `FOO`, MAP = `A` COLOCATE USING "
+        + "`B`.`C`, FALLBACK PROTECTION, CHECKSUM = ON, BLOCKCOMPRESSION = "
+        + "AUTOTEMP AS SELECT (ROW(`BAR`, `BAZ`))\n"
+        + "FROM `QUX`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateJoinIndexJoinedTables() {
+    final String sql = "create join index foo as select (bar, baz) from qux "
+        + "inner join quux on bar.a = baz.b";
+    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT (ROW(`BAR`, "
+        + "`BAZ`))\n"
+        + "FROM `QUX`\n"
+        + "INNER JOIN `QUUX` ON (`BAR`.`A` = `BAZ`.`B`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateJoinIndexWhereClause() {
+    final String sql = "create join index foo as select (bar, baz) from qux "
+        + "where bar = 1";
+    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT (ROW(`BAR`, "
+        + "`BAZ`))\n"
+        + "FROM `QUX`\n"
+        + "WHERE (`BAR` = 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateJoinIndexGroupByClause() {
+    final String sql = "create join index foo as select bar, sum(baz) from "
+        + "qux group by bar";
+    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT `BAR`, "
+        + "SUM(`BAZ`)\n"
+        + "FROM `QUX`\n"
+        + "GROUP BY `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateJoinIndexOrderByClause() {
+    final String sql = "create join index foo as select bar, sum(baz) from "
+        + "qux order by bar";
+    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT `BAR`, "
+        + "SUM(`BAZ`)\n"
+        + "FROM `QUX`\n"
+        + "ORDER BY `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateJoinIndexIndicesList() {
+    final String sql = "create join index foo as select bar, baz from qux "
+        + "primary index (bar), no primary index index (bar, baz)";
+    final String expected = "CREATE JOIN INDEX `FOO` AS SELECT `BAR`, "
+        + "`BAZ`\n"
+        + "FROM `QUX` PRIMARY INDEX (`BAR`), NO PRIMARY INDEX, INDEX "
+        + "(`BAR`, `BAZ`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateMacroNoAttributes() {
+    final String sql = "create macro foo as (select * from bar;)";
+    final String expected = "CREATE MACRO `FOO` AS (SELECT *\n"
+        + "FROM `BAR`;)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateMacroInsertStatement() {
+    final String sql = "create macro foo (num int) as (insert into bar (num)"
+        + " values (:num);)";
+    final String expected = "CREATE MACRO `FOO` (`NUM` INTEGER) AS "
+        + "(INSERT INTO `BAR` (`NUM`)\n"
+        + "VALUES (ROW(:NUM));)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateMacroInsertAndSelectStatements() {
+    final String sql = "create macro foo (dob date format 'mmddyy') as "
+        + "(insert into bar (dob) values(:dob);"
+        + " select * from bar where dob = :dob; )";
+    final String expected = "CREATE MACRO `FOO` (`DOB` DATE FORMAT 'mmddyy') AS"
+        + " (INSERT INTO `BAR` (`DOB`)\n"
+        + "VALUES (ROW(:DOB)); SELECT *\n"
+        + "FROM `BAR`\n"
+        + "WHERE (`DOB` = :DOB);)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateMacroUpdateAndSelectStatements() {
+    final String sql = "create macro foo (num int default 99, val varchar"
+        + " not null) as (update bar set num = :num where val = :val;"
+        + " select * from bar where num = :num)";
+    final String expected = "CREATE MACRO `FOO` (`NUM` INTEGER DEFAULT 99, `VAL`"
+        + " VARCHAR NOT NULL) AS (UPDATE `BAR` SET `NUM` = :NUM\n"
+        + "WHERE (`VAL` = :VAL); SELECT *\n"
+        + "FROM `BAR`\n"
+        + "WHERE (`NUM` = :NUM);)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testNestedNamedFunctionCalls() {
+    final String sql = "SELECT\n"
+        + "  MY_FUN(\n"
+        + "    MY_FUN(\n"
+        + "      MY_FUN(\n"
+        + "        MY_FUN(\n"
+        + "          MY_FUN(\n"
+        + "            MY_FUN(\n"
+        + "              MY_FUN(\n"
+        + "                MY_FUN(\n"
+        + "                  MY_FUN(\n"
+        + "                    MY_FUN(\n"
+        + "                      MY_FUN(\n"
+        + "                        MY_FUN(\n"
+        + "                          MY_FUN(\n"
+        + "                            MY_FUN(\n"
+        + "                              MY_FUN(\n"
+        + "                                MY_FUN(\n"
+        + "                                  MY_FUN(\n"
+        + "                                    MY_FUN(\n"
+        + "                                      MY_FUN(\n"
+        + "                                        MY_FUN(\n"
+        + "                                          MY_FUN(\n"
+        + "                                            MY_FUN(\n"
+        + "                                              MY_FUN(\n"
+        + "                                                MY_FUN(\n"
+        + "                                                  MY_FUN(\n"
+        + "                                                    a,'A',''\n"
+        + "                                                  ),'B',''\n"
+        + "                                                ),'C',''\n"
+        + "                                              ),'D',''\n"
+        + "                                            ),'E',''\n"
+        + "                                          ),'F',''\n"
+        + "                                        ),'G',''\n"
+        + "                                      ),'H',''\n"
+        + "                                    ),'I ',''\n"
+        + "                                  ),'J',''\n"
+        + "                                ),'K',''\n"
+        + "                              ),'L',''\n"
+        + "                            ),'M',''\n"
+        + "                          ),'N',''\n"
+        + "                        ),'O',''\n"
+        + "                      ),'P',''\n"
+        + "                    ),'Q',''\n"
+        + "                  ),'R',''\n"
+        + "                ),'S',''\n"
+        + "              ),'T',''\n"
+        + "            ),'U ',''\n"
+        + "          ),'V',''\n"
+        + "        ),'W',''\n"
+        + "      ),'X',''\n"
+        + "    ),'Y',''\n"
+        + ") AS b\n"
+        + "FROM abc\n";
+    sql(sql).ok("SELECT `MY_FUN`(`MY_FUN`(`MY_FUN`(`MY_FUN`(`MY_FUN`(`MY_FUN`("
+        + "`MY_FUN`(`MY_FUN`(`MY_FUN`(`MY_FUN`(`MY_FUN`(`MY_FUN`(`MY_FUN`("
+        + "`MY_FUN`(`MY_FUN`(`MY_FUN`(`MY_FUN`(`MY_FUN`(`MY_FUN`(`MY_FUN`("
+        + "`MY_FUN`(`MY_FUN`(`MY_FUN`(`MY_FUN`(`MY_FUN`(`A`, 'A', ''), 'B',"
+        + " ''), 'C', ''), 'D', ''), 'E', ''), 'F', ''), 'G', ''), 'H', ''),"
+        + " 'I ', ''), 'J', ''), 'K', ''), 'L', ''), 'M', ''), 'N', ''), 'O',"
+        + " ''), 'P', ''), 'Q', ''), 'R', ''), 'S', ''), 'T', ''), 'U ', ''),"
+        + " 'V', ''), 'W', ''), 'X', ''), 'Y', '') AS `B`\n"
+        + "FROM `ABC`");
   }
 }

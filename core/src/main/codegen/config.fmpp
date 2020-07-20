@@ -452,6 +452,9 @@ data: {
     postExpressionMethods: [
     ]
 
+    postNamedFunctionCallMethods: [
+    ]
+
     dateTimeExpressionMethods: [
     ]
 
@@ -479,7 +482,6 @@ data: {
     includeInsertWithOmittedValues: false
     includeLikeAnyAllSome: false
     includePosixOperators: false
-    includePostExpressionMethodsAfterFunction: false
     includeQualifyClause: false
     includeRankWithSortingExpressions: false
     includeSubstrKeyword: false

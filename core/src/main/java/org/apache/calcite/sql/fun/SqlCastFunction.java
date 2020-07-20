@@ -178,12 +178,14 @@ public class SqlCastFunction extends SqlFunction {
     return SqlSyntax.SPECIAL;
   }
 
-  public void unparse(
+  @Override public void unparse(
       SqlWriter writer,
       SqlCall call,
       int leftPrec,
       int rightPrec) {
-    assert call.operandCount() >= 2;
+    if (call.operandCount() < 2) {
+      return;
+    }
     final SqlWriter.Frame frame = writer.startFunCall(getName());
     call.operand(0).unparse(writer, 0, 0);
     writer.sep("AS");

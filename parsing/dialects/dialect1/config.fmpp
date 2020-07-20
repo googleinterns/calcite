@@ -62,6 +62,8 @@ data: {
       "org.apache.calcite.sql.SqlCreateFunctionSqlForm",
       "org.apache.calcite.sql.SqlCreateFunctionSqlForm.DeterministicType",
       "org.apache.calcite.sql.SqlCreateFunctionSqlForm.ReactToNullInputType",
+      "org.apache.calcite.sql.SqlCreateJoinIndex",
+      "org.apache.calcite.sql.SqlCreateMacro",
       "org.apache.calcite.sql.SqlCreateTableDialect1",
       "org.apache.calcite.sql.SqlDateTimeAtLocal",
       "org.apache.calcite.sql.SqlDateTimeAtTimeZone",
@@ -127,6 +129,7 @@ data: {
       "BYTES"
       "CASESPECIFIC"
       "CHECKSUM"
+      "COLOCATE"
       "COMPRESS"
       "CONCURRENT"
       "CS"
@@ -511,7 +514,6 @@ data: {
       "FREESPACE"
       "GRAPHIC"
       "IF"
-      "INDEX"
       "INLINE"
       "INS"
       "ISOLATED"
@@ -811,7 +813,6 @@ data: {
       "NCLOB"
 #     "NEW"
 #     "NEXT"
-      "NO"
       "NONE"
       "NORMALIZE"
       "NOT"
@@ -863,7 +864,6 @@ data: {
       "PREPARE"
       "PRESERVE"
       "PREV"
-      "PRIMARY"
       "PRIOR"
       "PRIVILEGES"
       "PROCEDURE"
@@ -978,7 +978,6 @@ data: {
       "UNDER"
 #     "UNDO" # not a keyword in Calcite
 #     "UNION"
-      "UNIQUE"
       "UNKNOWN"
 #     "UNNEST"
 #     "UNTIL" # not a keyword in Calcite
@@ -1071,12 +1070,14 @@ data: {
     # "(CREATE [OR REPLACE] | REPLACE)" calls.
     createStatementParserMethods: [
       "SqlCreateForeignSchema"
+      "SqlCreateMacro"
       "SqlCreateMaterializedView"
       "SqlCreateSchema"
       "SqlCreateTable"
       "SqlCreateType"
       "SqlCreateView"
       "SqlCreateFunctionSqlForm"
+      "SqlCreateJoinIndex"
     ]
 
     # list of methods for parsing extensions to "SET" calls
@@ -1131,7 +1132,6 @@ data: {
     # NAMED which should unparse to an AS clause.
     preExpressionMethods: [
       "InlineCaseSpecific"
-      "InlineCaseSpecificNamedFunctionCall"
       "InlineModOperator"
       "NamedLiteralOrIdentifier"
       "AlternativeTypeConversionLiteralOrIdentifier"
@@ -1143,6 +1143,12 @@ data: {
     postExpressionMethods: [
       "NamedQuery"
       "AlternativeTypeConversionQuery"
+    ]
+
+    postNamedFunctionCallMethods: [
+      "NamedQuery"
+      "AlternativeTypeConversionQuery"
+      "CaseSpecific"
     ]
 
     dateTimeExpressionMethods: [
@@ -1174,7 +1180,6 @@ data: {
     includeInsertWithOmittedValues: true
     includeLikeAnyAllSome: true
     includePosixOperators: true
-    includePostExpressionMethodsAfterFunction: true
     includeQualifyClause: true
     includeRankWithSortingExpressions: true
     includeSubstrKeyword: true

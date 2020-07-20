@@ -517,10 +517,12 @@ SqlTableAttribute TableAttributeJournalTable() :
 SqlTableAttribute TableAttributeMap() :
 {
     final SqlIdentifier id;
+    SqlIdentifier colocateName = null;
 }
 {
     <MAP> <EQ> id = CompoundIdentifier()
-    { return new SqlTableAttributeMap(id, getPos()); }
+    [ <COLOCATE> <USING> colocateName = CompoundIdentifier() ]
+    { return new SqlTableAttributeMap(id, colocateName, getPos()); }
 }
 
 // FREESPACE attribute can take in decimals but should be truncated to an integer.
@@ -966,6 +968,39 @@ SqlCreate SqlCreateTable() :
         return new SqlCreateTableDialect1(s.end(this), createSpecifier, setType,
          volatility, ifNotExists, id, tableAttributes, columnList, query,
          withData, primaryIndex, indices, onCommitType);
+    }
+}
+
+SqlCreate SqlCreateMacro() :
+{
+    final Span s;
+    final SqlCreateSpecifier createSpecifier;
+    final SqlIdentifier macroName;
+    final SqlNodeList attributes;
+    final SqlNodeList sqlStatements;
+}
+{
+    (
+        <CREATE> { createSpecifier = SqlCreateSpecifier.CREATE; }
+    |
+        <REPLACE> { createSpecifier = SqlCreateSpecifier.REPLACE; }
+    )
+    {
+        s = span();
+    }
+    <MACRO> macroName = CompoundIdentifier()
+    (
+        attributes = ExtendColumnList()
+    |
+        { attributes = null; }
+    )
+    <AS>
+    <LPAREN>
+    sqlStatements = SqlStmtList()
+    <RPAREN>
+    {
+        return new SqlCreateMacro(s.end(this), createSpecifier, macroName,
+            attributes, sqlStatements);
     }
 }
 
@@ -1582,39 +1617,45 @@ void AlternativeTypeConversionAttributeList(List<SqlNode> attributes):
 SqlNode AlternativeTypeConversionQuery(SqlNode q) :
 {
     final Span s = span();
-    final List<SqlNode> args = startList(q);
-    final SqlDataTypeSpec dt;
-    final SqlNode interval;
+    List<SqlNode> args;
+    SqlDataTypeSpec dt;
+    SqlNode interval;
 }
 {
-    <LPAREN>
     (
+        <LPAREN> { args = startList(q); }
         (
-            dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
-        |
-            <INTERVAL> interval = IntervalQualifier() { args.add(interval); }
-        )
-        [ <COMMA> AlternativeTypeConversionAttributeList(args) ]
-    |
-        AlternativeTypeConversionAttributeList(args)
-        [
             (
-                <COMMA> dt = DataTypeAlternativeCastSyntax()
-                {
-                    args.add(1, dt);
-                }
+                dt = DataTypeAlternativeCastSyntax() { args.add(dt); }
             |
-                <COMMA> <INTERVAL> interval = IntervalQualifier()
+                <INTERVAL> interval = IntervalQualifier()
                 {
-                    args.add(1, interval);
+                    args.add(interval);
                 }
             )
             [ <COMMA> AlternativeTypeConversionAttributeList(args) ]
-        ]
-    )
-    <RPAREN> {
-        return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
-    }
+        |
+            AlternativeTypeConversionAttributeList(args)
+            [
+                (
+                    <COMMA> dt = DataTypeAlternativeCastSyntax()
+                    {
+                        args.add(1, dt);
+                    }
+                |
+                    <COMMA> <INTERVAL> interval = IntervalQualifier()
+                    {
+                        args.add(1, interval);
+                    }
+                )
+                [ <COMMA> AlternativeTypeConversionAttributeList(args) ]
+            ]
+        )
+        <RPAREN> {
+            q = SqlStdOperatorTable.CAST.createCall(s.end(this), args);
+        }
+    )+
+    { return q; }
 }
 
 SqlNode NamedLiteralOrIdentifier() :
@@ -1934,23 +1975,6 @@ SqlNode InlineCaseSpecific() :
         LOOKAHEAD( CompoundIdentifier() CaseSpecific() )
         value = CompoundIdentifier()
     )
-    caseSpecific = CaseSpecific(value)
-    {
-        return caseSpecific;
-    }
-}
-
-/* This has to be separate from the InlineCaseSpecific() due to the LOOKAHEAD
-   for preExpressionMethods in Parser.jj breaking if both CompoundIdentifier()
-   and NamedFunctionCall() are options.
- */
-SqlNode InlineCaseSpecificNamedFunctionCall() :
-{
-    final SqlNode value;
-    final SqlCaseSpecific caseSpecific;
-}
-{
-    value = NamedFunctionCall()
     caseSpecific = CaseSpecific(value)
     {
         return caseSpecific;
@@ -2308,5 +2332,53 @@ SqlDrop SqlDropMacro(Span s, boolean replace) :
 {
     <MACRO> id = CompoundIdentifier() {
         return SqlDdlNodes.dropMacro(s.end(this), false, id);
+    }
+}
+
+List<SqlTableAttribute> CreateJoinIndexTableAttributes() :
+{
+    final List<SqlTableAttribute> list = new ArrayList<SqlTableAttribute>();
+    SqlTableAttribute e;
+}
+{
+    (
+        <COMMA>
+        (
+            e = TableAttributeMap()
+        |
+            e = TableAttributeFallback()
+        |
+            e = TableAttributeChecksum()
+        |
+            e = TableAttributeBlockCompression()
+        ) { list.add(e); }
+    )*
+    { return list; }
+}
+
+SqlCreateJoinIndex SqlCreateJoinIndex() :
+{
+    final Span s;
+    final SqlIdentifier name;
+    final List<SqlTableAttribute> tableAttributes;
+    final SqlNode select;
+    final List<SqlIndex> indices = new ArrayList<SqlIndex>();
+    SqlIndex index;
+}
+{
+    <CREATE> { s = span(); }
+    <JOIN> <INDEX> name = CompoundIdentifier()
+    tableAttributes = CreateJoinIndexTableAttributes()
+    <AS>
+    select = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+    [
+        index = SqlCreateTableIndex(s) { indices.add(index); }
+        (
+           [ <COMMA> ] index = SqlCreateTableIndex(s) { indices.add(index); }
+        )*
+    ]
+    {
+        return new SqlCreateJoinIndex(s.end(this), name, tableAttributes,
+            select, indices);
     }
 }
