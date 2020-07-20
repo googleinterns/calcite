@@ -41,11 +41,26 @@ data: {
     # List of additional classes and packages to import.
     # Example. "org.apache.calcite.sql.*", "java.util.List".
     imports: [
+      "org.apache.calcite.schema.ColumnStrategy"
+      "org.apache.calcite.sql.SqlCreate"
+      "org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier",
+      "org.apache.calcite.sql.SqlDrop"
+      "org.apache.calcite.sql.SqlDdlNodes"
+      "java.util.Map"
+      "java.util.HashMap"
     ]
 
     # List of new keywords. Example: "DATABASES", "TABLES". If the keyword is not a reserved
     # keyword add it to 'nonReservedKeywords' section.
     keywords: [
+      "ARCHIVE"
+      "FILE"
+      "IF"
+      "JAR"
+      "MATERIALIZED"
+      "SEMI"
+      "STORED"
+      "VIRTUAL"
     ]
 
     # List of keywords from "keywords" section that are not reserved.
@@ -463,6 +478,7 @@ data: {
     # given as part of "statementParserMethods", "literalParserMethods" or
     # "dataTypeParserMethods".
     implementationFiles: [
+       "parserImpls.ftl"
     ]
 
     allowAbbreviatedKeywords: false
@@ -489,6 +505,8 @@ data: {
   }
 }
 
+# TODO: This is a temporary solution and a permanent one in which SqlParserIml
+# is created within the parsing/ directory.
 freemarkerLinks: {
-  templates: includes/
+   templates: ../../../../parsing/
 }
