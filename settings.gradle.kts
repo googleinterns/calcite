@@ -56,6 +56,7 @@ include(
     "linq4j",
     "mongodb",
     "parsing",
+    "parsing:tools",
     "parsing:dialects:bigquery",
     "parsing:dialects:defaultdialect",
     "parsing:dialects:dialect1",
