@@ -3471,6 +3471,13 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     expr(sql).ok(expected);
   }
 
+  @Test public void testCaseNUnknown() {
+    final String sql = "case_n(foo = 1, bar = 2, unknown)";
+    final String expected =
+        "CASE_N((`FOO` = 1), (`BAR` = 2), UNKNOWN)";
+    expr(sql).ok(expected);
+  }
+
   @Test void testNestedNamedFunctionCalls() {
     final String sql = "SELECT\n"
         + "  MY_FUN(\n"

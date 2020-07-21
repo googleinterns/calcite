@@ -2406,11 +2406,17 @@ SqlCall CaseN() :
     [
     <COMMA>
     (
-        LOOKAHEAD(4)
+        LOOKAHEAD(3)
         <NO> <CASE> <OR> <UNKNOWN>
         { extraPartitionOption = NoCaseUnknown.NO_CASE_OR_UNKNOWN; }
     |
+        LOOKAHEAD(3)
+        <NO> <CASE> <COMMA> <UNKNOWN>
+        { extraPartitionOption = NoCaseUnknown.NO_CASE_COMMA_UNKNOWN; }
+    |
         <NO> <CASE> { extraPartitionOption = NoCaseUnknown.NO_CASE; }
+    |
+        <UNKNOWN> { extraPartitionOption = NoCaseUnknown.UNKNOWN; }
     )
     ]
     <RPAREN>
