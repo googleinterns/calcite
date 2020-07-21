@@ -152,7 +152,7 @@ tasks.withType<Checkstyle>().configureEach {
 }
 
 val fmppMain by tasks.registering(org.apache.calcite.buildtools.fmpp.FmppTask::class) {
-    config.set(file("src/main/codegen/config.fmpp"))
+    config.set(file("$rootDir/parsing/config.fmpp"))
     templates.set(file("$rootDir/parsing/src/main/resources"))
 }
 
