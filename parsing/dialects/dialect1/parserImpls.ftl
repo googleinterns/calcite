@@ -2387,6 +2387,7 @@ SqlCall CaseN() :
 {
     SqlNodeList nodes = new SqlNodeList(getPos());
     SqlNode e;
+    NoCaseUnknown extraPartitionOption = null;
 }
 {
     <CASE_N>
@@ -2402,8 +2403,12 @@ SqlCall CaseN() :
             nodes.add(e);
         }
     )*
+    [
+    <COMMA>
+    <NO> <CASE> { extraPartitionOption = NoCaseUnknown.NO_CASE; }
+    ]
     <RPAREN>
     {
-        return new SqlCaseN(getPos(), nodes);
+        return new SqlCaseN(getPos(), nodes, extraPartitionOption);
     }
 }

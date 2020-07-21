@@ -27,10 +27,13 @@ public class SqlCaseN extends SqlCall {
       new SqlSpecialOperator("CASE_N ", SqlKind.OTHER_FUNCTION);
 
   final SqlNodeList nodes;
+  final NoCaseUnknown extraPartitions;
 
-  public SqlCaseN (final SqlParserPos pos, final SqlNodeList nodes) {
+  public SqlCaseN (final SqlParserPos pos, final SqlNodeList nodes
+      , final NoCaseUnknown extraPartitions) {
     super(pos);
     this.nodes = nodes;
+    this.extraPartitions = extraPartitions;
   }
 
   @Override public SqlOperator getOperator() {
@@ -51,6 +54,32 @@ public class SqlCaseN extends SqlCall {
       writer.sep(",");
       e.unparse(writer, leftPrec, rightPrec);
     }
+    if (extraPartitions != null) {
+      writer.sep(",");
+      switch (extraPartitions) {
+      case NO_CASE:
+        writer.keyword("NO CASE");
+        break;
+      case UNKNOWN:
+        writer.keyword("UNKNOWN");
+        break;
+      case NO_CASE_OR_UNKNOWN:
+        writer.keyword("NO CASE OR UNKNOWN");
+        break;
+      case NO_CASE_COMMA_UNKNOWN:
+        writer.keyword("NO CASE");
+        writer.sep(",");
+        writer.keyword("UNKNOWN");
+        break;
+      }
+    }
     writer.endList(frame);
+  }
+
+  public enum NoCaseUnknown {
+    NO_CASE,
+    NO_CASE_OR_UNKNOWN,
+    NO_CASE_COMMA_UNKNOWN,
+    UNKNOWN
   }
 }
