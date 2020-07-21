@@ -14,16 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import java.io.FileReader
+import au.com.bytecode.opencsv.CSVReader
 
 plugins {
     kotlin("jvm")
 }
 
-
-dependencies {
-    implementation("net.sf.opencsv:opencsv")
+repositories {
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        "classpath"(group = "net.sf.opencsv", name = "opencsv", version = "2.3")
+    }
+}
 tasks.register<FindErrors>("findErrors") {
 
 }
@@ -62,26 +70,7 @@ open class FindErrors : DefaultTask() {
 
     @TaskAction
     fun run() {
-        val reader = CSVReader(FileReader("src/test/resources/csv/test_queries.csv"))
-        val rows: List<Array<String?>> = reader.readAll()
-        reader.close()
-
-        val results: MutableList<Array<String?>> = java.util.ArrayList()
-        val encounteredCount: Map<String, Int> = HashMap()
-        var numFailed = 0
-        for (row in rows) {
-            val query: String = processQuery(row[0])
-            try {
-                SqlParser.create(query, config).parseStmt()
-            } catch (ex: SqlParseException) {
-                val message: String = ex.message
-                results.add(arrayOf(query, message, row[1]))
-                processErrorMessage(message, encounteredCount)
-                numFailed++
-                continue
-            }
-            results.add(arrayOf(query, "PASSED", row[1]))
-        }
+        val reader = CSVReader(FileReader("src/test/resources/csv/test_queries.csv"));
     }
 
     enum class Dialect {
