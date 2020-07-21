@@ -5801,6 +5801,10 @@ SqlNode BuiltinFunctionCall() :
         node = JsonArrayAggFunctionCall() { return node; }
     |
         node = GroupByWindowingCall() { return node; }
+<#list parser.partitionExpressions as method>
+    |
+        node = ${method}() { return node; }
+</#list>
     )
 }
 

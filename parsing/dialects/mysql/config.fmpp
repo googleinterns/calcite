@@ -454,6 +454,10 @@ data: {
     extraBinaryExpressions: [
     ]
 
+    # Partition expressions
+    partitionExpressions: [
+    ]
+
     preExpressionMethods: [
     ]
 

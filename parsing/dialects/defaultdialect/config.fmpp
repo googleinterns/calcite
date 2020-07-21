@@ -450,6 +450,10 @@ data: {
     binaryOperatorsTokens: [
     ]
 
+    # Partition expressions
+    partitionExpressions: [
+    ]
+
     # Binary operators initialization
     extraBinaryExpressions: [
     ]

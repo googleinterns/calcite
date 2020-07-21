@@ -2382,3 +2382,23 @@ SqlCreateJoinIndex SqlCreateJoinIndex() :
             select, indices);
     }
 }
+
+SqlCall CaseN() :
+{
+    SqlNodeList nodes = new SqlNodeList(getPos());
+    SqlNode e;
+}
+{
+    <CASE_N>
+    <LPAREN>
+    (
+        e = Expression(ExprContext.ACCEPT_SUB_QUERY)
+        {
+            nodes.add(e);
+        }
+    )+
+    <RPAREN>
+    {
+        return new SqlCaseN(getPos(), nodes);
+    }
+}
