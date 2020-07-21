@@ -37,6 +37,7 @@ data: {
       "org.apache.calcite.sql.SqlAlterTableOption",
       "org.apache.calcite.sql.SqlAlterTableRename",
       "org.apache.calcite.sql.SqlBlobTypeNameSpec",
+      "org.apache.calcite.sql.SqlCaseN",
       "org.apache.calcite.sql.SqlCaseSpecific",
       "org.apache.calcite.sql.SqlCharacterSetToCharacterSet",
       "org.apache.calcite.sql.SqlClobTypeNameSpec",
@@ -127,6 +128,7 @@ data: {
       "BYTE"
       "BYTEINT"
       "BYTES"
+      "CASE_N"
       "CASESPECIFIC"
       "CHECKSUM"
       "COLOCATE"
@@ -506,6 +508,7 @@ data: {
       "BSON"
       "BYTE"
       "BYTES"
+      "CASE_N"
       "CHECKSUM"
       "CONCURRENT"
       "DATABLOCKSIZE"
@@ -1124,6 +1127,11 @@ data: {
 
     # Binary operators initialization
     extraBinaryExpressions: [
+    ]
+
+    # Partition expressions
+    partitionExpressions: [
+      "CaseN"
     ]
 
     # NamedLiteralOrIdentifier needs to come before
