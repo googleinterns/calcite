@@ -2391,12 +2391,17 @@ SqlCall CaseN() :
 {
     <CASE_N>
     <LPAREN>
+    e = Expression(ExprContext.ACCEPT_SUB_QUERY)
+    {
+        nodes.add(e);
+    }
     (
+        <COMMA>
         e = Expression(ExprContext.ACCEPT_SUB_QUERY)
         {
             nodes.add(e);
         }
-    )+
+    )*
     <RPAREN>
     {
         return new SqlCaseN(getPos(), nodes);
