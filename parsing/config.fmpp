@@ -463,6 +463,7 @@ data: {
     # given as part of "statementParserMethods", "literalParserMethods" or
     # "dataTypeParserMethods".
     implementationFiles: [
+      "parserImpls.ftl"
     ]
 
     allowAbbreviatedKeywords: false
@@ -489,6 +490,8 @@ data: {
   }
 }
 
+# This path is the way it is since this config.fmpp file is referenced in
+# core/build.gradle.kts so the path is relative from there.
 freemarkerLinks: {
-  templates: includes/
+  templates: ../parsing/
 }
