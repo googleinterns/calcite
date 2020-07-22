@@ -20,15 +20,23 @@ import java.io.IOException;
 
 public class FindErrorsExec {
 
+  private static final int MAX_NUM_SAMPLE_QUERIES = 20;
+
   public static void main(String[] args) throws IOException {
-    String inputPath = "dialect1_queries.csv";
-    String outputPath = "dialect1_results.json";
-    FindParsingErrors.Dialect dialect = FindParsingErrors.Dialect.DIALECT1;
-    boolean groupByErrors = true;
+    String inputPath = args[0];
+    String outputPath = args[1];
+    FindParsingErrors.Dialect dialect = FindParsingErrors.Dialect.valueOf(args[2].toUpperCase());
+    boolean groupByErrors = Boolean.parseBoolean(args[3]);
     int numSampleQueries = 5;
-    FindParsingErrors findParsingErrors = new FindParsingErrors(inputPath, outputPath, dialect, groupByErrors,
-        numSampleQueries);
+    if (args.length == 5) {
+      numSampleQueries = Integer.parseInt(args[4]);
+      if (numSampleQueries < 1 || numSampleQueries > 20) {
+        throw new IllegalArgumentException("numSampleQueries must be between 1 and "
+            + MAX_NUM_SAMPLE_QUERIES);
+      }
+    }
+    FindParsingErrors findParsingErrors = new FindParsingErrors(inputPath, outputPath, dialect,
+        groupByErrors, numSampleQueries);
     findParsingErrors.run();
   }
-
 }

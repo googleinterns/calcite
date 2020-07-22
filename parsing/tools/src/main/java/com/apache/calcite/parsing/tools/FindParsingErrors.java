@@ -54,8 +54,6 @@ import java.util.stream.Collectors;
  */
 public class FindParsingErrors {
 
-  private static final int MAX_NUM_SAMPLE_QUERIES = 20;
-
   private final String inputPath;
   private final String outputPath;
   private final Dialect dialect;
@@ -81,10 +79,6 @@ public class FindParsingErrors {
     this.outputPath = outputPath;
     this.dialect = dialect;
     this.groupByErrors = groupByErrors;
-    if (numSampleQueries < 1 || numSampleQueries > MAX_NUM_SAMPLE_QUERIES) {
-      throw new IllegalArgumentException("numSampleQueries must be between 1 and "
-          + MAX_NUM_SAMPLE_QUERIES);
-    }
     this.numSampleQueries = numSampleQueries;
     errorFormats = new ArrayList<>();
     Method[] methods = CalciteResource.class.getMethods();
@@ -395,5 +389,4 @@ public class FindParsingErrors {
     };
     public abstract SqlParserImplFactory getDialectFactory();
   }
-
 }

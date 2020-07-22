@@ -37,4 +37,17 @@ dependencies {
 tasks.register("findErrors", JavaExec::class) {
     main = "com.apache.calcite.parsing.tools.FindErrorsExec"
     classpath = sourceSets["main"].runtimeClasspath
+    val inputPath = findProperty("inputPath") as String
+    val outputPath = findProperty("outputPath") as String
+    val dialect = findProperty("dialect") as String
+    var groupByErrors = "false"
+    if (findProperty("groupByErrors") != null) {
+        groupByErrors = "true"
+    }
+    val numSampleQueries = findProperty("numSampleQueries")
+    val commandLineArgs = mutableListOf(inputPath, outputPath, dialect, groupByErrors)
+    if (numSampleQueries != null) {
+        commandLineArgs.add(numSampleQueries as String)
+    }
+    args = commandLineArgs
 }
