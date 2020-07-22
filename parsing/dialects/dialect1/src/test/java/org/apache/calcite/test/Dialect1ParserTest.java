@@ -3556,6 +3556,20 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     expr(sql).ok(expected);
   }
 
+  @Test public void testRangeNConstraintAsteriskCannotHaveEachFails() {
+    final String sql =
+        "range_n (foo between * and 5 ^each^ 2, 10 and 20 each 2)";
+    final String expected = "(?s)Encountered \"each\" at .*";
+    expr(sql).fails(expected);
+  }
+
+  @Test public void testRangeNConstraintAsteriskNotFirstRangeFails() {
+    final String sql =
+        "range_n (foo between 3^,^ * and 20 each 2)";
+    final String expected = "(?s)Encountered \", \\*\" at .*";
+    expr(sql).fails(expected);
+  }
+
   @Test void testNestedNamedFunctionCalls() {
     final String sql = "SELECT\n"
         + "  MY_FUN(\n"

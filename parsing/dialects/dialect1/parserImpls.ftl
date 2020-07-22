@@ -2427,22 +2427,72 @@ SqlCall CaseN() :
 
 SqlCall RangeN() :
 {
-    SqlNode e1;
+    SqlNode testExpression;
     SqlNode range;
+    SqlNode startLiteral = null;
+    boolean startAsterisk = false;
+    SqlNode endLiteral = null;
+    boolean endAsterisk = false;
+    SqlNode eachSizeLiteral = null;
     SqlNodeList rangeList = new SqlNodeList(getPos());
     NoRangeUnknown extraPartitionOption = null;
 }
 {
     <RANGE_N>
     <LPAREN>
-    e1 = CompoundIdentifier()
+    testExpression = CompoundIdentifier()
     <BETWEEN>
-    range = RangeNStartEnd()
-    { rangeList.add(range); }
+    (
+        <STAR> { startAsterisk = true; }
+        [
+            <AND>
+            (
+                <STAR> { endAsterisk = true; }
+            |
+                endLiteral = Literal()
+            )
+        ]
+    |
+        startLiteral = Literal()
+        [
+            <AND>
+            (
+                <STAR> { endAsterisk = true; }
+            |
+                endLiteral = Literal()
+            )
+        ]
+        [
+            <EACH>
+            eachSizeLiteral = Literal()
+        ]
+    )
+
+    { rangeList.add(new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral
+          , eachSizeLiteral, startAsterisk, endAsterisk));
+          startLiteral = null;
+          startAsterisk = false;
+          endLiteral = null;
+          endAsterisk = false;
+          eachSizeLiteral = null;
+    }
     (
         <COMMA>
-        range = RangeNStartEnd()
-        { rangeList.add(range); }
+        startLiteral = Literal()
+        [
+            <AND>
+            (
+                <STAR> { endAsterisk = true; }
+            |
+                endLiteral = Literal()
+            )
+        ]
+        [
+            <EACH>
+            eachSizeLiteral = Literal()
+        ]
+        { rangeList.add(new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral
+            , eachSizeLiteral, startAsterisk, endAsterisk)); }
     )*
     [
         <COMMA>
@@ -2461,7 +2511,7 @@ SqlCall RangeN() :
         )
     ]
     <RPAREN>
-    { return new SqlRangeN(getPos(), e1, rangeList, extraPartitionOption); }
+    { return new SqlRangeN(getPos(), testExpression, rangeList, extraPartitionOption); }
 }
 
 SqlCall RangeNStartEnd() :
