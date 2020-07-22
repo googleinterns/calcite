@@ -23,15 +23,15 @@ import java.util.List;
 /**
  * Parse tree for {@code SqlRangeNStartEnd} expression.
  */
-public class SqlRangeNStartEnd extends SqlCall{
+public class SqlRangeNStartEnd extends SqlCall {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("RANGE_N_AND ", SqlKind.OTHER);
 
-  final public SqlNode startLiteral;
-  final public SqlNode endLiteral;
-  final public SqlNode eachSizeLiteral;
-  final public boolean startAsterisk;
-  final public boolean endAsterisk;
+  public final SqlNode startLiteral;
+  public final SqlNode endLiteral;
+  public final SqlNode eachSizeLiteral;
+  public final boolean startAsterisk;
+  public final boolean endAsterisk;
 
   /**
    * Creates a {@code SqlRangeNStartEnd}.
@@ -42,9 +42,9 @@ public class SqlRangeNStartEnd extends SqlCall{
    * @param startAsterisk   Is the start value an asterisk
    * @param endAsterisk     Is the end value an asterisk
    */
-  public SqlRangeNStartEnd(final SqlParserPos pos, final SqlNode startLiteral
-      , final SqlNode endLiteral, final SqlNode eachSizeLiteral
-      , final boolean startAsterisk, final boolean endAsterisk) {
+  public SqlRangeNStartEnd(final SqlParserPos pos, final SqlNode startLiteral,
+      final SqlNode endLiteral, final SqlNode eachSizeLiteral,
+      final boolean startAsterisk, final boolean endAsterisk) {
     super(pos);
     this.startLiteral = startLiteral;
     this.endLiteral = endLiteral;
@@ -61,8 +61,8 @@ public class SqlRangeNStartEnd extends SqlCall{
     return ImmutableNullableList.of(startLiteral, endLiteral, eachSizeLiteral);
   }
 
-  @Override public void unparse(final SqlWriter writer, final int leftPrec
-      , final int rightPrec) {
+  @Override public void unparse(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
     if (startAsterisk) {
       writer.keyword("*");
     } else {

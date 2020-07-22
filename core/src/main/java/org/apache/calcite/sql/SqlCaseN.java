@@ -27,8 +27,8 @@ public class SqlCaseN extends SqlCall {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("CASE_N ", SqlKind.OTHER_FUNCTION);
 
-  final public SqlNodeList caseList;
-  final public NoCaseUnknown extraPartitions;
+  public final SqlNodeList caseList;
+  public final NoCaseUnknown extraPartitions;
 
   /**
    * Creates a {@code SqlCaseN}.
@@ -36,8 +36,8 @@ public class SqlCaseN extends SqlCall {
    * @param caseList           Case expressions
    * @param extraPartitions Represent extra partitions for no case and unknown
    */
-  public SqlCaseN (final SqlParserPos pos, final SqlNodeList caseList
-      , final NoCaseUnknown extraPartitions) {
+  public SqlCaseN(final SqlParserPos pos, final SqlNodeList caseList,
+      final NoCaseUnknown extraPartitions) {
     super(pos);
     this.caseList = caseList;
     this.extraPartitions = extraPartitions;
@@ -55,9 +55,9 @@ public class SqlCaseN extends SqlCall {
       final int rightPrec) {
     writer.keyword("CASE_N");
 
-    SqlWriter.Frame frame = writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL
-        , "(", ")");
-    for( SqlNode e : caseList.getList()){
+    SqlWriter.Frame frame = writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL,
+        "(", ")");
+    for (SqlNode e : caseList.getList()) {
       writer.sep(",");
       e.unparse(writer, leftPrec, rightPrec);
     }

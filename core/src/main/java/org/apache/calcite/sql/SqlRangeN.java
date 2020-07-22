@@ -23,13 +23,13 @@ import java.util.List;
 /**
  * Parse tree for {@code SqlRangeN} expression.
  */
-public class SqlRangeN extends SqlCall{
+public class SqlRangeN extends SqlCall {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("RANGE_N ", SqlKind.OTHER_FUNCTION);
 
-  final public SqlNodeList rangeList;
-  final public SqlNode testIdentifier;
-  final public NoRangeUnknown extraPartitions;
+  public final SqlNodeList rangeList;
+  public final SqlNode testIdentifier;
+  public final NoRangeUnknown extraPartitions;
 
   /**
    * Creates a {@code SqlRangeN}.
@@ -38,8 +38,8 @@ public class SqlRangeN extends SqlCall{
    * @param rangeList       Range expressions
    * @param extraPartitions Represent extra partitions for no case and unknown
    */
-  public SqlRangeN(final SqlParserPos pos, final SqlNode testIdentifier
-      , final SqlNodeList rangeList, final NoRangeUnknown extraPartitions) {
+  public SqlRangeN(final SqlParserPos pos, final SqlNode testIdentifier,
+      final SqlNodeList rangeList, final NoRangeUnknown extraPartitions) {
     super(pos);
     this.testIdentifier = testIdentifier;
     this.rangeList = rangeList;
@@ -54,15 +54,15 @@ public class SqlRangeN extends SqlCall{
     return ImmutableNullableList.of(testIdentifier, rangeList);
   }
 
-  @Override public void unparse(final SqlWriter writer, final int leftPrec
-      , final int rightPrec) {
+  @Override public void unparse(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
     writer.keyword("RANGE_N");
-    SqlWriter.Frame funcCallFrame = writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL
-        , "(", ")");
+    SqlWriter.Frame funcCallFrame = writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL,
+        "(", ")");
     testIdentifier.unparse(writer, leftPrec, rightPrec);
     writer.keyword("BETWEEN");
-    SqlWriter.Frame frame = writer.startList(SqlWriter.FrameTypeEnum.SIMPLE
-        , "", "");
+    SqlWriter.Frame frame = writer.startList(SqlWriter.FrameTypeEnum.SIMPLE,
+        "", "");
     for (SqlNode range: rangeList.getList()) {
       writer.sep(",");
       range.unparse(writer, leftPrec, rightPrec);
