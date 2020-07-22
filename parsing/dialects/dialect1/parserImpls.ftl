@@ -2439,6 +2439,11 @@ SqlCall RangeN() :
     <BETWEEN>
     range = RangeNStartEnd()
     { rangeList.add(range); }
+    (
+        <COMMA>
+        range = RangeNStartEnd()
+        { rangeList.add(range); }
+    )*
     [
         <COMMA>
         (

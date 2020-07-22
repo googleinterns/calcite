@@ -3524,8 +3524,35 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testRangeNUnknown() {
     final String sql = "range_n (foo between 3 and 10, unknown)";
+    final String expected = "RANGE_N(`FOO` BETWEEN 3 AND 10, UNKNOWN)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNRangeListStartExpressionOnly() {
+    final String sql = "range_n (foo between 3, 10 and 20 each 2)";
+    final String expected = "RANGE_N(`FOO` BETWEEN 3, 10 AND 20 EACH 2)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNRangeListStartExpressionOnlyAsterisk() {
+    final String sql = "range_n (foo between *, 10 and 20 each 2)";
+    final String expected = "RANGE_N(`FOO` BETWEEN *, 10 AND 20 EACH 2)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNRangeListTwoRanges() {
+    final String sql =
+        "range_n (foo between 1 and 9 each 3, 10 and 20 each 2)";
     final String expected =
-        "RANGE_N(`FOO` BETWEEN 3 AND 10, UNKNOWN)";
+        "RANGE_N(`FOO` BETWEEN 1 AND 9 EACH 3, 10 AND 20 EACH 2)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNRangeListThreeRanges() {
+    final String sql =
+        "range_n (foo between 1 and 9 each 3, 10, 11 and 20 each 2)";
+    final String expected =
+        "RANGE_N(`FOO` BETWEEN 1 AND 9 EACH 3, 10, 11 AND 20 EACH 2)";
     expr(sql).ok(expected);
   }
 
