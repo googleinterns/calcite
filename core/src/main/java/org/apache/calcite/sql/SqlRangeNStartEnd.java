@@ -25,13 +25,18 @@ public class SqlRangeNStartEnd extends SqlCall{
   final SqlNode startLiteral;
   final SqlNode endLiteral;
   final SqlNode eachSizeLiteral;
+  final boolean startAsterisk;
+  final boolean endAsterisk;
 
   public SqlRangeNStartEnd(final SqlParserPos pos, final SqlNode startLiteral
-      , final SqlNode endLiteral, final SqlNode eachSizeLiteral) {
+      , final SqlNode endLiteral, final SqlNode eachSizeLiteral
+      , final boolean startAsterisk, final boolean endAsterisk) {
     super(pos);
     this.startLiteral = startLiteral;
     this.endLiteral = endLiteral;
     this.eachSizeLiteral = eachSizeLiteral;
+    this.startAsterisk = startAsterisk;
+    this.endAsterisk = endAsterisk;
   }
 
   @Override public SqlOperator getOperator() {
@@ -44,10 +49,16 @@ public class SqlRangeNStartEnd extends SqlCall{
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec
       , final int rightPrec) {
-    startLiteral.unparse(writer, leftPrec, rightPrec);
+    if (startAsterisk) {
+      writer.keyword("*");
+    } else {
+      startLiteral.unparse(writer, leftPrec, rightPrec);
+    }
     if (endLiteral != null) {
       writer.keyword("AND");
       endLiteral.unparse(writer, leftPrec, rightPrec);
+    } else if (endAsterisk) {
+      writer.keyword("AND *");
     }
     if (eachSizeLiteral != null) {
       writer.keyword("EACH");

@@ -2445,19 +2445,29 @@ SqlCall RangeN() :
 SqlCall RangeNStartEnd() :
 {
     SqlNode startLiteral = null;
+    boolean startAsterisk = false;
     SqlNode endLiteral = null;
+    boolean endAsterisk = false;
     SqlNode eachSizeLiteral = null;
 }
 {
-    startLiteral = Literal()
+    (
+        <STAR> { startAsterisk = true; }
+    |
+        startLiteral = Literal()
+    )
     [
         <AND>
-        endLiteral = Literal()
+        (
+            <STAR> { endAsterisk = true; }
+        |
+            endLiteral = Literal()
+        )
     ]
     [
         <EACH>
         eachSizeLiteral = Literal()
     ]
     { return new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral
-        , eachSizeLiteral); }
+        , eachSizeLiteral, startAsterisk, endAsterisk); }
 }
