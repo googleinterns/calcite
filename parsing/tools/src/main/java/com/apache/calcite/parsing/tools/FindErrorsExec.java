@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.apache.calcite.parsing.tools;
 
 import java.io.IOException;
@@ -23,13 +22,13 @@ public class FindErrorsExec {
 
   public static void main(String[] args) throws IOException {
     String inputPath = "dialect1_queries.csv";
-    String outputPath = "dialect1_results_full.json";
-    FindErrors.Dialect dialect = FindErrors.Dialect.DIALECT1;
-    boolean groupByErrors = false;
+    String outputPath = "dialect1_results.json";
+    FindParsingErrors.Dialect dialect = FindParsingErrors.Dialect.DIALECT1;
+    boolean groupByErrors = true;
     int numSampleQueries = 5;
-    FindErrors findErrors = new FindErrors(inputPath, outputPath, dialect, groupByErrors,
+    FindParsingErrors findParsingErrors = new FindParsingErrors(inputPath, outputPath, dialect, groupByErrors,
         numSampleQueries);
-    findErrors.run();
+    findParsingErrors.run();
   }
 
 }

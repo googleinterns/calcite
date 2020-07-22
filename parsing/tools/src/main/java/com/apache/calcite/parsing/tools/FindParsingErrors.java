@@ -29,9 +29,9 @@ import org.apache.calcite.sql.parser.mysql.MySQLParserImpl;
 import org.apache.calcite.sql.parser.postgresql.PostgreSQLParserImpl;
 import org.apache.calcite.sql.parser.redshift.RedshiftParserImpl;
 
-import com.google.gson.stream.JsonWriter;
-
 import au.com.bytecode.opencsv.CSVReader;
+
+import com.google.gson.stream.JsonWriter;
 
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -42,6 +42,7 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -51,7 +52,9 @@ import java.util.stream.Collectors;
  * Processes a CSV file containing queries and will output a JSON file containing the results of
  * failing queries.
  */
-public class FindErrors {
+public class FindParsingErrors {
+
+  private static final int MAX_NUM_SAMPLE_QUERIES = 20;
 
   private final String inputPath;
   private final String outputPath;
@@ -61,7 +64,7 @@ public class FindErrors {
   private final List<MessageFormat> errorFormats;
 
   /**
-   *  Creates a new instance of {@code FindErrors}. Also populates the errorFormats list with
+   *  Creates a new instance of {@code FindParsingErrors}. Also populates the errorFormats list with
    *  a MessageFormat object for each custom defined error message in CalciteResource.
    *
    * @param inputPath Path to the input CSV file containing queries
@@ -70,20 +73,25 @@ public class FindErrors {
    * @param groupByErrors Specifies if the output format should group failing queries by error
    *                      message type
    * @param numSampleQueries The max number of sample queries to show for an error type when
-   *                         running findErrorGroups
+   *                         grouping queries by error message type
    */
-  public FindErrors(String inputPath, String outputPath, Dialect dialect,
+  public FindParsingErrors(String inputPath, String outputPath, Dialect dialect,
       boolean groupByErrors, int numSampleQueries) {
     this.inputPath = inputPath;
     this.outputPath = outputPath;
     this.dialect = dialect;
     this.groupByErrors = groupByErrors;
+    if (numSampleQueries < 1 || numSampleQueries > MAX_NUM_SAMPLE_QUERIES) {
+      throw new IllegalArgumentException("numSampleQueries must be between 1 and "
+          + MAX_NUM_SAMPLE_QUERIES);
+    }
     this.numSampleQueries = numSampleQueries;
     errorFormats = new ArrayList<>();
     Method[] methods = CalciteResource.class.getMethods();
     for (Method m : methods) {
-      errorFormats.add(new MessageFormat(m.getAnnotationsByType(Resources.BaseMessage.class)[0]
-          .value()));
+      errorFormats.add(
+        new MessageFormat(m.getAnnotationsByType(Resources.BaseMessage.class)[0].value())
+      );
     }
   }
 
@@ -96,12 +104,12 @@ public class FindErrors {
    */
   public void run() throws IOException {
     CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(inputPath)), ',',
-        '"', 1);
+      '"', 1);
     List<String[]> rows = reader.readAll();
     reader.close();
     List<String> queries = rows.parallelStream()
-        .map(row -> sanitize(row[0]))
-        .collect(Collectors.toList());
+      .map(row -> sanitize(row[0]))
+      .collect(Collectors.toList());
     if (groupByErrors) {
       findErrorGroups(queries);
     } else {
@@ -130,10 +138,12 @@ public class FindErrors {
         }
       })
       .filter(Objects::nonNull)
-      .collect(Collectors.toConcurrentMap(e -> e.query, e -> e, (e1, e2) -> {
-        e1.count += e2.count;
-        return e1;
-      }));
+      .collect(
+        Collectors.toConcurrentMap(e -> e.query, e -> e, (e1, e2) -> {
+          e1.count += e2.count;
+          return e1;
+        }
+      ));
     int numFailed = 0;
     for (Map.Entry<String, FullError> entry : errors.entrySet()) {
       numFailed += entry.getValue().count;
@@ -303,7 +313,19 @@ public class FindErrors {
    * @return The sanitized query
    */
   private String sanitize(String query) {
-    query = query.replace('\u00A0',' ').trim();
+    HashMap<Character, Character> replaceChars = new HashMap<>();
+    replaceChars.put('\u00A0', ' ');
+    replaceChars.put('\u2013', '-');
+    replaceChars.put('\u2018', '\'');
+    replaceChars.put('\u2019', '\'');
+    replaceChars.put('\u201c', '\"');
+    replaceChars.put('\u201d', '\"');
+    replaceChars.put('\u2028', ' ');
+    for (Map.Entry<Character, Character> entry : replaceChars.entrySet()) {
+      query = query.replace(entry.getKey(), entry.getValue());
+    }
+    query = query.trim();
+
     if (query.endsWith(";")) {
       query = query.substring(0, query.length() - 1);
     }
