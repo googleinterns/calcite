@@ -34,8 +34,8 @@ dependencies {
     implementation("com.google.code.gson:gson:2.8.5")
 }
 
-tasks.register("findErrors", JavaExec::class) {
-    main = "com.apache.calcite.parsing.tools.FindErrorsExec"
+tasks.register("findDialectParsingErrors", JavaExec::class) {
+    main = "com.apache.calcite.parsing.tools.FindDialectParsingErrorsExec"
     classpath = sourceSets["main"].runtimeClasspath
     val inputPath = findProperty("inputPath") as String
     val outputPath = findProperty("outputPath") as String

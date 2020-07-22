@@ -52,17 +52,17 @@ import java.util.stream.Collectors;
  * Processes a CSV file containing queries and will output a JSON file containing the results of
  * failing queries.
  */
-public class FindParsingErrors {
+public class FindDialectParsingErrors {
 
   private final String inputPath;
   private final String outputPath;
   private final Dialect dialect;
-  private boolean groupByErrors = false;
-  private int numSampleQueries = 5;
+  private boolean groupByErrors;
+  private int numSampleQueries;
   private final List<MessageFormat> errorFormats;
 
   /**
-   *  Creates a new instance of {@code FindParsingErrors}. Also populates the errorFormats list with
+   *  Creates a new instance of {@code FindDialectParsingErrors}. Also populates the errorFormats list with
    *  a MessageFormat object for each custom defined error message in CalciteResource.
    *
    * @param inputPath Path to the input CSV file containing queries
@@ -73,7 +73,7 @@ public class FindParsingErrors {
    * @param numSampleQueries The max number of sample queries to show for an error type when
    *                         grouping queries by error message type
    */
-  public FindParsingErrors(String inputPath, String outputPath, Dialect dialect,
+  public FindDialectParsingErrors(String inputPath, String outputPath, Dialect dialect,
       boolean groupByErrors, int numSampleQueries) {
     this.inputPath = inputPath;
     this.outputPath = outputPath;

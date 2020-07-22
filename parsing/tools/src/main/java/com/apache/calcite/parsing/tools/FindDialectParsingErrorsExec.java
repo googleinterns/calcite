@@ -18,14 +18,15 @@ package com.apache.calcite.parsing.tools;
 
 import java.io.IOException;
 
-public class FindErrorsExec {
+public class FindDialectParsingErrorsExec {
 
   private static final int MAX_NUM_SAMPLE_QUERIES = 20;
 
   public static void main(String[] args) throws IOException {
     String inputPath = args[0];
     String outputPath = args[1];
-    FindParsingErrors.Dialect dialect = FindParsingErrors.Dialect.valueOf(args[2].toUpperCase());
+    FindDialectParsingErrors.Dialect dialect = FindDialectParsingErrors.Dialect.valueOf(args[2]
+        .toUpperCase());
     boolean groupByErrors = Boolean.parseBoolean(args[3]);
     int numSampleQueries = 5;
     if (args.length == 5) {
@@ -35,8 +36,8 @@ public class FindErrorsExec {
             + MAX_NUM_SAMPLE_QUERIES);
       }
     }
-    FindParsingErrors findParsingErrors = new FindParsingErrors(inputPath, outputPath, dialect,
-        groupByErrors, numSampleQueries);
-    findParsingErrors.run();
+    FindDialectParsingErrors findDialectParsingErrors = new FindDialectParsingErrors(inputPath,
+        outputPath, dialect, groupByErrors, numSampleQueries);
+    findDialectParsingErrors.run();
   }
 }
