@@ -2383,9 +2383,9 @@ SqlCreateJoinIndex SqlCreateJoinIndex() :
     }
 }
 
-SqlCall CaseN() :
+SqlCaseN CaseN() :
 {
-    SqlNodeList nodes = new SqlNodeList(getPos());
+    final SqlNodeList nodes = new SqlNodeList(getPos());
     SqlNode e;
     NoCaseUnknown extraPartitionOption = null;
 }
@@ -2425,16 +2425,15 @@ SqlCall CaseN() :
     }
 }
 
-SqlCall RangeN() :
+SqlRangeN RangeN() :
 {
-    SqlNode testExpression;
-    SqlNode range;
+    final SqlNode testExpression;
     SqlNode startLiteral = null;
     boolean startAsterisk = false;
     SqlNode endLiteral = null;
     boolean endAsterisk = false;
     SqlNode eachSizeLiteral = null;
-    SqlNodeList rangeList = new SqlNodeList(getPos());
+    final SqlNodeList rangeList = new SqlNodeList(getPos());
     NoRangeUnknown extraPartitionOption = null;
 }
 {
@@ -2468,13 +2467,14 @@ SqlCall RangeN() :
         ]
     )
 
-    { rangeList.add(new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral,
-        eachSizeLiteral, startAsterisk, endAsterisk));
-          startLiteral = null;
-          startAsterisk = false;
-          endLiteral = null;
-          endAsterisk = false;
-          eachSizeLiteral = null;
+    {
+        rangeList.add(new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral,
+            eachSizeLiteral, startAsterisk, endAsterisk));
+        startLiteral = null;
+        startAsterisk = false;
+        endLiteral = null;
+        endAsterisk = false;
+        eachSizeLiteral = null;
     }
     (
         <COMMA>
@@ -2491,8 +2491,15 @@ SqlCall RangeN() :
             <EACH>
             eachSizeLiteral = Literal()
         ]
-        { rangeList.add(new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral
-            , eachSizeLiteral, startAsterisk, endAsterisk)); }
+        {
+            rangeList.add(new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral
+                , eachSizeLiteral, startAsterisk, endAsterisk));
+            startLiteral = null;
+            startAsterisk = false;
+            endLiteral = null;
+            endAsterisk = false;
+            eachSizeLiteral = null;
+        }
     )*
     [
         <COMMA>
@@ -2511,36 +2518,8 @@ SqlCall RangeN() :
         )
     ]
     <RPAREN>
-    { return new SqlRangeN(getPos(), testExpression, rangeList,
-        extraPartitionOption); }
-}
-
-SqlCall RangeNStartEnd() :
-{
-    SqlNode startLiteral = null;
-    boolean startAsterisk = false;
-    SqlNode endLiteral = null;
-    boolean endAsterisk = false;
-    SqlNode eachSizeLiteral = null;
-}
-{
-    (
-        <STAR> { startAsterisk = true; }
-    |
-        startLiteral = Literal()
-    )
-    [
-        <AND>
-        (
-            <STAR> { endAsterisk = true; }
-        |
-            endLiteral = Literal()
-        )
-    ]
-    [
-        <EACH>
-        eachSizeLiteral = Literal()
-    ]
-    { return new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral
-        , eachSizeLiteral, startAsterisk, endAsterisk); }
+    {
+        return new SqlRangeN(getPos(), testExpression, rangeList,
+            extraPartitionOption);
+    }
 }
