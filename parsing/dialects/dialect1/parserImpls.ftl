@@ -2468,8 +2468,8 @@ SqlCall RangeN() :
         ]
     )
 
-    { rangeList.add(new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral
-          , eachSizeLiteral, startAsterisk, endAsterisk));
+    { rangeList.add(new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral,
+        eachSizeLiteral, startAsterisk, endAsterisk));
           startLiteral = null;
           startAsterisk = false;
           endLiteral = null;
@@ -2511,7 +2511,8 @@ SqlCall RangeN() :
         )
     ]
     <RPAREN>
-    { return new SqlRangeN(getPos(), testExpression, rangeList, extraPartitionOption); }
+    { return new SqlRangeN(getPos(), testExpression, rangeList,
+        extraPartitionOption); }
 }
 
 SqlCall RangeNStartEnd() :
