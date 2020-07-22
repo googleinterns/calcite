@@ -1552,13 +1552,30 @@ SqlTypeNameSpec TypeNameAlternativeCastSyntax() :
 }
 {
     (
-<#-- additional types are included here -->
-<#-- put custom data types in front of Calcite core data types -->
-<#list parser.dataTypeParserMethods as method>
         LOOKAHEAD(2)
-        typeNameSpec = ${method}
+        typeNameSpec = BlobDataType()
     |
-</#list>
+        LOOKAHEAD(2)
+        typeNameSpec = ByteDataType()
+    |
+        LOOKAHEAD(2)
+        typeNameSpec = ByteIntType()
+    |
+        LOOKAHEAD(2)
+        typeNameSpec = ClobDataType()
+    |
+        LOOKAHEAD(2)
+        typeNameSpec = NumberDataType()
+    |
+        LOOKAHEAD(2)
+        typeNameSpec = SqlJsonDataType()
+    |
+        LOOKAHEAD(2)
+        typeNameSpec = SqlPeriodDataType()
+    |
+        LOOKAHEAD(2)
+        typeNameSpec = VarbyteDataType()
+    |
         LOOKAHEAD(2)
         typeNameSpec = SqlTypeName(s)
     |
