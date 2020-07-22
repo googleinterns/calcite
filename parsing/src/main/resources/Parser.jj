@@ -528,10 +528,6 @@ TOKEN_MGR_DECLS : {
     void popState() {
       SwitchTo(lexicalStateStack.remove(lexicalStateStack.size() - 1));
     }
-
-<#if parser.includeAdditionalDeclarations>
-  <#include "/@includes/tokenManagerDeclarations.ftl" />
-</#if>
 }
 
 /*

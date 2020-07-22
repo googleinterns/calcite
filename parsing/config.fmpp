@@ -373,91 +373,6 @@ data: {
     nonReservedKeywordsToRemove: [
     ]
 
-    # List of additional join types. Each is a method with no arguments.
-    # Example: LeftSemiJoin()
-    joinTypes: [
-    ]
-
-    # List of methods for parsing custom SQL statements.
-    # Return type of method implementation should be 'SqlNode'.
-    # Example: SqlShowDatabases(), SqlShowTables().
-    statementParserMethods: [
-    ]
-
-    # List of methods for parsing custom literals.
-    # Return type of method implementation should be "SqlNode".
-    # Example: ParseJsonLiteral().
-    literalParserMethods: [
-    ]
-
-    # List of methods for parsing custom data types.
-    # Return type of method implementation should be "SqlTypeNameSpec".
-    # Example: SqlParseTimeStampZ().
-    dataTypeParserMethods: [
-    ]
-
-    # List of methods for parsing builtin function calls.
-    # Return type of method implementation should be "SqlNode".
-    # Example: DateFunctionCall().
-    builtinFunctionCallMethods: [
-    ]
-
-    # List of methods for parsing extensions to "ALTER <scope>" calls.
-    # Each must accept arguments "(SqlParserPos pos, String scope)".
-    # Example: "SqlUploadJarNode"
-    alterStatementParserMethods: [
-    ]
-
-    # List of methods for parsing extensions to
-    # "(CREATE [OR REPLACE] | REPLACE)" calls.
-    createStatementParserMethods: [
-    ]
-
-    # list of methods for parsing extensions to "SET TIME ZONE" calls
-    setTimeZoneStatementParserMethods: [
-    ]
-
-    # List of methods for parsing extensions to "DROP" calls.
-    # Each must accept arguments "(SqlParserPos pos)".
-    dropStatementParserMethods: [
-    ]
-
-    # List of methods for parsing extensions to "INSERT" calls.
-    insertStatementParserMethods: [
-    ]
-
-    # List of methods for parsing extentions to "RENAME" calls.
-    renameStatementParserMethods: [
-    ]
-
-    # List of methods for parsing expressions to "EXEC" calls.
-    execStatementParserMethods: [
-    ]
-
-    # List of methods for parsing expressions to "USING" calls.
-    usingStatementParserMethods: [
-    ]
-
-    # Binary operators tokens
-    binaryOperatorsTokens: [
-    ]
-
-    # Binary operators initialization
-    extraBinaryExpressions: [
-    ]
-
-    preExpressionMethods: [
-    ]
-
-    postExpressionMethods: [
-    ]
-
-    postNamedFunctionCallMethods: [
-    ]
-
-    dateTimeExpressionMethods: [
-    ]
-
     # List of files in @includes directory that have parser method
     # implementations for parsing custom SQL statements, literals or types
     # given as part of "statementParserMethods", "literalParserMethods" or
@@ -465,28 +380,6 @@ data: {
     implementationFiles: [
       "parserImpls.ftl"
     ]
-
-    allowAbbreviatedKeywords: false
-    allowColonSeparatorInCompoundIdentifier: false
-    allowHexCharacterStringLiteral: false
-    allowNestedJoins: false
-    allowOptionalFromInDelete: false
-    allowTranslateUsingCharSetWithError: false
-    allowUpdateFromTable: false
-    allowUpsertFormOfUpdate: false
-    includeAdditionalDeclarations: false
-    includeBraces: true
-    includeCastDataAttributes: false
-    includeCompoundIdentifier: true
-    includeExceptExpression: false
-    includeHostVariables: false
-    includeInsertWithOmittedValues: false
-    includeLikeAnyAllSome: false
-    includePosixOperators: false
-    includeQualifyClause: false
-    includeRankWithSortingExpressions: false
-    includeSubstrKeyword: false
-    includeTopN: false
   }
 }
 
