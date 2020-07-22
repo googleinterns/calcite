@@ -22,9 +22,9 @@ import java.io.IOException;
 public class FindErrorsExec {
 
   public static void main(String[] args) throws IOException {
-    String inputPath = "redshift_queries.csv";
-    String outputPath = "redshift_results.json";
-    FindErrors.Dialect dialect = FindErrors.Dialect.REDSHIFT;
+    String inputPath = "dialect1_queries.csv";
+    String outputPath = "dialect1_results.json";
+    FindErrors.Dialect dialect = FindErrors.Dialect.DIALECT1;
     boolean groupByErrors = true;
     int numSampleQueries = 5;
     FindErrors findErrors = new FindErrors(inputPath, outputPath, dialect, groupByErrors,

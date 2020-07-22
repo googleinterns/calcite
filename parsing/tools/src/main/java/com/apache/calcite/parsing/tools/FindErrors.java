@@ -17,6 +17,7 @@
 package com.apache.calcite.parsing.tools;
 
 import org.apache.calcite.runtime.CalciteResource;
+import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.apache.calcite.sql.parser.SqlParser;
 import org.apache.calcite.sql.parser.SqlParserImplFactory;
@@ -27,18 +28,18 @@ import org.apache.calcite.sql.parser.hive.HiveParserImpl;
 import org.apache.calcite.sql.parser.mysql.MySQLParserImpl;
 import org.apache.calcite.sql.parser.postgresql.PostgreSQLParserImpl;
 import org.apache.calcite.sql.parser.redshift.RedshiftParserImpl;
-import org.apache.calcite.util.Static;
 
 import com.google.gson.stream.JsonWriter;
 
 import au.com.bytecode.opencsv.CSVReader;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.lang.reflect.Method;
+import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -46,6 +47,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Processes a CSV file containing queries and will output a JSON file containing the results of
+ * failing queries.
+ */
 public class FindErrors {
 
   private final String inputPath;
@@ -53,21 +58,20 @@ public class FindErrors {
   private final Dialect dialect;
   private boolean groupByErrors = false;
   private int numSampleQueries = 5;
+  private final List<MessageFormat> errorFormats;
 
-  public void run() throws IOException { // TODO Handle error
-    CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(inputPath)), ',',
-        '"', 1);
-    List<String[]> rows = reader.readAll();
-    reader.close();
-    List<String> queries = new ArrayList<>();
-    for (String[] row : rows) {
-      queries.add(sanitize(row[0]));
-    }
-    if (groupByErrors) {
-      findErrorGroups(queries);
-    }
-  }
-
+  /**
+   *  Creates a new instance of {@code FindErrors}. Also populates the errorFormats list with
+   *  a MessageFormat object for each custom defined error message in CalciteResource.
+   *
+   * @param inputPath Path to the input CSV file containing queries
+   * @param outputPath Path to the output JSON file containing results of failing queries
+   * @param dialect Specifies which dialectic parser to use for processing queries
+   * @param groupByErrors Specifies if the output format should group failing queries by error
+   *                      message type
+   * @param numSampleQueries The max number of sample queries to show for an error type when
+   *                         running findErrorGroups
+   */
   public FindErrors(String inputPath, String outputPath, Dialect dialect,
       boolean groupByErrors, int numSampleQueries) {
     this.inputPath = inputPath;
@@ -75,14 +79,46 @@ public class FindErrors {
     this.dialect = dialect;
     this.groupByErrors = groupByErrors;
     this.numSampleQueries = numSampleQueries;
+    errorFormats = new ArrayList<>();
+    Method[] methods = CalciteResource.class.getMethods();
+    for (Method m : methods) {
+      errorFormats.add(new MessageFormat(m.getAnnotationsByType(Resources.BaseMessage.class)[0]
+          .value()));
+    }
   }
 
+  /**
+   * Runs one of the processing methods and will output a JSON file containing the results of
+   * failing queries. This will run findErrorGroups if groupByErrors is true. Otherwise,
+   * findFullErrors will run.
+   *
+   * @throws IOException If it fails to read the input file
+   */
+  public void run() throws IOException {
+    CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(inputPath)), ',',
+        '"', 1);
+    List<String[]> rows = reader.readAll();
+    reader.close();
+    List<String> queries = new ArrayList<>();
+    rows.parallelStream().forEach(row -> queries.add(sanitize(row[0])));
+    if (groupByErrors) {
+      findErrorGroups(queries);
+    }
+  }
+
+  /**
+   * This method is called when the command line option --groupByErrors is specified. It will group
+   * failing queries together based on the error message type, as well as keep a set of sample
+   * queries for its error type. This method parallel processes the queries list.
+   *
+   * @param queries A list of sanitized queries
+   * @throws IOException If it fails to write to the output file
+   */
   private void findErrorGroups(List<String> queries) throws IOException {
     SqlParser.Config config = SqlParser.configBuilder()
       .setParserFactory(dialect.getDialectFactory())
       .build();
-    Map<String, ErrorCountValue> errors;
-    errors = queries.stream()
+    Map<String, ErrorType> errors = queries.parallelStream()
       .map(query -> {
         try {
           SqlParser.create(query, config).parseStmt();
@@ -91,32 +127,43 @@ public class FindErrors {
           String message = ex.getMessage();
           List<String> sampleQueries = new ArrayList<>();
           sampleQueries.add(query);
-          return new ErrorCountValue(1, message,
-              processErrorMessage(message), sampleQueries);
+          return new ErrorType(1, message,
+            processErrorMessage(message), sampleQueries);
         }
       })
       .filter(Objects::nonNull)
       .collect(
-          Collectors.toMap(e -> e.group, e -> e, (e1, e2) -> {
-        ErrorCountValue errorCountValue = new ErrorCountValue();
-        errorCountValue.count = e1.count + e2.count;
-        errorCountValue.fullError = e1.fullError;
-        errorCountValue.group = e1.group;
-        errorCountValue.sampleQueries.addAll(e1.sampleQueries);
-        for (int i = 0; i < e2.sampleQueries.size()
-            && errorCountValue.sampleQueries.size() < numSampleQueries; i++) {
-          errorCountValue.sampleQueries.add(e2.sampleQueries.get(i));
-        }
-        return errorCountValue;
+        Collectors.toMap(e -> e.type, e -> e, (e1, e2) -> {
+          ErrorType errorCountValue = new ErrorType();
+          errorCountValue.count = e1.count + e2.count;
+          errorCountValue.fullError = e1.fullError;
+          errorCountValue.type = e1.type;
+          errorCountValue.sampleQueries.addAll(e1.sampleQueries);
+          for (int i = 0; i < e2.sampleQueries.size()
+              && errorCountValue.sampleQueries.size() < numSampleQueries; i++) {
+            errorCountValue.sampleQueries.add(e2.sampleQueries.get(i));
+          }
+          return errorCountValue;
       }));
     int numFailed = 0;
-    for (Map.Entry<String, ErrorCountValue> entry : errors.entrySet()) {
+    for (Map.Entry<String, ErrorType> entry : errors.entrySet()) {
       numFailed += entry.getValue().count;
     }
     outputErrorGroupResults(errors, queries.size() - numFailed, numFailed);
   }
 
-  private void outputErrorGroupResults(Map<String, ErrorCountValue> errors, int numPassed,
+  /**
+   * Outputs the processing results into a JSON file containing a list, sorted by count in
+   * descending order, of error JSON objects where each object contains the values inside the
+   * ErrorCountValue object. This method also outputs the number of successful queries and the
+   * number of failed queries.
+   *
+   * @param errors A Map of error type groups
+   * @param numPassed The number of queries that successfully parsed
+   * @param numFailed The number of queries that failed to parse
+   * @throws IOException If it fails to create a FileWriter at the output path
+   */
+  private void outputErrorGroupResults(Map<String, ErrorType> errors, int numPassed,
       int numFailed) throws IOException {
     JsonWriter writer = new JsonWriter(new FileWriter(outputPath));
     writer.setIndent("  ");
@@ -125,22 +172,26 @@ public class FindErrors {
     writer.name("numFailed").value(numFailed);
     writer.name("errors");
     writer.beginArray();
-    errors.entrySet().stream()
-      .sorted(Comparator.comparing(e -> -e.getValue().count))
-      .forEach(e -> {
-        try {
-          writeErrorGroupJsonObject(writer, e);
-        } catch (IOException ioException) {
-          ioException.printStackTrace();
-        }
-      });
+    List<Map.Entry<String, ErrorType>> sortedEntries = new ArrayList<>(errors.entrySet());
+    sortedEntries.sort(Comparator.comparing(e -> -e.getValue().count));
+    for (Map.Entry<String, ErrorType> e : sortedEntries) {
+      writeErrorGroupJsonObject(writer, e);
+    }
     writer.endArray();
     writer.endObject();
     writer.close();
   }
 
+  /**
+   * Writes a single JSON object containing the values inside the ErrorCountValue object for the
+   * provided entry.
+   *
+   * @param writer The JsonWriter setup for the output path
+   * @param entry The entry to write as a JSON Object
+   * @throws IOException If it fails to write to the output file
+   */
   private void writeErrorGroupJsonObject(JsonWriter writer,
-      Map.Entry<String, ErrorCountValue> entry) throws IOException {
+      Map.Entry<String, ErrorType> entry) throws IOException {
     writer.beginObject();
     writer.name("errorMessageType").value(entry.getKey());
     writer.name("count").value(entry.getValue().count);
@@ -154,6 +205,14 @@ public class FindErrors {
     writer.endObject();
   }
 
+  /**
+   * Parses the error message and returns which error type it is. If the error message contains
+   * "Encountered", it will use the tokens occurring after "Encountered" as the error type.
+   * Otherwise, it will use one of the custom defined error messages inside CalciteResource.
+   *
+   * @param message The error message to process
+   * @return The error message type
+   */
   private String processErrorMessage(String message) {
     String encounteredToken = "Encountered \"";
     int start = message.indexOf(encounteredToken);
@@ -161,32 +220,46 @@ public class FindErrors {
       int end = message.indexOf("\"", start + encounteredToken.length());
       return message.substring(start, end + 1);
     }
-    return null;
+    for (MessageFormat errorFormat : errorFormats) {
+      try {
+        errorFormat.parse(message);
+        return errorFormat.toPattern();
+      } catch (ParseException ignored) {
+      }
+    }
+    return message;
   }
 
+  /**
+   * Sanitizes the provided query. It will remove a semicolon from the end and replace some unicode
+   * characters that cannot be parsed by Calcite with an ASCII equivalent character.
+   *
+   * @param query The query to sanitize
+   * @return The sanitized query
+   */
   private String sanitize(String query) {
-//    query = query.replace('\u00A0',' ').trim();
+    query = query.replace('\u00A0',' ').trim();
     if (query.endsWith(";")) {
       query = query.substring(0, query.length() - 1);
     }
     return query;
   }
 
-  class ErrorCountValue {
+  class ErrorType {
     Integer count;
     String fullError;
-    String group;
+    String type;
     List<String> sampleQueries;
 
-    public ErrorCountValue() {
+    public ErrorType() {
       count = 0;
       sampleQueries = new ArrayList<>();
     }
 
-    public ErrorCountValue(Integer count, String fullError, String group, List<String> sampleQueries) {
+    public ErrorType(Integer count, String fullError, String type, List<String> sampleQueries) {
       this.count = count;
       this.fullError = fullError;
-      this.group = group;
+      this.type = type;
       this.sampleQueries = sampleQueries;
     }
   }
