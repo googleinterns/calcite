@@ -21,3 +21,29 @@ JoinType LeftSemiJoin() :
 {
     <LEFT> <SEMI> <JOIN> { return JoinType.LEFT_SEMI_JOIN; }
 }
+
+SqlLiteral JoinType() :
+{
+    JoinType joinType;
+}
+{
+    (
+        LOOKAHEAD(3)
+        joinType = LeftSemiJoin()
+    |
+        <JOIN> { joinType = JoinType.INNER; }
+    |
+        <INNER> <JOIN> { joinType = JoinType.INNER; }
+    |
+        <LEFT> [ <OUTER> ] <JOIN> { joinType = JoinType.LEFT; }
+    |
+        <RIGHT> [ <OUTER> ] <JOIN> { joinType = JoinType.RIGHT; }
+    |
+        <FULL> [ <OUTER> ] <JOIN> { joinType = JoinType.FULL; }
+    |
+        <CROSS> <JOIN> { joinType = JoinType.CROSS; }
+    )
+    {
+        return joinType.symbol(getPos());
+    }
+}

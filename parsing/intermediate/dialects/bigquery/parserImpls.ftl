@@ -34,3 +34,75 @@ SqlNode ExceptExpression(List<SqlNode> selectList):
         return new SqlExcept(getPos(), exceptList);
     }
 }
+
+/**
+ * Parses a leaf SELECT expression without ORDER BY.
+ */
+SqlSelect SqlSelect() :
+{
+    final List<SqlLiteral> keywords = new ArrayList<SqlLiteral>();
+    final SqlNodeList keywordList;
+    SqlNode exceptExpression = null;
+    List<SqlNode> selectList;
+    final SqlNode fromClause;
+    final SqlNode where;
+    final SqlNodeList groupBy;
+    final SqlNode having;
+    final SqlNodeList windowDecls;
+    final List<SqlNode> hints = new ArrayList<SqlNode>();
+    final Span s;
+}
+{
+    <SELECT>
+    {
+        s = span();
+    }
+    [
+        <HINT_BEG>
+        CommaSepatatedSqlHints(hints)
+        <COMMENT_END>
+    ]
+    SqlSelectKeywords(keywords)
+    (
+        <STREAM> {
+            keywords.add(SqlSelectKeyword.STREAM.symbol(getPos()));
+        }
+    )?
+    (
+        <DISTINCT> {
+            keywords.add(SqlSelectKeyword.DISTINCT.symbol(getPos()));
+        }
+    |   <ALL> {
+            keywords.add(SqlSelectKeyword.ALL.symbol(getPos()));
+        }
+    )?
+    {
+        keywordList = new SqlNodeList(keywords, s.addAll(keywords).pos());
+    }
+    selectList = SelectList()
+    [
+        exceptExpression = ExceptExpression(selectList)
+    ]
+    (
+        <FROM> fromClause = FromClause()
+        where = WhereOpt()
+        groupBy = GroupByOpt()
+        having = HavingOpt()
+        windowDecls = WindowOpt()
+    |
+        E() {
+            fromClause = null;
+            where = null;
+            groupBy = null;
+            having = null;
+            windowDecls = null;
+        }
+    )
+    {
+        return new SqlSelect(s.end(this), keywordList, /*topN=*/ null,
+            new SqlNodeList(selectList, Span.of(selectList).pos()),
+            exceptExpression, fromClause, where, groupBy, having, /*qualify=*/ null,
+            windowDecls, /*orderBy=*/ null, /*offset=*/ null, /*fetch=*/ null,
+            new SqlNodeList(hints, getPos()));
+    }
+}

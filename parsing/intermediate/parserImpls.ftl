@@ -495,3 +495,105 @@ SqlDrop SqlDropFunction(Span s, boolean replace) :
         return SqlDdlNodes.dropFunction(s.end(this), ifExists, id);
     }
 }
+
+/**
+ * Parses an SQL statement.
+ */
+SqlNode SqlStmt() :
+{
+    SqlNode stmt;
+}
+{
+    (
+        stmt = SqlSetOption(Span.of(), null)
+    |
+        stmt = SqlAlter()
+    |
+        stmt = SqlCreate()
+    |
+        stmt = SqlUpdate()
+    |
+        stmt = SqlInsert()
+    |
+        stmt = SqlDrop()
+    |
+        stmt = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+    |
+        stmt = SqlExplain()
+    |
+        stmt = SqlDescribe()
+    |
+        stmt = SqlDelete()
+    |
+        stmt = SqlMerge()
+    |
+        stmt = SqlProcedureCall()
+    )
+    {
+        return stmt;
+    }
+}
+
+/**
+ * Parses a CREATE statement.
+ */
+SqlCreate SqlCreate() :
+{
+    final SqlCreate create;
+}
+{
+    (
+        LOOKAHEAD(4)
+        create = SqlCreateForeignSchema()
+    |
+        LOOKAHEAD(4)
+        create = SqlCreateMaterializedView()
+    |
+        LOOKAHEAD(4)
+        create = SqlCreateSchema()
+    |
+        LOOKAHEAD(4)
+        create = SqlCreateTable()
+    |
+        LOOKAHEAD(4)
+        create = SqlCreateType()
+    |
+        LOOKAHEAD(4)
+        create = SqlCreateView()
+    |
+        LOOKAHEAD(4)
+        create = SqlCreateFunction()
+    )
+    {
+        return create;
+    }
+}
+
+/**
+ * Parses a DROP statement.
+ */
+SqlDrop SqlDrop() :
+{
+    final Span s;
+    boolean replace = false;
+    final SqlDrop drop;
+}
+{
+    <DROP> { s = span(); }
+    (
+        drop = SqlDropMaterializedView(s, replace)
+    |
+        drop = SqlDropSchema(s, replace)
+    |
+        drop = SqlDropTable(s, replace)
+    |
+        drop = SqlDropType(s, replace)
+    |
+        drop = SqlDropView(s, replace)
+    |
+        drop = SqlDropFunction(s, replace)
+    )
+    {
+        return drop;
+    }
+}
