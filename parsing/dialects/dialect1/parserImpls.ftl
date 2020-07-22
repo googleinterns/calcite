@@ -2428,8 +2428,7 @@ SqlCall CaseN() :
 SqlCall RangeN() :
 {
     SqlNode e1;
-    SqlNode e2;
-    SqlNode e3;
+    SqlNode range;
     SqlNodeList rangeList = new SqlNodeList(getPos());
 }
 {
@@ -2437,10 +2436,28 @@ SqlCall RangeN() :
     <LPAREN>
     e1 = CompoundIdentifier()
     <BETWEEN>
-    e2 = Literal()
-    <AND>
-    e3 = Literal()
-    { rangeList.add(new SqlRangeNStartEnd(getPos(), e2, e3, null)); }
+    range = RangeNStartEnd()
+    { rangeList.add(range); }
     <RPAREN>
     { return new SqlRangeN(getPos(), e1, rangeList); }
+}
+
+SqlCall RangeNStartEnd() :
+{
+    SqlNode startLiteral = null;
+    SqlNode endLiteral = null;
+    SqlNode eachSizeLiteral = null;
+}
+{
+    startLiteral = Literal()
+    [
+        <AND>
+        endLiteral = Literal()
+    ]
+    [
+        <EACH>
+        eachSizeLiteral = Literal()
+    ]
+    { return new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral
+        , eachSizeLiteral); }
 }
