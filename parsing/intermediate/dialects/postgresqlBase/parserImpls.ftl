@@ -331,5 +331,5 @@ SqlNode BuiltinFunctionCall() :
 
 <DEFAULT, DQID, BTID> TOKEN :
 {
-    < INFIX_CAST: \"::\" >
+    < INFIX_CAST: "::" >
 }

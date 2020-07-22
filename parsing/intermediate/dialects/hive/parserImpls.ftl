@@ -21,6 +21,7 @@ JoinType LeftSemiJoin() :
 {
     <LEFT> <SEMI> <JOIN> { return JoinType.LEFT_SEMI_JOIN; }
 }
+
 SqlLiteral JoinType() :
 {
     JoinType joinType;
