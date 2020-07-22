@@ -17,15 +17,27 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
-
+/**
+ * Parse tree for {@code SqlRangeN} expression.
+ */
 public class SqlRangeN extends SqlCall{
+  private static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("RANGE_N ", SqlKind.OTHER_FUNCTION);
 
-  final SqlNodeList rangeList;
-  final SqlNode testIdentifier;
-  final NoRangeUnknown extraPartitions;
+  final public SqlNodeList rangeList;
+  final public SqlNode testIdentifier;
+  final public NoRangeUnknown extraPartitions;
 
+  /**
+   * Creates a {@code SqlRangeN}.
+   * @param pos             Parser position, must not be null
+   * @param testIdentifier  A value that the partition base on
+   * @param rangeList       Range expressions
+   * @param extraPartitions Represent extra partitions for no case and unknown
+   */
   public SqlRangeN(final SqlParserPos pos, final SqlNode testIdentifier
       , final SqlNodeList rangeList, final NoRangeUnknown extraPartitions) {
     super(pos);
@@ -35,11 +47,11 @@ public class SqlRangeN extends SqlCall{
   }
 
   @Override public SqlOperator getOperator() {
-    return null;
+    return OPERATOR;
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return null;
+    return ImmutableNullableList.of(testIdentifier, rangeList);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec
@@ -79,9 +91,25 @@ public class SqlRangeN extends SqlCall{
   }
 
   public enum NoRangeUnknown {
+    /**
+     * An option to handle values that are not specified in rangeList.
+     */
     NO_RANGE,
+
+    /**
+     * An option to handle values that are not specified in rangeList or null.
+     */
     NO_RANGE_OR_UNKNOWN,
+
+    /**
+     * Options to handle values not in rangeList and null.
+     */
     NO_RANGE_COMMA_UNKNOWN,
-    UNKNOWN
+
+    /**
+     * An option to handle null test_expression
+     * , when it is not specified in rangeList.
+     */
+    UNKNOWN,
   }
 }

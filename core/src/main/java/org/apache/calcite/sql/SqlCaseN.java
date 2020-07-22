@@ -20,18 +20,26 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
-
+/**
+ * Parse tree for {@code SqlCaseN} expression.
+ */
 public class SqlCaseN extends SqlCall {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("CASE_N ", SqlKind.OTHER_FUNCTION);
 
-  final SqlNodeList nodes;
+  final SqlNodeList caseList;
   final NoCaseUnknown extraPartitions;
 
-  public SqlCaseN (final SqlParserPos pos, final SqlNodeList nodes
+  /**
+   * Creates a {@code SqlCaseN}.
+   * @param pos             Parser position, must not be null
+   * @param caseList           Case expressions
+   * @param extraPartitions Represent extra partitions for no case and unknown
+   */
+  public SqlCaseN (final SqlParserPos pos, final SqlNodeList caseList
       , final NoCaseUnknown extraPartitions) {
     super(pos);
-    this.nodes = nodes;
+    this.caseList = caseList;
     this.extraPartitions = extraPartitions;
   }
 
@@ -40,7 +48,7 @@ public class SqlCaseN extends SqlCall {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(nodes);
+    return ImmutableNullableList.of(caseList);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
@@ -49,7 +57,7 @@ public class SqlCaseN extends SqlCall {
 
     SqlWriter.Frame frame = writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL
         , "(", ")");
-    for( SqlNode e : nodes.getList()){
+    for( SqlNode e : caseList.getList()){
       writer.sep(",");
       e.unparse(writer, leftPrec, rightPrec);
     }
@@ -76,9 +84,25 @@ public class SqlCaseN extends SqlCall {
   }
 
   public enum NoCaseUnknown {
+    /**
+     * An option to handle values that are not specified in caseList.
+     */
     NO_CASE,
+
+    /**
+     * An option to handle values that are not specified in caseList or null.
+     */
     NO_CASE_OR_UNKNOWN,
+
+    /**
+     * Options to handle values not in caseList and null.
+     */
     NO_CASE_COMMA_UNKNOWN,
-    UNKNOWN
+
+    /**
+     * An option to handle null test_expression
+     * , when it is not specified in caseList.
+     */
+    UNKNOWN,
   }
 }

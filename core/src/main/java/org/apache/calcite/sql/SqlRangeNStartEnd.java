@@ -17,10 +17,15 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
-
+/**
+ * Parse tree for {@code SqlRangeNStartEnd} expression.
+ */
 public class SqlRangeNStartEnd extends SqlCall{
+  private static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("RANGE_N_AND ", SqlKind.OTHER);
 
   final SqlNode startLiteral;
   final SqlNode endLiteral;
@@ -28,6 +33,15 @@ public class SqlRangeNStartEnd extends SqlCall{
   final boolean startAsterisk;
   final boolean endAsterisk;
 
+  /**
+   * Creates a {@code SqlRangeNStartEnd}.
+   * @param pos             Parser position, must not be null
+   * @param startLiteral    start value of the range
+   * @param endLiteral      end value of the range
+   * @param eachSizeLiteral step value within the range
+   * @param startAsterisk   Is the start value an asterisk
+   * @param endAsterisk     Is the end value an asterisk
+   */
   public SqlRangeNStartEnd(final SqlParserPos pos, final SqlNode startLiteral
       , final SqlNode endLiteral, final SqlNode eachSizeLiteral
       , final boolean startAsterisk, final boolean endAsterisk) {
@@ -40,11 +54,11 @@ public class SqlRangeNStartEnd extends SqlCall{
   }
 
   @Override public SqlOperator getOperator() {
-    return null;
+    return OPERATOR;
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return null;
+    return ImmutableNullableList.of(startLiteral, endLiteral, eachSizeLiteral);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec
