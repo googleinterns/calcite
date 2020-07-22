@@ -304,14 +304,6 @@ SqlNodeList ParenthesizedQueryOrCommaListWithDefault(
         e = OrderedQueryOrExpr(firstExprContext)
     |
         e = Default()
-<#if parser.includeInsertWithOmittedValues>
-    |
-        // This LOOKAHEAD ensures that parsing fails if there is an empty set of
-        // parentheses after a VALUES keyword since that is invalid syntax in
-        // most dialects
-        LOOKAHEAD({ getToken(1).kind != RPAREN })
-        { e = SqlLiteral.createNull(getPos()); }
-</#if>
     )
     {
         list = startList(e);
@@ -326,10 +318,6 @@ SqlNodeList ParenthesizedQueryOrCommaListWithDefault(
             e = Expression(exprContext)
         |
             e = Default()
-<#if parser.includeInsertWithOmittedValues>
-        |
-            { e = SqlLiteral.createNull(getPos()); }
-</#if>
         )
         {
             list.add(e);
@@ -536,48 +524,14 @@ SqlNode SqlStmt() :
 }
 {
     (
-<#-- Add methods to parse additional statements here -->
-<#list parser.statementParserMethods as method>
-        LOOKAHEAD(2) stmt = ${method}
-    |
-</#list>
         stmt = SqlSetOption(Span.of(), null)
     |
         stmt = SqlAlter()
     |
-<#if parser.createStatementParserMethods?size != 0>
-        stmt = SqlCreate()
-    |
-</#if>
-<#if parser.renameStatementParserMethods?size != 0>
-        stmt = SqlRename()
-    |
-</#if>
-<#if parser.execStatementParserMethods?size != 0>
-        stmt = SqlExec()
-    |
-</#if>
-<#if  parser.usingStatementParserMethods?size != 0>
-        stmt = SqlUsing()
-    |
-</#if>
-<#if parser.setTimeZoneStatementParserMethods?size != 0>
-        stmt = SqlSetTimeZone()
-    |
-</#if>
-<#if parser.allowUpsertFormOfUpdate>
-        LOOKAHEAD(SqlUpdate() <ELSE>)
-        stmt = SqlUpsert()
-    |
-</#if>
         stmt = SqlUpdate()
     |
         stmt = SqlInsert()
     |
-<#if parser.dropStatementParserMethods?size != 0>
-        stmt = SqlDrop()
-    |
-</#if>
         stmt = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
     |
         stmt = SqlExplain()
@@ -797,26 +751,17 @@ SqlSelect SqlSelect() :
 {
     final List<SqlLiteral> keywords = new ArrayList<SqlLiteral>();
     final SqlNodeList keywordList;
-    SqlNode topN = null;
-    SqlNode exceptExpression = null;
     List<SqlNode> selectList;
     final SqlNode fromClause;
     final SqlNode where;
     final SqlNodeList groupBy;
     final SqlNode having;
-    SqlNode qualify = null;
     final SqlNodeList windowDecls;
     final List<SqlNode> hints = new ArrayList<SqlNode>();
     final Span s;
 }
 {
-    (
-        <SELECT>
-<#if parser.allowAbbreviatedKeywords>
-    |
-        <SEL>
-</#if>
-    )
+    <SELECT>
     {
         s = span();
     }
@@ -838,28 +783,16 @@ SqlSelect SqlSelect() :
     |   <ALL> {
             keywords.add(SqlSelectKeyword.ALL.symbol(getPos()));
         }
-<#if parser.includeTopN>
-    |
-        topN = SqlSelectTopN(getPos())
-</#if>
     )?
     {
         keywordList = new SqlNodeList(keywords, s.addAll(keywords).pos());
     }
     selectList = SelectList()
-<#if parser.includeExceptExpression>
-    [
-        exceptExpression = ExceptExpression(selectList)
-    ]
-</#if>
     (
         <FROM> fromClause = FromClause()
         where = WhereOpt()
         groupBy = GroupByOpt()
         having = HavingOpt()
-<#if parser.includeQualifyClause>
-        qualify = QualifyOpt()
-</#if>
         windowDecls = WindowOpt()
     |
         E() {
@@ -867,16 +800,15 @@ SqlSelect SqlSelect() :
             where = null;
             groupBy = null;
             having = null;
-            qualify = null;
             windowDecls = null;
         }
     )
     {
-        return new SqlSelect(s.end(this), keywordList, topN,
+        return new SqlSelect(s.end(this), keywordList, /*topN=*/ null,
             new SqlNodeList(selectList, Span.of(selectList).pos()),
-            exceptExpression, fromClause, where, groupBy, having, qualify,
-            windowDecls, /*orderBy=*/ null, /*offset=*/ null, /*fetch=*/ null,
-            new SqlNodeList(hints, getPos()));
+            /*exceptExpression=*/ null, fromClause, where, groupBy, having,
+            /*qualify=*/ null, windowDecls, /*orderBy=*/ null, /*offset=*/ null,
+            /*fetch=*/ null, new SqlNodeList(hints, getPos()));
     }
 }
 
@@ -1117,10 +1049,6 @@ SqlNode SqlInsert() :
 {
     (
         <INSERT>
-<#if parser.allowAbbreviatedKeywords>
-    |
-        <INS>
-</#if>
     |
         <UPSERT> { keywords.add(SqlInsertKeyword.UPSERT.symbol(getPos())); }
     )
@@ -1128,11 +1056,7 @@ SqlNode SqlInsert() :
     SqlInsertKeywords(keywords) {
         keywordList = new SqlNodeList(keywords, s.addAll(keywords).pos());
     }
-<#if parser.allowUpsertFormOfUpdate>
-    [ <INTO> ]
-<#else>
     <INTO>
-</#if>
     table = TableRefWithHintsOpt()
     [
         LOOKAHEAD(5)
@@ -1154,12 +1078,6 @@ SqlNode SqlInsert() :
         }
     ]
     (
-<#-- additional literal parser methods are included here -->
-<#list parser.insertStatementParserMethods as method>
-        LOOKAHEAD(${method}())
-        source = ${method}()
-    |
-</#list>
         source = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
     )
     {
@@ -1188,19 +1106,9 @@ SqlNode SqlDelete() :
     final Span s;
 }
 {
-    (
-        <DELETE>
-<#if parser.allowAbbreviatedKeywords>
-    |
-        <DEL>
-</#if>
-    )
+    <DELETE>
     { s = span(); }
-<#if parser.allowOptionalFromInDelete>
-    [ <FROM> ]
-<#else>
     <FROM>
-</#if>
     table = TableRefWithHintsOpt()
     [
         [ <EXTEND> ]
@@ -1222,8 +1130,6 @@ SqlNode SqlDelete() :
 SqlNode SqlUpdate() :
 {
     SqlNode table;
-    SqlNodeList sourceTables = null;
-    SqlNodeList sourceAliases = null;
     SqlNodeList extendList = null;
     SqlIdentifier alias = null;
     SqlNode condition;
@@ -1234,13 +1140,7 @@ SqlNode SqlUpdate() :
     final Span s;
 }
 {
-    (
-        <UPDATE>
-<#if parser.allowAbbreviatedKeywords>
-    |
-        <UPD>
-</#if>
-    )
+    <UPDATE>
     { s = span(); }
     table = TableRefWithHintsOpt() {
         targetColumnList = new SqlNodeList(s.pos());
@@ -1253,21 +1153,6 @@ SqlNode SqlUpdate() :
         }
     ]
     [ [ <AS> ] alias = SimpleIdentifier() ]
-<#if parser.allowUpdateFromTable>
-    [
-        (
-            <FROM> {
-                sourceTables = new SqlNodeList(s.pos());
-                sourceAliases = new SqlNodeList(s.pos());
-            }
-            SourceTableAndAlias(sourceTables, sourceAliases)
-        )
-        (
-            <COMMA>
-            SourceTableAndAlias(sourceTables, sourceAliases)
-        )*
-    ]
-</#if>
     /* CompoundIdentifier() can read statements like FOO.X, SimpleIdentifier()
        is unable to do this
     */
@@ -1294,7 +1179,7 @@ SqlNode SqlUpdate() :
         return new SqlUpdate(s.addAll(targetColumnList)
             .addAll(sourceExpressionList).addIf(condition).pos(), table,
             targetColumnList, sourceExpressionList, condition, null, alias,
-            sourceTables, sourceAliases);
+            null, null);
     }
 }
 
@@ -1480,11 +1365,6 @@ SqlLiteral JoinType() :
 }
 {
     (
-    LOOKAHEAD(3) // required for "LEFT SEMI JOIN" in Hive
-<#list parser.joinTypes as method>
-        joinType = ${method}()
-    |
-</#list>
         <JOIN> { joinType = JoinType.INNER; }
     |
         <INNER> <JOIN> { joinType = JoinType.INNER; }
@@ -1510,17 +1390,7 @@ SqlNode TableRefOrJoinClause() :
     SqlNode e;
 }
 {
-    (
-<#if parser.allowNestedJoins>
-        LOOKAHEAD(<LPAREN> TableRef() Natural() JoinType())
-        <LPAREN>
-        e = TableRef()
-        e = JoinClause(e)
-        <RPAREN>
-    |
-</#if>
-        e = TableRef()
-    )
+    e = TableRef()
     { return e; }
 }
 
@@ -3043,11 +2913,6 @@ List<Object> Expression2(ExprContext exprContext) :
                     s.clear().add(this);
                 }
                 (
-<#if parser.includeLikeAnyAllSome>
-                    LOOKAHEAD(3)
-                    LikeAnyAllSome(list, s)
-                |
-</#if>
                     (
                         (
                             <NOT>
@@ -3061,14 +2926,6 @@ List<Object> Expression2(ExprContext exprContext) :
                         |
                             <SIMILAR> <TO> { op = SqlStdOperatorTable.SIMILAR_TO; }
                         )
-                    <#if parser.includePosixOperators>
-                    |
-                        <NEGATE> <TILDE> { op = SqlStdOperatorTable.NEGATED_POSIX_REGEX_CASE_SENSITIVE; }
-                        [ <STAR> { op = SqlStdOperatorTable.NEGATED_POSIX_REGEX_CASE_INSENSITIVE; } ]
-                    |
-                        <TILDE> { op = SqlStdOperatorTable.POSIX_REGEX_CASE_SENSITIVE; }
-                        [ <STAR> { op = SqlStdOperatorTable.POSIX_REGEX_CASE_INSENSITIVE; } ]
-                    </#if>
                     )
                     list2 = Expression2(ExprContext.ACCEPT_SUB_QUERY) {
                         list.add(new SqlParserUtil.ToTreeListItem(op, s.pos()));
@@ -3086,10 +2943,6 @@ List<Object> Expression2(ExprContext exprContext) :
                     }
                 ]
             |
-            <#list parser.extraBinaryExpressions as extra >
-                ${extra}(list, exprContext, s)
-            |
-            </#list>
                 LOOKAHEAD(3) op = BinaryRowOperator() {
                     checkNonQueryExpression(exprContext);
                     list.add(new SqlParserUtil.ToTreeListItem(op, getPos()));
@@ -3172,11 +3025,6 @@ SqlNode Expression3(ExprContext exprContext) :
     Span rowSpan = null;
 }
 {
-<#list parser.preExpressionMethods as method>
-    LOOKAHEAD(${method}())
-    e = ${method}() { return e; }
-|
-</#list>
     LOOKAHEAD(2)
     e = AtomicRowExpression()
     {
@@ -3262,13 +3110,7 @@ SqlNode Expression3(ExprContext exprContext) :
                 list1.toArray());
         }
     }
-    (
-<#list parser.postExpressionMethods as method>
-        e = ${method}(list1.get(0)) { return e; }
-    |
-</#list>
-        { return list1.get(0); }
-    )
+    { return list1.get(0); }
 }
 
 SqlOperator periodOperator() :
@@ -3376,15 +3218,6 @@ SqlNode AtomicRowExpression() :
 }
 {
     (
-<#list parser.dateTimeExpressionMethods as method>
-        LOOKAHEAD(${method})
-        e = ${method}
-    |
-</#list>
-<#if parser.includeHostVariables>
-        e = SqlHostVariable()
-    |
-</#if>
         e = Literal()
     |
         e = DynamicParam()
@@ -3545,15 +3378,7 @@ SqlAlter SqlAlter() :
     |
         { scope = null; }
     )
-    (
-<#-- additional literal parser methods are included here -->
-<#list parser.alterStatementParserMethods as method>
-        alterNode = ${method}(s, scope)
-    |
-</#list>
-
-        alterNode = SqlSetOption(s, scope)
-    )
+    alterNode = SqlSetOption(s, scope)
     {
         return alterNode;
     }
@@ -3565,161 +3390,6 @@ String Scope() :
 {
     ( <SYSTEM> | <SESSION> ) { return token.image.toUpperCase(Locale.ROOT); }
 }
-
-<#if parser.createStatementParserMethods?size != 0>
-/**
- * Parses a CREATE statement.
- */
-SqlCreate SqlCreate() :
-{
-    final SqlCreate create;
-}
-{
-    (
-<#-- additional literal parser methods are included here -->
-<#list parser.createStatementParserMethods as method>
-        LOOKAHEAD(4)
-        create = ${method}()
-        <#sep>|</#sep>
-</#list>
-    )
-    {
-        return create;
-    }
-}
-</#if>
-<#if parser.setTimeZoneStatementParserMethods?size != 0>
-/**
- * Parses a SET TIME ZONE statement
- */
-SqlNode SqlSetTimeZone() :
-{
-    SqlNode source;
-}
-{
-    (
-<#-- additional literal parser methods are included here -->
-<#list parser.setTimeZoneStatementParserMethods as method>
-        source = ${method}()
-        <#sep>|</#sep>
-</#list>
-    )
-    {
-        return source;
-    }
-}
-</#if>
-<#if parser.allowUpsertFormOfUpdate>
-SqlNode SqlUpsert() :
-{
-    SqlNode updateCall;
-    SqlNode insertCall;
-}
-{
-    updateCall = SqlUpdate()
-    <ELSE>
-    insertCall = SqlInsert()
-    {
-        return new SqlUpsert(span().end(this), (SqlUpdate) updateCall,
-          (SqlInsert) insertCall);
-    }
-}
-</#if>
-<#if parser.renameStatementParserMethods?size != 0>
-/**
- * Parses a RENAME statement
- */
-SqlRename SqlRename() :
-{
-    SqlRename source;
-}
-{
-    <RENAME>
-    (
-<#-- additional literal parser methods are included here -->
-<#list parser.renameStatementParserMethods as method>
-        source = ${method}()
-        <#sep>|</#sep>
-</#list>
-    )
-    {
-        return source;
-    }
-}
-</#if>
-<#if parser.execStatementParserMethods?size != 0>
-/**
- * Parses an EXEC statement
- */
-SqlNode SqlExec() :
-{
-    SqlNode source;
-}
-{
-    (
-        <EXEC>
-    |
-        <EXECUTE>
-    )
-    (
-<#-- additional literal parser methods are included here -->
-<#list parser.execStatementParserMethods as method>
-        source =  ${method}()
-        <#sep>|</#sep>
-</#list>
-    )
-    {
-        return source;
-    }
-}
-</#if>
-<#if parser.usingStatementParserMethods?size != 0>
-/**
- * Parses a Using statement.
- */
-SqlNode SqlUsing() :
-{
-    final Span s;
-    SqlNode source;
-}
-{
-    <USING> { s = span(); }
-    (
-<#-- additional literal parser methods are included here -->
-<#list parser.usingStatementParserMethods as method>
-        source =  ${method}(s)
-        <#sep>|</#sep>
-</#list>
-    )
-    {
-        return source;
-    }
-}
-</#if>
-<#if parser.dropStatementParserMethods?size != 0>
-/**
- * Parses a DROP statement.
- */
-SqlDrop SqlDrop() :
-{
-    final Span s;
-    boolean replace = false;
-    final SqlDrop drop;
-}
-{
-    <DROP> { s = span(); }
-    (
-<#-- additional literal parser methods are included here -->
-<#list parser.dropStatementParserMethods as method>
-        drop = ${method}(s, replace)
-        <#sep>|</#sep>
-</#list>
-    )
-    {
-        return drop;
-    }
-}
-</#if>
 
 /**
  * Parses a literal expression, allowing continued string literals.
@@ -3742,11 +3412,6 @@ SqlNode Literal() :
         e = DateTimeLiteral()
     |
         e = IntervalLiteral()
-<#-- additional literal parser methods are included here -->
-<#list parser.literalParserMethods as method>
-    |
-        e = ${method}
-</#list>
     )
     {
         return e;
@@ -3824,9 +3489,6 @@ SqlNode StringLiteral() :
     int nfrags = 0;
     List<SqlLiteral> frags = null;
     char unicodeEscapeChar = 0;
-<#if parser.allowHexCharacterStringLiteral>
-    SqlNode hexCharLiteral;
-</#if>
 }
 {
     // A continued string literal consists of a head fragment and one or more
@@ -3835,11 +3497,6 @@ SqlNode StringLiteral() :
     // or comments may not occur between the prefix and the first quote, the
     // head fragment, with any prefix, is one token.
 
-<#if parser.allowHexCharacterStringLiteral>
-    hexCharLiteral = SqlHexCharStringLiteral()
-    { return hexCharLiteral; }
-    |
-</#if>
     <BINARY_STRING_LITERAL>
     {
         try {
@@ -4446,7 +4103,6 @@ SqlNodeList ParenthesizedSimpleIdentifierList() :
     }
 }
 
-<#if parser.includeCompoundIdentifier>
 /**
  * Parses a compound identifier.
  */
@@ -4458,13 +4114,6 @@ SqlIdentifier CompoundIdentifier() :
 }
 {
     IdentifierSegment(nameList, posList)
-<#if parser.allowColonSeparatorInCompoundIdentifier>
-    [
-        LOOKAHEAD(2)
-        <COLON>
-        IdentifierSegment(nameList, posList)
-    ]
-</#if>
     (
         LOOKAHEAD(2)
         <DOT>
@@ -4516,9 +4165,6 @@ Pair<SqlNodeList, SqlNodeList> ParenthesizedCompoundIdentifierList() :
         return Pair.of(new SqlNodeList(list, s.end(this)), new SqlNodeList(extendList, s.end(this)));
     }
 }
-<#else>
-  <#include "/@includes/compoundIdentifier.ftl" />
-</#if>
 
 /**
  * Parses a NEW UDT(...) expression.
@@ -4613,13 +4259,6 @@ SqlTypeNameSpec TypeName() :
 }
 {
     (
-<#-- additional types are included here -->
-<#-- put custom data types in front of Calcite core data types -->
-<#list parser.dataTypeParserMethods as method>
-        LOOKAHEAD(2)
-        typeNameSpec = ${method}
-    |
-</#list>
         LOOKAHEAD(2)
         typeNameSpec = SqlTypeName(s)
     |
@@ -5032,10 +4671,6 @@ SqlNode BuiltinFunctionCall() :
     TimeUnit interval;
     final TimeUnit unit;
     final SqlNode node;
-<#if parser.allowTranslateUsingCharSetWithError>
-    boolean isWithError = false;
-    boolean allowTranslateUsingCharSet = false;
-</#if>
 }
 {
     //~ FUNCTIONS WITH SPECIAL SYNTAX ---------------------------------------
@@ -5043,24 +4678,11 @@ SqlNode BuiltinFunctionCall() :
         <CAST> { s = span(); }
         <LPAREN> e = Expression(ExprContext.ACCEPT_SUB_QUERY) { args = startList(e); }
         <AS>
-<#if parser.includeCastDataAttributes>
-        (
-            (
-                dt = DataType() { args.add(dt); }
-            |
-                <INTERVAL> e = IntervalQualifier() { args.add(e); }
-            )
-            ( e = AlternativeTypeConversionAttribute() { args.add(e); } )*
-        |
-            ( e = AlternativeTypeConversionAttribute() { args.add(e); } )+
-        )
-<#else>
         (
             dt = DataType() { args.add(dt); }
         |
             <INTERVAL> e = IntervalQualifier() { args.add(e); }
         )
-</#if>
         <RPAREN> {
             return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
         }
@@ -5116,35 +4738,9 @@ SqlNode BuiltinFunctionCall() :
         }
         (
             <USING> name = SimpleIdentifier() {
-<#if parser.allowTranslateUsingCharSetWithError>
-                String nameString = name.toString().toUpperCase();
-                String[] charSets = new String[2];
-                if (nameString.contains("_TO_")) {
-                    charSets = nameString.split("_TO_");
-                    if (charSets.length == 2) {
-                        allowTranslateUsingCharSet = true;
-                        args.add(new SqlCharacterSetToCharacterSet(charSets, getPos()));
-                    }
-                } else {
-                    args.add(name);
-                }
-<#else>
                 args.add(name);
-</#if>
             }
-<#if parser.allowTranslateUsingCharSetWithError>
-            [
-                <WITH> <ERROR> {
-                    isWithError = true;
-                }
-            ]
-</#if>
             <RPAREN> {
-<#if parser.allowTranslateUsingCharSetWithError>
-                if (allowTranslateUsingCharSet) {
-                    return new SqlTranslateUsingCharacterSet(s.end(this), args, isWithError);
-                }
-</#if>
                 return SqlStdOperatorTable.TRANSLATE.createCall(s.end(this),
                     args);
             }
@@ -5189,13 +4785,7 @@ SqlNode BuiltinFunctionCall() :
             return e;
         }
     |
-        (
-            <SUBSTRING>
-<#if parser.includeSubstrKeyword>
-        |
-            <SUBSTR>
-</#if>
-        )
+        <SUBSTRING>
         { s = span(); }
         <LPAREN>
         e = Expression(ExprContext.ACCEPT_SUB_QUERY)
@@ -5276,15 +4866,6 @@ SqlNode BuiltinFunctionCall() :
     |
         node = TimestampDiffFunctionCall() { return node; }
     |
-<#list parser.builtinFunctionCallMethods as method>
-        node = ${method} { return node; }
-    |
-</#list>
-<#if parser.includeRankWithSortingExpressions>
-        LOOKAHEAD(<RANK>, { getToken(3).kind != RPAREN })
-        node = RankFunctionCallWithParams() { return node; }
-    |
-</#if>
         node = MatchRecognizeFunctionCall() { return node; }
     |
         node = JsonExistsFunctionCall() { return node; }
@@ -6068,9 +5649,6 @@ SqlNode NamedFunctionCall() :
     SqlLiteral quantifier = null;
     SqlNodeList orderList = null;
     final Span withinGroupSpan;
-<#if parser.postNamedFunctionCallMethods?size != 0>
-    SqlNode e;
-</#if>
 }
 {
     (
@@ -6128,13 +5706,7 @@ SqlNode NamedFunctionCall() :
             call = SqlStdOperatorTable.OVER.createCall(s.end(over), call, over);
         }
     ]
-    (
-<#list parser.postNamedFunctionCallMethods as method>
-        e = ${method}(call) { return e; }
-    |
-</#list>
         { return call; }
-    )
 }
 
 
@@ -7351,21 +6923,10 @@ void NonReservedKeyWord2of3() :
     [ " ","\t","\n","\r","\f" ]
     >
 |
-    /* To improve error reporting, we allow all kinds of characters,
-     * not just hexits, in a binary string literal. */
-<#if parser.allowHexCharacterStringLiteral>
-    < PREFIXED_HEX_STRING_LITERAL :
-    ("_" <CHARSETNAME>| "_" <CHARSETNAME> " ") <QUOTED_HEX_STRING> >
-|
-</#if>
     < BINARY_STRING_LITERAL: ["x","X"] <QUOTE> ( (~["'"]) | ("''"))* <QUOTE> >
 |
     < QUOTED_STRING: <QUOTE> ( (~["'"]) | ("''"))* <QUOTE> >
 |
-<#if parser.allowHexCharacterStringLiteral>
-    < QUOTED_HEX_STRING : <QUOTE> (<HEXDIGIT>)+ <QUOTE> (("XC") | ("XCV") | ("XCF"))>
-|
-</#if>
     < PREFIXED_STRING_LITERAL: ("_" <CHARSETNAME> | "N") <QUOTED_STRING> >
 |
     < UNICODE_STRING_LITERAL: "U" "&" <QUOTED_STRING> >
@@ -7390,16 +6951,12 @@ void NonReservedKeyWord2of3() :
 {
     < LPAREN: "(">
 |   < RPAREN: ")">
-<#if parser.includeBraces >
 |   < LBRACE_D: "{" (" ")* ["d","D"] >
 |   < LBRACE_T: "{" (" ")* ["t","T"] >
 |   < LBRACE_TS: "{" (" ")* ["t","T"] ["s","S"] >
 |   < LBRACE_FN: "{" (" ")* ["f","F"] ["n","N"] >
 |   < LBRACE: "{" >
 |   < RBRACE: "}" >
-<#else>
-<#include "/@includes/braces.ftl" />
-</#if>
 |   < LBRACKET: "[" >
 |   < RBRACKET: "]" >
 |   < SEMICOLON: ";" >
@@ -7433,9 +6990,6 @@ void NonReservedKeyWord2of3() :
 |   < VERTICAL_BAR: "|" >
 |   < CARET: "^" >
 |   < DOLLAR: "$" >
-<#list parser.binaryOperatorsTokens as operator>
-|   ${operator}
-</#list>
 }
 
 /**
