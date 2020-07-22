@@ -57,8 +57,8 @@ public class FindDialectParsingErrors {
   private final String inputPath;
   private final String outputPath;
   private final Dialect dialect;
-  private boolean groupByErrors;
-  private int numSampleQueries;
+  private final boolean groupByErrors;
+  private final int numSampleQueries;
   private final List<MessageFormat> errorFormats;
 
   /**

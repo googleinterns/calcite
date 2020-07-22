@@ -21,6 +21,7 @@ import java.io.IOException;
 public class FindDialectParsingErrorsExec {
 
   private static final int MAX_NUM_SAMPLE_QUERIES = 20;
+  private static final int DEFAULT_NUM_SAMPLE_QUERIES = 1;
 
   public static void main(String[] args) throws IOException {
     String inputPath = args[0];
@@ -28,7 +29,7 @@ public class FindDialectParsingErrorsExec {
     FindDialectParsingErrors.Dialect dialect = FindDialectParsingErrors.Dialect.valueOf(args[2]
         .toUpperCase());
     boolean groupByErrors = Boolean.parseBoolean(args[3]);
-    int numSampleQueries = 5;
+    int numSampleQueries = DEFAULT_NUM_SAMPLE_QUERIES;
     if (args.length == 5) {
       numSampleQueries = Integer.parseInt(args[4]);
       if (numSampleQueries < 1 || numSampleQueries > 20) {
