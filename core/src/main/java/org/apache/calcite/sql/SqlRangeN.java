@@ -24,12 +24,14 @@ public class SqlRangeN extends SqlCall{
 
   final SqlNodeList rangeList;
   final SqlNode testIdentifier;
+  final NoRangeUnknown extraPartitions;
 
   public SqlRangeN(final SqlParserPos pos, final SqlNode testIdentifier
-      , final SqlNodeList rangeList) {
+      , final SqlNodeList rangeList, final NoRangeUnknown extraPartitions) {
     super(pos);
     this.testIdentifier = testIdentifier;
     this.rangeList = rangeList;
+    this.extraPartitions = extraPartitions;
   }
 
   @Override public SqlOperator getOperator() {
@@ -53,7 +55,33 @@ public class SqlRangeN extends SqlCall{
       writer.sep(",");
       range.unparse(writer, leftPrec, rightPrec);
     }
+    if (extraPartitions != null) {
+      writer.sep(",");
+      switch (extraPartitions) {
+      case NO_RANGE:
+        writer.keyword("NO RANGE");
+        break;
+      case UNKNOWN:
+        writer.keyword("UNKNOWN");
+        break;
+      case NO_RANGE_OR_UNKNOWN:
+        writer.keyword("NO RANGE OR UNKNOWN");
+        break;
+      case NO_RANGE_COMMA_UNKNOWN:
+        writer.keyword("NO RANGE");
+        writer.sep(",");
+        writer.keyword("UNKNOWN");
+        break;
+      }
+    }
     writer.endList(frame);
     writer.endList(funcCallFrame);
+  }
+
+  public enum NoRangeUnknown {
+    NO_RANGE,
+    NO_RANGE_OR_UNKNOWN,
+    NO_RANGE_COMMA_UNKNOWN,
+    UNKNOWN
   }
 }

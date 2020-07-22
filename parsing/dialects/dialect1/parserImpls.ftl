@@ -2404,20 +2404,20 @@ SqlCall CaseN() :
         }
     )*
     [
-    <COMMA>
-    (
-        LOOKAHEAD(3)
-        <NO> <CASE> <OR> <UNKNOWN>
-        { extraPartitionOption = NoCaseUnknown.NO_CASE_OR_UNKNOWN; }
-    |
-        LOOKAHEAD(3)
-        <NO> <CASE> <COMMA> <UNKNOWN>
-        { extraPartitionOption = NoCaseUnknown.NO_CASE_COMMA_UNKNOWN; }
-    |
-        <NO> <CASE> { extraPartitionOption = NoCaseUnknown.NO_CASE; }
-    |
-        <UNKNOWN> { extraPartitionOption = NoCaseUnknown.UNKNOWN; }
-    )
+        <COMMA>
+        (
+            LOOKAHEAD(3)
+            <NO> <CASE> <OR> <UNKNOWN>
+            { extraPartitionOption = NoCaseUnknown.NO_CASE_OR_UNKNOWN; }
+        |
+            LOOKAHEAD(3)
+            <NO> <CASE> <COMMA> <UNKNOWN>
+            { extraPartitionOption = NoCaseUnknown.NO_CASE_COMMA_UNKNOWN; }
+        |
+            <NO> <CASE> { extraPartitionOption = NoCaseUnknown.NO_CASE; }
+        |
+            <UNKNOWN> { extraPartitionOption = NoCaseUnknown.UNKNOWN; }
+        )
     ]
     <RPAREN>
     {
@@ -2430,6 +2430,7 @@ SqlCall RangeN() :
     SqlNode e1;
     SqlNode range;
     SqlNodeList rangeList = new SqlNodeList(getPos());
+    NoRangeUnknown extraPartitionOption = null;
 }
 {
     <RANGE_N>
@@ -2438,8 +2439,24 @@ SqlCall RangeN() :
     <BETWEEN>
     range = RangeNStartEnd()
     { rangeList.add(range); }
+    [
+        <COMMA>
+        (
+            LOOKAHEAD(3)
+            <NO> <RANGE> <OR> <UNKNOWN>
+            { extraPartitionOption = NoRangeUnknown.NO_RANGE_OR_UNKNOWN; }
+        |
+            LOOKAHEAD(3)
+            <NO> <RANGE> <COMMA> <UNKNOWN>
+            { extraPartitionOption = NoRangeUnknown.NO_RANGE_COMMA_UNKNOWN; }
+        |
+            <NO> <RANGE> { extraPartitionOption = NoRangeUnknown.NO_RANGE; }
+        |
+            <UNKNOWN> { extraPartitionOption = NoRangeUnknown.UNKNOWN; }
+        )
+    ]
     <RPAREN>
-    { return new SqlRangeN(getPos(), e1, rangeList); }
+    { return new SqlRangeN(getPos(), e1, rangeList, extraPartitionOption); }
 }
 
 SqlCall RangeNStartEnd() :

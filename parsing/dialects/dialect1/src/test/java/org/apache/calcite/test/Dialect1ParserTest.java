@@ -3504,7 +3504,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testRangeNNoRange() {
     final String sql = "range_n (foo between 3 and 10, no range)";
-    final String expected = "RANGE_N(`FOO` BETWEEN * AND 10, NO RANGE)";
+    final String expected = "RANGE_N(`FOO` BETWEEN 3 AND 10, NO RANGE)";
     expr(sql).ok(expected);
   }
 
