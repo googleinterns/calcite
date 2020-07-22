@@ -99,11 +99,46 @@ public class FindErrors {
         '"', 1);
     List<String[]> rows = reader.readAll();
     reader.close();
-    List<String> queries = new ArrayList<>();
-    rows.parallelStream().forEach(row -> queries.add(sanitize(row[0])));
+    List<String> queries = rows.parallelStream()
+        .map(row -> sanitize(row[0]))
+        .collect(Collectors.toList());
     if (groupByErrors) {
       findErrorGroups(queries);
+    } else {
+      findFullErrors(queries);
     }
+  }
+
+  /**
+   * This is the default processing method. It parallel processes the list of queries and finds the
+   * full error for any failing query.
+   *
+   * @param queries A list of sanitized queries
+   * @throws IOException If it fails to write to the output file
+   */
+  private void findFullErrors(List<String> queries) throws IOException {
+    SqlParser.Config config = SqlParser.configBuilder()
+      .setParserFactory(dialect.getDialectFactory())
+      .build();
+    Map<String, FullError> errors = queries.parallelStream()
+      .map(query -> {
+        try {
+          SqlParser.create(query, config).parseStmt();
+          return null;
+        } catch (SqlParseException e) {
+          return new FullError(query, e.getMessage(), 1);
+        }
+      })
+      .filter(Objects::nonNull)
+      .collect(Collectors.toConcurrentMap(e -> e.query, e -> e, (e1, e2) -> {
+        e1.count += e2.count;
+        return e1;
+      }));
+    int numFailed = 0;
+    for (Map.Entry<String, FullError> entry : errors.entrySet()) {
+      numFailed += entry.getValue().count;
+    }
+    outputFullErrorResults(errors, queries.size() - numFailed, numFailed);
   }
 
   /**
@@ -133,7 +168,7 @@ public class FindErrors {
       })
       .filter(Objects::nonNull)
       .collect(
-        Collectors.toMap(e -> e.type, e -> e, (e1, e2) -> {
+        Collectors.toConcurrentMap(e -> e.type, e -> e, (e1, e2) -> {
           ErrorType errorCountValue = new ErrorType();
           errorCountValue.count = e1.count + e2.count;
           errorCountValue.fullError = e1.fullError;
@@ -153,7 +188,37 @@ public class FindErrors {
   }
 
   /**
-   * Outputs the processing results into a JSON file containing a list, sorted by count in
+   * Outputs the processed results into a JSON file containing a list JSON objects where each object
+   * contains the query and the error message. This method also outputs the number of successful
+   * queries and the number of failed queries.
+   *
+   * @param errors A Map of queries and their full errors
+   * @param numPassed The number of queries that successfully parsed
+   * @param numFailed The number of queries that failed to parse
+   * @throws IOException If it fails to create a FileWriter at the the output path
+   */
+  private void outputFullErrorResults(Map<String, FullError> errors, int numPassed, int numFailed)
+      throws IOException {
+    JsonWriter writer = new JsonWriter(new FileWriter(outputPath));
+    writer.setIndent("  ");
+    writer.beginObject();
+    writer.name("numPassed").value(numPassed);
+    writer.name("numFailed").value(numFailed);
+    writer.name("errors");
+    writer.beginArray();
+    for (Map.Entry<String, FullError> entry : errors.entrySet()) {
+      writer.beginObject();
+      writer.name("query").value(entry.getKey());
+      writer.name("error").value(entry.getValue().error);
+      writer.endObject();
+    }
+    writer.endArray();
+    writer.endObject();
+    writer.close();
+  }
+
+  /**
+   * Outputs the processed results into a JSON file containing a list, sorted by count in
    * descending order, of error JSON objects where each object contains the values inside the
    * ErrorCountValue object. This method also outputs the number of successful queries and the
    * number of failed queries.
@@ -261,6 +326,18 @@ public class FindErrors {
       this.fullError = fullError;
       this.type = type;
       this.sampleQueries = sampleQueries;
+    }
+  }
+
+  class FullError {
+    String query;
+    String error;
+    int count;
+
+    public FullError(String query, String error, int count) {
+      this.query = query;
+      this.error = error;
+      this.count = count;
     }
   }
 

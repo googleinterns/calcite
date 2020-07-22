@@ -23,9 +23,9 @@ public class FindErrorsExec {
 
   public static void main(String[] args) throws IOException {
     String inputPath = "dialect1_queries.csv";
-    String outputPath = "dialect1_results.json";
+    String outputPath = "dialect1_results_full.json";
     FindErrors.Dialect dialect = FindErrors.Dialect.DIALECT1;
-    boolean groupByErrors = true;
+    boolean groupByErrors = false;
     int numSampleQueries = 5;
     FindErrors findErrors = new FindErrors(inputPath, outputPath, dialect, groupByErrors,
         numSampleQueries);
