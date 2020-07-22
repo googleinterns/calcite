@@ -3515,6 +3515,13 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     expr(sql).ok(expected);
   }
 
+  @Test public void testRangeNNoRangeCommaUnknown() {
+    final String sql = "range_n (foo between 3 and 10, no range, unknown)";
+    final String expected =
+        "RANGE_N(`FOO` BETWEEN 3 AND 10, NO RANGE, UNKNOWN)";
+    expr(sql).ok(expected);
+  }
+
   @Test void testNestedNamedFunctionCalls() {
     final String sql = "SELECT\n"
         + "  MY_FUN(\n"
