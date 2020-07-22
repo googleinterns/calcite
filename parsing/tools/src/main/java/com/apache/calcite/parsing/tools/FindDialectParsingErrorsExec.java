@@ -18,7 +18,7 @@ package com.apache.calcite.parsing.tools;
 
 import java.io.IOException;
 
-public class FindDialectParsingErrorsExec {
+final class FindDialectParsingErrorsExec {
 
   private static final int MAX_NUM_SAMPLE_QUERIES = 20;
   private static final int DEFAULT_NUM_SAMPLE_QUERIES = 1;

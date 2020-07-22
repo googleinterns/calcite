@@ -62,8 +62,8 @@ public class FindDialectParsingErrors {
   private final List<MessageFormat> errorFormats;
 
   /**
-   *  Creates a new instance of {@code FindDialectParsingErrors}. Also populates the errorFormats list with
-   *  a MessageFormat object for each custom defined error message in CalciteResource.
+   *  Creates a new instance of {@code FindDialectParsingErrors}. Also populates the errorFormats
+   *  list with a MessageFormat object for each custom defined error message in CalciteResource.
    *
    * @param inputPath Path to the input CSV file containing queries
    * @param outputPath Path to the output JSON file containing results of failing queries
@@ -84,7 +84,7 @@ public class FindDialectParsingErrors {
     Method[] methods = CalciteResource.class.getMethods();
     for (Method m : methods) {
       errorFormats.add(
-        new MessageFormat(m.getAnnotationsByType(Resources.BaseMessage.class)[0].value())
+          new MessageFormat(m.getAnnotationsByType(Resources.BaseMessage.class)[0].value())
       );
     }
   }
@@ -98,12 +98,12 @@ public class FindDialectParsingErrors {
    */
   public void run() throws IOException {
     CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(inputPath)), ',',
-      '"', 1);
+        '"', 1);
     List<String[]> rows = reader.readAll();
     reader.close();
     List<String> queries = rows.parallelStream()
-      .map(row -> sanitize(row[0]))
-      .collect(Collectors.toList());
+        .map(row -> sanitize(row[0]))
+        .collect(Collectors.toList());
     if (groupByErrors) {
       findErrorGroups(queries);
     } else {
@@ -120,24 +120,24 @@ public class FindDialectParsingErrors {
    */
   private void findFullErrors(List<String> queries) throws IOException {
     SqlParser.Config config = SqlParser.configBuilder()
-      .setParserFactory(dialect.getDialectFactory())
-      .build();
+        .setParserFactory(dialect.getDialectFactory())
+        .build();
     Map<String, FullError> errors = queries.parallelStream()
-      .map(query -> {
-        try {
-          SqlParser.create(query, config).parseStmt();
-          return null;
-        } catch (SqlParseException e) {
-          return new FullError(query, e.getMessage(), 1);
-        }
-      })
-      .filter(Objects::nonNull)
-      .collect(
-        Collectors.toConcurrentMap(e -> e.query, e -> e, (e1, e2) -> {
-          e1.count += e2.count;
-          return e1;
-        }
-      ));
+        .map(query -> {
+          try {
+            SqlParser.create(query, config).parseStmt();
+            return null;
+          } catch (SqlParseException e) {
+            return new FullError(query, e.getMessage(), 1);
+          }
+        })
+        .filter(Objects::nonNull)
+        .collect(
+          Collectors.toConcurrentMap(e -> e.query, e -> e, (e1, e2) -> {
+            e1.count += e2.count;
+            return e1;
+          }
+        ));
     int numFailed = 0;
     for (Map.Entry<String, FullError> entry : errors.entrySet()) {
       numFailed += entry.getValue().count;
@@ -155,35 +155,35 @@ public class FindDialectParsingErrors {
    */
   private void findErrorGroups(List<String> queries) throws IOException {
     SqlParser.Config config = SqlParser.configBuilder()
-      .setParserFactory(dialect.getDialectFactory())
-      .build();
+        .setParserFactory(dialect.getDialectFactory())
+        .build();
     Map<String, ErrorType> errors = queries.parallelStream()
-      .map(query -> {
-        try {
-          SqlParser.create(query, config).parseStmt();
-          return null;
-        } catch (SqlParseException ex) {
-          String message = ex.getMessage();
-          List<String> sampleQueries = new ArrayList<>();
-          sampleQueries.add(query);
-          return new ErrorType(1, message,
-            processErrorMessage(message), sampleQueries);
-        }
-      })
-      .filter(Objects::nonNull)
-      .collect(
-        Collectors.toConcurrentMap(e -> e.type, e -> e, (e1, e2) -> {
-          ErrorType errorCountValue = new ErrorType();
-          errorCountValue.count = e1.count + e2.count;
-          errorCountValue.fullError = e1.fullError;
-          errorCountValue.type = e1.type;
-          errorCountValue.sampleQueries.addAll(e1.sampleQueries);
-          for (int i = 0; i < e2.sampleQueries.size()
-              && errorCountValue.sampleQueries.size() < numSampleQueries; i++) {
-            errorCountValue.sampleQueries.add(e2.sampleQueries.get(i));
+        .map(query -> {
+          try {
+            SqlParser.create(query, config).parseStmt();
+            return null;
+          } catch (SqlParseException ex) {
+            String message = ex.getMessage();
+            List<String> sampleQueries = new ArrayList<>();
+            sampleQueries.add(query);
+            return new ErrorType(1, message,
+              processErrorMessage(message), sampleQueries);
           }
-          return errorCountValue;
-      }));
+        })
+        .filter(Objects::nonNull)
+        .collect(
+          Collectors.toConcurrentMap(e -> e.type, e -> e, (e1, e2) -> {
+            ErrorType errorCountValue = new ErrorType();
+            errorCountValue.count = e1.count + e2.count;
+            errorCountValue.fullError = e1.fullError;
+            errorCountValue.type = e1.type;
+            errorCountValue.sampleQueries.addAll(e1.sampleQueries);
+            for (int i = 0; i < e2.sampleQueries.size()
+                && errorCountValue.sampleQueries.size() < numSampleQueries; i++) {
+              errorCountValue.sampleQueries.add(e2.sampleQueries.get(i));
+            }
+            return errorCountValue;
+        }));
     int numFailed = 0;
     for (Map.Entry<String, ErrorType> entry : errors.entrySet()) {
       numFailed += entry.getValue().count;
@@ -330,12 +330,12 @@ public class FindDialectParsingErrors {
     String type;
     List<String> sampleQueries;
 
-    public ErrorType() {
+    ErrorType() {
       count = 0;
       sampleQueries = new ArrayList<>();
     }
 
-    public ErrorType(Integer count, String fullError, String type, List<String> sampleQueries) {
+    ErrorType(Integer count, String fullError, String type, List<String> sampleQueries) {
       this.count = count;
       this.fullError = fullError;
       this.type = type;
@@ -348,7 +348,7 @@ public class FindDialectParsingErrors {
     String error;
     int count;
 
-    public FullError(String query, String error, int count) {
+    FullError(String query, String error, int count) {
       this.query = query;
       this.error = error;
       this.count = count;
