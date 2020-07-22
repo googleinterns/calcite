@@ -3490,6 +3490,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     expr(sql).ok(expected);
   }
 
+  @Test public void testRangeNBaseEndAsterisk() {
+    final String sql = "range_n (foo between 3 and *)";
+    final String expected = "RANGE_N(`FOO` BETWEEN 3 AND *)";
+    expr(sql).ok(expected);
+  }
+
   @Test void testNestedNamedFunctionCalls() {
     final String sql = "SELECT\n"
         + "  MY_FUN(\n"
