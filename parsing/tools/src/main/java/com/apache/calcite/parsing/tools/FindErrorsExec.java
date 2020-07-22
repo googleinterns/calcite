@@ -15,26 +15,21 @@
  * limitations under the License.
  */
 
-plugins {
-    java
-    application
-    kotlin("jvm")
-}
+package com.apache.calcite.parsing.tools;
 
-dependencies {
-    api(project(":parsing:dialects:bigquery"))
-    api(project(":parsing:dialects:defaultdialect"))
-    api(project(":parsing:dialects:dialect1"))
-    api(project(":parsing:dialects:hive"))
-    api(project(":parsing:dialects:mysql"))
-    api(project(":parsing:dialects:postgresqlBase:dialects:postgresql"))
-    api(project(":parsing:dialects:postgresqlBase:dialects:redshift"))
+import java.io.IOException;
 
-    implementation("net.sf.opencsv:opencsv")
-    implementation("com.google.code.gson:gson:2.8.5")
-}
+public class FindErrorsExec {
 
-tasks.register("findErrors", JavaExec::class) {
-    main = "com.apache.calcite.parsing.tools.FindErrorsExec"
-    classpath = sourceSets["main"].runtimeClasspath
+  public static void main(String[] args) throws IOException {
+    String inputPath = "redshift_queries.csv";
+    String outputPath = "redshift_results.json";
+    FindErrors.Dialect dialect = FindErrors.Dialect.REDSHIFT;
+    boolean groupByErrors = true;
+    int numSampleQueries = 5;
+    FindErrors findErrors = new FindErrors(inputPath, outputPath, dialect, groupByErrors,
+        numSampleQueries);
+    findErrors.run();
+  }
+
 }
