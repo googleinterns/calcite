@@ -293,8 +293,7 @@ public class FindDialectParsingErrors {
       try {
         errorFormat.parse(message);
         return errorFormat.toPattern();
-      } catch (ParseException ignored) {
-      }
+      } catch (ParseException ignored) { }
     }
     return message;
   }
@@ -319,7 +318,6 @@ public class FindDialectParsingErrors {
       query = query.replace(entry.getKey(), entry.getValue());
     }
     query = query.trim();
-
     if (query.endsWith(";")) {
       query = query.substring(0, query.length() - 1);
     }
