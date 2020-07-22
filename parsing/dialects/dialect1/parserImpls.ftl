@@ -2424,3 +2424,23 @@ SqlCall CaseN() :
         return new SqlCaseN(getPos(), nodes, extraPartitionOption);
     }
 }
+
+SqlCall RangeN() :
+{
+    SqlNode e1;
+    SqlNode e2;
+    SqlNode e3;
+    SqlNodeList rangeList = new SqlNodeList(getPos());
+}
+{
+    <RANGE_N>
+    <LPAREN>
+    e1 = CompoundIdentifier()
+    <BETWEEN>
+    e2 = Literal()
+    <AND>
+    e3 = Literal()
+    { rangeList.add(new SqlRangeNStartEnd(getPos(), e2, e3, null)); }
+    <RPAREN>
+    { return new SqlRangeN(getPos(), e1, rangeList); }
+}

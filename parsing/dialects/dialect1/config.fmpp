@@ -87,6 +87,8 @@ data: {
       "org.apache.calcite.sql.SqlPeriodTypeNameSpec",
       "org.apache.calcite.sql.SqlPeriodTypeNameSpec.TimeScale",
       "org.apache.calcite.sql.SqlPrimaryIndex",
+      "org.apache.calcite.sql.SqlRangeN",
+      "org.apache.calcite.sql.SqlRangeNStartEnd",
       "org.apache.calcite.sql.SqlRename",
       "org.apache.calcite.sql.SqlRenameMacro",
       "org.apache.calcite.sql.SqlRenameTable",
@@ -169,6 +171,7 @@ data: {
       "OFF"
       "PROTECTION"
       "QUALIFY"
+      "RANGE_N"
       "RENAME"
       "SEL"
       "SEMI"
@@ -538,6 +541,7 @@ data: {
       "NAMED"
       "NEVER"
       "OFF"
+      "RANGE_N"
       "RENAME"
       "SEMI"
       "STORAGE"
@@ -1133,6 +1137,7 @@ data: {
     # Partition expressions
     partitionExpressions: [
       "CaseN"
+      "RangeN"
     ]
 
     # NamedLiteralOrIdentifier needs to come before
