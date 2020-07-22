@@ -27,8 +27,8 @@ public class SqlCaseN extends SqlCall {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("CASE_N ", SqlKind.OTHER_FUNCTION);
 
-  final SqlNodeList caseList;
-  final NoCaseUnknown extraPartitions;
+  final public SqlNodeList caseList;
+  final public NoCaseUnknown extraPartitions;
 
   /**
    * Creates a {@code SqlCaseN}.

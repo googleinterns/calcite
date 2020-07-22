@@ -27,11 +27,11 @@ public class SqlRangeNStartEnd extends SqlCall{
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("RANGE_N_AND ", SqlKind.OTHER);
 
-  final SqlNode startLiteral;
-  final SqlNode endLiteral;
-  final SqlNode eachSizeLiteral;
-  final boolean startAsterisk;
-  final boolean endAsterisk;
+  final public SqlNode startLiteral;
+  final public SqlNode endLiteral;
+  final public SqlNode eachSizeLiteral;
+  final public boolean startAsterisk;
+  final public boolean endAsterisk;
 
   /**
    * Creates a {@code SqlRangeNStartEnd}.
