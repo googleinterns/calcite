@@ -3613,6 +3613,10 @@ SqlNode BuiltinFunctionCall() :
         node = JsonArrayAggFunctionCall() { return node; }
     |
         node = GroupByWindowingCall() { return node; }
+    |
+        node = CaseN() { return node; }
+    |
+        node = RangeN() { return node; }
     )
 }
 
