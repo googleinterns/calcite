@@ -143,9 +143,13 @@ public class DialectTraverser {
       String fileName = f.getName();
       if (f.isFile() && fileName.endsWith(".ftl")) {
         try {
-          String fileText = new String(Files.readAllBytes(f.toPath()),
+          Path absoluteFilePath = f.toPath();
+          Path rootPath = rootDirectory.toPath();
+          String fileText = new String(Files.readAllBytes(absoluteFilePath),
               StandardCharsets.UTF_8);
-          dialectGenerate.processFile(fileText, extractedData);
+          String filePath = absoluteFilePath.subpath(rootPath.getNameCount() - 1,
+              absoluteFilePath.getNameCount()).toString();
+          dialectGenerate.processFile(fileText, extractedData, filePath);
         } catch (IOException e) {
           e.printStackTrace();
         } catch (IllegalStateException e) {

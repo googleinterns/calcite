@@ -41,7 +41,7 @@ public class DialectGenerateTest {
     DialectGenerate dialectGenerate = new DialectGenerate();
     int charIndex = dialectGenerate.processFunction(
         DialectGenerate.getTokens(function), new LinkedHashMap<String,String>(),
-        0, declaration.length(), "foo");
+        0, declaration.length(), "foo", new StringBuilder());
     assertEquals(function.length(), charIndex);
   }
 
@@ -49,7 +49,7 @@ public class DialectGenerateTest {
     DialectGenerate dialectGenerate = new DialectGenerate();
     int charIndex = dialectGenerate.processTokenAssignment(
         DialectGenerate.getTokens(function), new LinkedList<String>(),
-        0, declaration.length());
+        0, declaration.length(), new StringBuilder());
     assertEquals(function.length(), charIndex);
   }
 
@@ -67,7 +67,8 @@ public class DialectGenerateTest {
   private void assertFileProcessed(String testName) {
     DialectGenerate dialectGenerate = new DialectGenerate();
     Path resourcePath = Paths.get("src", "test", "resources");
-    Path basePath = resourcePath.resolve(Paths.get("processFileTests", testName));
+    Path basePath = resourcePath.resolve(Paths.get("processFileTests",
+          testName));
 
     Path testPath = basePath.resolve(testName + ".txt");
     Path expectedPath = basePath.resolve(testName + "_expected.txt");
@@ -76,7 +77,9 @@ public class DialectGenerateTest {
 
     String fileText = TestUtils.readFile(testPath);
     ExtractedData extractedData = new ExtractedData();
-    dialectGenerate.processFile(fileText, extractedData);
+    dialectGenerate.processFile(fileText, extractedData,
+        Paths.get("processFileTests", testName, testName +".txt")
+        .toString());
 
     String expectedText = TestUtils.readFile(expectedPath);
     String licenseText = TestUtils.readFile(licensePath);
