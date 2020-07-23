@@ -2538,6 +2538,6 @@ SqlRangeNStartEnd RangeNStartEnd() :
     ]
     {
         return new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral,
-        eachSizeLiteral, false, endAsterisk);
+            eachSizeLiteral, false, endAsterisk);
     }
 }
