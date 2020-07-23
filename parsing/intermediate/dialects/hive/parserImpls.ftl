@@ -15,22 +15,35 @@
 // limitations under the License.
 -->
 
-SqlNode ExceptExpression(List<SqlNode> selectList):
+JoinType LeftSemiJoin() :
 {
-    final Pair<SqlNodeList, SqlNodeList> nameAndTypePair;
-    final SqlNodeList exceptList;
 }
 {
-    <EXCEPT> nameAndTypePair = ParenthesizedCompoundIdentifierList()
+    <LEFT> <SEMI> <JOIN> { return JoinType.LEFT_SEMI_JOIN; }
+}
+
+SqlLiteral JoinType() :
+{
+    JoinType joinType;
+}
+{
+    (
+        LOOKAHEAD(3)
+        joinType = LeftSemiJoin()
+    |
+        <JOIN> { joinType = JoinType.INNER; }
+    |
+        <INNER> <JOIN> { joinType = JoinType.INNER; }
+    |
+        <LEFT> [ <OUTER> ] <JOIN> { joinType = JoinType.LEFT; }
+    |
+        <RIGHT> [ <OUTER> ] <JOIN> { joinType = JoinType.RIGHT; }
+    |
+        <FULL> [ <OUTER> ] <JOIN> { joinType = JoinType.FULL; }
+    |
+        <CROSS> <JOIN> { joinType = JoinType.CROSS; }
+    )
     {
-        exceptList = nameAndTypePair.getKey();
-        if (selectList.size() > 0) {
-            SqlIdentifier identifier = (SqlIdentifier) selectList.get(0);
-            if (!identifier.toString().equals("*") || selectList.size() != 1) {
-                throw SqlUtil.newContextException(getPos(),
-                    RESOURCE.illegalQueryExpression());
-            }
-        }
-        return new SqlExcept(getPos(), exceptList);
+        return joinType.symbol(getPos());
     }
 }
