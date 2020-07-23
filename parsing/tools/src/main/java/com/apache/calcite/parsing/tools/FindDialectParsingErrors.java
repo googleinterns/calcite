@@ -70,7 +70,8 @@ public class FindDialectParsingErrors {
    *  the errorFormats list with a {@code MessageFormat} object for each custom
    *  defined error message in CalciteResource.
    *
-   * @param inputPath Path to the input CSV file containing queries
+   * @param inputPath Path to the input CSV file containing queries. Assumes the
+   *                  file contains a header and is comma delimited
    * @param outputPath Path to the output JSON file containing results of
    *                   failing queries
    * @param dialect Specifies which dialectic parser to use for processing
@@ -88,7 +89,7 @@ public class FindDialectParsingErrors {
     this.dialect = dialect;
     this.groupByErrors = groupByErrors;
     this.numSampleQueries = numSampleQueries;
-    errorFormats = new ArrayList<>();
+    this.errorFormats = new ArrayList<>();
     Method[] methods = CalciteResource.class.getMethods();
     for (Method m : methods) {
       errorFormats.add(
@@ -112,6 +113,8 @@ public class FindDialectParsingErrors {
         StandardCharsets.UTF_8), ',', '"', 1);
     List<String[]> rows = reader.readAll();
     reader.close();
+    // Once the queries are done being sanitized in parallel, they will be
+    // processed to find errors
     List<String> queries = rows.parallelStream()
         .map(row -> sanitize(row[0]))
         .collect(Collectors.toList());
@@ -123,8 +126,8 @@ public class FindDialectParsingErrors {
   }
 
   /**
-   * This is the default processing method. It parallel processes the list of
-   * queries and finds the full error for any failing query.
+   * This is the default processing method. It processes the list of queries in
+   * parallel and finds the full error for any failing query.
    *
    * @param queries A list of sanitized queries
    * @throws IOException If it fails to write to the output file
