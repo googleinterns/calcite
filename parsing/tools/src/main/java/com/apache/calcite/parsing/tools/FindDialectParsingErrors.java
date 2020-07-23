@@ -111,6 +111,11 @@ public class FindDialectParsingErrors {
     CSVReader reader = new CSVReader(
         new InputStreamReader(new FileInputStream(inputPath),
         StandardCharsets.UTF_8), ',', '"', 1);
+    // This tool assumes that the input file is small enough to be fully loaded
+    // into memory in order to process the queries in parallel. However, if the
+    // tool needs to support larger files than can be read into memory, the
+    // logic will need to be updated to instead read queries sequentially and
+    // process them one at time.
     List<String[]> rows = reader.readAll();
     reader.close();
     // Once the queries are done being sanitized in parallel, they will be
