@@ -30,6 +30,7 @@ dependencies {
 
     implementation("net.sf.opencsv:opencsv")
     implementation("com.google.code.gson:gson:2.8.5")
+    implementation("com.google.guava:guava")
 }
 
 tasks.register("findDialectParsingErrors", JavaExec::class) {
@@ -42,8 +43,8 @@ tasks.register("findDialectParsingErrors", JavaExec::class) {
     if (findProperty("groupByErrors") != null) {
         groupByErrors = "true"
     }
-    val numSampleQueries = findProperty("numSampleQueries")
     val commandLineArgs = mutableListOf(inputPath, outputPath, dialect, groupByErrors)
+    val numSampleQueries = findProperty("numSampleQueries")
     if (numSampleQueries != null) {
         commandLineArgs.add(numSampleQueries as String)
     }

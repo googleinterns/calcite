@@ -33,17 +33,21 @@ import au.com.bytecode.opencsv.CSVReader;
 
 import com.google.gson.stream.JsonWriter;
 
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -84,7 +88,8 @@ public class FindDialectParsingErrors {
     Method[] methods = CalciteResource.class.getMethods();
     for (Method m : methods) {
       errorFormats.add(
-          new MessageFormat(m.getAnnotationsByType(Resources.BaseMessage.class)[0].value())
+          new MessageFormat(m.getAnnotationsByType(Resources.BaseMessage.class)[0].value(),
+              Locale.ROOT)
       );
     }
   }
@@ -97,8 +102,9 @@ public class FindDialectParsingErrors {
    * @throws IOException If it fails to read the input file
    */
   public void run() throws IOException {
-    CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(inputPath)), ',',
-        '"', 1);
+    CSVReader reader = new CSVReader(
+        new InputStreamReader(new FileInputStream(inputPath),
+        StandardCharsets.UTF_8), ',', '"', 1);
     List<String[]> rows = reader.readAll();
     reader.close();
     List<String> queries = rows.parallelStream()
@@ -203,7 +209,10 @@ public class FindDialectParsingErrors {
    */
   private void outputFullErrorResults(Map<String, FullError> errors, int numPassed, int numFailed)
       throws IOException {
-    JsonWriter writer = new JsonWriter(new FileWriter(outputPath));
+    BufferedWriter bufferedWriter = new BufferedWriter(
+        new OutputStreamWriter(
+        new FileOutputStream(outputPath), StandardCharsets.UTF_8));
+    JsonWriter writer = new JsonWriter(bufferedWriter);
     writer.setIndent("  ");
     writer.beginObject();
     writer.name("numPassed").value(numPassed);
@@ -234,7 +243,10 @@ public class FindDialectParsingErrors {
    */
   private void outputErrorGroupResults(Map<String, ErrorType> errors, int numPassed,
       int numFailed) throws IOException {
-    JsonWriter writer = new JsonWriter(new FileWriter(outputPath));
+    BufferedWriter bufferedWriter = new BufferedWriter(
+        new OutputStreamWriter(
+        new FileOutputStream(outputPath), StandardCharsets.UTF_8));
+    JsonWriter writer = new JsonWriter(bufferedWriter);
     writer.setIndent("  ");
     writer.beginObject();
     writer.name("numPassed").value(numPassed);

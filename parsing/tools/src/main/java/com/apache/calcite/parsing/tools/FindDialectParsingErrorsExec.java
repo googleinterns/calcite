@@ -17,6 +17,7 @@
 package com.apache.calcite.parsing.tools;
 
 import java.io.IOException;
+import java.util.Locale;
 
 final class FindDialectParsingErrorsExec {
 
@@ -31,7 +32,7 @@ final class FindDialectParsingErrorsExec {
     String inputPath = args[0];
     String outputPath = args[1];
     FindDialectParsingErrors.Dialect dialect = FindDialectParsingErrors.Dialect.valueOf(args[2]
-        .toUpperCase());
+        .toUpperCase(Locale.ROOT));
     boolean groupByErrors = Boolean.parseBoolean(args[3]);
     int numSampleQueries = DEFAULT_NUM_SAMPLE_QUERIES;
     if (args.length == 5) {
