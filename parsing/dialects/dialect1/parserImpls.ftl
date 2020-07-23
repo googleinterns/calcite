@@ -2475,7 +2475,6 @@ SqlRangeN RangeN() :
             eachSizeLiteral = Literal()
         ]
     )
-
     {
         rangeList.add(new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral,
             eachSizeLiteral, startAsterisk, endAsterisk));
@@ -2518,7 +2517,7 @@ SqlRangeN RangeN() :
 
 SqlRangeNStartEnd RangeNStartEnd() :
 {
-    SqlNode startLiteral = null;
+    final SqlNode startLiteral;
     SqlNode endLiteral = null;
     boolean endAsterisk = false;
     SqlNode eachSizeLiteral = null;

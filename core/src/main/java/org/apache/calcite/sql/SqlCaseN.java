@@ -33,7 +33,7 @@ public class SqlCaseN extends SqlCall {
   /**
    * Creates a {@code SqlCaseN}.
    * @param pos             Parser position, must not be null
-   * @param caseList           Case expressions
+   * @param caseList        Case expressions
    * @param extraPartitions Represent extra partitions for no case and unknown
    */
   public SqlCaseN(final SqlParserPos pos, final SqlNodeList caseList,
