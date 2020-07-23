@@ -28,7 +28,7 @@ public class SqlCaseN extends SqlCall {
       new SqlSpecialOperator("CASE_N ", SqlKind.OTHER_FUNCTION);
 
   public final SqlNodeList caseList;
-  public final NoCaseUnknown extraPartitions;
+  public final SqlPartitionByNoneUnknown extraPartitions;
 
   /**
    * Creates a {@code SqlCaseN}.
@@ -37,7 +37,7 @@ public class SqlCaseN extends SqlCall {
    * @param extraPartitions Represent extra partitions for no case and unknown
    */
   public SqlCaseN(final SqlParserPos pos, final SqlNodeList caseList,
-      final NoCaseUnknown extraPartitions) {
+      final SqlPartitionByNoneUnknown extraPartitions) {
     super(pos);
     this.caseList = caseList;
     this.extraPartitions = extraPartitions;
@@ -64,16 +64,16 @@ public class SqlCaseN extends SqlCall {
     if (extraPartitions != null) {
       writer.sep(",");
       switch (extraPartitions) {
-      case NO_CASE:
+      case NONE:
         writer.keyword("NO CASE");
         break;
       case UNKNOWN:
         writer.keyword("UNKNOWN");
         break;
-      case NO_CASE_OR_UNKNOWN:
+      case NONE_OR_UNKNOWN:
         writer.keyword("NO CASE OR UNKNOWN");
         break;
-      case NO_CASE_COMMA_UNKNOWN:
+      case NONE_COMMA_UNKNOWN:
         writer.keyword("NO CASE");
         writer.sep(",");
         writer.keyword("UNKNOWN");
@@ -81,28 +81,5 @@ public class SqlCaseN extends SqlCall {
       }
     }
     writer.endList(frame);
-  }
-
-  public enum NoCaseUnknown {
-    /**
-     * An option to handle values that are not specified in caseList.
-     */
-    NO_CASE,
-
-    /**
-     * An option to handle values that are not specified in caseList or null.
-     */
-    NO_CASE_OR_UNKNOWN,
-
-    /**
-     * Options to handle values not in caseList and null.
-     */
-    NO_CASE_COMMA_UNKNOWN,
-
-    /**
-     * An option to handle null test_expression
-     * , when it is not specified in caseList.
-     */
-    UNKNOWN,
   }
 }

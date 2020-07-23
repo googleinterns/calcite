@@ -2387,7 +2387,7 @@ SqlCaseN CaseN() :
 {
     final SqlNodeList nodes = new SqlNodeList(getPos());
     SqlNode e;
-    NoCaseUnknown extraPartitionOption = null;
+    SqlPartitionByNoneUnknown extraPartitionOption = null;
 }
 {
     <CASE_N>
@@ -2408,15 +2408,23 @@ SqlCaseN CaseN() :
         (
             LOOKAHEAD(3)
             <NO> <CASE> <OR> <UNKNOWN>
-            { extraPartitionOption = NoCaseUnknown.NO_CASE_OR_UNKNOWN; }
+            {
+                extraPartitionOption =
+                    SqlPartitionByNoneUnknown.NONE_OR_UNKNOWN;
+            }
         |
             LOOKAHEAD(3)
             <NO> <CASE> <COMMA> <UNKNOWN>
-            { extraPartitionOption = NoCaseUnknown.NO_CASE_COMMA_UNKNOWN; }
+            {
+                extraPartitionOption =
+                    SqlPartitionByNoneUnknown.NONE_COMMA_UNKNOWN;
+            }
         |
-            <NO> <CASE> { extraPartitionOption = NoCaseUnknown.NO_CASE; }
+            <NO> <CASE>
+            { extraPartitionOption = SqlPartitionByNoneUnknown.NONE; }
         |
-            <UNKNOWN> { extraPartitionOption = NoCaseUnknown.UNKNOWN; }
+            <UNKNOWN>
+            { extraPartitionOption = SqlPartitionByNoneUnknown.UNKNOWN; }
         )
     ]
     <RPAREN>
@@ -2435,7 +2443,7 @@ SqlRangeN RangeN() :
     boolean endAsterisk = false;
     SqlNode eachSizeLiteral = null;
     final SqlNodeList rangeList = new SqlNodeList(getPos());
-    NoRangeUnknown extraPartitionOption = null;
+    SqlPartitionByNoneUnknown extraPartitionOption = null;
 }
 {
     <RANGE_N>
@@ -2482,15 +2490,23 @@ SqlRangeN RangeN() :
         (
             LOOKAHEAD(3)
             <NO> <RANGE> <OR> <UNKNOWN>
-            { extraPartitionOption = NoRangeUnknown.NO_RANGE_OR_UNKNOWN; }
+            {
+                extraPartitionOption =
+                    SqlPartitionByNoneUnknown.NONE_OR_UNKNOWN;
+            }
         |
             LOOKAHEAD(3)
             <NO> <RANGE> <COMMA> <UNKNOWN>
-            { extraPartitionOption = NoRangeUnknown.NO_RANGE_COMMA_UNKNOWN; }
+            {
+                extraPartitionOption =
+                    SqlPartitionByNoneUnknown.NONE_COMMA_UNKNOWN;
+            }
         |
-            <NO> <RANGE> { extraPartitionOption = NoRangeUnknown.NO_RANGE; }
+            <NO> <RANGE>
+            { extraPartitionOption = SqlPartitionByNoneUnknown.NONE; }
         |
-            <UNKNOWN> { extraPartitionOption = NoRangeUnknown.UNKNOWN; }
+            <UNKNOWN>
+            { extraPartitionOption = SqlPartitionByNoneUnknown.UNKNOWN; }
         )
     ]
     <RPAREN>

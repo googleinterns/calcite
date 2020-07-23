@@ -29,7 +29,7 @@ public class SqlRangeN extends SqlCall {
 
   public final SqlNodeList rangeList;
   public final SqlNode testIdentifier;
-  public final NoRangeUnknown extraPartitions;
+  public final SqlPartitionByNoneUnknown extraPartitions;
 
   /**
    * Creates a {@code SqlRangeN}.
@@ -39,7 +39,8 @@ public class SqlRangeN extends SqlCall {
    * @param extraPartitions Represent extra partitions for no case and unknown
    */
   public SqlRangeN(final SqlParserPos pos, final SqlNode testIdentifier,
-      final SqlNodeList rangeList, final NoRangeUnknown extraPartitions) {
+      final SqlNodeList rangeList,
+      final SqlPartitionByNoneUnknown extraPartitions) {
     super(pos);
     this.testIdentifier = testIdentifier;
     this.rangeList = rangeList;
@@ -70,16 +71,16 @@ public class SqlRangeN extends SqlCall {
     if (extraPartitions != null) {
       writer.sep(",");
       switch (extraPartitions) {
-      case NO_RANGE:
+      case NONE:
         writer.keyword("NO RANGE");
         break;
       case UNKNOWN:
         writer.keyword("UNKNOWN");
         break;
-      case NO_RANGE_OR_UNKNOWN:
+      case NONE_OR_UNKNOWN:
         writer.keyword("NO RANGE OR UNKNOWN");
         break;
-      case NO_RANGE_COMMA_UNKNOWN:
+      case NONE_COMMA_UNKNOWN:
         writer.keyword("NO RANGE");
         writer.sep(",");
         writer.keyword("UNKNOWN");
@@ -88,28 +89,5 @@ public class SqlRangeN extends SqlCall {
     }
     writer.endList(frame);
     writer.endList(funcCallFrame);
-  }
-
-  public enum NoRangeUnknown {
-    /**
-     * An option to handle values that are not specified in rangeList.
-     */
-    NO_RANGE,
-
-    /**
-     * An option to handle values that are not specified in rangeList or null.
-     */
-    NO_RANGE_OR_UNKNOWN,
-
-    /**
-     * Options to handle values not in rangeList and null.
-     */
-    NO_RANGE_COMMA_UNKNOWN,
-
-    /**
-     * An option to handle null test_expression
-     * , when it is not specified in rangeList.
-     */
-    UNKNOWN,
   }
 }
