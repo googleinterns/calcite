@@ -2428,6 +2428,7 @@ SqlCaseN CaseN() :
 SqlRangeN RangeN() :
 {
     final SqlNode testExpression;
+    SqlNode range;
     SqlNode startLiteral = null;
     boolean startAsterisk = false;
     SqlNode endLiteral = null;
@@ -2470,36 +2471,11 @@ SqlRangeN RangeN() :
     {
         rangeList.add(new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral,
             eachSizeLiteral, startAsterisk, endAsterisk));
-        startLiteral = null;
-        startAsterisk = false;
-        endLiteral = null;
-        endAsterisk = false;
-        eachSizeLiteral = null;
     }
     (
         <COMMA>
-        startLiteral = Literal()
-        [
-            <AND>
-            (
-                <STAR> { endAsterisk = true; }
-            |
-                endLiteral = Literal()
-            )
-        ]
-        [
-            <EACH>
-            eachSizeLiteral = Literal()
-        ]
-        {
-            rangeList.add(new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral
-                , eachSizeLiteral, startAsterisk, endAsterisk));
-            startLiteral = null;
-            startAsterisk = false;
-            endLiteral = null;
-            endAsterisk = false;
-            eachSizeLiteral = null;
-        }
+        range = RangeNStartEnd()
+        { rangeList.add(range); }
     )*
     [
         <COMMA>
@@ -2521,5 +2497,32 @@ SqlRangeN RangeN() :
     {
         return new SqlRangeN(getPos(), testExpression, rangeList,
             extraPartitionOption);
+    }
+}
+
+SqlRangeNStartEnd RangeNStartEnd() :
+{
+    SqlNode startLiteral = null;
+    SqlNode endLiteral = null;
+    boolean endAsterisk = false;
+    SqlNode eachSizeLiteral = null;
+}
+{
+    startLiteral = Literal()
+    [
+        <AND>
+        (
+            <STAR> { endAsterisk = true; }
+        |
+            endLiteral = Literal()
+        )
+    ]
+    [
+        <EACH>
+        eachSizeLiteral = Literal()
+    ]
+    {
+        return new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral,
+        eachSizeLiteral, false, endAsterisk);
     }
 }
