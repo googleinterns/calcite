@@ -77,9 +77,11 @@ public class DialectGenerateTest {
 
     String fileText = TestUtils.readFile(testPath);
     ExtractedData extractedData = new ExtractedData();
-    dialectGenerate.processFile(fileText, extractedData,
-        Paths.get("processFileTests", testName, testName +".txt")
-        .toString());
+    String filePath =
+        Paths.get("processFileTests", testName, testName +".txt").toString();
+    // For windows paths change separator to forward slash.
+    filePath = filePath.replace("\\", "/");
+    dialectGenerate.processFile(fileText, extractedData, filePath);
 
     String expectedText = TestUtils.readFile(expectedPath);
     String licenseText = TestUtils.readFile(licensePath);
