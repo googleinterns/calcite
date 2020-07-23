@@ -149,6 +149,8 @@ public class DialectTraverser {
               StandardCharsets.UTF_8);
           String filePath = absoluteFilePath.subpath(rootPath.getNameCount() - 1,
               absoluteFilePath.getNameCount()).toString();
+          // For windows paths change separator to forward slash.
+          filePath = filePath.replace("\\", "/");
           dialectGenerate.processFile(fileText, extractedData, filePath);
         } catch (IOException e) {
           e.printStackTrace();
