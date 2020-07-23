@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.calcite.sql;
 /**
  * SqlPartitionByNoneUnknown defines the possible options at Range_N and Case_N
