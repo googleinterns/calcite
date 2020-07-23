@@ -1134,6 +1134,7 @@ data: {
     extraBinaryExpressions: [
     ]
 
+    # List of expressions in "Partition By" calls.
     partitionExpressions: [
       "CaseN"
       "RangeN"

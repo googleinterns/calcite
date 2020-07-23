@@ -450,7 +450,7 @@ data: {
     binaryOperatorsTokens: [
     ]
 
-    # Partition expressions
+    # List of expressions in "Partition By" calls.
     partitionExpressions: [
     ]
 

@@ -446,6 +446,10 @@ data: {
     extraBinaryExpressions: [
     ]
 
+    # List of expressions in "Partition By" calls.
+    partitionExpressions: [
+    ]
+
     preExpressionMethods: [
     ]
 
@@ -456,9 +460,6 @@ data: {
     ]
 
     dateTimeExpressionMethods: [
-    ]
-
-    partitionExpressions: [
     ]
 
     # List of files in @includes directory that have parser method
