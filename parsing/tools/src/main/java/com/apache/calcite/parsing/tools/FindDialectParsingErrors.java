@@ -67,7 +67,7 @@ public class FindDialectParsingErrors {
 
   /**
    *  Creates a new instance of {@code FindDialectParsingErrors}. Also populates
-   *  the errorFormats list with a {@Code MessageFormat} object for each custom
+   *  the errorFormats list with a {@code MessageFormat} object for each custom
    *  defined error message in CalciteResource.
    *
    * @param inputPath Path to the input CSV file containing queries
