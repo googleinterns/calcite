@@ -13,39 +13,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This file is an FMPP (http://fmpp.sourceforge.net/) configuration file to
-# allow clients to extend Calcite's SQL parser to support application specific
-# SQL statements, literals or data types.
-#
-# Calcite's parser grammar file (Parser.jj) is written in javacc
-# (http://javacc.java.net/) with Freemarker (http://freemarker.org/) variables
-# to allow clients to:
-#   1. have custom parser implementation class and package name.
-#   2. insert new parser method implementations written in javacc to parse
-#      custom:
-#      a) SQL statements.
-#      b) literals.
-#      c) data types.
-#   3. add new keywords to support custom SQL constructs added as part of (2).
-#   4. add import statements needed by inserted custom parser implementations.
-#
-# Parser template file (Parser.jj) along with this file are packaged as
-# part of the calcite-core-<version>.jar under "codegen" directory.
-
 data: {
   parser: {
-    # Generated parser implementation package and class name.
-    package: "org.apache.calcite.sql.parser.impl",
-    class: "SqlParserImpl",
+    # Generated parser implementation class package and name
+    package: "org.apache.calcite.sql.parser.hive",
+    class: "HiveParserImpl",
 
-    # List of additional classes and packages to import.
-    # Example. "org.apache.calcite.sql.*", "java.util.List".
+    # List of import statements.
     imports: [
+      "org.apache.calcite.schema.ColumnStrategy"
+      "org.apache.calcite.sql.SqlCreate"
+      "org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier",
+      "org.apache.calcite.sql.SqlDrop"
+      "org.apache.calcite.sql.SqlDdlNodes"
+      "java.util.Map"
+      "java.util.HashMap"
     ]
 
-    # List of new keywords. Example: "DATABASES", "TABLES". If the keyword is not a reserved
-    # keyword add it to 'nonReservedKeywords' section.
+    # List of keywords.
     keywords: [
+      "ARCHIVE"
+      "FILE"
+      "IF"
+      "JAR"
+      "MATERIALIZED"
+      "SEMI"
+      "STORED"
+      "VIRTUAL"
     ]
 
     # List of keywords from "keywords" section that are not reserved.
@@ -145,7 +139,6 @@ data: {
       "GOTO"
       "GRANTED"
       "HIERARCHY"
-      "HOP"
       "HOURS"
       "IGNORE"
       "IMMEDIATE"
@@ -337,7 +330,6 @@ data: {
       "TRIGGER_CATALOG"
       "TRIGGER_NAME"
       "TRIGGER_SCHEMA"
-      "TUMBLE"
       "TYPE"
       "UNBOUNDED"
       "UNCOMMITTED"
@@ -366,6 +358,14 @@ data: {
     # List of non-reserved keywords to add;
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
+      "ARCHIVE"
+      "FILE"
+      "IF"
+      "JAR"
+      "MATERIALIZED"
+      "SEMI"
+      "STORED"
+      "VIRTUAL"
     ]
 
     # List of non-reserved keywords to remove;
@@ -373,126 +373,16 @@ data: {
     nonReservedKeywordsToRemove: [
     ]
 
-    # List of additional join types. Each is a method with no arguments.
-    # Example: LeftSemiJoin()
-    joinTypes: [
-    ]
-
-    # List of methods for parsing custom SQL statements.
-    # Return type of method implementation should be 'SqlNode'.
-    # Example: SqlShowDatabases(), SqlShowTables().
-    statementParserMethods: [
-    ]
-
-    # List of methods for parsing custom literals.
-    # Return type of method implementation should be "SqlNode".
-    # Example: ParseJsonLiteral().
-    literalParserMethods: [
-    ]
-
-    # List of methods for parsing custom data types.
-    # Return type of method implementation should be "SqlTypeNameSpec".
-    # Example: SqlParseTimeStampZ().
-    dataTypeParserMethods: [
-    ]
-
-    # List of methods for parsing builtin function calls.
-    # Return type of method implementation should be "SqlNode".
-    # Example: DateFunctionCall().
-    builtinFunctionCallMethods: [
-    ]
-
-    # List of methods for parsing extensions to "ALTER <scope>" calls.
-    # Each must accept arguments "(SqlParserPos pos, String scope)".
-    # Example: "SqlUploadJarNode"
-    alterStatementParserMethods: [
-    ]
-
-    # List of methods for parsing extensions to
-    # "(CREATE [OR REPLACE] | REPLACE)" calls.
-    createStatementParserMethods: [
-    ]
-
-    # list of methods for parsing extensions to "SET TIME ZONE" calls
-    setTimeZoneStatementParserMethods: [
-    ]
-
-    # List of methods for parsing extensions to "DROP" calls.
-    # Each must accept arguments "(SqlParserPos pos)".
-    dropStatementParserMethods: [
-    ]
-
-    # List of methods for parsing extensions to "INSERT" calls.
-    insertStatementParserMethods: [
-    ]
-
-    # List of methods for parsing extentions to "RENAME" calls.
-    renameStatementParserMethods: [
-    ]
-
-    # List of methods for parsing expressions to "EXEC" calls.
-    execStatementParserMethods: [
-    ]
-
-    # List of methods for parsing expressions to "USING" calls.
-    usingStatementParserMethods: [
-    ]
-
-    # Binary operators tokens
-    binaryOperatorsTokens: [
-    ]
-
-    # Binary operators initialization
-    extraBinaryExpressions: [
-    ]
-
-    # List of expressions in "Partition By" calls.
-    partitionExpressions: [
-    ]
-
-    preExpressionMethods: [
-    ]
-
-    postExpressionMethods: [
-    ]
-
-    postNamedFunctionCallMethods: [
-    ]
-
-    dateTimeExpressionMethods: [
-    ]
-
     # List of files in @includes directory that have parser method
     # implementations for parsing custom SQL statements, literals or types
     # given as part of "statementParserMethods", "literalParserMethods" or
     # "dataTypeParserMethods".
     implementationFiles: [
+      "parserImpls.ftl"
     ]
-
-    allowAbbreviatedKeywords: false
-    allowColonSeparatorInCompoundIdentifier: false
-    allowHexCharacterStringLiteral: false
-    allowNestedJoins: false
-    allowOptionalFromInDelete: false
-    allowTranslateUsingCharSetWithError: false
-    allowUpdateFromTable: false
-    allowUpsertFormOfUpdate: false
-    includeAdditionalDeclarations: false
-    includeBraces: true
-    includeCastDataAttributes: false
-    includeCompoundIdentifier: true
-    includeExceptExpression: false
-    includeHostVariables: false
-    includeInsertWithOmittedValues: false
-    includeLikeAnyAllSome: false
-    includePosixOperators: false
-    includeQualifyClause: false
-    includeRankWithSortingExpressions: false
-    includeSubstrKeyword: false
-    includeTopN: false
   }
 }
 
 freemarkerLinks: {
-  templates: includes/
+  templates: build/generated/templates/
 }

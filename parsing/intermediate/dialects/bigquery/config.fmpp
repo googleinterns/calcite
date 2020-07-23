@@ -16,18 +16,19 @@
 data: {
   parser: {
     # Generated parser implementation class package and name
-    package: "org.apache.calcite.sql.parser.hive",
-    class: "HiveParserImpl",
+    package: "org.apache.calcite.sql.parser.bigquery",
+    class: "BigQueryParserImpl",
 
     # List of import statements.
     imports: [
+      "java.util.HashMap"
+      "java.util.Map"
       "org.apache.calcite.schema.ColumnStrategy"
       "org.apache.calcite.sql.SqlCreate"
       "org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier",
-      "org.apache.calcite.sql.SqlDrop"
       "org.apache.calcite.sql.SqlDdlNodes"
-      "java.util.Map"
-      "java.util.HashMap"
+      "org.apache.calcite.sql.SqlDrop"
+      "org.apache.calcite.sql.SqlExcept"
     ]
 
     # List of keywords.
@@ -37,7 +38,6 @@ data: {
       "IF"
       "JAR"
       "MATERIALIZED"
-      "SEMI"
       "STORED"
       "VIRTUAL"
     ]
@@ -363,7 +363,6 @@ data: {
       "IF"
       "JAR"
       "MATERIALIZED"
-      "SEMI"
       "STORED"
       "VIRTUAL"
     ]
@@ -373,106 +372,6 @@ data: {
     nonReservedKeywordsToRemove: [
     ]
 
-    # List of additional join types. Each is a method with no arguments.
-    # Example: LeftSemiJoin()
-    joinTypes: [
-      "LeftSemiJoin"
-    ]
-
-    # List of methods for parsing custom SQL statements.
-    statementParserMethods: [
-    ]
-
-    # List of methods for parsing custom literals.
-    # Return type of method implementation should be "SqlNode".
-    # Example: ParseJsonLiteral().
-    literalParserMethods: [
-    ]
-
-    # List of methods for parsing custom data types.
-    # Return type of method implementation should be "SqlTypeNameSpec".
-    # Example: SqlParseTimeStampZ().
-    dataTypeParserMethods: [
-    ]
-
-    # List of methods for parsing builtin function calls.
-    # Return type of method implementation should be "SqlNode".
-    # Example: DateFunctionCall().
-    builtinFunctionCallMethods: [
-    ]
-
-    # List of methods for parsing extensions to "ALTER <scope>" calls.
-    # Each must accept arguments "(SqlParserPos pos, String scope)".
-    alterStatementParserMethods: [
-    ]
-
-    # List of methods for parsing extensions to
-    # "(CREATE [OR REPLACE] | REPLACE)" calls.
-    createStatementParserMethods: [
-      "SqlCreateForeignSchema"
-      "SqlCreateMaterializedView"
-      "SqlCreateSchema"
-      "SqlCreateTable"
-      "SqlCreateType"
-      "SqlCreateView"
-      "SqlCreateFunction"
-    ]
-
-    # list of methods for parsing extensions to "SET" calls
-    setTimeZoneStatementParserMethods: [
-    ]
-
-    # List of methods for parsing extensions to "DROP" calls.
-    # Each must accept arguments "(SqlParserPos pos)".
-    dropStatementParserMethods: [
-      "SqlDropMaterializedView"
-      "SqlDropSchema"
-      "SqlDropTable"
-      "SqlDropType"
-      "SqlDropView"
-      "SqlDropFunction"
-    ]
-
-    # List of methods for parsing extentions to "RENAME" calls.
-    renameStatementParserMethods: [
-    ]
-
-    # List of methods for parsing extensions to "INSERT" calls.
-    insertStatementParserMethods: [
-    ]
-
-    # List of methods for parsing expressions to "EXEC" calls.
-    execStatementParserMethods: [
-    ]
-
-    # List of methods for parsing expressions to "USING" calls.
-    usingStatementParserMethods: [
-    ]
-
-    # Binary operators tokens
-    binaryOperatorsTokens: [
-    ]
-
-    # Binary operators initialization
-    extraBinaryExpressions: [
-    ]
-
-    # List of expressions in "Partition By" calls.
-    partitionExpressions: [
-    ]
-
-    preExpressionMethods: [
-    ]
-
-    postExpressionMethods: [
-    ]
-
-    postNamedFunctionCallMethods: [
-    ]
-
-    dateTimeExpressionMethods: [
-    ]
-
     # List of files in @includes directory that have parser method
     # implementations for parsing custom SQL statements, literals or types
     # given as part of "statementParserMethods", "literalParserMethods" or
@@ -480,28 +379,6 @@ data: {
     implementationFiles: [
       "parserImpls.ftl"
     ]
-
-    allowAbbreviatedKeywords: false
-    allowColonSeparatorInCompoundIdentifier: false
-    allowHexCharacterStringLiteral: false
-    allowNestedJoins: false
-    allowOptionalFromInDelete: false
-    allowTranslateUsingCharSetWithError: false
-    allowUpdateFromTable: false
-    allowUpsertFormOfUpdate: false
-    includeAdditionalDeclarations: false
-    includeBraces: true
-    includeCastDataAttributes: false
-    includeCompoundIdentifier: true
-    includeExceptExpression: false
-    includeHostVariables: false
-    includeInsertWithOmittedValues: false
-    includeLikeAnyAllSome: false
-    includePosixOperators: false
-    includeQualifyClause: false
-    includeRankWithSortingExpressions: false
-    includeSubstrKeyword: false
-    includeTopN: false
   }
 }
 
