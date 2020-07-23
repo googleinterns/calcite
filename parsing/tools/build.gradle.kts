@@ -20,13 +20,13 @@ plugins {
 }
 
 dependencies {
-    api(project(":parsing:dialects:bigquery"))
-    api(project(":parsing:dialects:defaultdialect"))
-    api(project(":parsing:dialects:dialect1"))
-    api(project(":parsing:dialects:hive"))
-    api(project(":parsing:dialects:mysql"))
-    api(project(":parsing:dialects:postgresqlBase:dialects:postgresql"))
-    api(project(":parsing:dialects:postgresqlBase:dialects:redshift"))
+    api(project(":parsing:intermediate:dialects:bigquery"))
+    api(project(":parsing:intermediate:dialects:defaultdialect"))
+    api(project(":parsing:intermediate:dialects:dialect1"))
+    api(project(":parsing:intermediate:dialects:hive"))
+    api(project(":parsing:intermediate:dialects:mysql"))
+    api(project(":parsing:intermediate:dialects:postgresqlBase:dialects:postgresql"))
+    api(project(":parsing:intermediate:dialects:postgresqlBase:dialects:redshift"))
 
     implementation("net.sf.opencsv:opencsv")
     implementation("com.google.code.gson:gson:2.8.5")

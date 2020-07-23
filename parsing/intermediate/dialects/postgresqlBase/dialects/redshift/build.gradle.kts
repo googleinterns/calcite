@@ -35,7 +35,7 @@ dependencies {
     testImplementation("org.slf4j:slf4j-log4j12")
     testImplementation(project(":core", "testClasses"))
     testImplementation(project(":parsing", "testClasses"))
-    testImplementation(project(":parsing:dialects:postgresqlBase", "testClasses"))
+    testImplementation(project(":parsing:intermediate:dialects:postgresqlBase", "testClasses"))
 }
 
 val dialectGenerate by tasks.registering(org.apache.calcite.buildtools.parser.DialectGenerateTask::class) {
@@ -59,7 +59,7 @@ val javaCCMain by tasks.registering(org.apache.calcite.buildtools.javacc.JavaCCT
         it.output.asFileTree.matching { include("**/Parser.jj") }.singleFile
     }
     inputFile.set(parserFile)
-    packageName.set("org.apache.calcite.sql.parser.postgresql")
+    packageName.set("org.apache.calcite.sql.parser.redshift")
 }
 
 ide {
