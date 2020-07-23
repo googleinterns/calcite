@@ -23,6 +23,10 @@ final class FindDialectParsingErrorsExec {
   private static final int MAX_NUM_SAMPLE_QUERIES = 20;
   private static final int DEFAULT_NUM_SAMPLE_QUERIES = 1;
 
+  private FindDialectParsingErrorsExec() {
+    // Needs to be private to fix HideUtilityClassConstructor error for checkstyle
+  }
+
   public static void main(String[] args) throws IOException {
     String inputPath = args[0];
     String outputPath = args[1];

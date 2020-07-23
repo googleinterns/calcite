@@ -183,7 +183,7 @@ public class FindDialectParsingErrors {
               errorCountValue.sampleQueries.add(e2.sampleQueries.get(i));
             }
             return errorCountValue;
-        }));
+          }));
     int numFailed = 0;
     for (Map.Entry<String, ErrorType> entry : errors.entrySet()) {
       numFailed += entry.getValue().count;
