@@ -25,25 +25,28 @@ final class FindDialectParsingErrorsExec {
   private static final int DEFAULT_NUM_SAMPLE_QUERIES = 5;
 
   private FindDialectParsingErrorsExec() {
-    // Needs to be private to fix HideUtilityClassConstructor error for checkstyle
+    // Needs to be private to fix HideUtilityClassConstructor error for
+    // checkstyle
   }
 
   public static void main(String[] args) throws IOException {
     String inputPath = args[0];
     String outputPath = args[1];
-    FindDialectParsingErrors.Dialect dialect = FindDialectParsingErrors.Dialect.valueOf(args[2]
+    FindDialectParsingErrors.Dialect dialect =
+        FindDialectParsingErrors.Dialect.valueOf(args[2]
         .toUpperCase(Locale.ROOT));
     boolean groupByErrors = Boolean.parseBoolean(args[3]);
     int numSampleQueries = DEFAULT_NUM_SAMPLE_QUERIES;
     if (args.length == 5) {
       numSampleQueries = Integer.parseInt(args[4]);
       if (numSampleQueries < 1 || numSampleQueries > MAX_NUM_SAMPLE_QUERIES) {
-        throw new IllegalArgumentException("numSampleQueries must be between 1 and "
-            + MAX_NUM_SAMPLE_QUERIES);
+        throw new IllegalArgumentException("numSampleQueries must be between 1 "
+            + "and " + MAX_NUM_SAMPLE_QUERIES);
       }
     }
-    FindDialectParsingErrors findDialectParsingErrors = new FindDialectParsingErrors(inputPath,
-        outputPath, dialect, groupByErrors, numSampleQueries);
+    FindDialectParsingErrors findDialectParsingErrors =
+        new FindDialectParsingErrors(inputPath, outputPath, dialect,
+            groupByErrors, numSampleQueries);
     findDialectParsingErrors.run();
   }
 }

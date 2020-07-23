@@ -53,8 +53,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * Processes a CSV file containing queries and will output a JSON file containing the results of
- * failing queries.
+ * Processes a CSV file containing queries and will output a JSON file
+ * containing the results of failing queries.
  */
 public class FindDialectParsingErrors {
 
@@ -66,19 +66,23 @@ public class FindDialectParsingErrors {
   private final List<MessageFormat> errorFormats;
 
   /**
-   *  Creates a new instance of {@code FindDialectParsingErrors}. Also populates the errorFormats
-   *  list with a MessageFormat object for each custom defined error message in CalciteResource.
+   *  Creates a new instance of {@code FindDialectParsingErrors}. Also populates
+   *  the errorFormats list with a {@Code MessageFormat} object for each custom
+   *  defined error message in CalciteResource.
    *
    * @param inputPath Path to the input CSV file containing queries
-   * @param outputPath Path to the output JSON file containing results of failing queries
-   * @param dialect Specifies which dialectic parser to use for processing queries
-   * @param groupByErrors Specifies if the output format should group failing queries by error
-   *                      message type
-   * @param numSampleQueries The max number of sample queries to show for an error type when
-   *                         grouping queries by error message type
+   * @param outputPath Path to the output JSON file containing results of
+   *                   failing queries
+   * @param dialect Specifies which dialectic parser to use for processing
+   *                queries
+   * @param groupByErrors Specifies if the output format should group failing
+   *                      queries by error message type
+   * @param numSampleQueries The max number of sample queries to show for an
+   *                         error type when grouping queries by error message
+   *                         type
    */
-  public FindDialectParsingErrors(String inputPath, String outputPath, Dialect dialect,
-      boolean groupByErrors, int numSampleQueries) {
+  public FindDialectParsingErrors(String inputPath, String outputPath,
+      Dialect dialect, boolean groupByErrors, int numSampleQueries) {
     this.inputPath = inputPath;
     this.outputPath = outputPath;
     this.dialect = dialect;
@@ -88,16 +92,17 @@ public class FindDialectParsingErrors {
     Method[] methods = CalciteResource.class.getMethods();
     for (Method m : methods) {
       errorFormats.add(
-          new MessageFormat(m.getAnnotationsByType(Resources.BaseMessage.class)[0].value(),
-              Locale.ROOT)
+          new MessageFormat(
+              m.getAnnotationsByType(
+              Resources.BaseMessage.class)[0].value(), Locale.ROOT)
       );
     }
   }
 
   /**
-   * Runs one of the processing methods and will output a JSON file containing the results of
-   * failing queries. This will run findErrorGroups if groupByErrors is true. Otherwise,
-   * findFullErrors will run.
+   * Runs one of the processing methods and will output a JSON file containing
+   * the results of failing queries. This will run findErrorGroups if
+   * groupByErrors is true. Otherwise, findFullErrors will run.
    *
    * @throws IOException If it fails to read the input file
    */
@@ -118,8 +123,8 @@ public class FindDialectParsingErrors {
   }
 
   /**
-   * This is the default processing method. It parallel processes the list of queries and finds the
-   * full error for any failing query.
+   * This is the default processing method. It parallel processes the list of
+   * queries and finds the full error for any failing query.
    *
    * @param queries A list of sanitized queries
    * @throws IOException If it fails to write to the output file
@@ -148,13 +153,15 @@ public class FindDialectParsingErrors {
     for (Map.Entry<String, FullError> entry : errors.entrySet()) {
       numFailed += entry.getValue().count;
     }
-    outputFullErrorResults(errors, queries.size() - numFailed, numFailed);
+    outputFullErrorResults(errors, queries.size() - numFailed,
+        numFailed);
   }
 
   /**
-   * This method is called when the command line option --groupByErrors is specified. It will group
-   * failing queries together based on the error message type, as well as keep a set of sample
-   * queries for its error type. This method parallel processes the queries list.
+   * This method is called when the command line option --groupByErrors is
+   * specified. It will group failing queries together based on the error
+   * message type, as well as keep a set of sample queries for its error type.
+   * This method parallel processes the queries list.
    *
    * @param queries A list of sanitized queries
    * @throws IOException If it fails to write to the output file
@@ -185,7 +192,8 @@ public class FindDialectParsingErrors {
             errorCountValue.type = e1.type;
             errorCountValue.sampleQueries.addAll(e1.sampleQueries);
             for (int i = 0; i < e2.sampleQueries.size()
-                && errorCountValue.sampleQueries.size() < numSampleQueries; i++) {
+                && errorCountValue.sampleQueries.size() < numSampleQueries;
+                i++) {
               errorCountValue.sampleQueries.add(e2.sampleQueries.get(i));
             }
             return errorCountValue;
@@ -194,21 +202,24 @@ public class FindDialectParsingErrors {
     for (Map.Entry<String, ErrorType> entry : errors.entrySet()) {
       numFailed += entry.getValue().count;
     }
-    outputErrorGroupResults(errors, queries.size() - numFailed, numFailed);
+    outputErrorGroupResults(errors, queries.size() - numFailed,
+        numFailed);
   }
 
   /**
-   * Outputs the processed results into a JSON file containing a list JSON objects where each object
-   * contains the query and the error message. This method also outputs the number of successful
-   * queries and the number of failed queries.
+   * Outputs the processed results into a JSON file containing a list JSON
+   * objects where each object contains the query and the error message. This
+   * method also outputs the number of successful queries and the number of
+   * failed queries.
    *
    * @param errors A Map of queries and their full errors
    * @param numPassed The number of queries that successfully parsed
    * @param numFailed The number of queries that failed to parse
-   * @throws IOException If it fails to create a FileWriter at the the output path
+   * @throws IOException If it fails to create a FileWriter at the the output
+   *                     path
    */
-  private void outputFullErrorResults(Map<String, FullError> errors, int numPassed, int numFailed)
-      throws IOException {
+  private void outputFullErrorResults(Map<String, FullError> errors,
+      int numPassed, int numFailed) throws IOException {
     BufferedWriter bufferedWriter = new BufferedWriter(
         new OutputStreamWriter(
         new FileOutputStream(outputPath), StandardCharsets.UTF_8));
@@ -231,18 +242,18 @@ public class FindDialectParsingErrors {
   }
 
   /**
-   * Outputs the processed results into a JSON file containing a list, sorted by count in
-   * descending order, of error JSON objects where each object contains the values inside the
-   * ErrorCountValue object. This method also outputs the number of successful queries and the
-   * number of failed queries.
+   * Outputs the processed results into a JSON file containing a list, sorted by
+   * count in descending order, of error JSON objects where each object contains
+   * the values inside the ErrorCountValue object. This method also outputs the
+   * number of successful queries and the number of failed queries.
    *
    * @param errors A Map of error type groups
    * @param numPassed The number of queries that successfully parsed
    * @param numFailed The number of queries that failed to parse
    * @throws IOException If it fails to create a FileWriter at the output path
    */
-  private void outputErrorGroupResults(Map<String, ErrorType> errors, int numPassed,
-      int numFailed) throws IOException {
+  private void outputErrorGroupResults(Map<String, ErrorType> errors,
+      int numPassed, int numFailed) throws IOException {
     BufferedWriter bufferedWriter = new BufferedWriter(
         new OutputStreamWriter(
         new FileOutputStream(outputPath), StandardCharsets.UTF_8));
@@ -253,7 +264,8 @@ public class FindDialectParsingErrors {
     writer.name("numFailed").value(numFailed);
     writer.name("errors");
     writer.beginArray();
-    List<Map.Entry<String, ErrorType>> sortedEntries = new ArrayList<>(errors.entrySet());
+    List<Map.Entry<String, ErrorType>> sortedEntries =
+        new ArrayList<>(errors.entrySet());
     sortedEntries.sort(Comparator.comparing(e -> -e.getValue().count));
     for (Map.Entry<String, ErrorType> e : sortedEntries) {
       writeErrorGroupJsonObject(writer, e);
@@ -264,8 +276,8 @@ public class FindDialectParsingErrors {
   }
 
   /**
-   * Writes a single JSON object containing the values inside the ErrorCountValue object for the
-   * provided entry.
+   * Writes a single JSON object containing the values inside the
+   * ErrorCountValue object for the provided entry.
    *
    * @param writer The JsonWriter setup for the output path
    * @param entry The entry to write as a JSON Object
@@ -287,9 +299,10 @@ public class FindDialectParsingErrors {
   }
 
   /**
-   * Parses the error message and returns which error type it is. If the error message contains
-   * "Encountered", it will use the tokens occurring after "Encountered" as the error type.
-   * Otherwise, it will use one of the custom defined error messages inside CalciteResource.
+   * Parses the error message and returns which error type it is. If the error
+   * message contains "Encountered", it will use the tokens occurring after
+   * "Encountered" as the error type. Otherwise, it will use one of the custom
+   * defined error messages inside CalciteResource.
    *
    * @param message The error message to process
    * @return The error message type
@@ -298,7 +311,8 @@ public class FindDialectParsingErrors {
     String encounteredToken = "Encountered \"";
     int start = message.indexOf(encounteredToken);
     if (start != -1) {
-      int end = message.indexOf("\"", start + encounteredToken.length());
+      int end = message.indexOf("\"", start + encounteredToken
+          .length());
       return message.substring(start, end + 1);
     }
     for (MessageFormat errorFormat : errorFormats) {
@@ -311,8 +325,9 @@ public class FindDialectParsingErrors {
   }
 
   /**
-   * Sanitizes the provided query. It will remove a semicolon from the end and replace some unicode
-   * characters that cannot be parsed by Calcite with an ASCII equivalent character.
+   * Sanitizes the provided query. It will remove a semicolon from the end and
+   * replace some unicode characters that cannot be parsed by Calcite with an
+   * ASCII equivalent character.
    *
    * @param query The query to sanitize
    * @return The sanitized query
@@ -347,7 +362,8 @@ public class FindDialectParsingErrors {
       sampleQueries = new ArrayList<>();
     }
 
-    ErrorType(Integer count, String fullError, String type, List<String> sampleQueries) {
+    ErrorType(Integer count, String fullError, String type,
+        List<String> sampleQueries) {
       this.count = count;
       this.fullError = fullError;
       this.type = type;
@@ -372,27 +388,33 @@ public class FindDialectParsingErrors {
       @Override public SqlParserImplFactory getDialectFactory() {
         return BigQueryParserImpl.FACTORY;
       }
-    }, DEFAULTDIALECT {
+    },
+    DEFAULTDIALECT {
       @Override public SqlParserImplFactory getDialectFactory() {
         return DefaultDialectParserImpl.FACTORY;
       }
-    }, DIALECT1 {
+    },
+    DIALECT1 {
       @Override public SqlParserImplFactory getDialectFactory() {
         return Dialect1ParserImpl.FACTORY;
       }
-    }, HIVE {
+    },
+    HIVE {
       @Override public SqlParserImplFactory getDialectFactory() {
         return HiveParserImpl.FACTORY;
       }
-    }, MYSQL {
+    },
+    MYSQL {
       @Override public SqlParserImplFactory getDialectFactory() {
         return MySQLParserImpl.FACTORY;
       }
-    }, POSTGRESQL {
+    },
+    POSTGRESQL {
       @Override public SqlParserImplFactory getDialectFactory() {
         return PostgreSQLParserImpl.FACTORY;
       }
-    }, REDSHIFT {
+    },
+    REDSHIFT {
       @Override public SqlParserImplFactory getDialectFactory() {
         return RedshiftParserImpl.FACTORY;
       }
