@@ -22,7 +22,7 @@ import java.util.Locale;
 final class FindDialectParsingErrorsExec {
 
   private static final int MAX_NUM_SAMPLE_QUERIES = 20;
-  private static final int DEFAULT_NUM_SAMPLE_QUERIES = 1;
+  private static final int DEFAULT_NUM_SAMPLE_QUERIES = 5;
 
   private FindDialectParsingErrorsExec() {
     // Needs to be private to fix HideUtilityClassConstructor error for checkstyle
@@ -37,7 +37,7 @@ final class FindDialectParsingErrorsExec {
     int numSampleQueries = DEFAULT_NUM_SAMPLE_QUERIES;
     if (args.length == 5) {
       numSampleQueries = Integer.parseInt(args[4]);
-      if (numSampleQueries < 1 || numSampleQueries > 20) {
+      if (numSampleQueries < 1 || numSampleQueries > MAX_NUM_SAMPLE_QUERIES) {
         throw new IllegalArgumentException("numSampleQueries must be between 1 and "
             + MAX_NUM_SAMPLE_QUERIES);
       }
