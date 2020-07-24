@@ -133,11 +133,20 @@ public class SqlTestFactory {
         (SqlConformance) options.get("conformance");
     final boolean lenientOperatorLookup =
         (boolean) options.get("lenientOperatorLookup");
-    final boolean enableTypeCoercion = (boolean) options.get("enableTypeCoercion");
+    final boolean enableTypeCoercion =
+        (boolean) options.get("enableTypeCoercion");
+    final boolean handleUnknownTables;
+    if (options.containsKey("handleUnknownTables")) {
+      handleUnknownTables =
+          (boolean) options.get("handleUnknownTables");
+    } else {
+      handleUnknownTables = false;
+    }
     final SqlValidator.Config config = SqlValidator.Config.DEFAULT
         .withSqlConformance(conformance)
         .withTypeCoercionEnabled(enableTypeCoercion)
-        .withLenientOperatorLookup(lenientOperatorLookup);
+        .withLenientOperatorLookup(lenientOperatorLookup)
+        .withHandleUnknownTables(handleUnknownTables);
     return validatorFactory.create(operatorTable.get(),
         catalogReader.get(),
         typeFactory.get(),
