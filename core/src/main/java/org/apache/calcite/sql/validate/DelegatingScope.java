@@ -87,7 +87,7 @@ public abstract class DelegatingScope implements SqlValidatorScope {
   }
 
   public void resolve(List<String> names, SqlNameMatcher nameMatcher,
-                      boolean deep, Resolved resolved) {
+      boolean deep, Resolved resolved) {
     parent.resolve(names, nameMatcher, deep, resolved);
   }
 
