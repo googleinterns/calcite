@@ -15,17 +15,21 @@
  * limitations under the License.
  */
 package org.apache.calcite.sql;
+
 // SqlTimeZoneOption provides time displacement options for a time or a
 // timestamp type.
 public enum SqlTimeZoneOption {
+
   /**
    * WITH TIME ZONE option.
    */
   WITH_TIME_ZONE,
+
   /**
    * WITH LOCAL TIME ZONE option.
    */
   WITH_LOCAL_TIME_ZONE,
+
   /**
    * Default option if no option is specified.
    */

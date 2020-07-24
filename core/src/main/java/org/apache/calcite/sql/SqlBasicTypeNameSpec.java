@@ -178,9 +178,7 @@ public class SqlBasicTypeNameSpec extends SqlTypeNameSpec {
 
     if (isWithLocalTimeZone) {
       writer.keyword("WITH LOCAL TIME ZONE");
-    }
-
-    if (isWithTimeZone) {
+    } else if (isWithTimeZone) {
       writer.keyword("WITH TIME ZONE");
     }
 
