@@ -169,31 +169,31 @@ public class DialectGenerateTest {
   }
 
   @Test public void processFileEmpty() {
-    assertFileProcessed("empty", true);
+    assertFileProcessed("empty", /*specifyFilePath=*/ true);
   }
 
   @Test public void processFileSingleFunctionFilePathNotSpecified() {
-    assertFileProcessed("single_function", false);
+    assertFileProcessed("single_function", /*specifyFilePath=*/ false);
   }
 
   @Test public void processFileMultiLineDeclarations() {
-    assertFileProcessed("multi_line_declarations", true);
+    assertFileProcessed("multi_line_declarations", /*specifyFilePath=*/ true);
   }
 
   @Test public void processFileMultipleFunctionsSeparatedByLines() {
-    assertFileProcessed("multiple_functions_separated", true);
+    assertFileProcessed("multiple_functions_separated", /*specifyFilePath=*/ true);
   }
 
   @Test public void processFileTokenAssignments() {
-    assertFileProcessed("token_assignments", true);
+    assertFileProcessed("token_assignments", /*specifyFilePath=*/ true);
   }
 
   @Test public void processFileFunctionsAndTokenAssignments() {
-    assertFileProcessed("functions_and_assignments", true);
+    assertFileProcessed("functions_and_assignments", /*specifyFilePath=*/ true);
   }
 
   @Test public void processFileTypesWithAngleBrackets() {
-    assertFileProcessed("angle_brackets", true);
+    assertFileProcessed("angle_brackets", /*specifyFilePath=*/ true);
   }
 
   @Test public void processTokenAssignmentTokenEmpty() {
