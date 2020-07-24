@@ -111,6 +111,7 @@ data: {
       "org.apache.calcite.sql.SqlTableAttributeMap",
       "org.apache.calcite.sql.SqlTableAttributeMergeBlockRatio",
       "org.apache.calcite.sql.SqlTableAttributeMergeBlockRatio.MergeBlockRatioModifier",
+      "org.apache.calcite.sql.SqlTimeZoneOption",
       "org.apache.calcite.sql.SqlTranslateUsingCharacterSet",
       "org.apache.calcite.sql.SqlUpsert",
       "org.apache.calcite.sql.SqlUsingRequestModifier",

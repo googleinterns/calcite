@@ -158,7 +158,8 @@ public class SqlBasicTypeNameSpec extends SqlTypeNameSpec {
     // i.e. TIME_WITH_LOCAL_TIME_ZONE(3)
     // would be unparsed as "time(3) with local time zone".
     final boolean isWithLocalTimeZone = isWithLocalTimeZoneDef(sqlTypeName);
-    if (isWithLocalTimeZone) {
+    final boolean isWithTimeZone = isWithTimeZoneDef(sqlTypeName);
+    if (isWithLocalTimeZone || isWithTimeZone) {
       writer.keyword(stripLocalTimeZoneDef(sqlTypeName).name());
     } else {
       writer.keyword(getTypeName().getSimple());
@@ -177,6 +178,10 @@ public class SqlBasicTypeNameSpec extends SqlTypeNameSpec {
 
     if (isWithLocalTimeZone) {
       writer.keyword("WITH LOCAL TIME ZONE");
+    }
+
+    if (isWithTimeZone) {
+      writer.keyword("WITH TIME ZONE");
     }
 
     if (charSetName != null) {
@@ -256,11 +261,26 @@ public class SqlBasicTypeNameSpec extends SqlTypeNameSpec {
   private SqlTypeName stripLocalTimeZoneDef(SqlTypeName typeName) {
     switch (typeName) {
     case TIME_WITH_LOCAL_TIME_ZONE:
+    case TIME_WITH_TIME_ZONE:
       return SqlTypeName.TIME;
     case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
+    case TIMESTAMP_WITH_TIME_ZONE:
       return SqlTypeName.TIMESTAMP;
     default:
       throw new AssertionError(typeName);
+    }
+  }
+
+  /**
+   * @return true if this type name has "time zone" definition.
+   */
+  private static boolean isWithTimeZoneDef(SqlTypeName typeName) {
+    switch (typeName) {
+    case TIME_WITH_TIME_ZONE:
+    case TIMESTAMP_WITH_TIME_ZONE:
+      return true;
+    default:
+      return false;
     }
   }
 }

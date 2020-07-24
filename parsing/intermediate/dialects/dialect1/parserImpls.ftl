@@ -3943,3 +3943,82 @@ SqlTypeNameSpec TypeName() :
         return typeNameSpec;
     }
 }
+
+/**
+* Parse datetime types: date, time, timestamp.
+* Override the function in core parser.
+*/
+SqlTypeNameSpec DateTimeTypeName() :
+{
+    int precision = -1;
+    SqlTypeName typeName;
+    SqlTimeZoneOption timeZoneOpt = SqlTimeZoneOption.WITHOUT_TIME_ZONE;
+}
+{
+    <DATE> {
+        typeName = SqlTypeName.DATE;
+        return new SqlBasicTypeNameSpec(typeName, getPos());
+    }
+|
+    LOOKAHEAD(2)
+    <TIME>
+    precision = PrecisionOpt()
+    timeZoneOpt = TimeZoneOption()
+    {
+        switch (timeZoneOpt) {
+           case WITHOUT_TIME_ZONE:
+              typeName = SqlTypeName.TIME;
+              break;
+           case WITH_LOCAL_TIME_ZONE:
+              typeName = SqlTypeName.TIME_WITH_LOCAL_TIME_ZONE;
+              break;
+           case WITH_TIME_ZONE:
+              typeName = SqlTypeName.TIME_WITH_TIME_ZONE;
+              break;
+           default:
+              typeName = SqlTypeName.TIME;
+              break;
+        }
+        return new SqlBasicTypeNameSpec(typeName, precision, getPos());
+    }
+|
+    <TIMESTAMP>
+    precision = PrecisionOpt()
+    timeZoneOpt = TimeZoneOption()
+    {
+        switch (timeZoneOpt) {
+        case WITHOUT_TIME_ZONE:
+            typeName = SqlTypeName.TIMESTAMP;
+            break;
+        case WITH_LOCAL_TIME_ZONE:
+            typeName = SqlTypeName.TIMESTAMP_WITH_LOCAL_TIME_ZONE;
+            break;
+        case WITH_TIME_ZONE:
+            typeName = SqlTypeName.TIMESTAMP_WITH_TIME_ZONE;
+            break;
+        default:
+            typeName = SqlTypeName.TIMESTAMP;
+            break;
+        }
+        return new SqlBasicTypeNameSpec(typeName, precision, getPos());
+    }
+}
+
+SqlTimeZoneOption TimeZoneOption() :
+{
+}
+{
+    LOOKAHEAD(3)
+    <WITHOUT> <TIME> <ZONE>
+    { return SqlTimeZoneOption.WITHOUT_TIME_ZONE; }
+|
+    LOOKAHEAD(3)
+    <WITH> <LOCAL> <TIME> <ZONE>
+    { return SqlTimeZoneOption.WITH_LOCAL_TIME_ZONE; }
+|
+    <WITH> <TIME> <ZONE>
+    { return SqlTimeZoneOption.WITH_TIME_ZONE; }
+|
+    { return SqlTimeZoneOption.WITHOUT_TIME_ZONE;}
+}
+
