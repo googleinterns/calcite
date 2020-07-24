@@ -3951,7 +3951,7 @@ SqlTypeNameSpec TypeName() :
 SqlTypeNameSpec DateTimeTypeName() :
 {
     int precision = -1;
-    SqlTypeName typeName;
+    final SqlTypeName typeName;
     SqlTimeZoneOption timeZoneOpt = SqlTimeZoneOption.WITHOUT_TIME_ZONE;
 }
 {
