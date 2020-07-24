@@ -3613,6 +3613,10 @@ SqlNode BuiltinFunctionCall() :
         node = JsonArrayAggFunctionCall() { return node; }
     |
         node = GroupByWindowingCall() { return node; }
+    |
+        node = CaseN() { return node; }
+    |
+        node = RangeN() { return node; }
     )
 }
 
@@ -4022,3 +4026,161 @@ SqlTimeZoneOption TimeZoneOption() :
     { return SqlTimeZoneOption.WITHOUT_TIME_ZONE;}
 }
 
+SqlCaseN CaseN() :
+{
+    final SqlNodeList nodes = new SqlNodeList(getPos());
+    SqlNode e;
+    SqlPartitionByNoneUnknown extraPartitionOption = null;
+}
+{
+    <CASE_N>
+    <LPAREN>
+    e = Expression(ExprContext.ACCEPT_SUB_QUERY)
+    {
+        nodes.add(e);
+    }
+    (
+        <COMMA>
+        e = Expression(ExprContext.ACCEPT_SUB_QUERY)
+        {
+            nodes.add(e);
+        }
+    )*
+    [
+        <COMMA>
+        (
+            LOOKAHEAD(3)
+            <NO> <CASE> <OR> <UNKNOWN>
+            {
+                extraPartitionOption =
+                    SqlPartitionByNoneUnknown.NONE_OR_UNKNOWN;
+            }
+        |
+            LOOKAHEAD(3)
+            <NO> <CASE> <COMMA> <UNKNOWN>
+            {
+                extraPartitionOption =
+                    SqlPartitionByNoneUnknown.NONE_COMMA_UNKNOWN;
+            }
+        |
+            <NO> <CASE>
+            { extraPartitionOption = SqlPartitionByNoneUnknown.NONE; }
+        |
+            <UNKNOWN>
+            { extraPartitionOption = SqlPartitionByNoneUnknown.UNKNOWN; }
+        )
+    ]
+    <RPAREN>
+    {
+        return new SqlCaseN(getPos(), nodes, extraPartitionOption);
+    }
+}
+
+SqlRangeN RangeN() :
+{
+    final SqlNode testExpression;
+    SqlNode range;
+    SqlNode startLiteral = null;
+    boolean startAsterisk = false;
+    SqlNode endLiteral = null;
+    boolean endAsterisk = false;
+    SqlNode eachSizeLiteral = null;
+    final SqlNodeList rangeList = new SqlNodeList(getPos());
+    SqlPartitionByNoneUnknown extraPartitionOption = null;
+}
+{
+    <RANGE_N>
+    <LPAREN>
+    testExpression = CompoundIdentifier()
+    <BETWEEN>
+    (
+        <STAR> { startAsterisk = true; }
+        [
+            <AND>
+            (
+                <STAR> { endAsterisk = true; }
+            |
+                endLiteral = Literal()
+            )
+        ]
+    |
+        startLiteral = Literal()
+        [
+            <AND>
+            (
+                <STAR> { endAsterisk = true; }
+            |
+                endLiteral = Literal()
+            )
+        ]
+        [
+            <EACH>
+            eachSizeLiteral = Literal()
+        ]
+    )
+    {
+        rangeList.add(new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral,
+            eachSizeLiteral, startAsterisk, endAsterisk));
+    }
+    (
+        <COMMA>
+        range = RangeNStartEnd()
+        { rangeList.add(range); }
+    )*
+    [
+        <COMMA>
+        (
+            LOOKAHEAD(3)
+            <NO> <RANGE> <OR> <UNKNOWN>
+            {
+                extraPartitionOption =
+                    SqlPartitionByNoneUnknown.NONE_OR_UNKNOWN;
+            }
+        |
+            LOOKAHEAD(3)
+            <NO> <RANGE> <COMMA> <UNKNOWN>
+            {
+                extraPartitionOption =
+                    SqlPartitionByNoneUnknown.NONE_COMMA_UNKNOWN;
+            }
+        |
+            <NO> <RANGE>
+            { extraPartitionOption = SqlPartitionByNoneUnknown.NONE; }
+        |
+            <UNKNOWN>
+            { extraPartitionOption = SqlPartitionByNoneUnknown.UNKNOWN; }
+        )
+    ]
+    <RPAREN>
+    {
+        return new SqlRangeN(getPos(), testExpression, rangeList,
+            extraPartitionOption);
+    }
+}
+
+SqlRangeNStartEnd RangeNStartEnd() :
+{
+    final SqlNode startLiteral;
+    SqlNode endLiteral = null;
+    boolean endAsterisk = false;
+    SqlNode eachSizeLiteral = null;
+}
+{
+    startLiteral = Literal()
+    [
+        <AND>
+        (
+            <STAR> { endAsterisk = true; }
+        |
+            endLiteral = Literal()
+        )
+    ]
+    [
+        <EACH>
+        eachSizeLiteral = Literal()
+    ]
+    {
+        return new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral,
+            eachSizeLiteral, false, endAsterisk);
+    }
+}

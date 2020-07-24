@@ -64,6 +64,7 @@ include(
     "parsing:intermediate:dialects:postgresqlBase",
     "parsing:intermediate:dialects:postgresqlBase:dialects:postgresql",
     "parsing:intermediate:dialects:postgresqlBase:dialects:redshift",
+    "parsing:tools",
     "pig",
     "piglet",
     "plus",
