@@ -31,10 +31,10 @@ SKIP :
 |   < TILDE: "~" >
 }
 
-// Extracted from: parserTest/intermediate/testDialect/parserImpls.ftl
+// Extracted from: parserTest/intermediate/dialects/testDialect/parserImpls.ftl
 MORE : {}
 
-// Extracted from: parserTest/intermediate/testDialect/parserImpls.ftl
+// Extracted from: parserTest/intermediate/dialects/testDialect/parserImpls.ftl
 void foo() :
 {
     String x = " '}' ";

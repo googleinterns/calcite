@@ -142,15 +142,15 @@ public class DialectTraverser {
     for (File f : files) {
       String fileName = f.getName();
       if (f.isFile() && fileName.endsWith(".ftl")) {
+        Path absoluteFilePath = f.toPath();
+        Path rootPath = rootDirectory.toPath();
+        String filePath = absoluteFilePath.subpath(rootPath.getNameCount() - 1,
+            absoluteFilePath.getNameCount()).toString();
+        // For windows paths change separator to forward slash.
+        filePath = filePath.replace("\\", "/");
         try {
-          Path absoluteFilePath = f.toPath();
-          Path rootPath = rootDirectory.toPath();
           String fileText = new String(Files.readAllBytes(absoluteFilePath),
               StandardCharsets.UTF_8);
-          String filePath = absoluteFilePath.subpath(rootPath.getNameCount() - 1,
-              absoluteFilePath.getNameCount()).toString();
-          // For windows paths change separator to forward slash.
-          filePath = filePath.replace("\\", "/");
           dialectGenerate.processFile(fileText, extractedData, filePath);
         } catch (IOException e) {
           e.printStackTrace();

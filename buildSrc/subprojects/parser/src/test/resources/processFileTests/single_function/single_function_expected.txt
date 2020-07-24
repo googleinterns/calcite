@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-// Extracted from: processFileTests/single_function/single_function.txt
+// Extracted file not specified
 void foo() :
 {
 

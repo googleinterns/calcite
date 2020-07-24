@@ -41,8 +41,8 @@ public class DialectTraverserTest {
    * dialect path of calcite/parsingTest/intermediate/testDialect.
    */
   private DialectTraverser setupDialectTraverser() {
-    // Adds the path /intermediate/testDialect/ to the end of rootPath.
-    Path dialectPath = rootPath.resolve(Paths.get("intermediate",
+    // Adds the path /intermediate/dialects/testDialect/ to the end of rootPath.
+    Path dialectPath = rootPath.resolve(Paths.get("intermediate", "dialects",
           "testDialect"));
     File rootFile = rootPath.toFile();
     File dialectFile = dialectPath.toFile();
@@ -53,7 +53,8 @@ public class DialectTraverserTest {
     DialectTraverser dialectTraverser = setupDialectTraverser();
     dialectTraverser.run();
     String actualText = TestUtils.readFile(rootPath.resolve(
-          Paths.get("intermediate", "testDialect").resolve(outputPath)));
+          Paths.get("intermediate", "dialects", "testDialect")
+          .resolve(outputPath)));
     String expectedText = TestUtils.readFile(Paths.get("src", "test",
           "resources", "integrationTest", "expected.ftl"));
     assertEquals(expectedText, actualText);

@@ -117,7 +117,11 @@ public class DialectGenerate {
         charIndex += tokens.poll().length();
       }
       StringBuilder stringBuilder = new StringBuilder("\n");
-      stringBuilder.append("// Extracted from: " + filePath + "\n");
+      if (filePath != null) {
+        stringBuilder.append("// Extracted from: " + filePath + "\n");
+      } else {
+        stringBuilder.append("// Extracted file not specified\n");
+      }
       if (isFunctionDeclaration) {
         charIndex = processFunction(tokens, extractedData.functions, charIndex,
             declaration.end(), getFunctionName(declaration.group()),
