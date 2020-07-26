@@ -3966,15 +3966,13 @@ SqlTypeNameSpec DateTimeTypeName() :
     timeZoneOpt = TimeZoneOption()
     {
         switch (timeZoneOpt) {
-           case WITHOUT_TIME_ZONE:
-              typeName = SqlTypeName.TIME;
-              break;
            case WITH_LOCAL_TIME_ZONE:
               typeName = SqlTypeName.TIME_WITH_LOCAL_TIME_ZONE;
               break;
            case WITH_TIME_ZONE:
               typeName = SqlTypeName.TIME_WITH_TIME_ZONE;
               break;
+           case WITHOUT_TIME_ZONE:
            default:
               typeName = SqlTypeName.TIME;
               break;
@@ -3987,15 +3985,13 @@ SqlTypeNameSpec DateTimeTypeName() :
     timeZoneOpt = TimeZoneOption()
     {
         switch (timeZoneOpt) {
-        case WITHOUT_TIME_ZONE:
-            typeName = SqlTypeName.TIMESTAMP;
-            break;
         case WITH_LOCAL_TIME_ZONE:
             typeName = SqlTypeName.TIMESTAMP_WITH_LOCAL_TIME_ZONE;
             break;
         case WITH_TIME_ZONE:
             typeName = SqlTypeName.TIMESTAMP_WITH_TIME_ZONE;
             break;
+        case WITHOUT_TIME_ZONE:
         default:
             typeName = SqlTypeName.TIMESTAMP;
             break;

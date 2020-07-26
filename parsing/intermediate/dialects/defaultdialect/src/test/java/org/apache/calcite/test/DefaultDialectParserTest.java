@@ -30,7 +30,7 @@ final class DefaultDialectParserTest extends SqlDialectParserTest {
     return DefaultDialectParserImpl.FACTORY;
   }
 
-  @Test void testCastFailsOnlyInDefaultDialect() {
+  @Test void testWithTimeZoneFails() {
     expr("cast(x as time with ^time^ zone)")
         .fails("(?s).*Encountered \"time\" at .*");
     expr("cast(x as time(0) with ^time^ zone)")
