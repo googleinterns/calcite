@@ -3963,7 +3963,7 @@ SqlTypeNameSpec DateTimeTypeName() :
     LOOKAHEAD(2)
     <TIME>
     precision = PrecisionOpt()
-    timeZoneOpt = TimeZoneOption()
+    timeZoneOpt = TimeZoneOpt()
     {
         switch (timeZoneOpt) {
            case WITH_LOCAL_TIME_ZONE:
@@ -3982,7 +3982,7 @@ SqlTypeNameSpec DateTimeTypeName() :
 |
     <TIMESTAMP>
     precision = PrecisionOpt()
-    timeZoneOpt = TimeZoneOption()
+    timeZoneOpt = TimeZoneOpt()
     {
         switch (timeZoneOpt) {
         case WITH_LOCAL_TIME_ZONE:
@@ -4000,7 +4000,7 @@ SqlTypeNameSpec DateTimeTypeName() :
     }
 }
 
-SqlTimeZoneOption TimeZoneOption() :
+SqlTimeZoneOption TimeZoneOpt() :
 {
 }
 {
