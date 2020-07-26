@@ -26,6 +26,7 @@
 /buildSrc/subprojects/*/build
 /buildSrc/subprojects/parser/**/build/
 /parsing/**/build
+/parsing/tools/build
 
 # IDEA
 /out

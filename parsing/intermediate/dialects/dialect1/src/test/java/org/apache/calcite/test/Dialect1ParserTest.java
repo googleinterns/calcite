@@ -3439,6 +3439,137 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCaseNBase() {
+    final String sql = "case_n(foo = 1)";
+    final String expected = "CASE_N((`FOO` = 1))";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testCaseNTwoCases() {
+    final String sql = "case_n(foo = 1, bar = foo)";
+    final String expected = "CASE_N((`FOO` = 1), (`BAR` = `FOO`))";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testCaseNNoCase() {
+    final String sql = "case_n(foo = 1, bar = 2, no case)";
+    final String expected = "CASE_N((`FOO` = 1), (`BAR` = 2), NO CASE)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testCaseNNoCaseOrUnknown() {
+    final String sql = "case_n(foo = 1, bar = 2, no case or unknown)";
+    final String expected =
+        "CASE_N((`FOO` = 1), (`BAR` = 2), NO CASE OR UNKNOWN)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testCaseNNoCaseCommaUnknown() {
+    final String sql = "case_n(foo = 1, bar = 2, no case, unknown)";
+    final String expected =
+        "CASE_N((`FOO` = 1), (`BAR` = 2), NO CASE, UNKNOWN)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testCaseNUnknown() {
+    final String sql = "case_n(foo = 1, bar = 2, unknown)";
+    final String expected =
+        "CASE_N((`FOO` = 1), (`BAR` = 2), UNKNOWN)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNBase() {
+    final String sql = "range_n (foo between 3 and 10)";
+    final String expected = "RANGE_N(`FOO` BETWEEN 3 AND 10)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNBaseEach() {
+    final String sql = "range_n (foo between 3 and 10 each 2)";
+    final String expected = "RANGE_N(`FOO` BETWEEN 3 AND 10 EACH 2)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNBaseEndAsterisk() {
+    final String sql = "range_n (foo between 3 and *)";
+    final String expected = "RANGE_N(`FOO` BETWEEN 3 AND *)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNBaseStartAsterisk() {
+    final String sql = "range_n (foo between * and 10)";
+    final String expected = "RANGE_N(`FOO` BETWEEN * AND 10)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNNoRange() {
+    final String sql = "range_n (foo between 3 and 10, no range)";
+    final String expected = "RANGE_N(`FOO` BETWEEN 3 AND 10, NO RANGE)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNNoRangeOrUnknown() {
+    final String sql = "range_n (foo between 3 and 10, no range or unknown)";
+    final String expected =
+        "RANGE_N(`FOO` BETWEEN 3 AND 10, NO RANGE OR UNKNOWN)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNNoRangeCommaUnknown() {
+    final String sql = "range_n (foo between 3 and 10, no range, unknown)";
+    final String expected =
+        "RANGE_N(`FOO` BETWEEN 3 AND 10, NO RANGE, UNKNOWN)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNUnknown() {
+    final String sql = "range_n (foo between 3 and 10, unknown)";
+    final String expected = "RANGE_N(`FOO` BETWEEN 3 AND 10, UNKNOWN)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNRangeListStartExpressionOnly() {
+    final String sql = "range_n (foo between 3, 10 and 20 each 2)";
+    final String expected = "RANGE_N(`FOO` BETWEEN 3, 10 AND 20 EACH 2)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNRangeListStartExpressionOnlyAsterisk() {
+    final String sql = "range_n (foo between *, 10 and 20 each 2)";
+    final String expected = "RANGE_N(`FOO` BETWEEN *, 10 AND 20 EACH 2)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNRangeListTwoRanges() {
+    final String sql =
+        "range_n (foo between 1 and 9 each 3, 10 and 20 each 2)";
+    final String expected =
+        "RANGE_N(`FOO` BETWEEN 1 AND 9 EACH 3, 10 AND 20 EACH 2)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNRangeListThreeRanges() {
+    final String sql =
+        "range_n (foo between 1 and 9 each 3, 10, 11 and 20 each 2)";
+    final String expected =
+        "RANGE_N(`FOO` BETWEEN 1 AND 9 EACH 3, 10, 11 AND 20 EACH 2)";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testRangeNConstraintAsteriskCannotHaveEachFails() {
+    final String sql =
+        "range_n (foo between * and 5 ^each^ 2, 10 and 20 each 2)";
+    final String expected = "(?s)Encountered \"each\" at .*";
+    expr(sql).fails(expected);
+  }
+
+  @Test public void testRangeNConstraintAsteriskNotFirstRangeFails() {
+    final String sql =
+        "range_n (foo between 3^,^ * and 20 each 2)";
+    final String expected = "(?s)Encountered \", \\*\" at .*";
+    expr(sql).fails(expected);
+  }
+
   @Test void testNestedNamedFunctionCalls() {
     final String sql = "SELECT\n"
         + "  MY_FUN(\n"
