@@ -217,16 +217,16 @@ public abstract class DelegatingScope implements SqlValidatorScope {
   }
 
   /**
+   * Filters out unknown tables (unless only unknown tables are present, in
+   * which case it leaves an arbitrary unknown table which is assumed to contain
+   * the column we are trying to resolve). This ensures that columns are not
+   * matched to unknown tables if they can instead be matched to tables with
+   * known schemas.
    *
    * @param map A map from table names to {@code ScopeChild} objects, which
-   *            represents all possible tables which a particular column
-   *            could come from.
-   * @return    A new table name map with unknown tables filtered out
-   *            (unless only unknown tables are present, in which case it
-   *            leaves an arbitrary unknown table which is assumed to contain
-   *            the column we are trying to resolve).
-   *            This ensures that columns are not matched to unknown tables if
-   *            they can instead be matched to tables with known schemas.
+   *            represents all possible tables which a particular column could
+   *            come from.
+   * @return    A new table name map with unknown tables filtered out.
    */
   public Map<String, ScopeChild> filterTableNames(Map<String, ScopeChild> map) {
     Map<String, ScopeChild> filteredMap = new HashMap<String, ScopeChild>();
@@ -235,10 +235,10 @@ public abstract class DelegatingScope implements SqlValidatorScope {
         filteredMap.put(key, map.get(key));
       }
     }
-    // If original map consists only of unknown tables,
-    // arbitrarily assume the column corresponds to the first unknown table.
-    // We cannot do any better than this without prior schema information.
-    if (filteredMap.size() == 0 && map.size() > 0) {
+    // If original map consists only of unknown tables, arbitrarily assume the
+    // column corresponds to the first unknown table. We cannot do any better
+    // than this without prior schema information.
+    if (filteredMap.isEmpty() && !map.isEmpty()) {
       String arbitraryKey = map.keySet().iterator().next();
       filteredMap.put(arbitraryKey, map.get(arbitraryKey));
     }
@@ -250,11 +250,11 @@ public abstract class DelegatingScope implements SqlValidatorScope {
    * namespace of an unknown table.
    */
   public boolean containsUnknownNamespace(ScopeChild child) {
-    if (child.namespace != null) {
-      SqlValidatorNamespace resolvedNamespace = child.namespace.resolve();
-      return resolvedNamespace.getType() instanceof UnknownRecordType;
+    if (child.namespace == null) {
+      return false;
     }
-    return false;
+    SqlValidatorNamespace resolvedNamespace = child.namespace.resolve();
+    return resolvedNamespace.getType() instanceof UnknownRecordType;
   }
 
   /**

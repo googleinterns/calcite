@@ -18,9 +18,9 @@ package org.apache.calcite.rel.type;
 
 /**
  * Represents the record type for unknown tables (whose type information is not
- * in the pre-defined schema). This object allowes us to treat unknown tables
- * as if they are dynamic tables (unknown number of columns with unknown types),
- * and is only generated when the {@code SqlValidator.Config.handleUnknownTables}
+ * in the pre-defined schema). This object allows us to treat unknown tables as
+ * if they are dynamic tables (unknown number of columns with unknown types),
+ * and is only generated when the {@code SqlValidator.Config.allowUnknownTables}
  * option is enabled.
  */
 public class UnknownRecordType extends DynamicRecordTypeImpl {

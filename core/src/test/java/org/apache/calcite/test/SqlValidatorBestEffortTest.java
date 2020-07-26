@@ -27,7 +27,7 @@ public class SqlValidatorBestEffortTest extends SqlValidatorTestCase {
   @Override public SqlTester getTester() {
     return new SqlValidatorTester(
         SqlTestFactory.INSTANCE
-            .with("handleUnknownTables", true)
+            .with("allowUnknownTables", true)
             .with("lenientOperatorLookup", true));
   }
 

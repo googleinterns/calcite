@@ -936,12 +936,12 @@ public interface SqlValidator {
      */
     @ImmutableBeans.Property
     @ImmutableBeans.BooleanDefault(false)
-    boolean handleUnknownTables();
+    boolean allowUnknownTables();
 
     /**
      * Sets whether to allow unresolved types during validation.
      */
-    Config withHandleUnknownTables(boolean unknownTables);
+    Config withAllowUnknownTables(boolean unknownTables);
 
     /** Returns how NULL values should be collated if an ORDER BY item does not
      * contain NULLS FIRST or NULLS LAST. */

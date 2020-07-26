@@ -165,7 +165,7 @@ public class IdentifierNamespace extends AbstractNamespace {
           final List<String> prefix =
               resolve.path.stepNames().subList(0, offset + i);
           final String next = resolve.path.stepNames().get(i + offset);
-          if (validator.config().handleUnknownTables()) {
+          if (validator.config().allowUnknownTables()) {
             return getPlaceholderNamespace(id);
           }
           if (prefix.isEmpty()) {
@@ -177,7 +177,7 @@ public class IdentifierNamespace extends AbstractNamespace {
                     SqlIdentifier.getString(prefix), next));
           }
         } else {
-          if (validator.config().handleUnknownTables()) {
+          if (validator.config().allowUnknownTables()) {
             return getPlaceholderNamespace(id);
           }
           throw validator.newValidationError(id,
@@ -186,20 +186,19 @@ public class IdentifierNamespace extends AbstractNamespace {
         }
       }
     }
-    if (validator.config().handleUnknownTables()) {
+    if (validator.config().allowUnknownTables()) {
       return getPlaceholderNamespace(id);
     }
     throw validator.newValidationError(id,
         RESOURCE.objectNotFound(id.getComponent(0).toString()));
   }
 
-  /**
+  /** Returns a "placeholder" namespace containing a table with an
+   * {@code UnknownRecordType}. This allows us to treat unknown table
+   * identifiers as if they are dynamic tables when the {@allowUnknownTables}
+   * option of the validator's config object is enabled.
    * @param id  An identifer which cannot be resolved.
-   * @return    A {@code TableNamespace} containing a table with an
-   *            {@code UnknownRecordType}. This allows us to treat unknown
-   *            table identifiers as if they are dynamic tables when the
-   *            {@handleUnknownTables} option of the validator's config
-   *            object is enabled.
+   * @return    A placeholder {@code TableNamespace}.
    */
   private SqlValidatorNamespace getPlaceholderNamespace(SqlIdentifier id) {
     SqlValidatorTable table = RelOptTableImpl.create(
