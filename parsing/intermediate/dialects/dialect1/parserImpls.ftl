@@ -1058,25 +1058,32 @@ SqlNode PartitionColumnItem() :
 {
     SqlNode e;
     final SqlNodeList args = new SqlNodeList(getPos());
+    CompressionOpt compressionOpt = CompressionOpt.NOT_SPECIFIED;
 }
 {
-    <ROW> <LPAREN>
-    e = SimpleIdentifier()
-    { args.add(e); }
     (
+        <ROW> <LPAREN>
         e = SimpleIdentifier()
         { args.add(e); }
-    )*
-    <RPAREN>
+        (
+            <COMMA>
+            e = SimpleIdentifier()
+            { args.add(e); }
+        )*
+        <RPAREN>
+    |
+         <ROW>
+         e = SimpleIdentifier()
+         { args.add(e); }
+    )
+    [
+        <AUTO> <COMPRESS> { compressionOpt = CompressionOpt.AUTO_COMPRESS; }
+    |
+        <NO> <AUTO> <COMPRESS>
+        { compressionOpt = CompressionOpt.NO_AUTO_COMPRESS; }
+    ]
     {
-        return new SqlTablePartitionRowFormat(getPos(),args);
-    }
-|
-    <ROW>
-    e = SimpleIdentifier()
-    {
-        args.add(e);
-        return new SqlTablePartitionRowFormat(getPos(),args);
+        return new SqlTablePartitionRowFormat(getPos(),args, compressionOpt);
     }
 |
     e = SimpleIdentifier()

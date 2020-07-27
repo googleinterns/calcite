@@ -3694,10 +3694,23 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
             + "'yyyy-mm-dd' not null) "
             + "partition by column ( row (bar, a) auto compress, sales_date)";
     String expected =
-        "CREATE TABLE `FOO` (`BAR` INTEGER, "
+        "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
             + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
             + "PARTITION BY "
-            + "COLUMN((ROW (`BAR`, `A`)) AUTO COMPRESS, `SALES_DATE`)";
+            + "COLUMN(ROW(`BAR`, `A`) AUTO COMPRESS, `SALES_DATE`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testPartitionByWithRowFormatNoAutoCompress() {
+    String sql =
+        "create table foo (bar integer, a integer, sales_date date format "
+            + "'yyyy-mm-dd' not null) "
+            + "partition by column ( row (bar, a) no auto compress, sales_date)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
+            + "PARTITION BY "
+            + "COLUMN(ROW(`BAR`, `A`) NO AUTO COMPRESS, `SALES_DATE`)";
     sql(sql).ok(expected);
   }
 }

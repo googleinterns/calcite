@@ -21,12 +21,14 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import java.util.List;
 
 public class SqlTablePartitionRowFormat extends SqlCall{
-  final SqlNodeList columnList;
+  final public SqlNodeList columnList;
+  final public CompressionOpt compressionOpt;
 
   public SqlTablePartitionRowFormat(final SqlParserPos pos,
-      final SqlNodeList columnList) {
+      final SqlNodeList columnList, final CompressionOpt compressionOpt) {
     super(pos);
     this.columnList = columnList;
+    this.compressionOpt = compressionOpt;
   }
 
   @Override public SqlOperator getOperator() {
@@ -37,7 +39,8 @@ public class SqlTablePartitionRowFormat extends SqlCall{
     return null;
   }
 
-  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
+  @Override public void unparse(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
     writer.keyword("ROW");
     if (columnList.size() == 1) {
       columnList.get(0).unparse(writer, leftPrec, rightPrec);
@@ -50,5 +53,22 @@ public class SqlTablePartitionRowFormat extends SqlCall{
       column.unparse(writer, leftPrec, rightPrec);
     }
     writer.endList(frame);
+    switch (compressionOpt) {
+    case AUTO_COMPRESS:
+      writer.keyword("AUTO COMPRESS");
+      break;
+    case NO_AUTO_COMPRESS:
+      writer.keyword("NO AUTO COMPRESS");
+      break;
+    case NOT_SPECIFIED:
+    default:
+      break;
+    }
+  }
+
+  public enum CompressionOpt{
+    AUTO_COMPRESS,
+    NO_AUTO_COMPRESS,
+    NOT_SPECIFIED,
   }
 }

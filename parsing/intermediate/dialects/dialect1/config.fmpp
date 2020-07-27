@@ -117,7 +117,8 @@ data: {
       "org.apache.calcite.sql.SqlTableAttributeMergeBlockRatio.MergeBlockRatioModifier",
       "org.apache.calcite.sql.SqlTablePartition",
       "org.apache.calcite.sql.SqlTablePartitionByColumn",
-      "org.apache.calcite.sql.SqlTablePartitionRowFormat"
+      "org.apache.calcite.sql.SqlTablePartitionRowFormat",
+      "org.apache.calcite.sql.SqlTablePartitionRowFormat.CompressionOpt"
       "org.apache.calcite.sql.SqlTranslateUsingCharacterSet",
       "org.apache.calcite.sql.SqlUpsert",
       "org.apache.calcite.sql.SqlUsingRequestModifier",
@@ -128,6 +129,7 @@ data: {
     # List of keywords.
     keywords: [
       "ARCHIVE"
+      "AUTO"
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
       "BSON"
@@ -511,6 +513,7 @@ data: {
     # items in this list become non-reserved
     nonReservedKeywordsToAdd: [
       "ARCHIVE"
+      "AUTO"
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
       "BUT"
