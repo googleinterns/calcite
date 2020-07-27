@@ -21,22 +21,22 @@ import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 /**
- * Parse tree for {@code Partition By} clause in Create Table.
+ * Parse tree for Partition By clause in Create Table.
  */
 public class SqlTablePartition extends SqlCall{
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("PARTITION BY", SqlKind.OTHER);
-  final public SqlNodeList partitions;
+  final public SqlNodeList partitionExpressions;
 
   /**
    * Creates a {@code SqlTablePartition}.
    * @param pos         Parser position, must not be null.
-   * @param partitions  Partition expressions in a SqlNodeList.
+   * @param partitionExpressions  Partition expressions in a SqlNodeList.
    */
   public SqlTablePartition (final SqlParserPos pos,
-      final SqlNodeList partitions) {
+      final SqlNodeList partitionExpressions) {
     super(pos);
-    this.partitions = partitions;
+    this.partitionExpressions = partitionExpressions;
   }
 
   @Override public SqlOperator getOperator() {
@@ -44,19 +44,15 @@ public class SqlTablePartition extends SqlCall{
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(partitions);
+    return ImmutableNullableList.of(partitionExpressions);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
     writer.keyword("PARTITION BY");
-    if (partitions.size() == 1) {
-      partitions.get(0).unparse(writer, leftPrec, rightPrec);
-      return;
-    }
     SqlWriter.Frame frame = writer.startList(
         SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
-    for (SqlNode partitionExpression : partitions) {
+    for (SqlNode partitionExpression : partitionExpressions) {
       writer.sep(",");
       partitionExpression.unparse(writer, leftPrec, rightPrec);
     }

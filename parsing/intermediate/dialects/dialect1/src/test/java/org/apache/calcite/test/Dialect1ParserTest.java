@@ -3635,20 +3635,20 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "FROM `ABC`");
   }
 
-  @Test void testPartitionByDateRange() {
+  @Test void testSqlTablePartitionRangeN() {
     String sql =
         "create table foo (bar integer, sales_date date format "
         + "'yyyy-mm-dd' not null) "
         + "partition by RANGE_N(sales_date between date '2001-01-01' "
-        + "and date '2001-05-31' "
+        + "and date '2020-07-28' "
         + "each interval '1' day)";
     String expected =
         "CREATE TABLE `FOO` (`BAR` INTEGER, "
             + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
-            + "PARTITION BY RANGE_N(`SALES_DATE` "
+            + "PARTITION BY(RANGE_N(`SALES_DATE` "
             + "BETWEEN DATE '2001-01-01' "
             + "AND DATE '2001-05-31' "
-            + "EACH INTERVAL '1' DAY)";
+            + "EACH INTERVAL '1' DAY))";
     sql(sql).ok(expected);
   }
 
@@ -3660,7 +3660,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     String expected =
         "CREATE TABLE `FOO` (`BAR` INTEGER, "
             + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
-            + "PARTITION BY COLUMN(`BAR`, `SALES_DATE`)";
+            + "PARTITION BY(COLUMN(`BAR`, `SALES_DATE`))";
     sql(sql).ok(expected);
   }
 
@@ -3672,7 +3672,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     String expected =
         "CREATE TABLE `FOO` (`BAR` INTEGER, "
             + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
-            + "PARTITION BY COLUMN ALL BUT(`BAR`, `SALES_DATE`)";
+            + "PARTITION BY(COLUMN ALL BUT(`BAR`, `SALES_DATE`))";
     sql(sql).ok(expected);
   }
 
@@ -3684,7 +3684,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     String expected =
         "CREATE TABLE `FOO` (`BAR` INTEGER, "
             + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
-            + "PARTITION BY COLUMN(ROW `BAR`, `SALES_DATE`)";
+            + "PARTITION BY(COLUMN(ROW `BAR`, `SALES_DATE`))";
     sql(sql).ok(expected);
   }
 
@@ -3696,8 +3696,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     String expected =
         "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
             + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
-            + "PARTITION BY "
-            + "COLUMN(ROW(`BAR`, `A`) AUTO COMPRESS, `SALES_DATE`)";
+            + "PARTITION BY"
+            + "(COLUMN(ROW(`BAR`, `A`) AUTO COMPRESS, `SALES_DATE`))";
     sql(sql).ok(expected);
   }
 
@@ -3709,8 +3709,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     String expected =
         "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
             + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
-            + "PARTITION BY "
-            + "COLUMN(ROW(`BAR`, `A`) NO AUTO COMPRESS, `SALES_DATE`)";
+            + "PARTITION BY"
+            + "(COLUMN(ROW(`BAR`, `A`) NO AUTO COMPRESS, `SALES_DATE`))";
     sql(sql).ok(expected);
   }
 
@@ -3723,8 +3723,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     String expected =
         "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
             + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
-            + "PARTITION BY "
-            + "COLUMN ALL BUT(ROW(`BAR`, `A`) NO AUTO COMPRESS, `SALES_DATE`)";
+            + "PARTITION BY"
+            + "(COLUMN ALL BUT(ROW(`BAR`, `A`) NO AUTO COMPRESS, `SALES_DATE`))";
     sql(sql).ok(expected);
   }
 
@@ -3737,7 +3737,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     String expected =
         "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
             + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
-            + "PARTITION BY EXTRACT(MONTH FROM `SALES_DATE`)";
+            + "PARTITION BY(EXTRACT(MONTH FROM `SALES_DATE`))";
     sql(sql).ok(expected);
   }
 
@@ -3749,7 +3749,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     String expected =
         "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
             + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
-            + "PARTITION BY COLUMN ADD 1000000";
+            + "PARTITION BY(COLUMN ADD 1000000)";
     sql(sql).ok(expected);
   }
 }
