@@ -931,6 +931,18 @@ public interface SqlValidator {
      */
     Config withCallRewrite(boolean rewrite);
 
+    /**
+     * Returns whether to allow unresolved types during validation.
+     */
+    @ImmutableBeans.Property
+    @ImmutableBeans.BooleanDefault(false)
+    boolean allowUnknownTables();
+
+    /**
+     * Sets whether to allow unresolved types during validation.
+     */
+    Config withAllowUnknownTables(boolean unknownTables);
+
     /** Returns how NULL values should be collated if an ORDER BY item does not
      * contain NULLS FIRST or NULLS LAST. */
     @ImmutableBeans.Property

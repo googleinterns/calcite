@@ -16,8 +16,11 @@
  */
 package org.apache.calcite.sql.validate;
 
+import org.apache.calcite.plan.RelOptSchema;
+import org.apache.calcite.prepare.RelOptTableImpl;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeField;
+import org.apache.calcite.rel.type.UnknownRecordType;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
@@ -29,6 +32,7 @@ import org.apache.calcite.util.Pair;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -161,6 +165,9 @@ public class IdentifierNamespace extends AbstractNamespace {
           final List<String> prefix =
               resolve.path.stepNames().subList(0, offset + i);
           final String next = resolve.path.stepNames().get(i + offset);
+          if (validator.config().allowUnknownTables()) {
+            return getPlaceholderNamespace(id);
+          }
           if (prefix.isEmpty()) {
             throw validator.newValidationError(id,
                 RESOURCE.objectNotFoundDidYouMean(names.get(i), next));
@@ -170,14 +177,37 @@ public class IdentifierNamespace extends AbstractNamespace {
                     SqlIdentifier.getString(prefix), next));
           }
         } else {
+          if (validator.config().allowUnknownTables()) {
+            return getPlaceholderNamespace(id);
+          }
           throw validator.newValidationError(id,
               RESOURCE.objectNotFoundWithin(resolve.remainingNames.get(0),
                   SqlIdentifier.getString(resolve.path.stepNames())));
         }
       }
     }
+    if (validator.config().allowUnknownTables()) {
+      return getPlaceholderNamespace(id);
+    }
     throw validator.newValidationError(id,
         RESOURCE.objectNotFound(id.getComponent(0).toString()));
+  }
+
+  /**
+   * Returns a "placeholder" namespace containing a table with an
+   * {@code UnknownRecordType}. This allows us to treat unknown table
+   * identifiers as if they are dynamic tables when the {@allowUnknownTables}
+   * option of the validator's config object is enabled.
+   *
+   * @param id  An identifer which cannot be resolved.
+   * @return    A placeholder {@code TableNamespace}.
+   */
+  private SqlValidatorNamespace getPlaceholderNamespace(SqlIdentifier id) {
+    SqlValidatorTable table = RelOptTableImpl.create(
+        (RelOptSchema) validator.getCatalogReader(),
+        new UnknownRecordType(validator.getTypeFactory()),
+        Arrays.asList(id.toString()), null);
+    return new TableNamespace(validator, table);
   }
 
   public RelDataType validateImpl(RelDataType targetRowType) {

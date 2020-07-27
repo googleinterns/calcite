@@ -3282,6 +3282,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       SqlValidatorTable sqlValidatorTable = namespace.getTable();
       if (sqlValidatorTable != null) {
         Table table = sqlValidatorTable.unwrap(Table.class);
+        if (table == null && config().allowUnknownTables()) {
+          return;
+        }
         String column = Util.last(identifier.names);
 
         if (table.isRolledUp(column)) {
@@ -3671,6 +3674,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         scope.fullyQualify(identifier).namespace.getTable();
     if (sqlValidatorTable != null) {
       Table table = sqlValidatorTable.unwrap(Table.class);
+      if (table == null && config().allowUnknownTables()) {
+        return false;
+      }
       return table.rolledUpColumnValidInsideAgg(columnName, aggCall, parent,
           catalogReader.getConfig());
     }
@@ -3692,6 +3698,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         scope.fullyQualify(identifier).namespace.getTable();
     if (sqlValidatorTable != null) {
       Table table = sqlValidatorTable.unwrap(Table.class);
+      if (table == null && config().allowUnknownTables()) {
+        return false;
+      }
       return table.isRolledUp(columnName);
     }
     return false;
@@ -3950,6 +3959,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     final SqlValidatorNamespace ns = resolved.only().namespace;
     if (ns instanceof TableNamespace) {
       final Table table = ns.getTable().unwrap(Table.class);
+      if (table == null && config().allowUnknownTables()) {
+        return;
+      }
       switch (table.getJdbcTableType()) {
       case SEQUENCE:
       case TEMPORARY_SEQUENCE:
