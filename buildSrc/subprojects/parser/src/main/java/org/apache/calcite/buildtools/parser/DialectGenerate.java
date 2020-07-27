@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,6 +56,62 @@ public class DialectGenerate {
 
   public static Queue<String> getTokens(String input) {
     return new LinkedList<String>(Arrays.asList(TOKENIZER_PATTERN.split(input)));
+  }
+
+  /**
+   * Adds specified keywords and nonReservedKeywords to extractedData. Also
+   * ensures that nonReservedKeywords is a subset of the union of keywords
+   * and extractedData.keywords.
+   *
+   * @param keywords The keywords to add
+   * @param nonReservedKeywords the non reserved keywords to add
+   * @param extractedData The object to which the keywords will be added to
+   */
+  public void processKeywords(Map<String, String> keywords,
+      Set<String> nonReservedKeywords,
+      ExtractedData extractedData) throws IllegalStateException {
+    for (String keyword : nonReservedKeywords) {
+      if (!(keywords.containsKey(keyword)
+            || extractedData.keywords.containsKey(keyword))) {
+        throw new IllegalStateException(keyword + " is not a keyword.");
+      }
+    }
+    extractedData.keywords.putAll(keywords);
+    extractedData.nonReservedKeywords.addAll(nonReservedKeywords);
+  }
+
+  /**
+   * Adds extractedData.keywords (if nonempty) to extractedData.tokenAssignments with the
+   * form:
+   * <DEFAULT, DQID, BTID> TOKEN :
+   * {
+   *    <TOKEN_1: "TOKEN_1_VALUE">
+   *   |<TOKEN_2: "TOKEN_2_VALUE">
+   *   ...
+   * }
+   *
+   * @param extractedData The object which keeps state of all of the extracted
+   *                      data
+   */
+  public void unparseReservedKeywords(ExtractedData extractedData) {
+    if (extractedData.keywords.size() == 0) {
+      return;
+    }
+    boolean first = true;
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append("<DEFAULT, DQID, BTID> TOKEN : \n{\n");
+    for (Map.Entry<String, String> entry : extractedData.keywords.entrySet()) {
+      String token = String.format("<%s : \"%s\">\n", entry.getKey(),
+          entry.getValue());
+      if (!first) {
+        token = "|" + token;
+      } else {
+        first = false;
+      }
+      stringBuilder.append(token);
+    }
+    stringBuilder.append("}\n");
+    extractedData.tokenAssignments.add(stringBuilder.toString());
   }
 
   /**

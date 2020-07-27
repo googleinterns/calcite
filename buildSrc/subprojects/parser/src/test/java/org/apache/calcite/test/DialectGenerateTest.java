@@ -24,6 +24,8 @@ import java.lang.StringBuilder;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.LinkedHashMap;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.apache.calcite.buildtools.parser.DialectGenerate;
@@ -56,6 +58,18 @@ public class DialectGenerateTest {
   private void assertFunctionNameExtracted(String declaration, String name) {
     DialectGenerate dialectGenerate = new DialectGenerate();
     assertEquals(name, dialectGenerate.getFunctionName(declaration));
+  }
+
+  private void assertTokensProcessed(Map<String, String> keywords,
+      Set<String> nonReservedKeywords) {
+    ExtractedData extractedData = new ExtractedData();
+    DialectGenerate dialectGenerate = new DialectGenerate();
+
+    dialectGenerate.processKeywords(keywords, nonReservedKeywords,
+        extractedData);
+    assertEquals(extractedData.keywords.size(), keywords.size());
+    assertEquals(extractedData.nonReservedKeywords.size(),
+        nonReservedKeywords.size());
   }
 
   /**
@@ -254,5 +268,18 @@ public class DialectGenerateTest {
   @Test public void getFunctionNameWithFinal() {
     String declaration = "final void foo() :";
     assertFunctionNameExtracted(declaration, "foo");
+  }
+
+  @Test public void testProcessKeywordsBothEmpty() {
+    assertTokensProcessed(new LinkedHashMap<String, String>(), new HashSet<String>());
+  }
+
+  @Test public void testProcessKeywordsBothNonEmptyAndValid() {
+    Map<String, String> keywords = new LinkedHashMap<String, String>();
+    keywords.put("foo", "foo");
+    keywords.put("bar", "bar");
+    Set<String> nonReservedKeywords = new HashSet<String>();
+    nonReservedKeywords.add("bar");
+    assertTokensProcessed(keywords, nonReservedKeywords);
   }
 }

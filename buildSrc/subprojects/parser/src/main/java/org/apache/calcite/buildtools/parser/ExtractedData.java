@@ -20,15 +20,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * A simple container class to hold the data extracted from files.
  */
 public class ExtractedData {
+  public final Map<String, String> keywords;
+  public final Set<String> nonReservedKeywords;
   public final Map<String, String> functions;
   public final List<String> tokenAssignments;
 
   public ExtractedData() {
+    keywords = new LinkedHashMap<String, String>();
+    nonReservedKeywords = new HashSet<String>();
     functions = new LinkedHashMap<String, String>();
     tokenAssignments = new LinkedList<String>();
   }
