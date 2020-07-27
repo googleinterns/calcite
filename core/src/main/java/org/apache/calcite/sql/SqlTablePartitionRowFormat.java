@@ -21,11 +21,11 @@ import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 /**
- * Parse tree for {@code Row Format Partition} expression.
+ * Parse tree for Row Format Partition expression.
  */
 public class SqlTablePartitionRowFormat extends SqlCall{
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("ROW", SqlKind.OTHER);
+      new SqlSpecialOperator("ROW_FORMAT_PARTITION", SqlKind.OTHER);
   final public SqlNodeList columnList;
   final public CompressionOpt compressionOpt;
 

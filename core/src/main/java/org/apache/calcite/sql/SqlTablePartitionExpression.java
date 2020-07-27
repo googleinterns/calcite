@@ -21,11 +21,12 @@ import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 /**
- * Parse tree for {@code Partition Expression} expression.
+ * Parse tree for Partition Expression.
  */
 public class SqlTablePartitionExpression extends SqlCall{
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("ADD", SqlKind.OTHER);
+      new SqlSpecialOperator("PARTITION_EXPRESSION_WITH_CONSTANT",
+          SqlKind.OTHER);
   final public SqlNode partitionExpression;
   final public int extraNumberOfPartition;
 
@@ -55,9 +56,10 @@ public class SqlTablePartitionExpression extends SqlCall{
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
     partitionExpression.unparse(writer, leftPrec, rightPrec);
-    if ( extraNumberOfPartition != 0) {
-      writer.keyword("ADD");
-      writer.print(extraNumberOfPartition);
+    if (extraNumberOfPartition == 0) {
+      return;
     }
+    writer.keyword("ADD");
+    writer.print(extraNumberOfPartition);
   }
 }
