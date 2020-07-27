@@ -1022,47 +1022,46 @@ SqlNode  PartitionExpression() :
 SqlNode PartitionByColumnOption() :
 {
     SqlNode e;
+    boolean containAllButSpecifier = false;
     final SqlNodeList columnList = new SqlNodeList(getPos());
 }
 {
-    <COLUMN> <ALL> <BUT> <LPAREN>
-    e = PartitionColumnItem()
-    { columnList.add(e); }
     (
-        <COMMA>
+        <COLUMN> <ALL> <BUT> <LPAREN>
         e = PartitionColumnItem()
         { columnList.add(e); }
-    )*
-    <RPAREN>
-    {
-        return new SqlTablePartitionByColumn(getPos(), columnList, true);
-    }
-|
-    <COLUMN> <LPAREN>
-    e = PartitionColumnItem()
-    { columnList.add(e); }
-    (
-        <COMMA>
+        (
+            <COMMA>
+            e = PartitionColumnItem()
+            { columnList.add(e); }
+        )*
+        <RPAREN>
+        { containAllButSpecifier = true; }
+    |
+        <COLUMN> <LPAREN>
         e = PartitionColumnItem()
         { columnList.add(e); }
-    )*
-    <RPAREN>
+        (
+            <COMMA>
+            e = PartitionColumnItem()
+            { columnList.add(e); }
+        )*
+        <RPAREN>
+    |
+        <COLUMN>
+        {
+            return new SqlTablePartitionByColumn(getPos(), columnList, false);
+        }
+    |
+        <COLUMN>
+        (
+            e = SimpleIdentifier()
+            {columnList.add(e);}
+        )
+    )
     {
-        return new SqlTablePartitionByColumn(getPos(), columnList, false);
-    }
-|
-    <COLUMN>
-    {
-        return new SqlTablePartitionByColumn(getPos(), columnList, false);
-    }
-|
-    <COLUMN>
-    [
-        e = SimpleIdentifier()
-        {columnList.add(e);}
-    ]
-    {
-        return new SqlTablePartitionByColumn(getPos(), columnList, false);
+        return new SqlTablePartitionByColumn(getPos(), columnList,
+        containAllButSpecifier);
     }
 }
 
