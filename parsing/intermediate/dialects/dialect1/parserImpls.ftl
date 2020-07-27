@@ -1056,9 +1056,23 @@ SqlCall PartitionByColumnOption() :
 
 SqlNode PartitionColumnItem() :
 {
-    final SqlNode e;
+    SqlNode e;
+    final SqlNodeList args = new SqlNodeList(getPos());
 }
 {
+    <ROW> <LPAREN>
+    e = SimpleIdentifier()
+    { args.add(e); }
+    (
+        e = SimpleIdentifier()
+        { args.add(e); }
+    )*
+    <RPAREN>
+    {
+        return new SqlTablePartitionRowFormatColumnItem(getPos(),
+        SqlStdOperatorTable.COLUMN_LIST.createCall(args));
+    }
+|
     e = SimpleIdentifier()
     { return e; }
 }
