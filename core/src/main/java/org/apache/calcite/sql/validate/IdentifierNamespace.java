@@ -196,8 +196,9 @@ public class IdentifierNamespace extends AbstractNamespace {
   /**
    * Returns a "placeholder" namespace containing a table with an
    * {@code UnknownRecordType}. This allows us to treat unknown table
-   * identifiers as if they are dynamic tables when the {@allowUnknownTables}
-   * option of the validator's config object is enabled.
+   * identifiers as if they are dynamic tables when the
+   * {@code allowUnknownTables} option of the validator's config object is
+   * enabled.
    *
    * @param id  An identifer which cannot be resolved.
    * @return    A placeholder {@code TableNamespace}.
