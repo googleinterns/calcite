@@ -23,17 +23,17 @@ import java.util.List;
 /**
  * Parse tree for Partition By clause in Create Table.
  */
-public class SqlTablePartition extends SqlCall{
+public class SqlTablePartition extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("PARTITION BY", SqlKind.OTHER);
-  final public SqlNodeList partitionExpressions;
+  public final SqlNodeList partitionExpressions;
 
   /**
    * Creates a {@code SqlTablePartition}.
    * @param pos         Parser position, must not be null.
    * @param partitionExpressions  Partition expressions in a SqlNodeList.
    */
-  public SqlTablePartition (final SqlParserPos pos,
+  public SqlTablePartition(final SqlParserPos pos,
       final SqlNodeList partitionExpressions) {
     super(pos);
     this.partitionExpressions = partitionExpressions;

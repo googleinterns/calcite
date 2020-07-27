@@ -23,11 +23,11 @@ import java.util.List;
 /**
  * Parse tree for Partition By Column expression.
  */
-public class SqlTablePartitionByColumn extends SqlCall{
+public class SqlTablePartitionByColumn extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("PARTITION_BY_COLUMN", SqlKind.OTHER);
-  final public SqlNodeList columnItemList;
-  final public boolean containAllButSpecifier;
+  public final SqlNodeList columnItemList;
+  public final boolean containAllButSpecifier;
 
   /**
    * Creates a {@code SqlTablePartitionByColumn}.

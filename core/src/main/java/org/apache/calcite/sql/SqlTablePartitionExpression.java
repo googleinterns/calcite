@@ -23,12 +23,12 @@ import java.util.List;
 /**
  * Parse tree for Partition Expression.
  */
-public class SqlTablePartitionExpression extends SqlCall{
+public class SqlTablePartitionExpression extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("PARTITION_EXPRESSION_WITH_CONSTANT",
           SqlKind.OTHER);
-  final public SqlNode partitionExpression;
-  final public int extraNumberOfPartitions;
+  public final SqlNode partitionExpression;
+  public final int extraNumberOfPartitions;
 
   /**
    * Creates a {@code SqlTablePartitionExpression}.

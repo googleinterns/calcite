@@ -23,11 +23,11 @@ import java.util.List;
 /**
  * Parse tree for Row Format Partition expression.
  */
-public class SqlTablePartitionRowFormat extends SqlCall{
+public class SqlTablePartitionRowFormat extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("ROW_FORMAT_PARTITION", SqlKind.OTHER);
-  final public SqlNodeList columnList;
-  final public CompressionOpt compressionOpt;
+  public final SqlNodeList columnList;
+  public final CompressionOpt compressionOpt;
 
   /**
    * Creates a {@code SqlTablePartitionRowFormat}.
@@ -77,7 +77,7 @@ public class SqlTablePartitionRowFormat extends SqlCall{
     }
   }
 
-  public enum CompressionOpt{
+  public enum CompressionOpt {
     /**
      * Enable auto compress for the column specified.
      */
