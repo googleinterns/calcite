@@ -241,7 +241,7 @@ public abstract class DelegatingScope implements SqlValidatorScope {
     if (filteredMap.isEmpty() && !map.isEmpty()) {
       String arbitraryKey = map.keySet().iterator().next();
       filteredMap.put(arbitraryKey, map.get(arbitraryKey));
-      //todo(dstekol): Figure out how to represent ambiguous columns
+      //TODO(dstekol): Figure out how to represent ambiguous columns
     }
     return filteredMap;
   }
