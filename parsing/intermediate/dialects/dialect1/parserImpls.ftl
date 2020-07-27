@@ -1069,8 +1069,14 @@ SqlNode PartitionColumnItem() :
     )*
     <RPAREN>
     {
-        return new SqlTablePartitionRowFormatColumnItem(getPos(),
-        SqlStdOperatorTable.COLUMN_LIST.createCall(args));
+        return new SqlTablePartitionRowFormat(getPos(),args);
+    }
+|
+    <ROW>
+    e = SimpleIdentifier()
+    {
+        args.add(e);
+        return new SqlTablePartitionRowFormat(getPos(),args);
     }
 |
     e = SimpleIdentifier()

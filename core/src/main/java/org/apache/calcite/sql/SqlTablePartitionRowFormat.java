@@ -20,13 +20,13 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 
 import java.util.List;
 
-public class SqlTablePartitionRowFormatColumnItem extends SqlCall{
-  final SqlNode node;
+public class SqlTablePartitionRowFormat extends SqlCall{
+  final SqlNodeList columnList;
 
-  public SqlTablePartitionRowFormatColumnItem(final SqlParserPos pos,
-      final SqlNode node) {
+  public SqlTablePartitionRowFormat(final SqlParserPos pos,
+      final SqlNodeList columnList) {
     super(pos);
-    this.node = node;
+    this.columnList = columnList;
   }
 
   @Override public SqlOperator getOperator() {
@@ -38,6 +38,17 @@ public class SqlTablePartitionRowFormatColumnItem extends SqlCall{
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
-    node.unparse(writer, leftPrec, rightPrec);
+    writer.keyword("ROW");
+    if (columnList.size() == 1) {
+      columnList.get(0).unparse(writer, leftPrec, rightPrec);
+      return;
+    }
+    SqlWriter.Frame frame = writer.startList(
+        SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
+    for (SqlNode column : columnList) {
+      writer.sep(",");
+      column.unparse(writer, leftPrec, rightPrec);
+    }
+    writer.endList(frame);
   }
 }
