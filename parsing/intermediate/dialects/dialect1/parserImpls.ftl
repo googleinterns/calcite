@@ -1019,26 +1019,6 @@ SqlCall PartitionByColumnOption() :
     final SqlNodeList columnList = new SqlNodeList(getPos());
 }
 {
-    <COLUMN>
-    e = SimpleIdentifier()
-    {
-        columnList.add(e);
-        return new SqlTablePartitionByColumn(getPos(), columnList, false);
-    }
-|
-    <COLUMN> <LPAREN>
-    e = PartitionColumnItem()
-    { columnList.add(e); }
-    (
-        <COMMA>
-        e = PartitionColumnItem()
-        { columnList.add(e); }
-    )*
-    <RPAREN>
-    {
-        return new SqlTablePartitionByColumn(getPos(), columnList, false);
-    }
-|
     <COLUMN> <ALL> <BUT> <LPAREN>
     e = PartitionColumnItem()
     { columnList.add(e); }
@@ -1050,6 +1030,27 @@ SqlCall PartitionByColumnOption() :
     <RPAREN>
     {
         return new SqlTablePartitionByColumn(getPos(), columnList, true);
+    }
+|
+    <COLUMN>
+    e = SimpleIdentifier()
+    {
+        columnList.add(e);
+        return new SqlTablePartitionByColumn(getPos(), columnList, false);
+    }
+|
+    LOOKAHEAD(3)
+    <COLUMN> <LPAREN>
+    e = PartitionColumnItem()
+    { columnList.add(e); }
+    (
+        <COMMA>
+        e = PartitionColumnItem()
+        { columnList.add(e); }
+    )*
+    <RPAREN>
+    {
+        return new SqlTablePartitionByColumn(getPos(), columnList, false);
     }
 }
 
