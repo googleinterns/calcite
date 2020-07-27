@@ -11569,4 +11569,13 @@ class SqlValidatorTest extends SqlValidatorTestCase {
         + "`B`.`DEPTNO`, TIMESTAMP '1970-01-01 00:00:00', 1, 2, 3, FALSE))";
     sql(sql).withConformance(SqlConformanceEnum.BIG_QUERY).rewritesTo(expected);
   }
+
+  @Test public void testCoerceInterval() {
+    String sql = "select -2 + CURRENT_DATE()";
+    String expected = "SELECT INTERVAL -'2' DAY + CURRENT_DATE";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .withConformance(SqlConformanceEnum.LENIENT)
+        .rewritesTo(expected);
+  }
 }
