@@ -28,21 +28,21 @@ public class SqlTablePartitionExpression extends SqlCall{
       new SqlSpecialOperator("PARTITION_EXPRESSION_WITH_CONSTANT",
           SqlKind.OTHER);
   final public SqlNode partitionExpression;
-  final public int extraNumberOfPartition;
+  final public int extraNumberOfPartitions;
 
   /**
    * Creates a {@code SqlTablePartitionExpression}.
    * @param pos                     Parser position, must not be null.
    * @param partitionExpression     Partition expressions in a SqlNodeList.
-   * @param extraNumberOfPartition  Big Integer represent the extra number
+   * @param extraNumberOfPartitions Big Integer represent the extra number
    *                                of Partitions, when it is 0,
    *                                it is not specified.
    */
   public SqlTablePartitionExpression(final SqlParserPos pos,
-      final SqlNode partitionExpression, final int extraNumberOfPartition) {
+      final SqlNode partitionExpression, final int extraNumberOfPartitions) {
     super(pos);
     this.partitionExpression = partitionExpression;
-    this.extraNumberOfPartition = extraNumberOfPartition;
+    this.extraNumberOfPartitions = extraNumberOfPartitions;
   }
 
   @Override public SqlOperator getOperator() {
@@ -56,10 +56,10 @@ public class SqlTablePartitionExpression extends SqlCall{
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
     partitionExpression.unparse(writer, leftPrec, rightPrec);
-    if (extraNumberOfPartition == 0) {
+    if (extraNumberOfPartitions == 0) {
       return;
     }
     writer.keyword("ADD");
-    writer.print(extraNumberOfPartition);
+    writer.print(extraNumberOfPartitions);
   }
 }
