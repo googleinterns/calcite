@@ -116,6 +116,7 @@ data: {
       "org.apache.calcite.sql.SqlTableAttributeMergeBlockRatio",
       "org.apache.calcite.sql.SqlTableAttributeMergeBlockRatio.MergeBlockRatioModifier",
       "org.apache.calcite.sql.SqlTablePartition",
+      "org.apache.calcite.sql.SqlTablePartitionByColumn",
       "org.apache.calcite.sql.SqlTranslateUsingCharacterSet",
       "org.apache.calcite.sql.SqlUpsert",
       "org.apache.calcite.sql.SqlUsingRequestModifier",
@@ -129,6 +130,7 @@ data: {
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
       "BSON"
+      "BUT"
       "BYTE"
       "BYTEINT"
       "BYTES"
@@ -510,6 +512,7 @@ data: {
       "ARCHIVE"
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
+      "BUT"
       "BSON"
       "BYTE"
       "BYTES"

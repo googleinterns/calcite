@@ -3651,4 +3651,16 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
             + "EACH INTERVAL '1' DAY)";
     sql(sql).ok(expected);
   }
+
+  @Test void testPartitionByColumnItemList() {
+    String sql =
+        "create table foo (bar integer, sales_date date format "
+            + "'yyyy-mm-dd' not null) "
+            + "partition by column (bar, sales_date)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
+            + "PARTITION BY COLUMN(`BAR`, `SALES_DATE`)";
+    sql(sql).ok(expected);
+  }
 }

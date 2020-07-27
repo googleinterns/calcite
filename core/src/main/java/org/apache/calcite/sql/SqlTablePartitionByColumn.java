@@ -20,13 +20,16 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 
 import java.util.List;
 
-public class SqlTablePartition extends SqlCall{
-  final public SqlNodeList partitions;
+public class SqlTablePartitionByColumn extends SqlCall{
 
-  public SqlTablePartition (final SqlParserPos pos,
-      final SqlNodeList partitions) {
+  final public SqlNodeList columnItemList;
+  final public boolean containAllButSpecifier;
+
+  public SqlTablePartitionByColumn(final SqlParserPos pos,
+      final SqlNodeList columnItemList, final boolean containAllButSpecifier) {
     super(pos);
-    this.partitions = partitions;
+    this.columnItemList = columnItemList;
+    this.containAllButSpecifier = containAllButSpecifier;
   }
 
   @Override public SqlOperator getOperator() {
@@ -39,16 +42,19 @@ public class SqlTablePartition extends SqlCall{
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
-    writer.keyword("PARTITION BY");
-    if (partitions.size() == 1) {
-      partitions.get(0).unparse(writer, leftPrec, rightPrec);
+    writer.keyword("COLUMN");
+    if (containAllButSpecifier) {
+      writer.keyword("ALL BUT");
+    }
+    if (columnItemList.size() == 1) {
+      columnItemList.get(0).unparse(writer, leftPrec, rightPrec);
       return;
     }
     SqlWriter.Frame frame = writer.startList(
         SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
-    for (SqlNode partitionExpression : partitions) {
+    for (SqlNode columnItem : columnItemList) {
       writer.sep(",");
-      partitionExpression.unparse(writer, leftPrec, rightPrec);
+      columnItem.unparse(writer, leftPrec, rightPrec);
     }
     writer.endList(frame);
   }
