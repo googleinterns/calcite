@@ -3713,4 +3713,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
             + "COLUMN(ROW(`BAR`, `A`) NO AUTO COMPRESS, `SALES_DATE`)";
     sql(sql).ok(expected);
   }
+
+  @Test void testPartitionByColumnAllButWithRowFormatNoAutoCompress() {
+    String sql =
+        "create table foo (bar integer, a integer, sales_date date format "
+            + "'yyyy-mm-dd' not null) "
+            + "partition by "
+            + "column all but ( row (bar, a) no auto compress, sales_date)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
+            + "PARTITION BY "
+            + "COLUMN ALL BUT(ROW(`BAR`, `A`) NO AUTO COMPRESS, `SALES_DATE`)";
+    sql(sql).ok(expected);
+  }
 }
