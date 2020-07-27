@@ -998,9 +998,9 @@ SqlTablePartition CreateTablePartitionBy() :
     { return new SqlTablePartition(getPos(), partitions); }
 }
 
-SqlCall  PartitionExpression() :
+SqlNode  PartitionExpression() :
 {
-    final SqlCall e;
+    final SqlNode e;
 }
 {
     (
@@ -1008,12 +1008,14 @@ SqlCall  PartitionExpression() :
     |
         e = CaseN()
     |
+        e = SqlExtractFromDateTime()
+    |
         e = PartitionByColumnOption()
     )
     { return e; }
 }
 
-SqlCall PartitionByColumnOption() :
+SqlNode PartitionByColumnOption() :
 {
     SqlNode e;
     final SqlNodeList columnList = new SqlNodeList(getPos());
@@ -1088,6 +1090,31 @@ SqlNode PartitionColumnItem() :
 |
     e = SimpleIdentifier()
     { return e; }
+}
+
+SqlNode SqlExtractFromDateTime() :
+{
+    List<SqlNode> args = null;
+    SqlNode e;
+    final Span s;
+    final TimeUnit unit;
+}
+{
+    <EXTRACT> {
+        s = span();
+    }
+    <LPAREN>
+    (
+        <NANOSECOND> { unit = TimeUnit.NANOSECOND; }
+    |   <MICROSECOND> { unit = TimeUnit.MICROSECOND; }
+    |   unit = TimeUnit()
+    )
+    { args = startList(new SqlIntervalQualifier(unit, null, getPos())); }
+    <FROM>
+    e = Expression(ExprContext.ACCEPT_SUB_QUERY) { args.add(e); }
+    <RPAREN> {
+        return SqlStdOperatorTable.EXTRACT.createCall(s.end(this), args);
+    }
 }
 
 SqlCreate SqlCreateMacro() :
@@ -3499,21 +3526,7 @@ SqlNode BuiltinFunctionCall() :
             return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
         }
     |
-        <EXTRACT> {
-            s = span();
-        }
-        <LPAREN>
-        (
-            <NANOSECOND> { unit = TimeUnit.NANOSECOND; }
-        |   <MICROSECOND> { unit = TimeUnit.MICROSECOND; }
-        |   unit = TimeUnit()
-        )
-        { args = startList(new SqlIntervalQualifier(unit, null, getPos())); }
-        <FROM>
-        e = Expression(ExprContext.ACCEPT_SUB_QUERY) { args.add(e); }
-        <RPAREN> {
-            return SqlStdOperatorTable.EXTRACT.createCall(s.end(this), args);
-        }
+        e = SqlExtractFromDateTime() { return e; }
     |
         <POSITION> { s = span(); }
         <LPAREN>
