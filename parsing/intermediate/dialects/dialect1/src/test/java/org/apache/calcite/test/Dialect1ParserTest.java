@@ -3740,4 +3740,16 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
             + "PARTITION BY EXTRACT(MONTH FROM `SALES_DATE`)";
     sql(sql).ok(expected);
   }
+
+  @Test void testPartitionByColumnAddConstant() {
+    String sql =
+        "create table foo (bar integer, a integer, sales_date date format "
+            + "'yyyy-mm-dd' not null) "
+            + "partition by column add 1000000";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
+            + "PARTITION BY COLUMN ADD 1000000";
+    sql(sql).ok(expected);
+  }
 }

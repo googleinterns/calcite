@@ -14,22 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 import java.util.List;
 
-public class SqlTablePartitionByColumn extends SqlCall{
-
-  final public SqlNodeList columnItemList;
-  final public boolean containAllButSpecifier;
-
-  public SqlTablePartitionByColumn(final SqlParserPos pos,
-      final SqlNodeList columnItemList, final boolean containAllButSpecifier) {
+public class SqlTablePartitionExpression extends SqlCall{
+  final public SqlNode partitionExpression;
+  final public int extraNumberOfPartition;
+  public SqlTablePartitionExpression(final SqlParserPos pos,
+      final SqlNode partitionExpression, final int extraNumberOfPartition) {
     super(pos);
-    this.columnItemList = columnItemList;
-    this.containAllButSpecifier = containAllButSpecifier;
+    this.partitionExpression = partitionExpression;
+    this.extraNumberOfPartition = extraNumberOfPartition;
   }
 
   @Override public SqlOperator getOperator() {
@@ -42,23 +41,10 @@ public class SqlTablePartitionByColumn extends SqlCall{
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
-    writer.keyword("COLUMN");
-    if (columnItemList.size() == 0) {
-      return;
+    partitionExpression.unparse(writer, leftPrec, rightPrec);
+    if ( extraNumberOfPartition != 0) {
+      writer.keyword("ADD");
+      writer.print(extraNumberOfPartition);
     }
-    if (containAllButSpecifier) {
-      writer.keyword("ALL BUT");
-    }
-    if (columnItemList.size() == 1) {
-      columnItemList.get(0).unparse(writer, leftPrec, rightPrec);
-      return;
-    }
-    SqlWriter.Frame frame = writer.startList(
-        SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
-    for (SqlNode columnItem : columnItemList) {
-      writer.sep(",");
-      columnItem.unparse(writer, leftPrec, rightPrec);
-    }
-    writer.endList(frame);
   }
 }

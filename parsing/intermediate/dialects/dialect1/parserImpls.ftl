@@ -1001,6 +1001,7 @@ SqlTablePartition CreateTablePartitionBy() :
 SqlNode  PartitionExpression() :
 {
     final SqlNode e;
+    int constant = 0;
 }
 {
     (
@@ -1012,7 +1013,10 @@ SqlNode  PartitionExpression() :
     |
         e = PartitionByColumnOption()
     )
-    { return e; }
+    [
+        <ADD> { constant = UnsignedIntLiteral(); }
+    ]
+    { return new SqlTablePartitionExpression(getPos(), e, constant); }
 }
 
 SqlNode PartitionByColumnOption() :
@@ -1034,14 +1038,6 @@ SqlNode PartitionByColumnOption() :
         return new SqlTablePartitionByColumn(getPos(), columnList, true);
     }
 |
-    <COLUMN>
-    e = SimpleIdentifier()
-    {
-        columnList.add(e);
-        return new SqlTablePartitionByColumn(getPos(), columnList, false);
-    }
-|
-    LOOKAHEAD(3)
     <COLUMN> <LPAREN>
     e = PartitionColumnItem()
     { columnList.add(e); }
@@ -1051,6 +1047,20 @@ SqlNode PartitionByColumnOption() :
         { columnList.add(e); }
     )*
     <RPAREN>
+    {
+        return new SqlTablePartitionByColumn(getPos(), columnList, false);
+    }
+|
+    <COLUMN>
+    {
+        return new SqlTablePartitionByColumn(getPos(), columnList, false);
+    }
+|
+    <COLUMN>
+    [
+        e = SimpleIdentifier()
+        {columnList.add(e);}
+    ]
     {
         return new SqlTablePartitionByColumn(getPos(), columnList, false);
     }
