@@ -3634,4 +3634,21 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + " 'V', ''), 'W', ''), 'X', ''), 'Y', '') AS `B`\n"
         + "FROM `ABC`");
   }
+
+  @Test void testPartitionByDateRange() {
+    String sql =
+        "create table foo (bar integer, sales_date date format "
+        + "'yyyy-mm-dd' not null) "
+        + "partition by RANGE_N(sales_date between date '2001-01-01' "
+        + "and date '2001-05-31' "
+        + "each interval '1' day)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
+            + "PARTITION BY RANGE_N(`SALES_DATE` "
+            + "BETWEEN DATE '2001-01-01' "
+            + "AND DATE '2001-05-31' "
+            + "EACH INTERVAL '1' DAY)";
+    sql(sql).ok(expected);
+  }
 }

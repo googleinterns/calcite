@@ -898,6 +898,7 @@ SqlCreate SqlCreateTable() :
     WithDataType withData = WithDataType.UNSPECIFIED;
     SqlPrimaryIndex primaryIndex = null;
     SqlIndex index;
+    SqlTablePartition partition = null;
     List<SqlIndex> indices = new ArrayList<SqlIndex>();
     final OnCommitType onCommitType;
 }
@@ -963,12 +964,51 @@ SqlCreate SqlCreateTable() :
             }
         }
     ]
+    [
+        <PARTITION> <BY>
+        partition = CreateTablePartitionBy()
+    ]
     onCommitType = OnCommitTypeOpt()
     {
         return new SqlCreateTableDialect1(s.end(this), createSpecifier, setType,
          volatility, ifNotExists, id, tableAttributes, columnList, query,
-         withData, primaryIndex, indices, onCommitType);
+         withData, primaryIndex, indices, partition, onCommitType);
     }
+}
+
+SqlTablePartition CreateTablePartitionBy() :
+{
+    final SqlNodeList partitions = new SqlNodeList(getPos());
+    SqlNode e;
+}
+{
+    (
+        e = PartitionExpression()
+        { partitions.add(e); }
+    |
+        <LPAREN>
+        e = PartitionExpression()
+        { partitions.add(e); }
+        (
+            e = PartitionExpression()
+            { partitions.add(e); }
+        )*
+        <RPAREN>
+    )
+    { return new SqlTablePartition(getPos(), partitions); }
+}
+
+SqlCall  PartitionExpression() :
+{
+    final SqlCall e;
+}
+{
+    (
+        e = RangeN()
+    |
+        e = CaseN()
+    )
+    { return e; }
 }
 
 SqlCreate SqlCreateMacro() :
