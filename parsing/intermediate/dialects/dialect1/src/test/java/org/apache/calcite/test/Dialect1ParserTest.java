@@ -3647,8 +3647,16 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
             + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
             + "PARTITION BY(RANGE_N(`SALES_DATE` "
             + "BETWEEN DATE '2001-01-01' "
-            + "AND DATE '2001-05-31' "
+            + "AND DATE '2020-07-28' "
             + "EACH INTERVAL '1' DAY))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testSqlTablePartitionSingleColumn() {
+    String sql =
+        "create table foo (bar integer) partition by column (bar)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER) PARTITION BY(COLUMN(`BAR`))";
     sql(sql).ok(expected);
   }
 

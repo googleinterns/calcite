@@ -21,11 +21,11 @@ import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 /**
- * Parse tree for {@code Partition By Column} expression.
+ * Parse tree for Partition By Column expression.
  */
 public class SqlTablePartitionByColumn extends SqlCall{
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("COLUMN", SqlKind.OTHER);
+      new SqlSpecialOperator("PARTITION_BY_COLUMN", SqlKind.OTHER);
   final public SqlNodeList columnItemList;
   final public boolean containAllButSpecifier;
 
@@ -59,10 +59,6 @@ public class SqlTablePartitionByColumn extends SqlCall{
     }
     if (containAllButSpecifier) {
       writer.keyword("ALL BUT");
-    }
-    if (columnItemList.size() == 1) {
-      columnItemList.get(0).unparse(writer, leftPrec, rightPrec);
-      return;
     }
     SqlWriter.Frame frame = writer.startList(
         SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
