@@ -17,14 +17,25 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
-
+/**
+ * Parse tree for {@code Partition By Column} expression.
+ */
 public class SqlTablePartitionByColumn extends SqlCall{
-
+  public static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("COLUMN", SqlKind.OTHER);
   final public SqlNodeList columnItemList;
   final public boolean containAllButSpecifier;
 
+  /**
+   * Creates a {@code SqlTablePartitionByColumn}.
+   * @param pos             Parser position, must not be null.
+   * @param columnItemList  Partition expressions in a SqlNodeList.
+   * @param containAllButSpecifier
+   *                        If "ALL BUT" token is specified.
+   */
   public SqlTablePartitionByColumn(final SqlParserPos pos,
       final SqlNodeList columnItemList, final boolean containAllButSpecifier) {
     super(pos);
@@ -33,11 +44,11 @@ public class SqlTablePartitionByColumn extends SqlCall{
   }
 
   @Override public SqlOperator getOperator() {
-    return null;
+    return OPERATOR;
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return null;
+    return ImmutableNullableList.of(columnItemList);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,

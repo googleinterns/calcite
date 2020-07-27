@@ -17,13 +17,24 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
-
+/**
+ * Parse tree for {@code Row Format Partition} expression.
+ */
 public class SqlTablePartitionRowFormat extends SqlCall{
+  public static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("ROW", SqlKind.OTHER);
   final public SqlNodeList columnList;
   final public CompressionOpt compressionOpt;
 
+  /**
+   * Creates a {@code SqlTablePartitionRowFormat}.
+   * @param pos             Parser position, must not be null.
+   * @param columnList      List of columns in a SqlNodeList.
+   * @param compressionOpt  Option about if the auto compression is enabled.
+   */
   public SqlTablePartitionRowFormat(final SqlParserPos pos,
       final SqlNodeList columnList, final CompressionOpt compressionOpt) {
     super(pos);
@@ -32,11 +43,11 @@ public class SqlTablePartitionRowFormat extends SqlCall{
   }
 
   @Override public SqlOperator getOperator() {
-    return null;
+    return OPERATOR;
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return null;
+    return ImmutableNullableList.of(columnList);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
@@ -67,8 +78,19 @@ public class SqlTablePartitionRowFormat extends SqlCall{
   }
 
   public enum CompressionOpt{
+    /**
+     * Enable auto compress for the column specified.
+     */
     AUTO_COMPRESS,
+
+    /**
+     * Disable auto compress for the column specified.
+     */
     NO_AUTO_COMPRESS,
+
+    /**
+     * Auto compress preference not specified.
+     */
     NOT_SPECIFIED,
   }
 }

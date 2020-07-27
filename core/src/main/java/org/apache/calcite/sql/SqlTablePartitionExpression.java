@@ -17,12 +17,26 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
-
+/**
+ * Parse tree for {@code Partition Expression} expression.
+ */
 public class SqlTablePartitionExpression extends SqlCall{
+  public static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("ADD", SqlKind.OTHER);
   final public SqlNode partitionExpression;
   final public int extraNumberOfPartition;
+
+  /**
+   * Creates a {@code SqlTablePartitionExpression}.
+   * @param pos                     Parser position, must not be null.
+   * @param partitionExpression     Partition expressions in a SqlNodeList.
+   * @param extraNumberOfPartition  Big Integer represent the extra number
+   *                                of Partitions, when it is 0,
+   *                                it is not specified.
+   */
   public SqlTablePartitionExpression(final SqlParserPos pos,
       final SqlNode partitionExpression, final int extraNumberOfPartition) {
     super(pos);
@@ -31,11 +45,11 @@ public class SqlTablePartitionExpression extends SqlCall{
   }
 
   @Override public SqlOperator getOperator() {
-    return null;
+    return OPERATOR;
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return null;
+    return ImmutableNullableList.of(partitionExpression);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
