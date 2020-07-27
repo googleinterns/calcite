@@ -147,7 +147,7 @@ public class DialectTraverser {
         String filePath = absoluteFilePath.subpath(rootPath.getNameCount() - 1,
             absoluteFilePath.getNameCount()).toString();
         // For windows paths change separator to forward slash.
-        filePath = filePath.replace("\\", "/");
+        filePath = filePath.replace('\\', '/');
         try {
           String fileText = new String(Files.readAllBytes(absoluteFilePath),
               StandardCharsets.UTF_8);

@@ -118,7 +118,7 @@ public class DialectGenerate {
       }
       StringBuilder stringBuilder = new StringBuilder("\n");
       if (filePath != null) {
-        stringBuilder.append("// Extracted from: " + filePath + "\n");
+        stringBuilder.append("// Extracted from: ").append(filePath).append("\n");
       } else {
         stringBuilder.append("// Extracted file not specified\n");
       }
