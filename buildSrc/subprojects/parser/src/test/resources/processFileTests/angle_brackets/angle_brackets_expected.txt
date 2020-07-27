@@ -14,9 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// Extracted from: processFileTests/angle_brackets/angle_brackets.txt
 List<String> foo() : {} {}
+
+// Extracted from: processFileTests/angle_brackets/angle_brackets.txt
 Map<String, String> bar() : {} {}
+
+// Extracted from: processFileTests/angle_brackets/angle_brackets.txt
 Map<List<String>, String> baz() : {} {}
+
+// Extracted from: processFileTests/angle_brackets/angle_brackets.txt
 List   < Integer >  qux  () : {} {}
+
+// Extracted from: processFileTests/angle_brackets/angle_brackets.txt
 void quux (List<String> x) : {} {}
+
+// Extracted from: processFileTests/angle_brackets/angle_brackets.txt
 void corge (Map<String, Integer> x) : {} {}

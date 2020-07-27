@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
 void foo(int a) :
 {
     String x = "}";
@@ -26,6 +28,8 @@ void foo(int a) :
         // }
     */
 }
+
+// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
 void bar( final int a, int b ) :
 {
     String x = " ' } ' ";
@@ -36,6 +40,8 @@ void bar( final int a, int b ) :
         // }
     */
 }
+
+// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
 Foo.Bar baz () :
 {
 
@@ -43,6 +49,8 @@ Foo.Bar baz () :
 {
 
 }
+
+// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
 final void qux(final String x) :
 {
 
