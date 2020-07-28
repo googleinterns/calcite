@@ -3634,4 +3634,31 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + " 'V', ''), 'W', ''), 'X', ''), 'Y', '') AS `B`\n"
         + "FROM `ABC`");
   }
+
+  @Test
+  public void testCaretNegation() {
+    String sql = "select * from foo where ^a = 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` <> 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test
+  public void testCaretNegationAnd() {
+    String sql = "select * from foo where ^a = 1 and ^b = 2";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE ((`A` <> 1) AND (`B` <> 2))";
+    sql(sql).ok(expected);
+  }
+
+  @Test
+  public void testCaretNegationOr() {
+    String sql = "select * from foo where ^a = 1 or ^b = 2";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE ((`A` <> 1) OR (`B` <> 2))";
+    sql(sql).ok(expected);
+  }
 }

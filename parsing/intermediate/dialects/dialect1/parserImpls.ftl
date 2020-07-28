@@ -2780,6 +2780,21 @@ SqlNode TableRefOrJoinClause() :
     { return e; }
 }
 
+void CaretNegation(ExprContext exprContext, List<Object> list) :
+{
+    final SqlOperator op;
+}
+{
+    <CARET>
+    Expression2b(exprContext, list)
+    <EQ> {
+        op = SqlStdOperatorTable.NOT_EQUALS;
+        checkNonQueryExpression(exprContext);
+        list.add(new SqlParserUtil.ToTreeListItem(op, getPos()));
+    }
+    Expression2b(ExprContext.ACCEPT_SUB_QUERY, list)
+}
+
 /**
  * Parses a binary row expression, or a parenthesized expression of any
  * kind.
@@ -2806,7 +2821,11 @@ List<Object> Expression2(ExprContext exprContext) :
     final Span s = span();
 }
 {
-    Expression2b(exprContext, list)
+    (
+        CaretNegation(exprContext, list)
+    |
+        Expression2b(exprContext, list)
+    )
     (
         LOOKAHEAD(2)
         (
@@ -2929,7 +2948,11 @@ List<Object> Expression2(ExprContext exprContext) :
                     checkNonQueryExpression(exprContext);
                     list.add(new SqlParserUtil.ToTreeListItem(op, getPos()));
                 }
-                Expression2b(ExprContext.ACCEPT_SUB_QUERY, list)
+                (
+                    CaretNegation(ExprContext.ACCEPT_SUB_QUERY, list)
+                |
+                    Expression2b(ExprContext.ACCEPT_SUB_QUERY, list)
+                )
             |
                 <LBRACKET>
                 e = Expression(ExprContext.ACCEPT_SUB_QUERY)
