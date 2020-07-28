@@ -3691,7 +3691,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testSqlTablePartitionMultipleColumn() {
+  @Test void testSqlTablePartitionMultipleColumns() {
     String sql =
         "create table foo (bar integer, sales_date date format "
             + "'yyyy-mm-dd' not null) "
@@ -3746,7 +3746,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     String expected =
         "CREATE TABLE `FOO` (`BAR` INTEGER, "
             + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
-            + "PARTITION BY(COLUMN(ROW `BAR`, `SALES_DATE`))";
+            + "PARTITION BY(COLUMN(ROW(`BAR`), `SALES_DATE`))";
     sql(sql).ok(expected);
   }
 

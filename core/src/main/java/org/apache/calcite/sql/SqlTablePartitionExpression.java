@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class SqlTablePartitionExpression extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("PARTITION_EXPRESSION_WITH_CONSTANT",
+      new SqlSpecialOperator("PARTITION_EXPRESSION",
           SqlKind.OTHER);
   public final SqlNode partitionExpression;
   public final int extraNumberOfPartitions;

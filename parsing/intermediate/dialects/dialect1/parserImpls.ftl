@@ -955,7 +955,7 @@ SqlCreate SqlCreateTable() :
             partition = CreateTablePartitionBy()
         )
         (
-           [<COMMA>]
+           [ <COMMA> ]
            (
                index = SqlCreateTableIndex(s) { indices.add(index); }
            |
@@ -1035,18 +1035,9 @@ SqlNode PartitionByColumnOption() :
 }
 {
     (
-        <COLUMN> <ALL> <BUT> <LPAREN>
-        e = PartitionColumnItem()
-        { columnList.add(e); }
-        (
-            <COMMA>
-            e = PartitionColumnItem()
-            { columnList.add(e); }
-        )*
-        <RPAREN>
-        { containAllButSpecifier = true; }
-    |
-        <COLUMN> <LPAREN>
+        <COLUMN>
+        [ <ALL> <BUT> { containAllButSpecifier = true; }]
+        <LPAREN>
         e = PartitionColumnItem()
         { columnList.add(e); }
         (
@@ -1057,19 +1048,14 @@ SqlNode PartitionByColumnOption() :
         <RPAREN>
     |
         <COLUMN>
-        {
-            return new SqlTablePartitionByColumn(getPos(), columnList, false);
-        }
     |
         <COLUMN>
-        (
-            e = SimpleIdentifier()
-            {columnList.add(e);}
-        )
+        e = SimpleIdentifier()
+        { columnList.add(e); }
     )
     {
         return new SqlTablePartitionByColumn(getPos(), columnList,
-        containAllButSpecifier);
+            containAllButSpecifier);
     }
 }
 
@@ -1123,8 +1109,10 @@ SqlNode SqlExtractFromDateTime() :
     <LPAREN>
     (
         <NANOSECOND> { unit = TimeUnit.NANOSECOND; }
-    |   <MICROSECOND> { unit = TimeUnit.MICROSECOND; }
-    |   unit = TimeUnit()
+    |
+        <MICROSECOND> { unit = TimeUnit.MICROSECOND; }
+    |
+        unit = TimeUnit()
     )
     { args = startList(new SqlIntervalQualifier(unit, null, getPos())); }
     <FROM>

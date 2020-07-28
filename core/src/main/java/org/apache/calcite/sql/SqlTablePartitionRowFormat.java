@@ -53,10 +53,6 @@ public class SqlTablePartitionRowFormat extends SqlCall {
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
     writer.keyword("ROW");
-    if (columnList.size() == 1) {
-      columnList.get(0).unparse(writer, leftPrec, rightPrec);
-      return;
-    }
     SqlWriter.Frame frame = writer.startList(
         SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
     for (SqlNode column : columnList) {

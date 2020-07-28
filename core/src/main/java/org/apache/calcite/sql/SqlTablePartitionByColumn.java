@@ -55,7 +55,7 @@ public class SqlTablePartitionByColumn extends SqlCall {
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
     writer.keyword("COLUMN");
-    if (columnItemList.size() == 0) {
+    if (SqlNodeList.isEmptyList(columnItemList)) {
       return;
     }
     if (containsAllButSpecifier) {

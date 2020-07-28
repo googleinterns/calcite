@@ -30,7 +30,7 @@ public class SqlTablePartition extends SqlCall {
 
   /**
    * Creates a {@code SqlTablePartition}.
-   * @param pos         Parser position, must not be null.
+   * @param pos                   Parser position, must not be null.
    * @param partitionExpressions  Partition expressions in a SqlNodeList.
    */
   public SqlTablePartition(final SqlParserPos pos,
