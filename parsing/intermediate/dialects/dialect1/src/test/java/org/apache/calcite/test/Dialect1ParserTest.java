@@ -3675,7 +3675,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testSqlTablePartitionAllColumn() {
+  @Test void testSqlTablePartitionColumn() {
     String sql =
         "create table foo (bar integer) partition by column";
     String expected =
