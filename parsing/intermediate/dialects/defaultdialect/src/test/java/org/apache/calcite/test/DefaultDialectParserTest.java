@@ -19,6 +19,8 @@ package org.apache.calcite.test;
 import org.apache.calcite.sql.parser.SqlParserImplFactory;
 import org.apache.calcite.sql.parser.defaultdialect.DefaultDialectParserImpl;
 
+import org.junit.jupiter.api.Test;
+
 /**
  * Tests the "Default" SQL parser.
  */
@@ -26,5 +28,16 @@ final class DefaultDialectParserTest extends SqlDialectParserTest {
 
   @Override protected SqlParserImplFactory parserImplFactory() {
     return DefaultDialectParserImpl.FACTORY;
+  }
+
+  @Test void testWithTimeZoneFails() {
+    expr("cast(x as time with ^time^ zone)")
+        .fails("(?s).*Encountered \"time\" at .*");
+    expr("cast(x as time(0) with ^time^ zone)")
+        .fails("(?s).*Encountered \"time\" at .*");
+    expr("cast(x as timestamp with ^time^ zone)")
+        .fails("(?s).*Encountered \"time\" at .*");
+    expr("cast(x as timestamp(0) with ^time^ zone)")
+        .fails("(?s).*Encountered \"time\" at .*");
   }
 }

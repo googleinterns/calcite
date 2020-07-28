@@ -14,16 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// Extracted from: processFileTests/token_assignments/token_assignments.txt
 TOKEN :
 
 {
 
 }
+
+// Extracted from: processFileTests/token_assignments/token_assignments.txt
 SKIP : {}
+
+// Extracted from: processFileTests/token_assignments/token_assignments.txt
 MORE :
 {
 
 }
+
+// Extracted from: processFileTests/token_assignments/token_assignments.txt
 < foo, bar, baz > TOKEN :
 {
     < BRACKET: "}" >

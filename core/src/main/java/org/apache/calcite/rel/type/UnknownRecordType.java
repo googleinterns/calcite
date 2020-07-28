@@ -14,47 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.calcite.rel.type;
 
-// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
-void foo(int a) :
-{
-    String x = "}";
-    String y = "\"";
-    String z = "\\";
-    char l = '\\';
-}
-{
-    /*
-        // }
-    */
-}
-
-// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
-void bar( final int a, int b ) :
-{
-    String x = " ' } ' ";
-    char y = '\'';
-}
-{
-    /*
-        // }
-    */
-}
-
-// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
-Foo.Bar baz () :
-{
-
-}
-{
-
-}
-
-// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
-final void qux(final String x) :
-{
-
-}
-{
-
+/**
+ * Represents the record type for unknown tables (whose type information is not
+ * in the pre-defined schema). This object allows us to treat unknown tables as
+ * if they are dynamic tables (unknown number of columns with unknown types),
+ * and is only generated when the {@code SqlValidator.Config.allowUnknownTables}
+ * option is enabled.
+ */
+public class UnknownRecordType extends DynamicRecordTypeImpl {
+  public UnknownRecordType(RelDataTypeFactory typeFactory) {
+    super(typeFactory);
+  }
 }

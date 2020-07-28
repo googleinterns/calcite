@@ -15,7 +15,7 @@
 // limitations under the License.
 -->
 
-SqlNode ExceptExpression(List<SqlNode> selectList):
+SqlExcept ExceptExpression(List<SqlNode> selectList):
 {
     final Pair<SqlNodeList, SqlNodeList> nameAndTypePair;
     final SqlNodeList exceptList;
@@ -42,7 +42,7 @@ SqlSelect SqlSelect() :
 {
     final List<SqlLiteral> keywords = new ArrayList<SqlLiteral>();
     final SqlNodeList keywordList;
-    SqlNode exceptExpression = null;
+    SqlExcept exceptExpression = null;
     List<SqlNode> selectList;
     final SqlNode fromClause;
     final SqlNode where;

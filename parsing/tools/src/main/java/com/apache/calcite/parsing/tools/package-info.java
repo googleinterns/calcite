@@ -15,46 +15,7 @@
  * limitations under the License.
  */
 
-// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
-void foo(int a) :
-{
-    String x = "}";
-    String y = "\"";
-    String z = "\\";
-    char l = '\\';
-}
-{
-    /*
-        // }
-    */
-}
-
-// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
-void bar( final int a, int b ) :
-{
-    String x = " ' } ' ";
-    char y = '\'';
-}
-{
-    /*
-        // }
-    */
-}
-
-// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
-Foo.Bar baz () :
-{
-
-}
-{
-
-}
-
-// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
-final void qux(final String x) :
-{
-
-}
-{
-
-}
+/**
+ * Parsing tools.
+ */
+package com.apache.calcite.parsing.tools;

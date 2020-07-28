@@ -3635,6 +3635,34 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "FROM `ABC`");
   }
 
+  @Test public void testTimeZoneOptionTime() {
+    final String sql = "create table foo (bar time with time zone)";
+    final String expected =
+        "CREATE TABLE `FOO` (`BAR` TIME WITH TIME ZONE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTimeZoneOptionTimeParentheses() {
+    final String sql = "create table foo (bar time(2) with time zone)";
+    final String expected =
+        "CREATE TABLE `FOO` (`BAR` TIME(2) WITH TIME ZONE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTimeZoneOptionTimeStamp() {
+    final String sql = "create table foo (bar timestamp with time zone)";
+    final String expected =
+        "CREATE TABLE `FOO` (`BAR` TIMESTAMP WITH TIME ZONE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTimeZoneOptionTimeStampParentheses() {
+    final String sql = "create table foo (bar timestamp(6) with time zone)";
+    final String expected =
+        "CREATE TABLE `FOO` (`BAR` TIMESTAMP(6) WITH TIME ZONE)";
+    sql(sql).ok(expected);
+  }
+
   @Test
   public void testCaretNegation() {
     String sql = "select * from foo where ^a = 1";

@@ -41,7 +41,7 @@ public class DialectGenerateTest {
     DialectGenerate dialectGenerate = new DialectGenerate();
     int charIndex = dialectGenerate.processFunction(
         DialectGenerate.getTokens(function), new LinkedHashMap<String,String>(),
-        0, declaration.length(), "foo");
+        0, declaration.length(), "foo", new StringBuilder());
     assertEquals(function.length(), charIndex);
   }
 
@@ -49,7 +49,7 @@ public class DialectGenerateTest {
     DialectGenerate dialectGenerate = new DialectGenerate();
     int charIndex = dialectGenerate.processTokenAssignment(
         DialectGenerate.getTokens(function), new LinkedList<String>(),
-        0, declaration.length());
+        0, declaration.length(), new StringBuilder());
     assertEquals(function.length(), charIndex);
   }
 
@@ -64,10 +64,11 @@ public class DialectGenerateTest {
    * by checking that the contents of the modified functionMap match the contents
    * of the testName_expected.txt file.
    */
-  private void assertFileProcessed(String testName) {
+  private void assertFileProcessed(String testName, boolean specifyFilePath) {
     DialectGenerate dialectGenerate = new DialectGenerate();
     Path resourcePath = Paths.get("src", "test", "resources");
-    Path basePath = resourcePath.resolve(Paths.get("processFileTests", testName));
+    Path basePath = resourcePath.resolve(Paths.get("processFileTests",
+          testName));
 
     Path testPath = basePath.resolve(testName + ".txt");
     Path expectedPath = basePath.resolve(testName + "_expected.txt");
@@ -76,8 +77,13 @@ public class DialectGenerateTest {
 
     String fileText = TestUtils.readFile(testPath);
     ExtractedData extractedData = new ExtractedData();
-    dialectGenerate.processFile(fileText, extractedData);
-
+    String filePath = null;
+    if (specifyFilePath) {
+      // For windows paths change separator to forward slash.
+      filePath = Paths.get("processFileTests", testName, testName +".txt").toString();
+      filePath = filePath.replace("\\", "/");
+    }
+    dialectGenerate.processFile(fileText, extractedData, filePath);
     String expectedText = TestUtils.readFile(expectedPath);
     String licenseText = TestUtils.readFile(licensePath);
     StringBuilder actualText = new StringBuilder();
@@ -163,31 +169,31 @@ public class DialectGenerateTest {
   }
 
   @Test public void processFileEmpty() {
-    assertFileProcessed("empty");
+    assertFileProcessed("empty", /*specifyFilePath=*/ true);
   }
 
-  @Test public void processFileSingleFunction() {
-    assertFileProcessed("single_function");
+  @Test public void processFileSingleFunctionFilePathNotSpecified() {
+    assertFileProcessed("single_function", /*specifyFilePath=*/ false);
   }
 
   @Test public void processFileMultiLineDeclarations() {
-    assertFileProcessed("multi_line_declarations");
+    assertFileProcessed("multi_line_declarations", /*specifyFilePath=*/ true);
   }
 
   @Test public void processFileMultipleFunctionsSeparatedByLines() {
-    assertFileProcessed("multiple_functions_separated");
+    assertFileProcessed("multiple_functions_separated", /*specifyFilePath=*/ true);
   }
 
   @Test public void processFileTokenAssignments() {
-    assertFileProcessed("token_assignments");
+    assertFileProcessed("token_assignments", /*specifyFilePath=*/ true);
   }
 
   @Test public void processFileFunctionsAndTokenAssignments() {
-    assertFileProcessed("functions_and_assignments");
+    assertFileProcessed("functions_and_assignments", /*specifyFilePath=*/ true);
   }
 
   @Test public void processFileTypesWithAngleBrackets() {
-    assertFileProcessed("angle_brackets");
+    assertFileProcessed("angle_brackets", /*specifyFilePath=*/ true);
   }
 
   @Test public void processTokenAssignmentTokenEmpty() {
