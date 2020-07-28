@@ -1030,13 +1030,13 @@ SqlNode  PartitionExpression() :
 SqlNode PartitionByColumnOption() :
 {
     SqlNode e;
-    boolean containAllButSpecifier = false;
+    boolean containsAllButSpecifier = false;
     final SqlNodeList columnList = new SqlNodeList(getPos());
 }
 {
     (
         <COLUMN>
-        [ <ALL> <BUT> { containAllButSpecifier = true; }]
+        [ <ALL> <BUT> { containsAllButSpecifier = true; } ]
         <LPAREN>
         e = PartitionColumnItem()
         { columnList.add(e); }
@@ -1055,7 +1055,7 @@ SqlNode PartitionByColumnOption() :
     )
     {
         return new SqlTablePartitionByColumn(getPos(), columnList,
-            containAllButSpecifier);
+            containsAllButSpecifier);
     }
 }
 
