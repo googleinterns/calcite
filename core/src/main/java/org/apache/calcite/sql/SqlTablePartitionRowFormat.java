@@ -68,7 +68,6 @@ public class SqlTablePartitionRowFormat extends SqlCall {
       writer.keyword("NO AUTO COMPRESS");
       break;
     case NOT_SPECIFIED:
-    default:
       break;
     }
   }
