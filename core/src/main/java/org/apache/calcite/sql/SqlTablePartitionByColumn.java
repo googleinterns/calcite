@@ -27,20 +27,21 @@ public class SqlTablePartitionByColumn extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("PARTITION_BY_COLUMN", SqlKind.OTHER);
   public final SqlNodeList columnItemList;
-  public final boolean containAllButSpecifier;
+  public final boolean containsAllButSpecifier;
 
   /**
    * Creates a {@code SqlTablePartitionByColumn}.
    * @param pos             Parser position, must not be null.
    * @param columnItemList  Partition expressions in a SqlNodeList.
-   * @param containAllButSpecifier
+   * @param containsAllButSpecifier
    *                        If "ALL BUT" token is specified.
    */
   public SqlTablePartitionByColumn(final SqlParserPos pos,
-      final SqlNodeList columnItemList, final boolean containAllButSpecifier) {
+      final SqlNodeList columnItemList,
+      final boolean containsAllButSpecifier) {
     super(pos);
     this.columnItemList = columnItemList;
-    this.containAllButSpecifier = containAllButSpecifier;
+    this.containsAllButSpecifier = containsAllButSpecifier;
   }
 
   @Override public SqlOperator getOperator() {
@@ -57,7 +58,7 @@ public class SqlTablePartitionByColumn extends SqlCall {
     if (columnItemList.size() == 0) {
       return;
     }
-    if (containAllButSpecifier) {
+    if (containsAllButSpecifier) {
       writer.keyword("ALL BUT");
     }
     SqlWriter.Frame frame = writer.startList(
