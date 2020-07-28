@@ -9034,6 +9034,7 @@ class SqlValidatorTest extends SqlValidatorTestCase {
         + "IS UNKNOWN post\n"
         + "\n"
         + "NOT pre\n"
+        + "^ pre\n"
         + "\n"
         + "AND left\n"
         + "\n"
