@@ -16,12 +16,22 @@
  */
 package org.apache.calcite.sql;
 
+/**
+ * An input/output parameter for a CREATE PROCEDURE statement.
+ */
 public class SqlCreateProcedureParameter {
 
   public final CreateProcedureParameterType parameterType;
   public final SqlIdentifier name;
   public final SqlDataTypeSpec dataTypeSpec;
 
+  /**
+   * Creates an instance of {@code SqlCreateProcedureParameter}.
+   *
+   * @param parameterType Specifies if the parameter is input and/or output
+   * @param name The name of the parameter
+   * @param dataTypeSpec The data type of the parameter
+   */
   public SqlCreateProcedureParameter(CreateProcedureParameterType parameterType,
       SqlIdentifier name, SqlDataTypeSpec dataTypeSpec) {
     this.parameterType = parameterType;
