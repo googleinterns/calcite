@@ -70,6 +70,13 @@ public class DialectGenerateTest {
     assertEquals(extractedData.keywords.size(), keywordsSize);
     assertEquals(extractedData.nonReservedKeywords.size(),
         nonReservedKeywordsSize);
+    for (Keyword keyword : keywords.keySet()) {
+      assertTrue(extractedData.keywords.containsKey(keyword));
+      assertEquals(keywords.get(keyword), extractedData.keywords.get(keyword));
+    }
+    for (Keyword keyword : nonReservedKeywords) {
+      assertTrue(extractedData.nonReservedKeywords.contains(keyword));
+    }
   }
 
   private void assertTokensNotProcessed(Map<Keyword, String> keywords,
@@ -309,6 +316,18 @@ public class DialectGenerateTest {
     keywords.put(new Keyword("foo"), "foo");
     extractedData.keywords.put(new Keyword("bar"), "bar");
     nonReservedKeywords.add(new Keyword("bar"));
+    assertTokensProcessed(keywords, nonReservedKeywords, extractedData,
+        keywordsSize, nonReservedKeywordsSize);
+  }
+
+  @Test public void testProcessKeywordsKeywordGetsOverridden() {
+    int keywordsSize = 1;
+    int nonReservedKeywordsSize = 0;
+    Map<Keyword, String> keywords = new LinkedHashMap<Keyword, String>();
+    ExtractedData extractedData = new ExtractedData();
+    Set<Keyword> nonReservedKeywords = new HashSet<Keyword>();
+    extractedData.keywords.put(new Keyword("foo"), "foo1");
+    keywords.put(new Keyword("foo"), "foo2");
     assertTokensProcessed(keywords, nonReservedKeywords, extractedData,
         keywordsSize, nonReservedKeywordsSize);
   }

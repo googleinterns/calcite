@@ -20,7 +20,7 @@ package org.apache.calcite.buildtools.parser;
 import java.util.Objects;
 
 /**
- * Simple container class for keywords.
+ * Simple container class for a keyword.
  */
 public class Keyword {
   public final String keyword;
@@ -30,6 +30,12 @@ public class Keyword {
     this(keyword, null);
   }
 
+  /**
+   * Creates a {@code Keyword}.
+   *
+   * @param keyword The keyword string
+   * @param filePath The file where this keyword was taken from
+   */
   public Keyword(String keyword, String filePath) {
     this.keyword = Objects.requireNonNull(keyword.toUpperCase());
     this.filePath = filePath;
