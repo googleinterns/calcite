@@ -4208,11 +4208,14 @@ SqlCreateProcedure SqlCreateProcedure() :
     procedureName = CompoundIdentifier()
     <LPAREN>
     [
-        parameter = SqlCreateProcedureParameter() { parameters.add(parameter); }
+        parameter = SqlCreateProcedureParameter() {
+            parameters.add(parameter);
+        }
         (
             <COMMA>
-            parameter = SqlCreateProcedureParameter()
-            { parameters.add(parameter); }
+            parameter = SqlCreateProcedureParameter() {
+                parameters.add(parameter);
+            }
         )*
     ]
     <RPAREN>
@@ -4257,7 +4260,8 @@ SqlCreateProcedure SqlCreateProcedure() :
     statement = CreateProcedureStmt()
     {
         return new SqlCreateProcedure(s.end(this), createSpecifier,
-        procedureName, parameters, access, numResultSets, security, statement);
+            procedureName, parameters, access, numResultSets, security,
+            statement);
     }
 }
 

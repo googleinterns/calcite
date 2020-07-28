@@ -44,7 +44,7 @@ public class SqlCreateProcedure extends SqlCreate {
    * @param procedureName Name of procedure
    * @param parameters Input and output parameters
    * @param access Level of data access
-   * @param numResultSets Number of dynamic result sets
+   * @param numResultSets Number of dynamic result sets, may be null
    * @param security SQL security level of procedure
    * @param statement The statement ran when the procedure is called
    */
