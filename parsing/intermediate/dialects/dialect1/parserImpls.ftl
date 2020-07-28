@@ -990,6 +990,7 @@ SqlTablePartition CreateTablePartitionBy() :
         e = PartitionExpression()
         { partitions.add(e); }
         (
+            <COMMA>
             e = PartitionExpression()
             { partitions.add(e); }
         )*

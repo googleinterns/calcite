@@ -3639,7 +3639,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     String sql =
         "create table foo (bar integer, sales_date date format "
         + "'yyyy-mm-dd' not null) "
-        + "partition by RANGE_N(sales_date between date '2001-01-01' "
+        + "partition by range_n(sales_date between date '2001-01-01' "
         + "and date '2020-07-28' "
         + "each interval '1' day)";
     String expected =
@@ -3652,6 +3652,29 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testSqlTablePartitionCaseN() {
+    String sql =
+        "create table foo (bar integer, baz integer not null) "
+            + "partition by case_n(baz = 1, bar = 2, unknown)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, `BAZ` INTEGER NOT NULL) "
+            + "PARTITION BY(CASE_N((`BAZ` = 1), (`BAR` = 2), UNKNOWN))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testSqlTablePartitionExtract() {
+    String sql =
+        "create table foo (bar integer, a integer, sales_date date format "
+            + "'yyyy-mm-dd' not null) "
+            + "partition by "
+            + "extract(month from sales_date)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
+            + "PARTITION BY(EXTRACT(MONTH FROM `SALES_DATE`))";
+    sql(sql).ok(expected);
+  }
+
   @Test void testSqlTablePartitionSingleColumn() {
     String sql =
         "create table foo (bar integer) partition by column (bar)";
@@ -3660,7 +3683,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testPartitionByColumnItemList() {
+  @Test void testSqlTablePartitionMultipleColumn() {
     String sql =
         "create table foo (bar integer, sales_date date format "
             + "'yyyy-mm-dd' not null) "
@@ -3672,7 +3695,30 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testPartitionByColumnItemListWithAllButSpecifier() {
+  @Test void testSqlTablePartitionMultiplePartitionExpressions() {
+    String sql =
+        "create table foo (bar integer, sales_date date format "
+            + "'yyyy-mm-dd' not null, baz integer not null) "
+            + "partition by (range_n(sales_date between date '2001-01-01' "
+            + "and date '2020-07-28' "
+            + "each interval '1' day), "
+            + "case_n(baz = 1, bar = 2, unknown),"
+            + "column (bar, sales_date))";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd', "
+            + "`BAZ` INTEGER NOT NULL) "
+            + "PARTITION BY("
+            + "RANGE_N(`SALES_DATE` "
+            + "BETWEEN DATE '2001-01-01' "
+            + "AND DATE '2020-07-28' "
+            + "EACH INTERVAL '1' DAY), "
+            + "CASE_N((`BAZ` = 1), (`BAR` = 2), UNKNOWN), "
+            + "COLUMN(`BAR`, `SALES_DATE`))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testSqlTablePartitionByColumnWithMultipleAllButSpecifier() {
     String sql =
         "create table foo (bar integer, sales_date date format "
             + "'yyyy-mm-dd' not null) "
@@ -3684,7 +3730,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testPartitionByListWithRowFormat() {
+  @Test void testSqlTablePartitionRowFormat() {
     String sql =
         "create table foo (bar integer, sales_date date format "
             + "'yyyy-mm-dd' not null) "
@@ -3696,7 +3742,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testPartitionByWithRowFormatAutoCompress() {
+  @Test void testSqlTablePartitionRowFormatAutoCompress() {
     String sql =
         "create table foo (bar integer, a integer, sales_date date format "
             + "'yyyy-mm-dd' not null) "
@@ -3709,7 +3755,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testPartitionByWithRowFormatNoAutoCompress() {
+  @Test void testSqlTablePartitionRowFormatNoAutoCompress() {
     String sql =
         "create table foo (bar integer, a integer, sales_date date format "
             + "'yyyy-mm-dd' not null) "
@@ -3722,7 +3768,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testPartitionByColumnAllButWithRowFormatNoAutoCompress() {
+  @Test void testSqlTablePartitionByColumnAllButWithRowFormatNoAutoCompress() {
     String sql =
         "create table foo (bar integer, a integer, sales_date date format "
             + "'yyyy-mm-dd' not null) "
@@ -3736,20 +3782,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testPartitionByExtract() {
-    String sql =
-        "create table foo (bar integer, a integer, sales_date date format "
-            + "'yyyy-mm-dd' not null) "
-            + "partition by "
-            + "extract(month from sales_date)";
-    String expected =
-        "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
-            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
-            + "PARTITION BY(EXTRACT(MONTH FROM `SALES_DATE`))";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testPartitionByColumnAddConstant() {
+  @Test void testSqlTablePartitionExpressionWithAddConstant() {
     String sql =
         "create table foo (bar integer, a integer, sales_date date format "
             + "'yyyy-mm-dd' not null) "
