@@ -2782,15 +2782,14 @@ SqlNode TableRefOrJoinClause() :
 
 void CaretNegation(ExprContext exprContext, List<Object> list) :
 {
-    final SqlOperator op;
 }
 {
     <CARET>
     Expression2b(exprContext, list)
     <EQ> {
-        op = SqlStdOperatorTable.NOT_EQUALS;
         checkNonQueryExpression(exprContext);
-        list.add(new SqlParserUtil.ToTreeListItem(op, getPos()));
+        list.add(new SqlParserUtil.ToTreeListItem(
+            SqlStdOperatorTable.NOT_EQUALS, getPos()));
     }
     Expression2b(exprContext, list)
 }
