@@ -16,7 +16,9 @@
  */
 package org.apache.calcite.buildtools.parser;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +55,8 @@ public class DialectGenerate {
   // Matches [<OPT1, OPT2, ...>](TOKEN|SKIP|MORE) :
   private static final Pattern TOKEN_DECLARATION_PATTERN =
     Pattern.compile("((<\\s*\\w+\\s*(\\s*,\\s*\\w+)*\\s*>\\s*)?(TOKEN|SKIP|MORE)\\s*:\n?)");
+
+  private static final String TAB = "    ";
 
   public static Queue<String> getTokens(String input) {
     return new LinkedList<String>(Arrays.asList(TOKENIZER_PATTERN.split(input)));
@@ -125,26 +129,64 @@ public class DialectGenerate {
   }
 
   public void unparseNonReservedKeywords(ExtractedData extractedData) {
-    final Set<Keyword>[] partitions = getPartitions(extractedData.nonReservedKeywords);
-    final int numPartitions = partitions.length;
+    final ArrayList<Set<Keyword>> partitions = getPartitions(extractedData.nonReservedKeywords);
+    final int numPartitions = partitions.size();
     final String declarationTemplate = "void NonReservedKeyword%dof"
-      + numPartitions + "():";
-    for (int i = 0; i < numPartitions; i++) {
-      StringBuilder stringBuilder = new StringBuilder();
-      stringBuilder.append(String.format(declarationTemplate, i))
+      + numPartitions + "():\n";
+    final StringBuilder stringBuilder = new StringBuilder();
+    final List<String> functionCalls = new LinkedList<String>();
+    stringBuilder.append("void NonReservedKeyword():\n").append("{\n}\n{\n");
+    if (!partitions.isEmpty()) {
+      stringBuilder.append(TAB).append("(\n");
     }
+    for (int i = 0; i < numPartitions; i++) {
+      String declaration = String.format(declarationTemplate, i, numPartitions);
+      String functionName = getFunctionName(declaration);
+      extractedData.functions.put(functionName,
+          getPartitionFunction(declaration, partitions.get(i)));
+      functionCalls.add(TAB + TAB + functionName + "()\n");
+    }
+    stringBuilder.append(String.join("|", functionCalls));
+    if (!partitions.isEmpty()) {
+      stringBuilder.append(TAB).append(")\n");
+    }
+    stringBuilder.append(TAB).append("{ return unquotedIdentifier(); }\n")
+      .append("}\n");
+    extractedData.functions.put("NonReservedKeyword", stringBuilder.toString());
   }
 
-  private Set<Keyword>[] getPartitions(Set<Keyword> keywords) {
+  public String getPartitionFunction(String declaration, Set<Keyword> keywords) {
+    final List<String> tokens = new LinkedList<String>();
+    final StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append(String.format(declaration));
+    stringBuilder.append("{\n}\n{\n(\n");
+    for (Keyword keyword : keywords) {
+      StringBuilder tokenBuilder = new StringBuilder();
+      tokenBuilder.append("<").append(keyword.keyword)
+        .append(">");
+      if (keyword.filePath == null) {
+        tokenBuilder.append(" // No file specified.");
+      } else {
+        tokenBuilder.append(" // From: " + keyword.filePath);
+      }
+      tokenBuilder.append("\n");
+      tokens.add(tokenBuilder.toString());
+    }
+    stringBuilder.append(String.join("| ", tokens));
+    stringBuilder.append(")\n}\n");
+    return stringBuilder.toString();
+  }
+
+  private ArrayList<Set<Keyword>> getPartitions(Set<Keyword> keywords) {
     final int partitionSize = 500;
-    final int numPartitions = Math.ceil((double) keywords.size() / (double) partitionSize);
-    final Set<Keyword>[] partitions = new Set<Keyword>[numPartitions];
+    final int numPartitions = (int) Math.ceil(((double) keywords.size()) / partitionSize);
+    final ArrayList<Set<Keyword>> partitions = new ArrayList<Set<Keyword>>();
     int index = 0;
     for (int i = 0; i < numPartitions; i++) {
-      partitions[i] = new Set<Keyword>();
+      partitions.add(new LinkedHashSet<Keyword>());
     }
     for (Keyword keyword : keywords) {
-      partitions[index % partitionSize].add(keyword);
+      partitions.get(index % partitionSize).add(keyword);
       index++;
     }
     return partitions;

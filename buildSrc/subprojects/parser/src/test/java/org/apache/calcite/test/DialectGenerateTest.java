@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -380,6 +381,51 @@ public class DialectGenerateTest {
          + "| <BAZ : \"BAZ\"> // From: path/file\n"
          + "}\n";
     assertEquals(1, extractedData.tokenAssignments.size());
+    assertEquals(expected, actual);
+  }
+
+  @Test public void testPartitionFunctionSingle() {
+    Set<Keyword> keywords = new HashSet<Keyword>();
+    DialectGenerate dialectGenerate = new DialectGenerate();
+    keywords.add(new Keyword("foo", "file/path"));
+    String actual = dialectGenerate.getPartitionFunction("void func():\n", keywords);
+    String expected = "void func():\n"
+         + "{\n}\n{\n"
+         + "(\n"
+         + "<FOO> // From: file/path\n"
+         + ")\n"
+         + "}\n";
+    assertEquals(expected, actual);
+  }
+
+  @Test public void testPartitionFunctionMultiple() {
+    Set<Keyword> keywords = new LinkedHashSet<Keyword>();
+    DialectGenerate dialectGenerate = new DialectGenerate();
+    keywords.add(new Keyword("foo", "file/path"));
+    keywords.add(new Keyword("bar", /*filePath=*/ null));
+    keywords.add(new Keyword("baz", "file/path"));
+    String actual = dialectGenerate.getPartitionFunction("void func():\n", keywords);
+    String expected = "void func():\n"
+         + "{\n}\n{\n"
+         + "(\n"
+         + "<FOO> // From: file/path\n"
+         + "| <BAR> // No file specified.\n"
+         + "| <BAZ> // From: file/path\n"
+         + ")\n"
+         + "}\n";
+    assertEquals(expected, actual);
+  }
+
+  @Test public void testUnparseNonReservedKeywordsEmpty() {
+    ExtractedData extractedData = new ExtractedData();
+    DialectGenerate dialectGenerate = new DialectGenerate();
+    dialectGenerate.unparseNonReservedKeywords(extractedData);
+    assertEquals(1, extractedData.functions.size());
+    String actual = extractedData.functions.get("NonReservedKeyword");
+    String expected = "void NonReservedKeyword():\n"
+         + "{\n}\n{\n"
+         + "    { return unquotedIdentifier(); }\n"
+         + "}\n";
     assertEquals(expected, actual);
   }
 }
