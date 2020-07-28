@@ -948,9 +948,20 @@ SqlCreate SqlCreateTable() :
         { query = null; }
     )
     [
-        index = SqlCreateTableIndex(s) { indices.add(index); }
         (
-           [<COMMA>] index = SqlCreateTableIndex(s) { indices.add(index); }
+            index = SqlCreateTableIndex(s) { indices.add(index); }
+        |
+            <PARTITION> <BY>
+            partition = CreateTablePartitionBy()
+        )
+        (
+           [<COMMA>]
+           (
+               index = SqlCreateTableIndex(s) { indices.add(index); }
+           |
+               <PARTITION> <BY>
+               partition = CreateTablePartitionBy()
+           )
         )*
         {
             // Filter out any primary indices from index list.
@@ -963,10 +974,6 @@ SqlCreate SqlCreateTable() :
                 }
             }
         }
-    ]
-    [
-        <PARTITION> <BY>
-        partition = CreateTablePartitionBy()
     ]
     onCommitType = OnCommitTypeOpt()
     {

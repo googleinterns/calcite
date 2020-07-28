@@ -3675,6 +3675,14 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testSqlTablePartitionAllColumn() {
+    String sql =
+        "create table foo (bar integer) partition by column";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER) PARTITION BY(COLUMN)";
+    sql(sql).ok(expected);
+  }
+
   @Test void testSqlTablePartitionSingleColumn() {
     String sql =
         "create table foo (bar integer) partition by column (bar)";
@@ -3791,6 +3799,35 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
             + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
             + "PARTITION BY(COLUMN ADD 1000000)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPrimaryIndexUseWithPartitionByOrdering() {
+    final String sql = "create table foo primary index bar (lname) "
+        + "partition by column";
+    final String expected = "CREATE TABLE `FOO` PRIMARY INDEX `BAR` (`LNAME`) "
+        + "PARTITION BY(COLUMN)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUniqueIndexUseWithPartitionByReverseOrdering() {
+    final String sql = "create table foo (bar integer) partition by column "
+        + "unique index (bar)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) "
+        + "UNIQUE INDEX (`BAR`) PARTITION BY(COLUMN)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testMultipleIndicesUseWithPartitionByOrdering() {
+    final String sql = "create table foo (bar integer, baz integer) "
+        + "primary index (baz)"
+        + "partition by column "
+        + "unique index (bar)";
+    final String expected = "CREATE TABLE `FOO` "
+        + "(`BAR` INTEGER, `BAZ` INTEGER) "
+        + "PRIMARY INDEX (`BAZ`), "
+        + "UNIQUE INDEX (`BAR`) "
+        + "PARTITION BY(COLUMN)";
     sql(sql).ok(expected);
   }
 }
