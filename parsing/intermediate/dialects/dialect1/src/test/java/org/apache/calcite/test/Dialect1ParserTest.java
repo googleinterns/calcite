@@ -3663,8 +3663,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test
-  public void testCaretNegation() {
+  @Test public void testCaretNegation() {
     String sql = "select * from foo where ^a = 1";
     String expected = "SELECT *\n"
         + "FROM `FOO`\n"
@@ -3672,8 +3671,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test
-  public void testCaretNegationAnd() {
+  @Test public void testCaretNegationAnd() {
     String sql = "select * from foo where ^a = 1 and ^b = 2";
     String expected = "SELECT *\n"
         + "FROM `FOO`\n"
@@ -3681,8 +3679,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test
-  public void testCaretNegationOr() {
+  @Test public void testCaretNegationOr() {
     String sql = "select * from foo where ^a = 1 or ^b = 2";
     String expected = "SELECT *\n"
         + "FROM `FOO`\n"
