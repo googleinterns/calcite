@@ -2792,7 +2792,7 @@ void CaretNegation(ExprContext exprContext, List<Object> list) :
         checkNonQueryExpression(exprContext);
         list.add(new SqlParserUtil.ToTreeListItem(op, getPos()));
     }
-    Expression2b(ExprContext.ACCEPT_SUB_QUERY, list)
+    Expression2b(exprContext, list)
 }
 
 /**
