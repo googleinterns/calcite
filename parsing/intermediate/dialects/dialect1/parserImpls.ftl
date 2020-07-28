@@ -3894,6 +3894,8 @@ SqlAlter SqlAlter() :
         alterNode = SqlAlterTable(s, scope)
     |
         alterNode = SqlSetOption(s, scope)
+    |
+        alterNode = SqlAlterProcedure(s, scope)
     )
     {
         return alterNode;
@@ -4179,4 +4181,66 @@ SqlRangeNStartEnd RangeNStartEnd() :
         return new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral,
             eachSizeLiteral, false, endAsterisk);
     }
+}
+
+SqlAlter SqlAlterProcedure(Span s, String scope) :
+{
+     final SqlIdentifier procedureName;
+     final boolean languageSql;
+     final List<AlterProcedureWithOption> options =
+        new ArrayList<AlterProcedureWithOption>();
+     final boolean local;
+     final boolean isTimeZoneNegative;
+     SqlLiteral timeZoneString = null;
+     AlterProcedureWithOption option;
+}
+{
+    <PROCEDURE>
+    procedureName = CompoundIdentifier()
+    [
+        <LANGUAGE> <SQL> { languageSql = true;}
+    ]
+    <COMPILE>
+    [
+        <WITH> option = AlterProcedureWithOption() {
+            options.add(option);
+        }
+        (
+            <COMMA> option = AlterProcedureWithOption() {
+                options.add(option);
+            }
+        )*
+    ]
+    [
+        <AT> <TIME> <ZONE>
+        (
+            <LOCAL> { local = true; }
+        |
+            (
+                <MINUS> { isTimeZoneNegative = true; }
+            |
+                [ <PLUS> ] { isTimeZoneNegative = false; }
+            )
+            <QUOTED_STRING> { timeZoneString = token.image; }
+        )
+    ]
+    {
+        return new SqlAlterProcedure(getPos(), scope, tableName,
+            tableAttributes, alterTableOptions);
+    }
+}
+
+AlterProcedureWithOption AlterProcedureWithOption() :
+{
+}
+{
+    (
+        <SPL> { return AlterProcedureWithOption.SQL; }
+    |
+        <WARNING> { return AlterProcedureWithOption.WARNING; }
+    |
+        <NO> <SPL> { return AlterProcedureWithOption.NO_SPL; }
+    |
+        <NO> <WARNING> { return AlterProcedureWithOption.NO_WARNING; }
+    )
 }

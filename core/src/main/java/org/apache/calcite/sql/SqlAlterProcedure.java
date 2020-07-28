@@ -46,11 +46,11 @@ public class SqlAlterProcedure extends SqlAlter {
    * @param isTimeZoneNegative True if sign before timeZoneString is "-"
    * @param timeZoneString String after AT TIME ZONE, may be null
    */
-  public SqlAlterProcedure(SqlParserPos pos,
+  public SqlAlterProcedure(SqlParserPos pos, String scope,
       SqlIdentifier procedureName, boolean languageSql,
       List<AlterProcedureWithOption> options, boolean local,
       boolean isTimeZoneNegative, SqlLiteral timeZoneString) {
-    super(pos, "PROCEDURE");
+    super(pos, scope);
     this.procedureName = procedureName;
     this.languageSql = languageSql;
     this.options = options;
