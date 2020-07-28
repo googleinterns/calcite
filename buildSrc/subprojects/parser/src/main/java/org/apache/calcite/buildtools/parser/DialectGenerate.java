@@ -102,26 +102,24 @@ public class DialectGenerate {
     if (extractedData.keywords.isEmpty()) {
       return;
     }
-    boolean first = true;
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append("<DEFAULT, DQID, BTID> TOKEN :\n{\n");
+    String tokenTemplate = "<%s : \"%s\">";
+    List<String> tokens = new LinkedList<String>();
     for (Map.Entry<Keyword, String> entry : extractedData.keywords.entrySet()) {
+      StringBuilder tokenBuilder = new StringBuilder();
       Keyword keyword = entry.getKey();
-      String tokenTemplate = "| <%s : \"%s\">";
-      if (first) {
-        tokenTemplate = "<%s : \"%s\">";
-        first = false;
-      }
-      String token = String.format(tokenTemplate, keyword.keyword,
-          entry.getValue());
-      stringBuilder.append(token);
+      tokenBuilder.append(String.format(tokenTemplate, keyword.keyword,
+          entry.getValue()));
       if (keyword.filePath == null) {
-        stringBuilder.append(" // No file specified.");
+        tokenBuilder.append(" // No file specified.");
       } else {
-        stringBuilder.append(" // From: ").append(keyword.filePath);
+        tokenBuilder.append(" // From: ").append(keyword.filePath);
       }
-      stringBuilder.append("\n");
+      tokenBuilder.append("\n");
+      tokens.add(tokenBuilder.toString());
     }
+    stringBuilder.append(String.join("| ", tokens));
     stringBuilder.append("}\n");
     extractedData.tokenAssignments.add(stringBuilder.toString());
   }
