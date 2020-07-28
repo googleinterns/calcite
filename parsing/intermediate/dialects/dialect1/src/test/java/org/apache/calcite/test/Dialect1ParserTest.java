@@ -3857,4 +3857,15 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         "CREATE TABLE `FOO` (`BAR` TIMESTAMP(6) WITH TIME ZONE)";
     sql(sql).ok(expected);
   }
+
+  @Test public void testSelectClauseOrdering() {
+    final String sql = "select * qualify rank(a) = 1 having a > 2 group by a where a > 3 from foo";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` > 3)\n"
+        + "GROUP BY `A`\n"
+        + "HAVING (`A` > 2)\n"
+        + "QUALIFY ((RANK() OVER (ORDER BY `A` DESC)) = 1)";
+    sql(sql).ok(expected);
+  }
 }
