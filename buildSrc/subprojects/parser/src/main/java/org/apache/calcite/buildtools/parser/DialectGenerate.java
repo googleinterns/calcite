@@ -89,6 +89,8 @@ public class DialectGenerate {
    *   |<TOKEN_2: "TOKEN_2_VALUE">
    *   ...
    * }
+   * File annotations are added as single-line comments following each token
+   * if the filePath is specified.
    *
    * @param extractedData The object which keeps state of all of the extracted
    *                      data
@@ -99,9 +101,10 @@ public class DialectGenerate {
     }
     boolean first = true;
     StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder.append("<DEFAULT, DQID, BTID> TOKEN : \n{\n");
+    stringBuilder.append("<DEFAULT, DQID, BTID> TOKEN :\n{\n");
     for (Map.Entry<Keyword, String> entry : extractedData.keywords.entrySet()) {
-      String token = String.format("<%s : \"%s\">\n", entry.getKey().keyword,
+      Keyword keyword = entry.getKey();
+      String token = String.format("<%s : \"%s\">", keyword.keyword,
           entry.getValue());
       if (!first) {
         token = "|" + token;
@@ -109,6 +112,12 @@ public class DialectGenerate {
         first = false;
       }
       stringBuilder.append(token);
+      if (keyword.filePath == null) {
+        stringBuilder.append(" // No file specified.");
+      } else {
+        stringBuilder.append(" // From: ").append(keyword.filePath);
+      }
+      stringBuilder.append("\n");
     }
     stringBuilder.append("}\n");
     extractedData.tokenAssignments.add(stringBuilder.toString());

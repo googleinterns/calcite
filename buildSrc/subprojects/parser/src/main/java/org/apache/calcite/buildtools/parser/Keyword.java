@@ -19,6 +19,9 @@ package org.apache.calcite.buildtools.parser;
 
 import java.util.Objects;
 
+/**
+ * Simple container class for keywords.
+ */
 public class Keyword {
   public final String keyword;
   public final String filePath;
@@ -34,6 +37,7 @@ public class Keyword {
 
   @Override
   public int hashCode() {
+    // The filePath should not be considered when calculating hashCode.
     return keyword.hashCode();
   }
 

@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class KeywordTest {
 
@@ -55,5 +56,9 @@ public class KeywordTest {
   @Test public void testKeywodGetsCapitalized() {
     Keyword a = new Keyword("foo");
     assertEquals(a.keyword, "FOO");
+  }
+
+  @Test public void testNullKeywordInvalid() {
+    assertThrows(NullPointerException.class, () -> new Keyword(null));
   }
 }
