@@ -29,10 +29,9 @@ public class KeywordTest {
     Keyword a = new Keyword("foo");
     Keyword b = new Keyword("foo", "path/file");
     assertEquals(a.hashCode(), b.hashCode());
-    assertEquals(a, a);
   }
 
-  @Test public void testHashCodeInEquality() {
+  @Test public void testHashCodeInequality() {
     Keyword a = new Keyword("foo");
     Keyword b = new Keyword("bar");
     assertNotEquals(a.hashCode(), b.hashCode());
@@ -42,18 +41,19 @@ public class KeywordTest {
     Keyword a = new Keyword("foo");
     Keyword b = new Keyword("foo", "path/file");
     Keyword c = new Keyword("FOO");
+    assertEquals(a, a);
     assertEquals(a, b);
     assertEquals(a, c);
   }
 
-  @Test public void testInEquality() {
+  @Test public void testInequality() {
     Keyword a = new Keyword("foo");
     Keyword b = new Keyword("bar");
     assertNotEquals(a, b);
     assertNotEquals(a, null);
   }
 
-  @Test public void testKeywodGetsCapitalized() {
+  @Test public void testKeywordGetsCapitalized() {
     Keyword a = new Keyword("foo");
     assertEquals(a.keyword, "FOO");
   }

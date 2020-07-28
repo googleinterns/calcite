@@ -27,7 +27,7 @@ public class Keyword {
   public final String filePath;
 
   public Keyword(String keyword) {
-    this(keyword, null);
+    this(keyword, /*filePath=*/ null);
   }
 
   /**
@@ -41,14 +41,12 @@ public class Keyword {
     this.filePath = filePath;
   }
 
-  @Override
-  public int hashCode() {
+  @Override public int hashCode() {
     // The filePath should not be considered when calculating hashCode.
     return keyword.hashCode();
   }
 
-  @Override
-  public boolean equals(Object obj) {
+  @Override public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     } else if (obj == null) {

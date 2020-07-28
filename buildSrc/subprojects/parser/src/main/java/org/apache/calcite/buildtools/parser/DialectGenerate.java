@@ -64,18 +64,18 @@ public class DialectGenerate {
    * and extractedData.keywords.
    *
    * @param keywords The keywords to add
-   * @param nonReservedKeywords the non reserved keywords to add
+   * @param nonReservedKeywords The non reserved keywords to add
    * @param extractedData The object to which the keywords will be added to
    *
-   * @throws IllegalStateException when an an element in nonReservedKeywords is
+   * @throws IllegalStateException When an an element in nonReservedKeywords is
    *                               not in keywords or extractedData.keywords
    */
   public void processKeywords(Map<Keyword, String> keywords,
       Set<Keyword> nonReservedKeywords,
       ExtractedData extractedData) throws IllegalStateException {
     for (Keyword keyword : nonReservedKeywords) {
-      if (!(keywords.containsKey(keyword)
-            || extractedData.keywords.containsKey(keyword))) {
+      if (!keywords.containsKey(keyword)
+            && !extractedData.keywords.containsKey(keyword)) {
         throw new IllegalStateException(keyword.keyword + " is not a keyword.");
       }
     }
@@ -99,7 +99,7 @@ public class DialectGenerate {
    *                      data
    */
   public void unparseReservedKeywords(ExtractedData extractedData) {
-    if (extractedData.keywords.size() == 0) {
+    if (extractedData.keywords.isEmpty()) {
       return;
     }
     boolean first = true;
@@ -107,13 +107,13 @@ public class DialectGenerate {
     stringBuilder.append("<DEFAULT, DQID, BTID> TOKEN :\n{\n");
     for (Map.Entry<Keyword, String> entry : extractedData.keywords.entrySet()) {
       Keyword keyword = entry.getKey();
-      String token = String.format("<%s : \"%s\">", keyword.keyword,
-          entry.getValue());
-      if (!first) {
-        token = "|" + token;
-      } else {
+      String tokenTemplate = "| <%s : \"%s\">";
+      if (first) {
+        tokenTemplate = "<%s : \"%s\">";
         first = false;
       }
+      String token = String.format(tokenTemplate, keyword.keyword,
+          entry.getValue());
       stringBuilder.append(token);
       if (keyword.filePath == null) {
         stringBuilder.append(" // No file specified.");

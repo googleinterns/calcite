@@ -16,27 +16,27 @@
  */
 package org.apache.calcite.test;
 
+import java.lang.StringBuilder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Queue;
-import java.util.LinkedList;
-import java.lang.StringBuilder;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.LinkedHashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
 import org.apache.calcite.buildtools.parser.DialectGenerate;
 import org.apache.calcite.buildtools.parser.ExtractedData;
 import org.apache.calcite.buildtools.parser.Keyword;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DialectGenerateTest {
 
@@ -334,12 +334,12 @@ public class DialectGenerateTest {
 
   @Test public void testProcessKeywordsInvalidNonReservedKeywordFails() {
     Map<Keyword, String> keywords = new LinkedHashMap<Keyword, String>();
-    ExtractedData extractedData = new ExtractedData();
     Set<Keyword> nonReservedKeywords = new HashSet<Keyword>();
 
     keywords.put(new Keyword("foo"), "foo");
     nonReservedKeywords.add(new Keyword("bar"));
-    assertKeywordsNotProcessed(keywords, nonReservedKeywords, extractedData);
+    assertKeywordsNotProcessed(keywords, nonReservedKeywords,
+        new ExtractedData());
   }
 
   @Test public void testUnparseReservedKeywordsEmpty() {
@@ -376,8 +376,8 @@ public class DialectGenerateTest {
     String expected = "<DEFAULT, DQID, BTID> TOKEN :\n"
          + "{\n"
          + "<FOO : \"FOO\"> // From: path/file\n"
-         + "|<BAR : \"BAR\"> // No file specified.\n"
-         + "|<BAZ : \"BAZ\"> // From: path/file\n"
+         + "| <BAR : \"BAR\"> // No file specified.\n"
+         + "| <BAZ : \"BAZ\"> // From: path/file\n"
          + "}\n";
     assertEquals(1, extractedData.tokenAssignments.size());
     assertEquals(expected, actual);
