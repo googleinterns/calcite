@@ -3828,6 +3828,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "PRIMARY INDEX (`BAZ`), "
         + "UNIQUE INDEX (`BAR`) "
         + "PARTITION BY(COLUMN)";
+  }
 
   @Test public void testTimeZoneOptionTime() {
     final String sql = "create table foo (bar time with time zone)";
