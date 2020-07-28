@@ -126,6 +126,32 @@ public class DialectGenerate {
     extractedData.tokenAssignments.add(stringBuilder.toString());
   }
 
+  public void unparseNonReservedKeywords(ExtractedData extractedData) {
+    final Set<Keyword>[] partitions = getPartitions(extractedData.nonReservedKeywords);
+    final int numPartitions = partitions.length;
+    final String declarationTemplate = "void NonReservedKeyword%dof"
+      + numPartitions + "():";
+    for (int i = 0; i < numPartitions; i++) {
+      StringBuilder stringBuilder = new StringBuilder();
+      stringBuilder.append(String.format(declarationTemplate, i))
+    }
+  }
+
+  private Set<Keyword>[] getPartitions(Set<Keyword> keywords) {
+    final int partitionSize = 500;
+    final int numPartitions = Math.ceil((double) keywords.size() / (double) partitionSize);
+    final Set<Keyword>[] partitions = new Set<Keyword>[numPartitions];
+    int index = 0;
+    for (int i = 0; i < numPartitions; i++) {
+      partitions[i] = new Set<Keyword>();
+    }
+    for (Keyword keyword : keywords) {
+      partitions[index % partitionSize].add(keyword);
+      index++;
+    }
+    return partitions;
+  }
+
   /**
    * Extracts the functions and token assignments from the given file into
    * extractedData. Parses functions of the form:
