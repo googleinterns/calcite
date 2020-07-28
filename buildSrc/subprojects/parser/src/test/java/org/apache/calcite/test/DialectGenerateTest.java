@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.apache.calcite.buildtools.parser.DialectGenerate;
 import org.apache.calcite.buildtools.parser.ExtractedData;
+import org.apache.calcite.buildtools.parser.Keyword;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -60,16 +61,23 @@ public class DialectGenerateTest {
     assertEquals(name, dialectGenerate.getFunctionName(declaration));
   }
 
-  private void assertTokensProcessed(Map<String, String> keywords,
-      Set<String> nonReservedKeywords) {
-    ExtractedData extractedData = new ExtractedData();
+  private void assertTokensProcessed(Map<Keyword, String> keywords,
+      Set<Keyword> nonReservedKeywords, ExtractedData extractedData,
+      int keywordsSize, int nonReservedKeywordsSize) {
     DialectGenerate dialectGenerate = new DialectGenerate();
-
     dialectGenerate.processKeywords(keywords, nonReservedKeywords,
         extractedData);
-    assertEquals(extractedData.keywords.size(), keywords.size());
+    assertEquals(extractedData.keywords.size(), keywordsSize);
     assertEquals(extractedData.nonReservedKeywords.size(),
-        nonReservedKeywords.size());
+        nonReservedKeywordsSize);
+  }
+
+  private void assertTokensNotProcessed(Map<Keyword, String> keywords,
+      Set<Keyword> nonReservedKeywords, ExtractedData extractedData) {
+    DialectGenerate dialectGenerate = new DialectGenerate();
+    assertThrows(IllegalStateException.class, () -> dialectGenerate
+        .processKeywords(keywords, nonReservedKeywords,
+        extractedData));
   }
 
   /**
@@ -271,15 +279,47 @@ public class DialectGenerateTest {
   }
 
   @Test public void testProcessKeywordsBothEmpty() {
-    assertTokensProcessed(new LinkedHashMap<String, String>(), new HashSet<String>());
+    int keywordsSize = 0;
+    int nonReservedKeywordsSize = 0;
+    assertTokensProcessed(new LinkedHashMap<Keyword, String>(),
+        new HashSet<Keyword>(), new ExtractedData(), keywordsSize,
+        nonReservedKeywordsSize);
   }
 
   @Test public void testProcessKeywordsBothNonEmptyAndValid() {
-    Map<String, String> keywords = new LinkedHashMap<String, String>();
-    keywords.put("foo", "foo");
-    keywords.put("bar", "bar");
-    Set<String> nonReservedKeywords = new HashSet<String>();
-    nonReservedKeywords.add("bar");
-    assertTokensProcessed(keywords, nonReservedKeywords);
+    int keywordsSize = 2;
+    int nonReservedKeywordsSize = 1;
+    Map<Keyword, String> keywords = new LinkedHashMap<Keyword, String>();
+    Set<Keyword> nonReservedKeywords = new HashSet<Keyword>();
+
+    keywords.put(new Keyword("foo"), "foo");
+    keywords.put(new Keyword("bar"), "bar");
+    nonReservedKeywords.add(new Keyword("bar"));
+    assertTokensProcessed(keywords, nonReservedKeywords, new ExtractedData(),
+        keywordsSize, nonReservedKeywordsSize);
+  }
+
+  @Test public void testProcessKeywordsNonReservedKeywordInExtractedData() {
+    int keywordsSize = 2;
+    int nonReservedKeywordsSize = 1;
+    Map<Keyword, String> keywords = new LinkedHashMap<Keyword, String>();
+    ExtractedData extractedData = new ExtractedData();
+    Set<Keyword> nonReservedKeywords = new HashSet<Keyword>();
+
+    keywords.put(new Keyword("foo"), "foo");
+    extractedData.keywords.put(new Keyword("bar"), "bar");
+    nonReservedKeywords.add(new Keyword("bar"));
+    assertTokensProcessed(keywords, nonReservedKeywords, extractedData,
+        keywordsSize, nonReservedKeywordsSize);
+  }
+
+  @Test public void testProcessKeywordsInvalidNonReservedKeywordFails() {
+    Map<Keyword, String> keywords = new LinkedHashMap<Keyword, String>();
+    ExtractedData extractedData = new ExtractedData();
+    Set<Keyword> nonReservedKeywords = new HashSet<Keyword>();
+
+    keywords.put(new Keyword("foo"), "foo");
+    nonReservedKeywords.add(new Keyword("bar"));
+    assertTokensNotProcessed(keywords, nonReservedKeywords, extractedData);
   }
 }

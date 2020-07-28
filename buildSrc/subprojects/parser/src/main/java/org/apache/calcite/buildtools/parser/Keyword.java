@@ -14,28 +14,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.calcite.buildtools.parser;
 
-import java.util.List;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.Objects;
 
-/**
- * A simple container class to hold the data extracted from files.
- */
-public class ExtractedData {
-  public final Map<Keyword, String> keywords;
-  public final Set<Keyword> nonReservedKeywords;
-  public final Map<String, String> functions;
-  public final List<String> tokenAssignments;
+public class Keyword {
+  public final String keyword;
+  public final String filePath;
 
-  public ExtractedData() {
-    keywords = new LinkedHashMap<Keyword, String>();
-    nonReservedKeywords = new HashSet<Keyword>();
-    functions = new LinkedHashMap<String, String>();
-    tokenAssignments = new LinkedList<String>();
+  public Keyword(String keyword) {
+    this(keyword, null);
+  }
+
+  public Keyword(String keyword, String filePath) {
+    this.keyword = Objects.requireNonNull(keyword.toUpperCase());
+    this.filePath = filePath;
+  }
+
+  @Override
+  public int hashCode() {
+    return keyword.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    } else if (obj == null) {
+      return false;
+    } else if (getClass() != obj.getClass()) {
+      return false;
+    }
+    Keyword other = (Keyword) obj;
+    // The filePath should not be considered when checking for equality.
+    return this.keyword.equals(other.keyword);
   }
 }

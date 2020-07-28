@@ -67,13 +67,13 @@ public class DialectGenerate {
    * @param nonReservedKeywords the non reserved keywords to add
    * @param extractedData The object to which the keywords will be added to
    */
-  public void processKeywords(Map<String, String> keywords,
-      Set<String> nonReservedKeywords,
+  public void processKeywords(Map<Keyword, String> keywords,
+      Set<Keyword> nonReservedKeywords,
       ExtractedData extractedData) throws IllegalStateException {
-    for (String keyword : nonReservedKeywords) {
+    for (Keyword keyword : nonReservedKeywords) {
       if (!(keywords.containsKey(keyword)
             || extractedData.keywords.containsKey(keyword))) {
-        throw new IllegalStateException(keyword + " is not a keyword.");
+        throw new IllegalStateException(keyword.keyword + " is not a keyword.");
       }
     }
     extractedData.keywords.putAll(keywords);
@@ -81,8 +81,8 @@ public class DialectGenerate {
   }
 
   /**
-   * Adds extractedData.keywords (if nonempty) to extractedData.tokenAssignments with the
-   * form:
+   * Adds extractedData.keywords (if nonempty) to extractedData.tokenAssignments
+   * with the form:
    * <DEFAULT, DQID, BTID> TOKEN :
    * {
    *    <TOKEN_1: "TOKEN_1_VALUE">
@@ -100,8 +100,8 @@ public class DialectGenerate {
     boolean first = true;
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append("<DEFAULT, DQID, BTID> TOKEN : \n{\n");
-    for (Map.Entry<String, String> entry : extractedData.keywords.entrySet()) {
-      String token = String.format("<%s : \"%s\">\n", entry.getKey(),
+    for (Map.Entry<Keyword, String> entry : extractedData.keywords.entrySet()) {
+      String token = String.format("<%s : \"%s\">\n", entry.getKey().keyword,
           entry.getValue());
       if (!first) {
         token = "|" + token;
