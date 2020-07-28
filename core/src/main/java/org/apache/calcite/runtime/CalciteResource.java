@@ -80,6 +80,24 @@ public interface CalciteResource {
   @BaseMessage("CURSOR expression encountered in illegal context")
   ExInst<CalciteException> illegalCursorExpression();
 
+  @BaseMessage("FROM unexpected")
+  ExInst<CalciteException> illegalFrom();
+
+  @BaseMessage("WHERE unexpected")
+  ExInst<CalciteException> illegalWhere();
+
+  @BaseMessage("GROUP BY unexpected")
+  ExInst<CalciteException> illegalGroupBy();
+
+  @BaseMessage("HAVING unexpected")
+  ExInst<CalciteException> illegalHaving();
+
+  @BaseMessage("QUALIFY unexpected")
+  ExInst<CalciteException> illegalQualify();
+
+  @BaseMessage("WINDOW unexpected")
+  ExInst<CalciteException> illegalWindow();
+
   @BaseMessage("ORDER BY unexpected")
   ExInst<CalciteException> illegalOrderBy();
 
