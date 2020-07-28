@@ -2780,18 +2780,17 @@ SqlNode TableRefOrJoinClause() :
     { return e; }
 }
 
-void CaretNegation(ExprContext exprContext, List<Object> list) :
+/**
+ * Parses a prefix row operator like NOT.
+ */
+SqlPrefixOperator PrefixRowOperator() :
+{}
 {
-}
-{
-    <CARET>
-    Expression2b(exprContext, list)
-    <EQ> {
-        checkNonQueryExpression(exprContext);
-        list.add(new SqlParserUtil.ToTreeListItem(
-            SqlStdOperatorTable.NOT_EQUALS, getPos()));
-    }
-    Expression2b(exprContext, list)
+    <PLUS> { return SqlStdOperatorTable.UNARY_PLUS; }
+|   <MINUS> { return SqlStdOperatorTable.UNARY_MINUS; }
+|   <NOT> { return SqlStdOperatorTable.NOT; }
+|   <CARET> { return SqlStdOperatorTable.CARET_NEGATION; }
+|   <EXISTS> { return SqlStdOperatorTable.EXISTS; }
 }
 
 /**
@@ -2820,11 +2819,7 @@ List<Object> Expression2(ExprContext exprContext) :
     final Span s = span();
 }
 {
-    (
-        CaretNegation(exprContext, list)
-    |
-        Expression2b(exprContext, list)
-    )
+    Expression2b(exprContext, list)
     (
         LOOKAHEAD(2)
         (
@@ -2947,11 +2942,7 @@ List<Object> Expression2(ExprContext exprContext) :
                     checkNonQueryExpression(exprContext);
                     list.add(new SqlParserUtil.ToTreeListItem(op, getPos()));
                 }
-                (
-                    CaretNegation(ExprContext.ACCEPT_SUB_QUERY, list)
-                |
-                    Expression2b(ExprContext.ACCEPT_SUB_QUERY, list)
-                )
+                Expression2b(ExprContext.ACCEPT_SUB_QUERY, list)
             |
                 <LBRACKET>
                 e = Expression(ExprContext.ACCEPT_SUB_QUERY)

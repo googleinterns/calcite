@@ -913,6 +913,9 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
           null,
           OperandTypes.ANY);
 
+  public static final SqlPrefixOperator CARET_NEGATION =
+      new SqlCaretNegationOperator();
+
   //-------------------------------------------------------------
   // AGGREGATE OPERATORS
   //-------------------------------------------------------------

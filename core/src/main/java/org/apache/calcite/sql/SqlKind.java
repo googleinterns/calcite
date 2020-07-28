@@ -574,6 +574,10 @@ public enum SqlKind {
    */
   NEW_SPECIFICATION,
 
+  /**
+   * Caret negation operator.
+   */
+  CARET_NEGATION,
 
   /**
    * Special functions in MATCH_RECOGNIZE.
