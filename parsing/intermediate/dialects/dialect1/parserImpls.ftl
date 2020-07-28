@@ -3053,6 +3053,9 @@ SqlCreate SqlCreate() :
     |
         LOOKAHEAD(4)
         create = SqlCreateJoinIndex()
+    |
+        LOOKAHEAD(4)
+        create = SqlCreateProcedure()
     )
     {
         return create;
@@ -4179,4 +4182,111 @@ SqlRangeNStartEnd RangeNStartEnd() :
         return new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral,
             eachSizeLiteral, false, endAsterisk);
     }
+}
+
+SqlCreateProcedure SqlCreateProcedure() :
+{
+    final Span s;
+    final SqlCreateSpecifier createSpecifier;
+    final SqlIdentifier procedureName;
+    final List<SqlCreateProcedureParameter> parameters =
+        new ArrayList<SqlCreateProcedureParameter>();
+    final CreateProcedureDataAccess access;
+    SqlLiteral numResultSets = null;
+    final CreateProcedureSecurity security;
+    final SqlNode statement;
+    SqlCreateProcedureParameter parameter;
+}
+{
+    (
+        <CREATE> { createSpecifier = SqlCreateSpecifier.CREATE; }
+    |
+        <REPLACE> { createSpecifier = SqlCreateSpecifier.REPLACE; }
+    )
+    { s = span(); }
+    <PROCEDURE>
+    procedureName = CompoundIdentifier()
+    <LPAREN>
+    [
+        parameter = SqlCreateProcedureParameter() { parameters.add(parameter); }
+        (
+            <COMMA>
+            parameter = SqlCreateProcedureParameter()
+            { parameters.add(parameter); }
+        )*
+    ]
+    <RPAREN>
+    (
+        <CONTAINS> <SQL> { access = CreateProcedureDataAccess.CONTAINS_SQL; }
+    |
+        <MODIFIES> <SQL> <DATA> {
+            access = CreateProcedureDataAccess.MODIFIES_SQL_DATA;
+        }
+    |
+        <READS> <SQL> <DATA> {
+            access = CreateProcedureDataAccess.READS_SQL_DATA;
+        }
+    |
+        { access = CreateProcedureDataAccess.UNSPECIFIED; }
+    )
+    [
+        <DYNAMIC> <RESULT> <SETS>
+        numResultSets = UnsignedNumericLiteral() {
+            int numericNumResultSets = numResultSets.getValueAs(Integer.class);
+            if (numericNumResultSets < 0 || numericNumResultSets > 15) {
+                throw SqlUtil.newContextException(getPos(),
+                    RESOURCE.numberLiteralOutOfRange(
+                    String.valueOf(numericNumResultSets)));
+            }
+        }
+    ]
+    (
+        <SQL> <SECURITY>
+        (
+            <CREATOR> { security = CreateProcedureSecurity.CREATOR; }
+        |
+            <DEFINER> { security = CreateProcedureSecurity.DEFINER; }
+        |
+            <INVOKER> { security = CreateProcedureSecurity.INVOKER; }
+        |
+            <OWNER> { security = CreateProcedureSecurity.OWNER; }
+        )
+    |
+        { security = CreateProcedureSecurity.UNSPECIFIED; }
+    )
+    statement = CreateProcedureStmt()
+    {
+        return new SqlCreateProcedure(s.end(this), createSpecifier,
+        procedureName, parameters, access, numResultSets, security, statement);
+    }
+}
+
+SqlNode CreateProcedureStmt() :
+{
+    final SqlNode e;
+}
+{
+    (
+        e = SqlStmt()
+    )
+    { return e; }
+}
+
+SqlCreateProcedureParameter SqlCreateProcedureParameter() :
+{
+    final CreateProcedureParameterType parameterType;
+    final SqlIdentifier name;
+    final SqlDataTypeSpec dataType;
+}
+{
+    (
+        <OUT> { parameterType =  CreateProcedureParameterType.OUT; }
+    |
+        <INOUT> { parameterType =  CreateProcedureParameterType.INOUT; }
+    |
+        [ <IN> ] { parameterType =  CreateProcedureParameterType.IN; }
+    )
+    name = SimpleIdentifier()
+    dataType = DataType()
+    { return new SqlCreateProcedureParameter(parameterType, name, dataType); }
 }

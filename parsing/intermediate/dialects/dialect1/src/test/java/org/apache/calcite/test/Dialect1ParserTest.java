@@ -3662,4 +3662,106 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         "CREATE TABLE `FOO` (`BAR` TIMESTAMP(6) WITH TIME ZONE)";
     sql(sql).ok(expected);
   }
+
+  @Test public void testCreateProcedure() {
+    final String sql = "create procedure foo () select bar";
+    final String expected = "CREATE PROCEDURE `FOO` () SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testReplaceProcedure() {
+    final String sql = "replace procedure foo.bar () select baz from qux where "
+        + "baz = 1";
+    final String expected = "REPLACE PROCEDURE `FOO`.`BAR` () SELECT `BAZ`\n"
+        + "FROM `QUX`\n"
+        + "WHERE (`BAZ` = 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureParameters() {
+    final String sql = "create procedure foo (inout a integer, out b float, in "
+        + "c varchar(2), d blob(3)) select :a as bar";
+    final String expected = "CREATE PROCEDURE `FOO` (INOUT `A` INTEGER, OUT "
+        + "`B` FLOAT, IN `C` VARCHAR(2), IN `D` BLOB(3)) SELECT :A AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureDataAccessContainsSql() {
+    final String sql = "create procedure foo () contains sql select bar";
+    final String expected = "CREATE PROCEDURE `FOO` () CONTAINS SQL SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureDataAccessModifiesSqlData() {
+    final String sql = "create procedure foo () modifies sql data select bar";
+    final String expected = "CREATE PROCEDURE `FOO` () MODIFIES SQL DATA "
+        + "SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureDataAccessReadsSqlData() {
+    final String sql = "create procedure foo () reads sql data select bar";
+    final String expected = "CREATE PROCEDURE `FOO` () READS SQL DATA "
+        + "SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureDynamicResultSets() {
+    final String sql = "create procedure foo () dynamic result sets 5 select bar";
+    final String expected = "CREATE PROCEDURE `FOO` () DYNAMIC RESULT SETS 5 "
+        + "SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureDynamicResultSetsMax() {
+    final String sql = "create procedure foo () contains sql dynamic result "
+        + "sets 15 select bar";
+    final String expected = "CREATE PROCEDURE `FOO` () CONTAINS SQL DYNAMIC "
+        + "RESULT SETS 15 SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureDynamicResultSetsOutOfRangeFails() {
+    final String sql = "create procedure foo () dynamic result sets ^16^ "
+        + "select bar";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testCreateProcedureDynamicResultSetsNegativeFails() {
+    final String sql = "create procedure foo () dynamic result sets ^-^1 select bar";
+    final String expected = "(?s).*Encountered \"-\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testCreateProcedureSqlSecurityCreator() {
+    final String sql = "create procedure foo () sql security creator select "
+        + "bar";
+    final String expected = "CREATE PROCEDURE `FOO` () SQL SECURITY CREATOR "
+        + "SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureSqlSecurityDefiner() {
+    final String sql = "create procedure foo () sql security definer select "
+        + "bar";
+    final String expected = "CREATE PROCEDURE `FOO` () SQL SECURITY DEFINER "
+        + "SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureSqlSecurityInvoker() {
+    final String sql = "create procedure foo () sql security invoker select "
+        + "bar";
+    final String expected = "CREATE PROCEDURE `FOO` () SQL SECURITY INVOKER "
+        + "SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureSqlSecurityOwner() {
+    final String sql = "create procedure foo () sql security owner select bar";
+    final String expected = "CREATE PROCEDURE `FOO` () SQL SECURITY OWNER "
+        + "SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
 }

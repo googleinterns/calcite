@@ -66,6 +66,11 @@ data: {
       "org.apache.calcite.sql.SqlCreateJoinIndex",
       "org.apache.calcite.sql.SqlCreateMacro",
       "org.apache.calcite.sql.SqlCreateTableDialect1",
+      "org.apache.calcite.sql.SqlCreateProcedure",
+      "org.apache.calcite.sql.SqlCreateProcedure.CreateProcedureDataAccess",
+      "org.apache.calcite.sql.SqlCreateProcedure.CreateProcedureSecurity",
+      "org.apache.calcite.sql.SqlCreateProcedureParameter",
+      "org.apache.calcite.sql.SqlCreateProcedureParameter.CreateProcedureParameterType",
       "org.apache.calcite.sql.SqlDateTimeAtLocal",
       "org.apache.calcite.sql.SqlDateTimeAtTimeZone",
       "org.apache.calcite.sql.SqlDdlNodes"
@@ -138,6 +143,7 @@ data: {
       "COLOCATE"
       "COMPRESS"
       "CONCURRENT"
+      "CREATOR"
       "CS"
       "CT"
       "DATABLOCKSIZE"
@@ -170,6 +176,7 @@ data: {
       "NAMED"
       "NEVER"
       "OFF"
+      "OWNER"
       "PROTECTION"
       "QUALIFY"
       "RANGE_N"
