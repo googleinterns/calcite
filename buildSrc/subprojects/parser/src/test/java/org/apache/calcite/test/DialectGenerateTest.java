@@ -61,7 +61,7 @@ public class DialectGenerateTest {
     assertEquals(name, dialectGenerate.getFunctionName(declaration));
   }
 
-  private void assertTokensProcessed(Map<Keyword, String> keywords,
+  private void assertKeywordsProcessed(Map<Keyword, String> keywords,
       Set<Keyword> nonReservedKeywords, ExtractedData extractedData,
       int keywordsSize, int nonReservedKeywordsSize) {
     DialectGenerate dialectGenerate = new DialectGenerate();
@@ -79,7 +79,7 @@ public class DialectGenerateTest {
     }
   }
 
-  private void assertTokensNotProcessed(Map<Keyword, String> keywords,
+  private void assertKeywordsNotProcessed(Map<Keyword, String> keywords,
       Set<Keyword> nonReservedKeywords, ExtractedData extractedData) {
     DialectGenerate dialectGenerate = new DialectGenerate();
     assertThrows(IllegalStateException.class, () -> dialectGenerate
@@ -288,7 +288,7 @@ public class DialectGenerateTest {
   @Test public void testProcessKeywordsBothEmpty() {
     int keywordsSize = 0;
     int nonReservedKeywordsSize = 0;
-    assertTokensProcessed(new LinkedHashMap<Keyword, String>(),
+    assertKeywordsProcessed(new LinkedHashMap<Keyword, String>(),
         new HashSet<Keyword>(), new ExtractedData(), keywordsSize,
         nonReservedKeywordsSize);
   }
@@ -302,7 +302,7 @@ public class DialectGenerateTest {
     keywords.put(new Keyword("foo"), "foo");
     keywords.put(new Keyword("bar"), "bar");
     nonReservedKeywords.add(new Keyword("bar"));
-    assertTokensProcessed(keywords, nonReservedKeywords, new ExtractedData(),
+    assertKeywordsProcessed(keywords, nonReservedKeywords, new ExtractedData(),
         keywordsSize, nonReservedKeywordsSize);
   }
 
@@ -316,7 +316,7 @@ public class DialectGenerateTest {
     keywords.put(new Keyword("foo"), "foo");
     extractedData.keywords.put(new Keyword("bar"), "bar");
     nonReservedKeywords.add(new Keyword("bar"));
-    assertTokensProcessed(keywords, nonReservedKeywords, extractedData,
+    assertKeywordsProcessed(keywords, nonReservedKeywords, extractedData,
         keywordsSize, nonReservedKeywordsSize);
   }
 
@@ -328,7 +328,7 @@ public class DialectGenerateTest {
     Set<Keyword> nonReservedKeywords = new HashSet<Keyword>();
     extractedData.keywords.put(new Keyword("foo"), "foo1");
     keywords.put(new Keyword("foo"), "foo2");
-    assertTokensProcessed(keywords, nonReservedKeywords, extractedData,
+    assertKeywordsProcessed(keywords, nonReservedKeywords, extractedData,
         keywordsSize, nonReservedKeywordsSize);
   }
 
@@ -339,7 +339,7 @@ public class DialectGenerateTest {
 
     keywords.put(new Keyword("foo"), "foo");
     nonReservedKeywords.add(new Keyword("bar"));
-    assertTokensNotProcessed(keywords, nonReservedKeywords, extractedData);
+    assertKeywordsNotProcessed(keywords, nonReservedKeywords, extractedData);
   }
 
   @Test public void testUnparseReservedKeywordsEmpty() {

@@ -66,6 +66,9 @@ public class DialectGenerate {
    * @param keywords The keywords to add
    * @param nonReservedKeywords the non reserved keywords to add
    * @param extractedData The object to which the keywords will be added to
+   *
+   * @throws IllegalStateException when an an element in nonReservedKeywords is
+   *                               not in keywords or extractedData.keywords
    */
   public void processKeywords(Map<Keyword, String> keywords,
       Set<Keyword> nonReservedKeywords,
