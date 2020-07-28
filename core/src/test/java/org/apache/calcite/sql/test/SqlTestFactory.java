@@ -63,6 +63,7 @@ public class SqlTestFactory {
           .put("lenientOperatorLookup", false)
           .put("enableTypeCoercion", true)
           .put("conformance", SqlConformanceEnum.DEFAULT)
+          .put("allowUnknownTables", false)
           .put("operatorTable", SqlStdOperatorTable.instance())
           .put("connectionFactory",
               CalciteAssert.EMPTY_CONNECTION_FACTORY
@@ -133,11 +134,15 @@ public class SqlTestFactory {
         (SqlConformance) options.get("conformance");
     final boolean lenientOperatorLookup =
         (boolean) options.get("lenientOperatorLookup");
-    final boolean enableTypeCoercion = (boolean) options.get("enableTypeCoercion");
+    final boolean enableTypeCoercion =
+        (boolean) options.get("enableTypeCoercion");
+    final boolean allowUnknownTables =
+        (boolean) options.get("allowUnknownTables");
     final SqlValidator.Config config = SqlValidator.Config.DEFAULT
         .withSqlConformance(conformance)
         .withTypeCoercionEnabled(enableTypeCoercion)
-        .withLenientOperatorLookup(lenientOperatorLookup);
+        .withLenientOperatorLookup(lenientOperatorLookup)
+        .withAllowUnknownTables(allowUnknownTables);
     return validatorFactory.create(operatorTable.get(),
         catalogReader.get(),
         typeFactory.get(),

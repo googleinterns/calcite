@@ -120,6 +120,7 @@ data: {
       "org.apache.calcite.sql.SqlTablePartitionExpression",
       "org.apache.calcite.sql.SqlTablePartitionRowFormat",
       "org.apache.calcite.sql.SqlTablePartitionRowFormat.CompressionOpt"
+      "org.apache.calcite.sql.SqlTimeZoneOption",
       "org.apache.calcite.sql.SqlTranslateUsingCharacterSet",
       "org.apache.calcite.sql.SqlUpsert",
       "org.apache.calcite.sql.SqlUsingRequestModifier",

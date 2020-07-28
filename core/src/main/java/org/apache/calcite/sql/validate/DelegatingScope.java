@@ -21,6 +21,7 @@ import org.apache.calcite.rel.type.DynamicRecordType;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeField;
 import org.apache.calcite.rel.type.StructKind;
+import org.apache.calcite.rel.type.UnknownRecordType;
 import org.apache.calcite.schema.CustomColumnResolvingTable;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.sql.SqlCall;
@@ -39,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -212,6 +214,48 @@ public abstract class DelegatingScope implements SqlValidatorScope {
 
   public SqlValidator getValidator() {
     return validator;
+  }
+
+  /**
+   * Filters out unknown tables (unless only unknown tables are present, in
+   * which case it leaves an arbitrary unknown table which is assumed to contain
+   * the column we are trying to resolve). This ensures that columns are not
+   * matched to unknown tables if they can instead be matched to tables with
+   * known schemas.
+   *
+   * @param map A map from table names to {@code ScopeChild} objects, which
+   *            represents all possible tables which a particular column could
+   *            come from.
+   * @return    A new table name map with unknown tables filtered out.
+   */
+  public Map<String, ScopeChild> filterTableNames(Map<String, ScopeChild> map) {
+    Map<String, ScopeChild> filteredMap = new HashMap<String, ScopeChild>();
+    for (String key : map.keySet()) {
+      if (!containsUnknownNamespace(map.get(key))) {
+        filteredMap.put(key, map.get(key));
+      }
+    }
+    // If original map consists only of unknown tables, arbitrarily assume the
+    // column corresponds to the first unknown table. We cannot do any better
+    // than this without prior schema information.
+    if (filteredMap.isEmpty() && !map.isEmpty()) {
+      String arbitraryKey = map.keySet().iterator().next();
+      filteredMap.put(arbitraryKey, map.get(arbitraryKey));
+      //TODO(dstekol): Figure out how to represent ambiguous columns
+    }
+    return filteredMap;
+  }
+
+  /**
+   * Determines whether the given {@code ScopeChild} corresponds to the
+   * namespace of an unknown table.
+   */
+  public boolean containsUnknownNamespace(ScopeChild child) {
+    if (child.namespace == null) {
+      return false;
+    }
+    SqlValidatorNamespace resolvedNamespace = child.namespace.resolve();
+    return resolvedNamespace.getType() instanceof UnknownRecordType;
   }
 
   /**

@@ -14,10 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// Extracted from: parserTest/parserImpls.ftl
 <DEFAULT> TOKEN :
 {
 
 }
+
+// Extracted from: parserTest/intermediate/parserImpls.ftl
 SKIP :
 {
     < DATE_PART: "DATE_PART" >
@@ -26,7 +30,11 @@ SKIP :
 |   < NEGATE: "!" >
 |   < TILDE: "~" >
 }
+
+// Extracted from: parserTest/intermediate/dialects/testDialect/parserImpls.ftl
 MORE : {}
+
+// Extracted from: parserTest/intermediate/dialects/testDialect/parserImpls.ftl
 void foo() :
 {
     String x = " '}' ";
@@ -34,11 +42,17 @@ void foo() :
 {
     // overidden by testDialect
 }
+
+// Extracted from: parserTest/parserImpls.ftl
 void bar  (   )  : {} {}
+
+// Extracted from: parserTest/intermediate/parserImpls.ftl
 void baz() : {x}
 {
     // overridden by intermediate
 }
+
+// Extracted from: parserTest/parserImpls.ftl
 void qux(int arg1, int arg2) :
 {
     String x = " } "
@@ -46,6 +60,8 @@ void qux(int arg1, int arg2) :
 {
     // Below is a }
 }
+
+// Extracted from: parserTest/intermediate/parserImpls.ftl
 void quux(int arg1,
     int arg2
 ) :

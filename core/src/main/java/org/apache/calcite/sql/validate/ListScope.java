@@ -163,7 +163,7 @@ public abstract class ListScope extends DelegatingScope {
     case 0:
       return parent.findQualifyingTableNames(columnName, ctx, nameMatcher);
     default:
-      return map;
+      return filterTableNames(map);
     }
   }
 
