@@ -28,7 +28,7 @@ import org.apache.calcite.sql.SqlWriter;
 public class SqlCaretNegationOperator extends SqlPrefixOperator {
 
   public SqlCaretNegationOperator() {
-    super("^", SqlKind.CARET_NEGATION, 26, null, null, null);
+    super("^", SqlKind.CARET_NEGATION, /*prec=*/26, null, null, null);
   }
 
   @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec,
