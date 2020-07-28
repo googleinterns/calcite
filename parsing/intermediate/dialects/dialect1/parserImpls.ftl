@@ -898,6 +898,7 @@ SqlCreate SqlCreateTable() :
     WithDataType withData = WithDataType.UNSPECIFIED;
     SqlPrimaryIndex primaryIndex = null;
     SqlIndex index;
+    SqlTablePartition partition = null;
     List<SqlIndex> indices = new ArrayList<SqlIndex>();
     final OnCommitType onCommitType;
 }
@@ -947,9 +948,20 @@ SqlCreate SqlCreateTable() :
         { query = null; }
     )
     [
-        index = SqlCreateTableIndex(s) { indices.add(index); }
         (
-           [<COMMA>] index = SqlCreateTableIndex(s) { indices.add(index); }
+            index = SqlCreateTableIndex(s) { indices.add(index); }
+        |
+            <PARTITION> <BY>
+            partition = CreateTablePartitionBy()
+        )
+        (
+           [ <COMMA> ]
+           (
+               index = SqlCreateTableIndex(s) { indices.add(index); }
+           |
+               <PARTITION> <BY>
+               partition = CreateTablePartitionBy()
+           )
         )*
         {
             // Filter out any primary indices from index list.
@@ -967,7 +979,146 @@ SqlCreate SqlCreateTable() :
     {
         return new SqlCreateTableDialect1(s.end(this), createSpecifier, setType,
          volatility, ifNotExists, id, tableAttributes, columnList, query,
-         withData, primaryIndex, indices, onCommitType);
+         withData, primaryIndex, indices, partition, onCommitType);
+    }
+}
+
+SqlTablePartition CreateTablePartitionBy() :
+{
+    final SqlNodeList partitions = new SqlNodeList(getPos());
+    SqlNode e;
+}
+{
+    (
+        e = PartitionExpression()
+        { partitions.add(e); }
+    |
+        <LPAREN>
+        e = PartitionExpression()
+        { partitions.add(e); }
+        (
+            <COMMA>
+            e = PartitionExpression()
+            { partitions.add(e); }
+        )*
+        <RPAREN>
+    )
+    { return new SqlTablePartition(getPos(), partitions); }
+}
+
+SqlNode  PartitionExpression() :
+{
+    final SqlNode e;
+    int constant = 0;
+}
+{
+    (
+        e = RangeN()
+    |
+        e = CaseN()
+    |
+        e = SqlExtractFromDateTime()
+    |
+        e = PartitionByColumnOption()
+    )
+    [
+        <ADD> { constant = UnsignedIntLiteral(); }
+    ]
+    { return new SqlTablePartitionExpression(getPos(), e, constant); }
+}
+
+SqlNode PartitionByColumnOption() :
+{
+    SqlNode e;
+    boolean containsAllButSpecifier = false;
+    final SqlNodeList columnList = new SqlNodeList(getPos());
+}
+{
+    (
+        <COLUMN>
+        [ <ALL> <BUT> { containsAllButSpecifier = true; } ]
+        <LPAREN>
+        e = PartitionColumnItem()
+        { columnList.add(e); }
+        (
+            <COMMA>
+            e = PartitionColumnItem()
+            { columnList.add(e); }
+        )*
+        <RPAREN>
+    |
+        <COLUMN>
+    |
+        <COLUMN>
+        e = SimpleIdentifier()
+        { columnList.add(e); }
+    )
+    {
+        return new SqlTablePartitionByColumn(getPos(), columnList,
+            containsAllButSpecifier);
+    }
+}
+
+SqlNode PartitionColumnItem() :
+{
+    SqlNode e;
+    final SqlNodeList args = new SqlNodeList(getPos());
+    CompressionOpt compressionOpt = CompressionOpt.NOT_SPECIFIED;
+}
+{
+    (
+        <ROW> <LPAREN>
+        e = SimpleIdentifier()
+        { args.add(e); }
+        (
+            <COMMA>
+            e = SimpleIdentifier()
+            { args.add(e); }
+        )*
+        <RPAREN>
+    |
+         <ROW>
+         e = SimpleIdentifier()
+         { args.add(e); }
+    )
+    [
+        <AUTO> <COMPRESS> { compressionOpt = CompressionOpt.AUTO_COMPRESS; }
+    |
+        <NO> <AUTO> <COMPRESS>
+        { compressionOpt = CompressionOpt.NO_AUTO_COMPRESS; }
+    ]
+    {
+        return new SqlTablePartitionRowFormat(getPos(),args, compressionOpt);
+    }
+|
+    e = SimpleIdentifier()
+    { return e; }
+}
+
+SqlNode SqlExtractFromDateTime() :
+{
+    List<SqlNode> args = null;
+    SqlNode e;
+    final Span s;
+    final TimeUnit unit;
+}
+{
+    <EXTRACT> {
+        s = span();
+    }
+    <LPAREN>
+    (
+        <NANOSECOND> { unit = TimeUnit.NANOSECOND; }
+    |
+        <MICROSECOND> { unit = TimeUnit.MICROSECOND; }
+    |
+        unit = TimeUnit()
+    )
+    { args = startList(new SqlIntervalQualifier(unit, null, getPos())); }
+    <FROM>
+    e = Expression(ExprContext.ACCEPT_SUB_QUERY) { args.add(e); }
+    <RPAREN> {
+        return SqlStdOperatorTable.EXTRACT.createCall(s.end(this), args);
     }
 }
 
@@ -3380,21 +3531,7 @@ SqlNode BuiltinFunctionCall() :
             return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
         }
     |
-        <EXTRACT> {
-            s = span();
-        }
-        <LPAREN>
-        (
-            <NANOSECOND> { unit = TimeUnit.NANOSECOND; }
-        |   <MICROSECOND> { unit = TimeUnit.MICROSECOND; }
-        |   unit = TimeUnit()
-        )
-        { args = startList(new SqlIntervalQualifier(unit, null, getPos())); }
-        <FROM>
-        e = Expression(ExprContext.ACCEPT_SUB_QUERY) { args.add(e); }
-        <RPAREN> {
-            return SqlStdOperatorTable.EXTRACT.createCall(s.end(this), args);
-        }
+        e = SqlExtractFromDateTime() { return e; }
     |
         <POSITION> { s = span(); }
         <LPAREN>
