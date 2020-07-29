@@ -40,4 +40,10 @@ final class DefaultDialectParserTest extends SqlDialectParserTest {
     expr("cast(x as timestamp(0) with ^time^ zone)")
         .fails("(?s).*Encountered \"time\" at .*");
   }
+
+  @Test void testHavingBeforeGroupFails() {
+    final String sql = "select deptno from emp\n"
+        + "having count(*) > 5 and deptno < 4 ^group^ by deptno, emp";
+    sql(sql).fails("(?s).*Encountered \"group\" at .*");
+  }
 }
