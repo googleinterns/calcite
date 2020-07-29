@@ -14,47 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.calcite.sql;
 
-// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
-void foo(int a) :
-{
-    String x = "}";
-    String y = "\"";
-    String z = "\\";
-    char l = '\\';
-}
-{
-    /*
-        // }
-    */
-}
+// SqlTimeZoneOption provides time displacement options for a time or a
+// timestamp type.
+public enum SqlTimeZoneOption {
 
-// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
-void bar( final int a, int b ) :
-{
-    String x = " ' } ' ";
-    char y = '\'';
-}
-{
-    /*
-        // }
-    */
-}
+  /**
+   * WITH TIME ZONE option.
+   */
+  WITH_TIME_ZONE,
 
-// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
-Foo.Bar baz () :
-{
+  /**
+   * WITH LOCAL TIME ZONE option.
+   */
+  WITH_LOCAL_TIME_ZONE,
 
-}
-{
-
-}
-
-// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
-final void qux(final String x) :
-{
-
-}
-{
-
+  /**
+   * Default option if no option is specified.
+   */
+  WITHOUT_TIME_ZONE,
 }

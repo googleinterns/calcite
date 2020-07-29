@@ -77,7 +77,7 @@ public class MatchRecognizeScope extends ListScope {
     case 0:
       return parent.findQualifyingTableNames(columnName, ctx, nameMatcher);
     default:
-      return map;
+      return filterTableNames(map);
     }
   }
 

@@ -283,8 +283,10 @@ public class DialectGenerate {
    * @param fileText The contents of the file to process
    * @param extractedData The object to which the parsed functions and token assignments
    *             will be added to
+   * @param filePath The path of the file being processed
    */
-  public void processFile(String fileText, ExtractedData extractedData) {
+  public void processFile(String fileText, ExtractedData extractedData,
+      String filePath) {
     // For windows line endings.
     fileText = fileText.replaceAll("\\r\\n", "\n");
     fileText = fileText.replaceAll("\\r", "\n");
@@ -293,14 +295,15 @@ public class DialectGenerate {
     Queue<MatchResult> tokenAssignmentDeclarations =
       getMatches(TOKEN_DECLARATION_PATTERN, fileText);
     parseDeclarations(functionDeclarations, extractedData, fileText,
-        /*isFunctionDeclaration=*/ true);
+        /*isFunctionDeclaration=*/ true, filePath);
     parseDeclarations(tokenAssignmentDeclarations, extractedData, fileText,
-        /*isFunctionDeclaration=*/ false);
+        /*isFunctionDeclaration=*/ false, filePath);
   }
 
   /**
    * Does a single pass of fileText and parses functions or token assignments
-   * as they are encountered.
+   * as they are encountered. The file from which a declaration was
+   * extracted from is added as a single-line comment.
    *
    * @param declarations The declarations to parse that are followed by some
    *                     sort of of curly braces
@@ -310,10 +313,11 @@ public class DialectGenerate {
    * @param isFunctionDeclaration If true, the declarations are functions,
    *                              otherwise the declarations are token
    *                              assignments
+   * @param filePath The path of the file being processed
    */
   private void parseDeclarations(Queue<MatchResult> declarations,
       ExtractedData extractedData, String fileText,
-      boolean isFunctionDeclaration) {
+      boolean isFunctionDeclaration, String filePath) {
     Queue<String> tokens = getTokens(fileText);
     int charIndex = 0;
     while (!declarations.isEmpty()) {
@@ -321,12 +325,20 @@ public class DialectGenerate {
       while (charIndex < declaration.start()) {
         charIndex += tokens.poll().length();
       }
+      StringBuilder stringBuilder = new StringBuilder("\n");
+      if (filePath != null) {
+        stringBuilder.append("// Extracted from: ").append(filePath).append("\n");
+      } else {
+        stringBuilder.append("// Extracted file not specified\n");
+      }
       if (isFunctionDeclaration) {
         charIndex = processFunction(tokens, extractedData.functions, charIndex,
-            declaration.end(), getFunctionName(declaration.group()));
+            declaration.end(), getFunctionName(declaration.group()),
+            stringBuilder);
       } else {
         charIndex = processTokenAssignment(tokens,
-            extractedData.tokenAssignments, charIndex, declaration.end());
+            extractedData.tokenAssignments, charIndex, declaration.end(),
+            stringBuilder);
       }
     }
   }
@@ -337,7 +349,7 @@ public class DialectGenerate {
     while (matcher.find()) {
       matches.add(matcher.toMatchResult());
     }
-    return  matches;
+    return matches;
   }
 
   /**
@@ -356,13 +368,14 @@ public class DialectGenerate {
    *                  the parsing is commencing at
    * @param declarationEnd The char index (of entire file text) at which the
    *                       function declaration ends
+   * @param stringBuilder The string builder that tokens will be added to
    */
   public int processTokenAssignment(
       Queue<String> tokens,
       List<String> tokenAssignments,
       int charIndex,
-      int declarationEnd) {
-    StringBuilder stringBuilder = new StringBuilder();
+      int declarationEnd,
+      StringBuilder stringBuilder) {
     // Process the declaration:
     while (charIndex < declarationEnd && !tokens.isEmpty()) {
       String token = tokens.poll();
@@ -393,14 +406,15 @@ public class DialectGenerate {
    * @param declarationEnd The char index (of entire file text) at which the
    *                       function declaration ends
    * @param functionName The name of the function being processed
+   * @param functionBuilder The string builder that tokens will be added to
    */
   public int processFunction(
       Queue<String> tokens,
       Map<String, String> functionMap,
       int charIndex,
       int declarationEnd,
-      String functionName) {
-    StringBuilder functionBuilder = new StringBuilder();
+      String functionName,
+      StringBuilder functionBuilder) {
     // Process the declaration:
     while (charIndex < declarationEnd && !tokens.isEmpty()) {
       String token = tokens.poll();
@@ -411,7 +425,6 @@ public class DialectGenerate {
     // and one for the body.
     charIndex = processCurlyBlock(functionBuilder, tokens, charIndex);
     charIndex = processCurlyBlock(functionBuilder, tokens, charIndex);
-
     functionMap.put(functionName, functionBuilder.toString());
     return charIndex;
   }
