@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Queue;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 /**
  * Traverses the parserImpls tree for the given dialect. Processing is done
@@ -151,7 +153,19 @@ public class DialectTraverser {
         } catch (IllegalStateException e) {
           e.printStackTrace();
         }
-      } else if (!directories.isEmpty() && fileName.equals(nextDirectory)) {
+      } else if (f.isFile() && fileName.equals("keywords.json")) {
+        String fileText = new String(Files.readAllBytes(f.toPath()),
+            StandardCharsets.UTF_8);
+        Map<Keyword, String> keywords = new LinkedHashMap<Keyword, String>();
+        Set<Keyword> nonReservedKeywords = new LinkedHashSet<Keyword>();
+        JSONObject json = (JSONObject) new JSONTokener(fileText).nextValue();
+        JSONObject keywordsJson = json.getJSONObject("keywords");
+        JSONArray nonReservedKeywordsJson = json.getJSONArray("nonReservedKeywords");
+        for (String keyword : keywordsJson.keySet()) {
+        }
+      }
+
+      else if (!directories.isEmpty() && fileName.equals(nextDirectory)) {
         // Remove the front element in the queue, the value is referenced above
         // with directories.peek() and is used in the next recursive call to
         // this function.
