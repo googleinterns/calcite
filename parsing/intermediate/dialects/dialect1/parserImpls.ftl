@@ -2611,7 +2611,10 @@ SqlNodeList ParenthesizedQueryOrCommaListWithDefault(
 }
 
 /**
- * Parses an SQL statement.
+ * Parses an SQL statement. SqlUpsert() must be parsed before SqlUpdate() since
+ * it uses a LOOKAHEAD for SqlUpdate(). OrderedQueryOrExpr() must also be parsed
+ * at the end or it will attempt to parse some statements such as "UPD
+ * expressions.
  */
 SqlNode SqlStmt() :
 {
@@ -2619,17 +2622,31 @@ SqlNode SqlStmt() :
 }
 {
     (
-        stmt = SqlSetOption(Span.of(), null)
-    |
         stmt = SqlAlter()
     |
         stmt = SqlCreate()
     |
-        stmt = SqlRename()
+        stmt = SqlDelete()
+    |
+        stmt = SqlDescribe()
+    |
+        stmt = SqlDrop()
     |
         stmt = SqlExec()
     |
-        stmt = SqlUsing()
+        stmt = SqlExplain()
+    |
+        stmt = SqlHelp()
+    |
+        stmt = SqlInsert()
+    |
+        stmt = SqlMerge()
+    |
+        stmt = SqlRename()
+    |
+        stmt = SqlProcedureCall()
+    |
+        stmt = SqlSetOption(Span.of(), null)
     |
         stmt = SqlSetTimeZone()
     |
@@ -2638,23 +2655,9 @@ SqlNode SqlStmt() :
     |
         stmt = SqlUpdate()
     |
-        stmt = SqlInsert()
-    |
-        stmt = SqlDrop()
+        stmt = SqlUsing()
     |
         stmt = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
-    |
-        stmt = SqlExplain()
-    |
-        stmt = SqlDescribe()
-    |
-        stmt = SqlDelete()
-    |
-        stmt = SqlMerge()
-    |
-        stmt = SqlProcedureCall()
-    |
-        stmt = SqlHelp()
     )
     {
         return stmt;
@@ -4544,7 +4547,7 @@ SqlHelpProcedure SqlHelpProcedure(Span s) :
 {
     <PROCEDURE> procedureName = CompoundIdentifier()
     [
-        (<ATTRIBUTES> | <ATTR> | <ATTRS>) {
+        ( <ATTRIBUTES> | <ATTR> | <ATTRS> ) {
             attributes = true;
         }
     ]

@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
@@ -26,9 +25,10 @@ public class SqlHelpProcedure extends SqlHelp {
   public final boolean attributes;
 
   /**
-   * Creates a {@code SqlHelp}.
+   * Creates a {@code SqlHelpProcedure}.
    * @param pos  Parser position, must not be null
    * @param name  Name of the procedure
+   * @param attributes  True if ATTRIBUTES keyword is present
    */
   public SqlHelpProcedure(SqlParserPos pos, SqlIdentifier name,
       boolean attributes) {
