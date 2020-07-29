@@ -4119,6 +4119,8 @@ SqlAlter SqlAlter() :
         { scope = null; }
     )
     (
+        alterNode = SqlAlterProcedure(s, scope)
+    |
         alterNode = SqlAlterTable(s, scope)
     |
         alterNode = SqlSetOption(s, scope)
@@ -4518,6 +4520,69 @@ SqlCreateProcedureParameter SqlCreateProcedureParameter() :
     name = SimpleIdentifier()
     dataType = DataType()
     { return new SqlCreateProcedureParameter(parameterType, name, dataType); }
+}
+
+SqlAlter SqlAlterProcedure(Span s, String scope) :
+{
+     final SqlIdentifier procedureName;
+     boolean languageSql = false;
+     final List<AlterProcedureWithOption> withOptions =
+        new ArrayList<AlterProcedureWithOption>();
+     boolean local = false;
+     boolean isTimeZoneNegative = false;
+     String timeZoneString = null;
+     AlterProcedureWithOption option;
+}
+{
+    <PROCEDURE>
+    procedureName = CompoundIdentifier()
+    [
+        <LANGUAGE> <SQL> { languageSql = true;}
+    ]
+    <COMPILE>
+    [
+        <WITH> option = AlterProcedureWithOption() {
+            withOptions.add(option);
+        }
+        (
+            <COMMA> option = AlterProcedureWithOption() {
+                withOptions.add(option);
+            }
+        )*
+    ]
+    [
+        <AT> <TIME> <ZONE>
+        (
+            <LOCAL> { local = true; }
+        |
+            (
+                <MINUS> { isTimeZoneNegative = true; }
+            |
+                [ <PLUS> ]
+            )
+            <QUOTED_STRING> { timeZoneString = token.image; }
+        )
+    ]
+    {
+        return new SqlAlterProcedure(getPos(), scope, procedureName,
+            languageSql, withOptions, local, isTimeZoneNegative,
+            timeZoneString);
+    }
+}
+
+AlterProcedureWithOption AlterProcedureWithOption() :
+{
+}
+{
+    (
+        <SPL> { return AlterProcedureWithOption.SPL; }
+    |
+        <WARNING> { return AlterProcedureWithOption.WARNING; }
+    |
+        <NO> <SPL> { return AlterProcedureWithOption.NO_SPL; }
+    |
+        <NO> <WARNING> { return AlterProcedureWithOption.NO_WARNING; }
+    )
 }
 
 SqlRenameProcedure SqlRenameProcedure() :

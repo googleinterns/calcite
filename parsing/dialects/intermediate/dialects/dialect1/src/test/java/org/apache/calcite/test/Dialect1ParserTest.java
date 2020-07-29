@@ -4024,6 +4024,70 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testAlterProcedure() {
+    final String sql = "alter procedure foo compile";
+    final String expected = "ALTER PROCEDURE `FOO` COMPILE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAlterProcedureLanguageSql() {
+    final String sql = "alter procedure foo language sql compile";
+    final String expected = "ALTER PROCEDURE `FOO` LANGUAGE SQL COMPILE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAlterProcedureWithSpl() {
+    final String sql = "alter procedure foo language sql compile with spl";
+    final String expected = "ALTER PROCEDURE `FOO` LANGUAGE SQL COMPILE WITH SPL";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAlterProcedureWithWarning() {
+    final String sql = "alter procedure foo language sql compile with warning";
+    final String expected = "ALTER PROCEDURE `FOO` LANGUAGE SQL COMPILE WITH "
+        + "WARNING";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAlterProcedureWithNoSplNoWarningList() {
+    final String sql = "alter procedure foo compile with no spl, no warning";
+    final String expected = "ALTER PROCEDURE `FOO` COMPILE WITH NO SPL, NO "
+        + "WARNING";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAlterProcedureAtTimeZoneLocal() {
+    final String sql = "alter procedure foo language sql compile at time zone "
+        + "local";
+    final String expected = "ALTER PROCEDURE `FOO` LANGUAGE SQL COMPILE AT "
+        + "TIME ZONE LOCAL";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAlterProcedureAtTimeZoneString() {
+    final String sql = "alter procedure foo language sql compile at time zone "
+        + "'gmt'";
+    final String expected = "ALTER PROCEDURE `FOO` LANGUAGE SQL COMPILE AT "
+        + "TIME ZONE 'gmt'";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAlterProcedureAtTimeZoneMinusString() {
+    final String sql = "alter procedure foo language sql compile at time zone "
+        + "-'gmt'";
+    final String expected = "ALTER PROCEDURE `FOO` LANGUAGE SQL COMPILE AT "
+        + "TIME ZONE -'gmt'";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAlterProcedureAtTimeZonePlusString() {
+    final String sql = "alter procedure foo language sql compile at time zone "
+        + "+'gmt'";
+    final String expected = "ALTER PROCEDURE `FOO` LANGUAGE SQL COMPILE AT "
+        + "TIME ZONE 'gmt'";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testRenameProcedureTo() {
     final String sql = "rename procedure foo to bar";
     final String expected = "RENAME PROCEDURE `FOO` AS `BAR`";
