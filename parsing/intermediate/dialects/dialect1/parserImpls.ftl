@@ -4076,11 +4076,11 @@ SqlAlter SqlAlter() :
         { scope = null; }
     )
     (
+        alterNode = SqlAlterProcedure(s, scope)
+    |
         alterNode = SqlAlterTable(s, scope)
     |
         alterNode = SqlSetOption(s, scope)
-    |
-        alterNode = SqlAlterProcedure(s, scope)
     )
     {
         return alterNode;
