@@ -3711,11 +3711,19 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testAlterProcedureAtTimeZoneNegativeString() {
+  @Test public void testAlterProcedureAtTimeZoneMinusString() {
     final String sql = "alter procedure foo language sql compile at time zone "
         + "-'gmt'";
     final String expected = "ALTER PROCEDURE `FOO` LANGUAGE SQL COMPILE AT "
         + "TIME ZONE -'gmt'";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAlterProcedureAtTimeZonePlusString() {
+    final String sql = "alter procedure foo language sql compile at time zone "
+        + "+'gmt'";
+    final String expected = "ALTER PROCEDURE `FOO` LANGUAGE SQL COMPILE AT "
+        + "TIME ZONE 'gmt'";
     sql(sql).ok(expected);
   }
 }
