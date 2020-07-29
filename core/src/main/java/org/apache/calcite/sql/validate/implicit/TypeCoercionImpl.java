@@ -187,8 +187,9 @@ public class TypeCoercionImpl extends AbstractTypeCoercion {
     SqlIntervalQualifier qualifier =
         new SqlIntervalQualifier(TimeUnit.DAY, TimeUnit.DAY, numeric.getParserPosition());
     int sign = ((BigDecimal) numeric.getValue()).signum();
+    String absoluteNumeric = ((BigDecimal) numeric.getValue()).abs().toString();
     SqlIntervalLiteral interval =
-        SqlLiteral.createInterval(sign, numeric.toValue(), qualifier, numeric.getParserPosition());
+        SqlLiteral.createInterval(sign, absoluteNumeric, qualifier, numeric.getParserPosition());
     call.setOperand(numericIndex, interval);
     updateInferredType(numeric, factory.createSqlIntervalType(qualifier));
     return true;

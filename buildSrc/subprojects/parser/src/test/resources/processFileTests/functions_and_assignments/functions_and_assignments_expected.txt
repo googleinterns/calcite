@@ -14,15 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// Extracted from: processFileTests/functions_and_assignments/functions_and_assignments.txt
 < x, y> TOKEN :
 {
 
 }
+
+// Extracted from: processFileTests/functions_and_assignments/functions_and_assignments.txt
 SKIP :
 {
 
 }
+
+// Extracted from: processFileTests/functions_and_assignments/functions_and_assignments.txt
 void foo() : {} {}
+
+// Extracted from: processFileTests/functions_and_assignments/functions_and_assignments.txt
 void bar() :
 {
 

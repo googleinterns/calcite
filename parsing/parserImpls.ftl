@@ -1928,17 +1928,20 @@ SqlNode RowConstructor() :
  */
 SqlNode WhereOpt() :
 {
-    SqlNode condition;
+    final SqlNode where;
 }
 {
-    <WHERE> condition = Expression(ExprContext.ACCEPT_SUB_QUERY)
-    {
-        return condition;
-    }
-    |
-    {
-        return null;
-    }
+    where = Where() { return where; }
+|
+    { return null; }
+}
+
+SqlNode Where() :
+{
+    final SqlNode e;
+}
+{
+    <WHERE> e = Expression(ExprContext.ACCEPT_SUB_QUERY) { return e; }
 }
 
 /**
@@ -1946,19 +1949,88 @@ SqlNode WhereOpt() :
  */
 SqlNodeList GroupByOpt() :
 {
+    final SqlNodeList groupBy;
+}
+{
+    groupBy = GroupBy() { return groupBy; }
+|
+    { return null; }
+}
+
+SqlNodeList GroupBy() :
+{
     List<SqlNode> list = new ArrayList<SqlNode>();
     final Span s;
 }
 {
-    <GROUP> { s = span(); }
-    <BY> list = GroupingElementList() {
+    <GROUP> <BY>
+    { s = span(); }
+    list = GroupingElementList() {
         return new SqlNodeList(list, s.addAll(list).pos());
     }
+}
+
+/**
+ * Parses the optional HAVING clause for SELECT.
+ */
+SqlNode HavingOpt() :
+{
+    final SqlNode having;
+}
+{
+    having = Having() { return having; }
 |
+    { return null; }
+}
+
+SqlNode Having() :
+{
+    final SqlNode e;
+}
+{
+    <HAVING> e = Expression(ExprContext.ACCEPT_SUB_QUERY) { return e; }
+}
+
+/**
+ * Parses the optional WINDOW clause for SELECT.
+ */
+SqlNodeList WindowOpt() :
+{
+    final SqlNodeList window;
+}
+{
+    window = Window() { return window; }
+|
+    { return null; }
+}
+
+SqlNodeList Window() :
+{
+    SqlIdentifier id;
+    SqlWindow e;
+    List<SqlNode> list;
+    final Span s;
+}
+{
+    <WINDOW> { s = span(); }
+    id = SimpleIdentifier() <AS> e = WindowSpecification() {
+        e.setDeclName(id);
+        list = startList(e);
+    }
+    (
+        // NOTE jhyde 22-Oct-2004:  See comments at top of file for why
+        // hint is necessary here.
+        LOOKAHEAD(2)
+        <COMMA> id = SimpleIdentifier() <AS> e = WindowSpecification() {
+            e.setDeclName(id);
+            list.add(e);
+        }
+    )*
     {
-        return null;
+        return new SqlNodeList(list, s.addAll(list).pos());
     }
 }
+
 
 List<SqlNode> GroupingElementList() :
 {
@@ -2035,53 +2107,6 @@ SqlNodeList ExpressionCommaList(
     )*
     {
         return new SqlNodeList(list, s.addAll(list).pos());
-    }
-}
-
-/**
- * Parses the optional HAVING clause for SELECT.
- */
-SqlNode HavingOpt() :
-{
-    SqlNode e;
-}
-{
-    <HAVING> e = Expression(ExprContext.ACCEPT_SUB_QUERY) { return e; }
-|
-    { return null; }
-}
-
-/**
- * Parses the optional WINDOW clause for SELECT
- */
-SqlNodeList WindowOpt() :
-{
-    SqlIdentifier id;
-    SqlWindow e;
-    List<SqlNode> list;
-    final Span s;
-}
-{
-    <WINDOW> { s = span(); }
-    id = SimpleIdentifier() <AS> e = WindowSpecification() {
-        e.setDeclName(id);
-        list = startList(e);
-    }
-    (
-        // NOTE jhyde 22-Oct-2004:  See comments at top of file for why
-        // hint is necessary here.
-        LOOKAHEAD(2)
-        <COMMA> id = SimpleIdentifier() <AS> e = WindowSpecification() {
-            e.setDeclName(id);
-            list.add(e);
-        }
-    )*
-    {
-        return new SqlNodeList(list, s.addAll(list).pos());
-    }
-|
-    {
-        return null;
     }
 }
 

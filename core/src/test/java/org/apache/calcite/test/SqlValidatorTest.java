@@ -9867,13 +9867,13 @@ class SqlValidatorTest extends SqlValidatorTestCase {
         + "group by floor(rowtime to hour), productId").ok();
     sql("select stream productId, count(*) as c\n"
         + "from orders\n"
-        + "^group by productId^")
+        + "group ^by productId^")
         .fails(STR_AGG_REQUIRES_MONO);
     sql("select stream ^count(*)^ as c\n"
         + "from orders")
         .fails(STR_AGG_REQUIRES_MONO);
     sql("select stream count(*) as c\n"
-        + "from orders ^group by ()^")
+        + "from orders group ^by ()^")
         .fails(STR_AGG_REQUIRES_MONO);
   }
 
@@ -9889,7 +9889,7 @@ class SqlValidatorTest extends SqlValidatorTestCase {
         + "having false").ok();
     sql("select stream productId, count(*) as c\n"
         + "from orders\n"
-        + "^group by productId^\n"
+        + "group ^by productId^\n"
         + "having count(*) > 5")
         .fails(STR_AGG_REQUIRES_MONO);
     sql("select stream 1\n"
@@ -10360,7 +10360,7 @@ class SqlValidatorTest extends SqlValidatorTestCase {
         + "group by tumble(rowtime, interval '2' hour), productId").ok();
     sql("select stream productId\n"
         + "from orders\n"
-        + "^group by productId,\n"
+        + "group ^by productId,\n"
         + "  tumble(timestamp '1990-03-04 12:34:56', interval '2' hour)^")
         .fails(STR_AGG_REQUIRES_MONO);
   }
@@ -11568,5 +11568,14 @@ class SqlValidatorTest extends SqlValidatorTestCase {
         + "(VALUES ROW(`B`.`NAME`, `B`.`DEPTNO`, "
         + "`B`.`DEPTNO`, TIMESTAMP '1970-01-01 00:00:00', 1, 2, 3, FALSE))";
     sql(sql).withConformance(SqlConformanceEnum.BIG_QUERY).rewritesTo(expected);
+  }
+
+  @Test public void testCoerceInterval() {
+    String sql = "select -2 + CURRENT_DATE()";
+    String expected = "SELECT INTERVAL -'2' DAY + CURRENT_DATE";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .withConformance(SqlConformanceEnum.LENIENT)
+        .rewritesTo(expected);
   }
 }

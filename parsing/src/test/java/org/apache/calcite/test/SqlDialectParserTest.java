@@ -1543,14 +1543,6 @@ public abstract class SqlDialectParserTest {
   }
 
   @Test void testCastFails() {
-    expr("cast(x as time with ^time^ zone)")
-        .fails("(?s).*Encountered \"time\" at .*");
-    expr("cast(x as time(0) with ^time^ zone)")
-        .fails("(?s).*Encountered \"time\" at .*");
-    expr("cast(x as timestamp with ^time^ zone)")
-        .fails("(?s).*Encountered \"time\" at .*");
-    expr("cast(x as timestamp(0) with ^time^ zone)")
-        .fails("(?s).*Encountered \"time\" at .*");
     expr("cast(x as varchar(10) ^with^ local time zone)")
         .fails("(?s).*Encountered \"with\" at line 1, column 23.\n.*");
     expr("cast(x as varchar(10) ^without^ time zone)")
@@ -1868,12 +1860,6 @@ public abstract class SqlDialectParserTest {
         + "HAVING ((COUNT(*) > 5) AND (1 = 2))\n"
         + "ORDER BY 5, 2";
     sql(sql).ok(expected);
-  }
-
-  @Test void testHavingBeforeGroupFails() {
-    final String sql = "select deptno from emp\n"
-        + "having count(*) > 5 and deptno < 4 ^group^ by deptno, emp";
-    sql(sql).fails("(?s).*Encountered \"group\" at .*");
   }
 
   @Test void testHavingNoGroup() {
