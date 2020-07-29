@@ -4036,7 +4036,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testRenameProcedureWithCompoundIdentifies() {
+  @Test public void testRenameProcedureWithCompoundIdentifiers() {
     final String sql = "rename procedure foo.bar as baz.qux";
     final String expected = "RENAME PROCEDURE `FOO`.`BAR` AS `BAZ`.`QUX`";
     sql(sql).ok(expected);
