@@ -3300,6 +3300,8 @@ SqlRename SqlRename() :
         source = SqlRenameMacro()
     |
         source = SqlRenameTable()
+    |
+        source = SqlRenameProcedure()
     )
     {
         return source;
@@ -4363,5 +4365,24 @@ SqlRangeNStartEnd RangeNStartEnd() :
     {
         return new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral,
             eachSizeLiteral, false, endAsterisk);
+    }
+}
+
+SqlRenameProcedure SqlRenameProcedure() :
+{
+    final SqlIdentifier oldProcedure;
+    final SqlIdentifier newProcedure;
+}
+{
+    <PROCEDURE>
+    oldProcedure = CompoundIdentifier()
+    (
+        <TO>
+    |
+        <AS>
+    )
+    newProcedure = CompoundIdentifier()
+    {
+        return new SqlRenameProcedure(getPos(), oldProcedure, newProcedure);
     }
 }

@@ -91,6 +91,7 @@ data: {
       "org.apache.calcite.sql.SqlRangeNStartEnd",
       "org.apache.calcite.sql.SqlRename",
       "org.apache.calcite.sql.SqlRenameMacro",
+      "org.apache.calcite.sql.SqlRenameProcedure",
       "org.apache.calcite.sql.SqlRenameTable",
       "org.apache.calcite.sql.SqlSecondaryIndex",
       "org.apache.calcite.sql.SqlSelectTopN",

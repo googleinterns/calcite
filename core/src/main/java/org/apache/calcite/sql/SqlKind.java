@@ -1166,6 +1166,9 @@ public enum SqlKind {
   /** {@code CREATE JOIN INDEX} DDL statement. */
   CREATE_JOIN_INDEX,
 
+  /** {@code RENAME PROCEDURE} DDL statement. */
+  RENAME_PROCEDURE,
+
   /** DDL statement not handled above.
    *
    * <p><b>Note to other projects</b>: If you are extending Calcite's SQL parser

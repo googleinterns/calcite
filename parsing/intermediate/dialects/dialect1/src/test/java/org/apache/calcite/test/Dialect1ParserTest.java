@@ -3868,4 +3868,16 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "QUALIFY ((RANK() OVER (ORDER BY `A` DESC)) = 1)";
     sql(sql).ok(expected);
   }
+
+  @Test public void testRenameProcedureTo() {
+    final String sql = "rename procedure foo to bar";
+    final String expected = "RENAME PROCEDURE `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureAs() {
+    final String sql = "rename procedure foo.bar as bar.baz";
+    final String expected = "RENAME PROCEDURE `FOO`.`BAR` AS `BAR`.`BAZ`";
+    sql(sql).ok(expected);
+  }
 }
