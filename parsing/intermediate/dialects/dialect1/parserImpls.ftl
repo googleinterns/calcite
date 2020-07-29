@@ -1621,19 +1621,6 @@ SqlNode DateTimeTerm() :
     )
 }
 
-/**
- * Parses the optional QUALIFY clause for SELECT.
- */
-SqlNode QualifyOpt() :
-{
-    SqlNode e;
-}
-{
-    <QUALIFY> e = Expression(ExprContext.ACCEPT_SUB_QUERY) { return e; }
-|
-    { return null; }
-}
-
 // This excludes CompoundIdentifier() as a data type.
 SqlDataTypeSpec DataTypeAlternativeCastSyntax() :
 {
@@ -2672,12 +2659,13 @@ SqlSelect SqlSelect() :
     final SqlNodeList keywordList;
     SqlNode topN = null;
     List<SqlNode> selectList;
-    final SqlNode fromClause;
-    final SqlNode where;
-    final SqlNodeList groupBy;
-    final SqlNode having;
+    SqlNode e;
+    SqlNode from = null;
+    SqlNode where = null;
+    SqlNodeList groupBy = null;
+    SqlNode having = null;
     SqlNode qualify = null;
-    final SqlNodeList windowDecls;
+    SqlNodeList window = null;
     final List<SqlNode> hints = new ArrayList<SqlNode>();
     final Span s;
 }
@@ -2716,29 +2704,89 @@ SqlSelect SqlSelect() :
     }
     selectList = SelectList()
     (
-        <FROM> fromClause = FromClause()
-        where = WhereOpt()
-        groupBy = GroupByOpt()
-        having = HavingOpt()
-        qualify = QualifyOpt()
-        windowDecls = WindowOpt()
-    |
-        E() {
-            fromClause = null;
-            where = null;
-            groupBy = null;
-            having = null;
-            qualify = null;
-            windowDecls = null;
+        <FROM> e = FromClause()
+        {
+            if (from != null) {
+                throw SqlUtil.newContextException(s.pos(),
+                    RESOURCE.illegalFrom());
+            }
+            from = e;
         }
-    )
+    |
+        e = Where()
+        {
+            if (where != null) {
+                throw SqlUtil.newContextException(s.pos(),
+                    RESOURCE.illegalWhere());
+            }
+            where = e;
+        }
+    |
+        e = GroupBy()
+        {
+            if (groupBy != null) {
+                throw SqlUtil.newContextException(s.pos(),
+                    RESOURCE.illegalGroupBy());
+            }
+            groupBy = (SqlNodeList) e;
+        }
+    |
+        e = Having()
+        {
+            if (having != null) {
+                throw SqlUtil.newContextException(s.pos(),
+                    RESOURCE.illegalHaving());
+            }
+            having = e;
+        }
+    |
+        e = Qualify()
+        {
+            if (qualify != null) {
+                throw SqlUtil.newContextException(s.pos(),
+                    RESOURCE.illegalQualify());
+            }
+            qualify = e;
+        }
+    |
+        e = Window()
+        {
+            if (window != null) {
+                throw SqlUtil.newContextException(s.pos(),
+                    RESOURCE.illegalWindow());
+            }
+            window = (SqlNodeList) e;
+        }
+    )*
     {
+        // If any other clauses are present, then FROM must also be provided.
+        if (from == null && (
+                where != null ||
+                groupBy != null ||
+                having != null ||
+                qualify != null ||
+                window != null)
+           ) {
+            throw SqlUtil.newContextException(s.pos(),
+                    RESOURCE.selectMissingFrom());
+        }
         return new SqlSelect(s.end(this), keywordList, topN,
             new SqlNodeList(selectList, Span.of(selectList).pos()),
-            /*exceptExpression=*/ null, fromClause, where, groupBy, having, qualify,
-            windowDecls, /*orderBy=*/ null, /*offset=*/ null, /*fetch=*/ null,
+            /*exceptExpression=*/ null, from, where, groupBy, having, qualify,
+            window, /*orderBy=*/ null, /*offset=*/ null, /*fetch=*/ null,
             new SqlNodeList(hints, getPos()));
     }
+}
+
+/**
+ * Parses the QUALIFY clause for SELECT.
+ */
+SqlNode Qualify() :
+{
+    SqlNode e;
+}
+{
+    <QUALIFY> e = Expression(ExprContext.ACCEPT_SUB_QUERY) { return e; }
 }
 
 /**
@@ -2929,6 +2977,25 @@ SqlNode TableRefOrJoinClause() :
         e = TableRef()
     )
     { return e; }
+}
+
+/**
+ * Parses a prefix row operator like NOT.
+ */
+SqlPrefixOperator PrefixRowOperator() :
+{}
+{
+    (
+        <PLUS> { return SqlStdOperatorTable.UNARY_PLUS; }
+    |
+        <MINUS> { return SqlStdOperatorTable.UNARY_MINUS; }
+    |
+        <NOT> { return SqlStdOperatorTable.NOT; }
+    |
+        <CARET> { return SqlStdOperatorTable.CARET_NEGATION; }
+    |
+        <EXISTS> { return SqlStdOperatorTable.EXISTS; }
+    )
 }
 
 /**
@@ -3511,6 +3578,7 @@ SqlNode BuiltinFunctionCall() :
     TimeUnit interval;
     final TimeUnit unit;
     final SqlNode node;
+    final boolean isTranslateChk;
     boolean isWithError = false;
     boolean allowTranslateUsingCharSet = false;
 }
@@ -3564,7 +3632,12 @@ SqlNode BuiltinFunctionCall() :
             return SqlStdOperatorTable.CONVERT.createCall(s.end(this), args);
         }
     |
-        <TRANSLATE> { s = span(); }
+        (
+            <TRANSLATE> { isTranslateChk = false; }
+        |
+            <TRANSLATE_CHK> { isTranslateChk = true; }
+        )
+        { s = span(); }
         <LPAREN>
         e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
             args = startList(e);
@@ -3590,10 +3663,12 @@ SqlNode BuiltinFunctionCall() :
             ]
             <RPAREN> {
                 if (allowTranslateUsingCharSet) {
-                    return new SqlTranslateUsingCharacterSet(s.end(this), args, isWithError);
+                    return new SqlTranslateUsingCharacterSet(s.end(this), args,
+                        isTranslateChk, isWithError);
                 }
-                return SqlStdOperatorTable.TRANSLATE.createCall(s.end(this),
-                    args);
+                return isTranslateChk ?
+                    SqlStdOperatorTable.TRANSLATE_CHK.createCall(s.end(this), args) :
+                    SqlStdOperatorTable.TRANSLATE.createCall(s.end(this), args);
             }
         |
             (

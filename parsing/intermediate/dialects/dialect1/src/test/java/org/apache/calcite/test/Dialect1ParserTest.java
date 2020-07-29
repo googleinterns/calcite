@@ -1420,6 +1420,11 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     expr(sql).ok(expected);
   }
 
+  @Test public void testTranslateChk() {
+    expr("translate_chk ('abc' using latin_to_unicode)")
+        .ok("TRANSLATE_CHK ('abc' USING LATIN_TO_UNICODE)");
+  }
+
   @Test public void testUsingRequestModifierSingular() {
     final String sql = "using (foo int)";
     final String expected = "USING (`FOO` INTEGER)";
@@ -3855,6 +3860,57 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "create table foo (bar timestamp(6) with time zone)";
     final String expected =
         "CREATE TABLE `FOO` (`BAR` TIMESTAMP(6) WITH TIME ZONE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectClauseOrdering() {
+    final String sql = "select * qualify rank(a) = 1 having a > 2 group by a where a > 3 from foo";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` > 3)\n"
+        + "GROUP BY `A`\n"
+        + "HAVING (`A` > 2)\n"
+        + "QUALIFY ((RANK() OVER (ORDER BY `A` DESC)) = 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegation() {
+    String sql = "select * from foo where ^a = 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (^(`A` = 1))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationWithParentheses() {
+    String sql = "select * from foo where ^(a <> 1)";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (^(`A` <> 1))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationAnd() {
+    String sql = "select * from foo where ^a <= 1 and ^b >= 2";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE ((^(`A` <= 1)) AND (^(`B` >= 2)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationOr() {
+    String sql = "select * from foo where ^a < 1 or ^b > 2";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE ((^(`A` < 1)) OR (^(`B` > 2)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationLikeAndNotLike() {
+    String sql = "select * from foo where ^a like 1 and ^b not like 2";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE ((^(`A` LIKE 1)) AND (^(`B` NOT LIKE 2)))";
     sql(sql).ok(expected);
   }
 
