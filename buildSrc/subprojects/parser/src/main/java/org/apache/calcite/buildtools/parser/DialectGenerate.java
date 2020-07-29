@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.buildtools.parser;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -201,7 +202,7 @@ public class DialectGenerate {
   }
 
   private Queue<MatchResult> getMatches(Pattern pattern, String text) {
-    Queue<MatchResult> matches = new ArrayList<>();
+    Queue<MatchResult> matches = new LinkedList<>();
     Matcher matcher = pattern.matcher(text);
     while (matcher.find()) {
       matches.add(matcher.toMatchResult());
