@@ -2644,6 +2644,8 @@ SqlNode SqlStmt() :
         stmt = SqlMerge()
     |
         stmt = SqlProcedureCall()
+    |
+        stmt = SqlHelp()
     )
     {
         return stmt;
@@ -4364,4 +4366,35 @@ SqlRangeNStartEnd RangeNStartEnd() :
         return new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral,
             eachSizeLiteral, false, endAsterisk);
     }
+}
+
+/**
+ * Parses a HELP statement.
+ */
+SqlHelp SqlHelp() :
+{
+    final SqlHelp help;
+    final Span s;
+}
+{
+    <HELP> { s = span(); }
+    (
+        help = SqlHelpProcedure(s)
+    )
+    { return help; }
+}
+
+SqlHelpProcedure SqlHelpProcedure(Span s) :
+{
+    final SqlIdentifier procedureName;
+    boolean attributes = false;
+}
+{
+    <PROCEDURE> procedureName = CompoundIdentifier()
+    [
+        (<ATTRIBUTES> | <ATTR> | <ATTRS>) {
+            attributes = true;
+        }
+    ]
+    { return new SqlHelpProcedure(s.end(this), procedureName, attributes); }
 }

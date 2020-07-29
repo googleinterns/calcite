@@ -3868,4 +3868,28 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "QUALIFY ((RANK() OVER (ORDER BY `A` DESC)) = 1)";
     sql(sql).ok(expected);
   }
+
+  @Test public void testHelpProcedure() {
+    final String sql = "help procedure foo";
+    final String expected = "HELP PROCEDURE `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHelpProcedureAttributes() {
+    final String sql = "help procedure foo attributes";
+    final String expected = "HELP PROCEDURE `FOO` ATTRIBUTES";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHelpProcedureAttr() {
+    final String sql = "help procedure foo attr";
+    final String expected = "HELP PROCEDURE `FOO` ATTRIBUTES";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHelpProcedureAttrs() {
+    final String sql = "help procedure foo attrs";
+    final String expected = "HELP PROCEDURE `FOO` ATTRIBUTES";
+    sql(sql).ok(expected);
+  }
 }

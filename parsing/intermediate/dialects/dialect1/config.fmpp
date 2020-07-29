@@ -74,6 +74,8 @@ data: {
       "org.apache.calcite.sql.SqlDropMacro",
       "org.apache.calcite.sql.SqlExecMacro",
       "org.apache.calcite.sql.SqlExecMacroParam",
+      "org.apache.calcite.sql.SqlHelp",
+      "org.apache.calcite.sql.SqlHelpProcedure",
       "org.apache.calcite.sql.SqlHexCharStringLiteral",
       "org.apache.calcite.sql.SqlHexCharStringLiteral.HexCharLiteralFormat",
       "org.apache.calcite.sql.SqlHostVariable",
@@ -131,6 +133,8 @@ data: {
     # List of keywords.
     keywords: [
       "ARCHIVE"
+      "ATTR"
+      "ATTRS"
       "AUTO"
       "AUTOTEMP"
       "BLOCKCOMPRESSION"
@@ -154,6 +158,7 @@ data: {
       "FILE"
       "FREESPACE"
       "GRAPHIC"
+      "HELP"
       "IF"
       "INDEX"
       "INLINE"
