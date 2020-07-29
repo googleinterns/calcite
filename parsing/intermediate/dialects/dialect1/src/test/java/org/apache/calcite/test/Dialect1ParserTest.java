@@ -3662,4 +3662,10 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         "CREATE TABLE `FOO` (`BAR` TIMESTAMP(6) WITH TIME ZONE)";
     sql(sql).ok(expected);
   }
+
+  @Test public void testAlterProcedure() {
+    final String sql = "alter procedure foo compile";
+    final String expected = "ALTER PROCEDURE `FOO` COMPILE";
+    sql(sql).ok(expected);
+  }
 }

@@ -4187,11 +4187,11 @@ SqlAlter SqlAlterProcedure(Span s, String scope) :
 {
      final SqlIdentifier procedureName;
      final boolean languageSql;
-     final List<AlterProcedureWithOption> options =
+     final List<AlterProcedureWithOption> withOptions =
         new ArrayList<AlterProcedureWithOption>();
      final boolean local;
      final boolean isTimeZoneNegative;
-     SqlLiteral timeZoneString = null;
+     String timeZoneString = null;
      AlterProcedureWithOption option;
 }
 {
@@ -4203,11 +4203,11 @@ SqlAlter SqlAlterProcedure(Span s, String scope) :
     <COMPILE>
     [
         <WITH> option = AlterProcedureWithOption() {
-            options.add(option);
+            withOptions.add(option);
         }
         (
             <COMMA> option = AlterProcedureWithOption() {
-                options.add(option);
+                withOptions.add(option);
             }
         )*
     ]
@@ -4225,8 +4225,7 @@ SqlAlter SqlAlterProcedure(Span s, String scope) :
         )
     ]
     {
-        return new SqlAlterProcedure(getPos(), scope, tableName,
-            tableAttributes, alterTableOptions);
+        return new SqlAlterProcedure(getPos(), scope, languageSql, withOptions, local, isTimeZoneNegative, timeZoneString);
     }
 }
 
@@ -4235,7 +4234,7 @@ AlterProcedureWithOption AlterProcedureWithOption() :
 }
 {
     (
-        <SPL> { return AlterProcedureWithOption.SQL; }
+        <SPL> { return AlterProcedureWithOption.SPL; }
     |
         <WARNING> { return AlterProcedureWithOption.WARNING; }
     |

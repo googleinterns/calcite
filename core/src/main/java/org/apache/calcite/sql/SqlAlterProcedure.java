@@ -30,7 +30,7 @@ public class SqlAlterProcedure extends SqlAlter {
   public final List<AlterProcedureWithOption> options;
   public final boolean local;
   public final boolean isTimeZoneNegative;
-  public final SqlLiteral timeZoneString;
+  public final String timeZoneString;
 
   private static final SqlOperator OPERATOR =
       new SqlSpecialOperator("ALTER PROCEDURE", SqlKind.ALTER_PROCEDURE);
@@ -49,7 +49,7 @@ public class SqlAlterProcedure extends SqlAlter {
   public SqlAlterProcedure(SqlParserPos pos, String scope,
       SqlIdentifier procedureName, boolean languageSql,
       List<AlterProcedureWithOption> options, boolean local,
-      boolean isTimeZoneNegative, SqlLiteral timeZoneString) {
+      boolean isTimeZoneNegative, String timeZoneString) {
     super(pos, scope);
     this.procedureName = procedureName;
     this.languageSql = languageSql;
@@ -100,7 +100,7 @@ public class SqlAlterProcedure extends SqlAlter {
       if (isTimeZoneNegative) {
         writer.print("-");
       }
-      writer.literal("'" + timeZoneString.getValue().toString() + "'");
+      writer.literal(timeZoneString);
     }
   }
 

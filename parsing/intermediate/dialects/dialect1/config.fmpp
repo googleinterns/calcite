@@ -27,6 +27,8 @@ data: {
       "org.apache.calcite.sql.CharacterSet"
       "org.apache.calcite.sql.OnCommitType",
       "org.apache.calcite.sql.SetType",
+      "org.apache.calcite.sql.SqlAlterProcedure",
+      "org.apache.calcite.sql.SqlAlterProcedure.AlterProcedureWithOption",
       "org.apache.calcite.sql.SqlAlterTable",
       "org.apache.calcite.sql.SqlAlterTableAddColumns",
       "org.apache.calcite.sql.SqlAlterTableAttributeChecksum",
@@ -136,6 +138,7 @@ data: {
       "CASESPECIFIC"
       "CHECKSUM"
       "COLOCATE"
+      "COMPILE"
       "COMPRESS"
       "CONCURRENT"
       "CS"
@@ -176,6 +179,7 @@ data: {
       "RENAME"
       "SEL"
       "SEMI"
+      "SPL"
       "STORAGE"
       "STORED"
       "SUBSTR"
@@ -189,6 +193,7 @@ data: {
       "VARBYTE"
       "VIRTUAL"
       "VOLATILE"
+      "WARNING"
     ]
 
     # List of keywords from "keywords" section that are not reserved.
