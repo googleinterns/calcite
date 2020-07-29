@@ -363,10 +363,11 @@ public class DialectGenerateTest {
     dialectGenerate.unparseReservedKeywords(extractedData);
 
     String actual = extractedData.tokenAssignments.get(0);
-    String expected = "<DEFAULT, DQID, BTID> TOKEN :\n"
+    String expected = "// Auto generated.\n"
+         + "<DEFAULT, DQID, BTID> TOKEN :\n"
          + "{\n"
          + "<FOO : \"FOO\"> // From: path/file\n"
-         + "}\n";
+         + "}";
     assertEquals(1, extractedData.tokenAssignments.size());
     assertEquals(expected, actual);
   }
@@ -380,12 +381,13 @@ public class DialectGenerateTest {
     dialectGenerate.unparseReservedKeywords(extractedData);
 
     String actual = extractedData.tokenAssignments.get(0);
-    String expected = "<DEFAULT, DQID, BTID> TOKEN :\n"
+    String expected = "// Auto generated.\n"
+         + "<DEFAULT, DQID, BTID> TOKEN :\n"
          + "{\n"
          + "<FOO : \"FOO\"> // From: path/file\n"
          + "| <BAR : \"BAR\"> // No file specified.\n"
          + "| <BAZ : \"BAZ\"> // From: path/file\n"
-         + "}\n";
+         + "}";
     assertEquals(1, extractedData.tokenAssignments.size());
     assertEquals(expected, actual);
   }
@@ -395,12 +397,11 @@ public class DialectGenerateTest {
     DialectGenerate dialectGenerate = new DialectGenerate();
     keywords.add(new Keyword("foo", "file/path"));
     String actual = dialectGenerate.getPartitionFunction("void func():", keywords);
-    String expected = "void func():\n"
+    String expected = "// Auto generated.\n"
+         + "void func():\n"
          + "{\n}\n{\n"
-         + "(\n"
          + "<FOO> // From: file/path\n"
-         + ")\n"
-         + "}\n";
+         + "}";
     assertEquals(expected, actual);
   }
 
@@ -411,14 +412,13 @@ public class DialectGenerateTest {
     keywords.add(new Keyword("bar", /*filePath=*/ null));
     keywords.add(new Keyword("baz", "file/path"));
     String actual = dialectGenerate.getPartitionFunction("void func():", keywords);
-    String expected = "void func():\n"
+    String expected = "// Auto generated.\n"
+         + "void func():\n"
          + "{\n}\n{\n"
-         + "(\n"
          + "<FOO> // From: file/path\n"
          + "| <BAR> // No file specified.\n"
          + "| <BAZ> // From: file/path\n"
-         + ")\n"
-         + "}\n";
+         + "}";
     assertEquals(expected, actual);
   }
 
@@ -429,10 +429,11 @@ public class DialectGenerateTest {
     assertEquals(1, extractedData.functions.size());
     assertTrue(extractedData.functions.containsKey("NonReservedKeyword"));
     String actual = extractedData.functions.get("NonReservedKeyword");
-    String expected = "void NonReservedKeyword():\n"
+    String expected = "// Auto generated.\n"
+         + "void NonReservedKeyword():\n"
          + "{\n}\n{\n"
          + "{ return unquotedIdentifier(); }\n"
-         + "}\n";
+         + "}";
     assertEquals(expected, actual);
   }
 
@@ -445,13 +446,14 @@ public class DialectGenerateTest {
     assertTrue(extractedData.functions.containsKey("NonReservedKeyword"));
     assertTrue(extractedData.functions.containsKey("NonReservedKeyword0of1"));
     String actual = extractedData.functions.get("NonReservedKeyword");
-    String expected = "void NonReservedKeyword():\n"
+    String expected = "// Auto generated.\n"
+         + "void NonReservedKeyword():\n"
          + "{\n}\n{\n"
          + "(\n"
          + "NonReservedKeyword0of1()\n"
          + ")\n"
          + "{ return unquotedIdentifier(); }\n"
-         + "}\n";
+         + "}";
     assertEquals(expected, actual);
   }
 
@@ -467,14 +469,15 @@ public class DialectGenerateTest {
     assertTrue(extractedData.functions.containsKey("NonReservedKeyword0of2"));
     assertTrue(extractedData.functions.containsKey("NonReservedKeyword1of2"));
     String actual = extractedData.functions.get("NonReservedKeyword");
-    String expected = "void NonReservedKeyword():\n"
+    String expected = "// Auto generated.\n"
+         + "void NonReservedKeyword():\n"
          + "{\n}\n{\n"
          + "(\n"
          + "NonReservedKeyword0of2()\n"
          + "| NonReservedKeyword1of2()\n"
          + ")\n"
          + "{ return unquotedIdentifier(); }\n"
-         + "}\n";
+         + "}";
     assertEquals(expected, actual);
   }
 }
