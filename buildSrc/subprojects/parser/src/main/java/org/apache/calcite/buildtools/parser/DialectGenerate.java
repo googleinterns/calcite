@@ -16,6 +16,7 @@
  */
 package org.apache.calcite.buildtools.parser;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,20 +60,19 @@ public class DialectGenerate {
   }
 
   /**
-   * Adds specified keywords and nonReservedKeywords to extractedData. Also
-   * ensures that nonReservedKeywords is a subset of the union of keywords
-   * and extractedData.keywords.
+   * Adds specified keywords and nonReservedKeywords to extractedData. Also ensures that
+   * nonReservedKeywords is a subset of the union of keywords and extractedData.keywords.
    *
    * @param keywords The keywords to add
    * @param nonReservedKeywords The non reserved keywords to add
    * @param extractedData The object to which the keywords will be added to
-   *
-   * @throws IllegalStateException When an an element in nonReservedKeywords is
-   *                               not in keywords or extractedData.keywords
+   * @throws IllegalStateException When an an element in nonReservedKeywords is not in keywords or
+   *     extractedData.keywords
    */
-  public void processKeywords(Map<Keyword, String> keywords,
+  public void processKeywords(
+      Map<Keyword, String> keywords,
       Set<Keyword> nonReservedKeywords,
-      ExtractedData extractedData) throws IllegalStateException {
+      ExtractedData extractedData) {
     for (Keyword keyword : nonReservedKeywords) {
       if (!keywords.containsKey(keyword)
             && !extractedData.keywords.containsKey(keyword)) {
@@ -105,7 +105,7 @@ public class DialectGenerate {
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append("<DEFAULT, DQID, BTID> TOKEN :\n{\n");
     String tokenTemplate = "<%s : \"%s\">";
-    List<String> tokens = new LinkedList<String>();
+    List<String> tokens = new ArrayList<>();
     for (Map.Entry<Keyword, String> entry : extractedData.keywords.entrySet()) {
       StringBuilder tokenBuilder = new StringBuilder();
       Keyword keyword = entry.getKey();

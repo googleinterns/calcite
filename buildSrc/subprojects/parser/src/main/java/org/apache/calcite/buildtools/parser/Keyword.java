@@ -51,7 +51,7 @@ public class Keyword {
       return true;
     } else if (obj == null) {
       return false;
-    } else if (getClass() != obj.getClass()) {
+    } else if (!(obj instanceof Keyword)) {
       return false;
     }
     Keyword other = (Keyword) obj;
