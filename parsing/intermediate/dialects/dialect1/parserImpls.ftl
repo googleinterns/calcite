@@ -3366,6 +3366,8 @@ SqlDrop SqlDrop() :
         drop = SqlDropView(s, replace)
     |
         drop = SqlDropFunction(s, replace)
+    |
+        drop = SqlDropProcedure(s)
     )
     {
         return drop;
@@ -4363,5 +4365,15 @@ SqlRangeNStartEnd RangeNStartEnd() :
     {
         return new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral,
             eachSizeLiteral, false, endAsterisk);
+    }
+}
+
+SqlDrop SqlDropProcedure(Span s) :
+{
+    final SqlIdentifier procedureName;
+}
+{
+    <PROCEDURE> procedureName = CompoundIdentifier() {
+        return new SqlDropProcedure(s.end(this), procedureName);
     }
 }

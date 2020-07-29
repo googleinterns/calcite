@@ -3868,4 +3868,10 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "QUALIFY ((RANK() OVER (ORDER BY `A` DESC)) = 1)";
     sql(sql).ok(expected);
   }
+
+  @Test public void testDropProcedure() {
+    final String sql = "drop procedure foo.bar";
+    final String expected = "DROP PROCEDURE `FOO`.`BAR`";
+    sql(sql).ok(expected);
+  }
 }
