@@ -33,9 +33,9 @@ public class ExtractedData {
   public final List<String> tokenAssignments;
 
   public ExtractedData() {
-    keywords = new LinkedHashMap<Keyword, String>();
-    nonReservedKeywords = new HashSet<Keyword>();
-    functions = new LinkedHashMap<String, String>();
-    tokenAssignments = new LinkedList<String>();
+    keywords = new LinkedHashMap<>();
+    nonReservedKeywords = new HashSet<>();
+    functions = new LinkedHashMap<>();
+    tokenAssignments = new LinkedList<>();
   }
 }
