@@ -388,7 +388,7 @@ public class DialectGenerateTest {
     Set<Keyword> keywords = new HashSet<Keyword>();
     DialectGenerate dialectGenerate = new DialectGenerate();
     keywords.add(new Keyword("foo", "file/path"));
-    String actual = dialectGenerate.getPartitionFunction("void func():\n", keywords);
+    String actual = dialectGenerate.getPartitionFunction("void func():", keywords);
     String expected = "void func():\n"
          + "{\n}\n{\n"
          + "(\n"
@@ -404,7 +404,7 @@ public class DialectGenerateTest {
     keywords.add(new Keyword("foo", "file/path"));
     keywords.add(new Keyword("bar", /*filePath=*/ null));
     keywords.add(new Keyword("baz", "file/path"));
-    String actual = dialectGenerate.getPartitionFunction("void func():\n", keywords);
+    String actual = dialectGenerate.getPartitionFunction("void func():", keywords);
     String expected = "void func():\n"
          + "{\n}\n{\n"
          + "(\n"
@@ -421,10 +421,53 @@ public class DialectGenerateTest {
     DialectGenerate dialectGenerate = new DialectGenerate();
     dialectGenerate.unparseNonReservedKeywords(extractedData);
     assertEquals(1, extractedData.functions.size());
+    assertTrue(extractedData.functions.containsKey("NonReservedKeyword"));
     String actual = extractedData.functions.get("NonReservedKeyword");
     String expected = "void NonReservedKeyword():\n"
          + "{\n}\n{\n"
-         + "    { return unquotedIdentifier(); }\n"
+         + "{ return unquotedIdentifier(); }\n"
+         + "}\n";
+    assertEquals(expected, actual);
+  }
+
+  @Test public void testUnparseNonReservedKeywordsSinglePartition() {
+    ExtractedData extractedData = new ExtractedData();
+    DialectGenerate dialectGenerate = new DialectGenerate();
+    extractedData.nonReservedKeywords.add(new Keyword("foo"));
+    dialectGenerate.unparseNonReservedKeywords(extractedData);
+    assertEquals(2, extractedData.functions.size());
+    assertTrue(extractedData.functions.containsKey("NonReservedKeyword"));
+    assertTrue(extractedData.functions.containsKey("NonReservedKeyword0of1"));
+    String actual = extractedData.functions.get("NonReservedKeyword");
+    String expected = "void NonReservedKeyword():\n"
+         + "{\n}\n{\n"
+         + "(\n"
+         + "NonReservedKeyword0of1()\n"
+         + ")\n"
+         + "{ return unquotedIdentifier(); }\n"
+         + "}\n";
+    assertEquals(expected, actual);
+  }
+
+  @Test public void testUnparseNonReservedKeywordsMultiplePartitions() {
+    ExtractedData extractedData = new ExtractedData();
+    DialectGenerate dialectGenerate = new DialectGenerate();
+    for (int i = 0; i < 501; i++) {
+      extractedData.nonReservedKeywords.add(new Keyword("foo" + i));
+    }
+    dialectGenerate.unparseNonReservedKeywords(extractedData);
+    assertEquals(3, extractedData.functions.size());
+    assertTrue(extractedData.functions.containsKey("NonReservedKeyword"));
+    assertTrue(extractedData.functions.containsKey("NonReservedKeyword0of2"));
+    assertTrue(extractedData.functions.containsKey("NonReservedKeyword1of2"));
+    String actual = extractedData.functions.get("NonReservedKeyword");
+    String expected = "void NonReservedKeyword():\n"
+         + "{\n}\n{\n"
+         + "(\n"
+         + "NonReservedKeyword0of2()\n"
+         + "| NonReservedKeyword1of2()\n"
+         + ")\n"
+         + "{ return unquotedIdentifier(); }\n"
          + "}\n";
     assertEquals(expected, actual);
   }

@@ -56,8 +56,6 @@ public class DialectGenerate {
   private static final Pattern TOKEN_DECLARATION_PATTERN =
     Pattern.compile("((<\\s*\\w+\\s*(\\s*,\\s*\\w+)*\\s*>\\s*)?(TOKEN|SKIP|MORE)\\s*:\n?)");
 
-  private static final String TAB = "    ";
-
   public static Queue<String> getTokens(String input) {
     return new LinkedList<String>(Arrays.asList(TOKENIZER_PATTERN.split(input)));
   }
@@ -128,38 +126,84 @@ public class DialectGenerate {
     extractedData.tokenAssignments.add(stringBuilder.toString());
   }
 
+  /**
+   * Partitions up {@code extractedData.nonReservedKeywords} amongst multiple
+   * functions and creates one function that calls all of them of the form:
+   *
+   * void NonReservedKeyword():
+   * {
+   * }
+   * {
+   *     (
+   *         NonReservedKeyword0of<numPartitions>()
+   *     |   NonReservedKeyword1of<numPartitions()
+   *     ...
+   *     )
+   *     { return unquotedIdentifier(); }
+   * }
+   *
+   * If {@code extractedData.nonReservedKeywords} is empty, the function only contains
+   * the return statement.
+   *
+   * Note: Indentation is added here just for clarity, actual function doesn't
+   * have indentation as it is difficult to format using String.join().
+   *
+   * @param extractedData The object which keeps state of all of the extracted
+   *                      data
+   */
   public void unparseNonReservedKeywords(ExtractedData extractedData) {
     final ArrayList<Set<Keyword>> partitions = getPartitions(extractedData.nonReservedKeywords);
     final int numPartitions = partitions.size();
     final String declarationTemplate = "void NonReservedKeyword%dof"
-      + numPartitions + "():\n";
-    final StringBuilder stringBuilder = new StringBuilder();
+      + numPartitions + "():";
+    final StringBuilder bodyBuilder = new StringBuilder();
     final List<String> functionCalls = new LinkedList<String>();
-    stringBuilder.append("void NonReservedKeyword():\n").append("{\n}\n{\n");
     if (!partitions.isEmpty()) {
-      stringBuilder.append(TAB).append("(\n");
+      bodyBuilder.append("(\n");
     }
     for (int i = 0; i < numPartitions; i++) {
       String declaration = String.format(declarationTemplate, i, numPartitions);
       String functionName = getFunctionName(declaration);
       extractedData.functions.put(functionName,
           getPartitionFunction(declaration, partitions.get(i)));
-      functionCalls.add(TAB + TAB + functionName + "()\n");
+      functionCalls.add(functionName + "()\n");
     }
-    stringBuilder.append(String.join("|", functionCalls));
+    bodyBuilder.append(String.join("| ", functionCalls));
     if (!partitions.isEmpty()) {
-      stringBuilder.append(TAB).append(")\n");
+      bodyBuilder.append(")\n");
     }
-    stringBuilder.append(TAB).append("{ return unquotedIdentifier(); }\n")
-      .append("}\n");
-    extractedData.functions.put("NonReservedKeyword", stringBuilder.toString());
+    bodyBuilder.append("{ return unquotedIdentifier(); }");
+    String declaration = "void NonReservedKeyword():";
+    String function = buildFunctionWithNoFields(declaration,
+        bodyBuilder.toString());
+    extractedData.functions.put("NonReservedKeyword", function);
   }
 
+  /**
+   * Creates a string of the form:
+   * <declaration>
+   * {
+   * }
+   * {
+   *     (
+   *         <KEYWORD1>
+   *     |   <KEYWORD2>
+   *     ...
+   *     )
+   * }
+   *
+   * Note: Indentation is added here just for clarity, actual function doesn't
+   * have indentation as it is difficult to format using String.join().
+   *
+   * @param declaration The function declaration
+   * @param keywords The keywords to be in the function body
+   *
+   * @return The formatted string
+   */
   public String getPartitionFunction(String declaration, Set<Keyword> keywords) {
     final List<String> tokens = new LinkedList<String>();
-    final StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder.append(String.format(declaration));
-    stringBuilder.append("{\n}\n{\n(\n");
+    final StringBuilder bodyBuilder = new StringBuilder();
+    bodyBuilder.append("(\n");
     for (Keyword keyword : keywords) {
       StringBuilder tokenBuilder = new StringBuilder();
       tokenBuilder.append("<").append(keyword.keyword)
@@ -172,11 +216,17 @@ public class DialectGenerate {
       tokenBuilder.append("\n");
       tokens.add(tokenBuilder.toString());
     }
-    stringBuilder.append(String.join("| ", tokens));
-    stringBuilder.append(")\n}\n");
-    return stringBuilder.toString();
+    bodyBuilder.append(String.join("| ", tokens)).append(")");
+    return buildFunctionWithNoFields(declaration, bodyBuilder.toString());
   }
 
+  /**
+   * Partitions {@code keywords} into sets of size at most 500.
+   *
+   * @param keywords The keywords to partition
+   *
+   * @return The partitioned keywords
+   */
   private ArrayList<Set<Keyword>> getPartitions(Set<Keyword> keywords) {
     final int partitionSize = 500;
     final int numPartitions = (int) Math.ceil(((double) keywords.size()) / partitionSize);
@@ -186,10 +236,32 @@ public class DialectGenerate {
       partitions.add(new LinkedHashSet<Keyword>());
     }
     for (Keyword keyword : keywords) {
-      partitions.get(index % partitionSize).add(keyword);
+      partitions.get(index / partitionSize).add(keyword);
       index++;
     }
     return partitions;
+  }
+
+  /**
+   * Creates a string of the form:
+   * <declaration>
+   * {
+   * }
+   * {
+   * <body>
+   * }
+   *
+   * @param declaration The function declaration, does not need to end in \n
+   * @param body The body of the function, does not need to end in \n
+   *
+   * @return The formatted string
+   */
+  private String buildFunctionWithNoFields(String declaration, String body) {
+    StringBuilder stringBuilder = new StringBuilder(declaration).append("\n");
+    stringBuilder.append("{\n}\n{\n");
+    stringBuilder.append(body).append("\n");
+    stringBuilder.append("}\n");
+    return stringBuilder.toString();
   }
 
   /**
