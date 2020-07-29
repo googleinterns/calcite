@@ -65,14 +65,15 @@ public class SqlAlterProcedure extends SqlAlter {
     unparseAlterOperation(writer, leftPrec, rightPrec);
   }
 
-  @Override protected void unparseAlterOperation(final SqlWriter writer, final int leftPrec,
-      final int rightPrec) {
+  @Override protected void unparseAlterOperation(SqlWriter writer, int leftPrec,
+      int rightPrec) {
     procedureName.unparse(writer, 0, 0);
     if (languageSql) {
       writer.keyword("LANGUAGE SQL");
     }
     writer.keyword("COMPILE");
     if (!options.isEmpty()) {
+      writer.keyword("WITH");
       SqlWriter.Frame frame = writer.startList("", "");
       for (AlterProcedureWithOption option : options) {
         writer.sep(",");
@@ -114,22 +115,22 @@ public class SqlAlterProcedure extends SqlAlter {
 
   public enum AlterProcedureWithOption {
     /**
-     *
+     * Source text of SQL procedure is stored in a dictionary.
      */
     SPL,
 
     /**
-     *
+     * Source text of SQL procedure is not stored in a dictionary.
      */
     NO_SPL,
 
     /**
-     *
+     * Compilation warnings are returned.
      */
     WARNING,
 
     /**
-     *
+     * Compilation warnings are not returned.
      */
     NO_WARNING,
   }

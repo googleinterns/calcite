@@ -4186,11 +4186,11 @@ SqlRangeNStartEnd RangeNStartEnd() :
 SqlAlter SqlAlterProcedure(Span s, String scope) :
 {
      final SqlIdentifier procedureName;
-     final boolean languageSql;
+     boolean languageSql = false;
      final List<AlterProcedureWithOption> withOptions =
         new ArrayList<AlterProcedureWithOption>();
-     final boolean local;
-     final boolean isTimeZoneNegative;
+     boolean local = false;
+     boolean isTimeZoneNegative = false;
      String timeZoneString = null;
      AlterProcedureWithOption option;
 }
@@ -4219,13 +4219,15 @@ SqlAlter SqlAlterProcedure(Span s, String scope) :
             (
                 <MINUS> { isTimeZoneNegative = true; }
             |
-                [ <PLUS> ] { isTimeZoneNegative = false; }
+                [ <PLUS> ]
             )
             <QUOTED_STRING> { timeZoneString = token.image; }
         )
     ]
     {
-        return new SqlAlterProcedure(getPos(), scope, languageSql, withOptions, local, isTimeZoneNegative, timeZoneString);
+        return new SqlAlterProcedure(getPos(), scope, procedureName,
+            languageSql, withOptions, local, isTimeZoneNegative,
+            timeZoneString);
     }
 }
 
