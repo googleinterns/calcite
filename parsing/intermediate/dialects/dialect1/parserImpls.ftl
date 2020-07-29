@@ -3330,9 +3330,9 @@ SqlRename SqlRename() :
     (
         source = SqlRenameMacro()
     |
-        source = SqlRenameTable()
-    |
         source = SqlRenameProcedure()
+    |
+        source = SqlRenameTable()
     )
     {
         return source;
