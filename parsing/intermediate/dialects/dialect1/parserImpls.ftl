@@ -1490,8 +1490,22 @@ SqlNode LiteralRowConstructorItem() :
     }
 }
 
+SqlNode InlineModOperatorLiteralOrIdentifier() :
+{
+    final SqlNode e;
+    final SqlNode q;
+}
+{
+    (
+        e = NumericLiteral()
+    |
+        e = CompoundIdentifier()
+    )
+    q = InlineModOperator(e) { return q; }
+}
+
 // Parses inline MOD expression of form "x MOD y" where x, y must be numeric
-SqlNode InlineModOperator() :
+SqlNode InlineModOperator(SqlNode q) :
 {
     final List<SqlNode> args = new ArrayList<SqlNode>();
     final SqlIdentifier qualifiedName;
@@ -1501,22 +1515,17 @@ SqlNode InlineModOperator() :
     SqlLiteral quantifier = null;
 }
 {
-    (
-        e = NumericLiteral()
-    |
-        e = CompoundIdentifier()
-    )
-    {
-        s = span();
-        args.add(e);
-    }
     <MOD> {
+        s = span();
+        args.add(q);
         qualifiedName = new SqlIdentifier(unquotedIdentifier(), s.pos());
     }
     (
         e = NumericLiteral()
     |
         e = CompoundIdentifier()
+    |
+        e = ParenthesizedQueryOrCommaList(ExprContext.ACCEPT_SUB_QUERY)
     )
     {
         args.add(e);
@@ -2980,6 +2989,25 @@ SqlNode TableRefOrJoinClause() :
 }
 
 /**
+ * Parses a prefix row operator like NOT.
+ */
+SqlPrefixOperator PrefixRowOperator() :
+{}
+{
+    (
+        <PLUS> { return SqlStdOperatorTable.UNARY_PLUS; }
+    |
+        <MINUS> { return SqlStdOperatorTable.UNARY_MINUS; }
+    |
+        <NOT> { return SqlStdOperatorTable.NOT; }
+    |
+        <CARET> { return SqlStdOperatorTable.CARET_NEGATION; }
+    |
+        <EXISTS> { return SqlStdOperatorTable.EXISTS; }
+    )
+}
+
+/**
  * Parses a binary row expression, or a parenthesized expression of any
  * kind.
  *
@@ -3252,6 +3280,9 @@ SqlCreate SqlCreate() :
     |
         LOOKAHEAD(4)
         create = SqlCreateJoinIndex()
+    |
+        LOOKAHEAD(4)
+        create = SqlCreateProcedure()
     )
     {
         return create;
@@ -3558,6 +3589,7 @@ SqlNode BuiltinFunctionCall() :
     TimeUnit interval;
     final TimeUnit unit;
     final SqlNode node;
+    final boolean isTranslateChk;
     boolean isWithError = false;
     boolean allowTranslateUsingCharSet = false;
 }
@@ -3611,7 +3643,12 @@ SqlNode BuiltinFunctionCall() :
             return SqlStdOperatorTable.CONVERT.createCall(s.end(this), args);
         }
     |
-        <TRANSLATE> { s = span(); }
+        (
+            <TRANSLATE> { isTranslateChk = false; }
+        |
+            <TRANSLATE_CHK> { isTranslateChk = true; }
+        )
+        { s = span(); }
         <LPAREN>
         e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
             args = startList(e);
@@ -3637,10 +3674,12 @@ SqlNode BuiltinFunctionCall() :
             ]
             <RPAREN> {
                 if (allowTranslateUsingCharSet) {
-                    return new SqlTranslateUsingCharacterSet(s.end(this), args, isWithError);
+                    return new SqlTranslateUsingCharacterSet(s.end(this), args,
+                        isTranslateChk, isWithError);
                 }
-                return SqlStdOperatorTable.TRANSLATE.createCall(s.end(this),
-                    args);
+                return isTranslateChk ?
+                    SqlStdOperatorTable.TRANSLATE_CHK.createCall(s.end(this), args) :
+                    SqlStdOperatorTable.TRANSLATE.createCall(s.end(this), args);
             }
         |
             (
@@ -3957,8 +3996,8 @@ SqlNode Expression3(ExprContext exprContext) :
     LOOKAHEAD(InlineCaseSpecific())
     e = InlineCaseSpecific() { return e; }
 |
-    LOOKAHEAD(InlineModOperator())
-    e = InlineModOperator() { return e; }
+    LOOKAHEAD(InlineModOperatorLiteralOrIdentifier())
+    e = InlineModOperatorLiteralOrIdentifier() { return e; }
 |
     LOOKAHEAD(NamedLiteralOrIdentifier())
     e = NamedLiteralOrIdentifier() { return e; }
@@ -4055,6 +4094,8 @@ SqlNode Expression3(ExprContext exprContext) :
         e = NamedQuery(list1.get(0)) { return e; }
     |
         e = AlternativeTypeConversionQuery(list1.get(0)) { return e; }
+    |
+        e = InlineModOperator(list1.get(0)) { return e; }
     |
         { return list1.get(0); }
     )
@@ -4366,6 +4407,117 @@ SqlRangeNStartEnd RangeNStartEnd() :
         return new SqlRangeNStartEnd(getPos(), startLiteral, endLiteral,
             eachSizeLiteral, false, endAsterisk);
     }
+}
+
+SqlCreateProcedure SqlCreateProcedure() :
+{
+    final Span s;
+    final SqlCreateSpecifier createSpecifier;
+    final SqlIdentifier procedureName;
+    final List<SqlCreateProcedureParameter> parameters =
+        new ArrayList<SqlCreateProcedureParameter>();
+    final CreateProcedureDataAccess access;
+    SqlLiteral numResultSets = null;
+    final CreateProcedureSecurity security;
+    final SqlNode statement;
+    SqlCreateProcedureParameter parameter;
+}
+{
+    (
+        <CREATE> { createSpecifier = SqlCreateSpecifier.CREATE; }
+    |
+        <REPLACE> { createSpecifier = SqlCreateSpecifier.REPLACE; }
+    )
+    { s = span(); }
+    <PROCEDURE>
+    procedureName = CompoundIdentifier()
+    <LPAREN>
+    [
+        parameter = SqlCreateProcedureParameter() {
+            parameters.add(parameter);
+        }
+        (
+            <COMMA>
+            parameter = SqlCreateProcedureParameter() {
+                parameters.add(parameter);
+            }
+        )*
+    ]
+    <RPAREN>
+    (
+        <CONTAINS> <SQL> { access = CreateProcedureDataAccess.CONTAINS_SQL; }
+    |
+        <MODIFIES> <SQL> <DATA> {
+            access = CreateProcedureDataAccess.MODIFIES_SQL_DATA;
+        }
+    |
+        <READS> <SQL> <DATA> {
+            access = CreateProcedureDataAccess.READS_SQL_DATA;
+        }
+    |
+        { access = CreateProcedureDataAccess.UNSPECIFIED; }
+    )
+    [
+        <DYNAMIC> <RESULT> <SETS>
+        numResultSets = UnsignedNumericLiteral() {
+            int numericNumResultSets = numResultSets.getValueAs(Integer.class);
+            if (numericNumResultSets < 0 || numericNumResultSets > 15) {
+                throw SqlUtil.newContextException(getPos(),
+                    RESOURCE.numberLiteralOutOfRange(
+                    String.valueOf(numericNumResultSets)));
+            }
+        }
+    ]
+    (
+        <SQL> <SECURITY>
+        (
+            <CREATOR> { security = CreateProcedureSecurity.CREATOR; }
+        |
+            <DEFINER> { security = CreateProcedureSecurity.DEFINER; }
+        |
+            <INVOKER> { security = CreateProcedureSecurity.INVOKER; }
+        |
+            <OWNER> { security = CreateProcedureSecurity.OWNER; }
+        )
+    |
+        { security = CreateProcedureSecurity.UNSPECIFIED; }
+    )
+    statement = CreateProcedureStmt()
+    {
+        return new SqlCreateProcedure(s.end(this), createSpecifier,
+            procedureName, parameters, access, numResultSets, security,
+            statement);
+    }
+}
+
+SqlNode CreateProcedureStmt() :
+{
+    final SqlNode e;
+}
+{
+    (
+        e = SqlStmt()
+    )
+    { return e; }
+}
+
+SqlCreateProcedureParameter SqlCreateProcedureParameter() :
+{
+    final CreateProcedureParameterType parameterType;
+    final SqlIdentifier name;
+    final SqlDataTypeSpec dataType;
+}
+{
+    (
+        <OUT> { parameterType =  CreateProcedureParameterType.OUT; }
+    |
+        <INOUT> { parameterType =  CreateProcedureParameterType.INOUT; }
+    |
+        [ <IN> ] { parameterType =  CreateProcedureParameterType.IN; }
+    )
+    name = SimpleIdentifier()
+    dataType = DataType()
+    { return new SqlCreateProcedureParameter(parameterType, name, dataType); }
 }
 
 SqlRenameProcedure SqlRenameProcedure() :
