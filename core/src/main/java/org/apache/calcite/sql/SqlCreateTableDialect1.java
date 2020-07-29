@@ -34,6 +34,7 @@ public class SqlCreateTableDialect1 extends SqlCreateTable
   public final WithDataType withData;
   public final SqlPrimaryIndex primaryIndex;
   public final List<SqlIndex> indices;
+  public final SqlTablePartition partition;
   public final OnCommitType onCommitType;
 
   public SqlCreateTableDialect1(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
@@ -43,7 +44,7 @@ public class SqlCreateTableDialect1 extends SqlCreateTable
       SqlPrimaryIndex primaryIndex, OnCommitType onCommitType) {
     this(pos, createSpecifier, setType, volatility, ifNotExists,
         name, tableAttributes, columnList, query, withData,
-        primaryIndex, /*indices=*/ null, onCommitType);
+        primaryIndex, /*indices=*/ null, /*partition=*/ null, onCommitType);
   }
 
   public SqlCreateTableDialect1(SqlParserPos pos, SqlCreateSpecifier createSpecifier,
@@ -51,7 +52,7 @@ public class SqlCreateTableDialect1 extends SqlCreateTable
       SqlIdentifier name, List<SqlTableAttribute> tableAttributes,
       SqlNodeList columnList, SqlNode query, WithDataType withData,
       SqlPrimaryIndex primaryIndex, List<SqlIndex> indices,
-      OnCommitType onCommitType) {
+      SqlTablePartition partition, OnCommitType onCommitType) {
     super(pos, createSpecifier, ifNotExists, name, columnList, query);
     this.setType = setType;
     this.volatility = volatility;
@@ -59,6 +60,7 @@ public class SqlCreateTableDialect1 extends SqlCreateTable
     this.withData = withData;
     this.primaryIndex = primaryIndex;
     this.indices = indices;
+    this.partition = partition;
     this.onCommitType = onCommitType;
   }
 
@@ -138,6 +140,9 @@ public class SqlCreateTableDialect1 extends SqlCreateTable
         index.unparse(writer, 0, 0);
       }
       writer.endList(frame);
+    }
+    if (partition != null) {
+      partition.unparse(writer, leftPrec, rightPrec);
     }
     switch (onCommitType) {
     case PRESERVE:

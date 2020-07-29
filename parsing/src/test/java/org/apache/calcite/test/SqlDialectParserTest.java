@@ -1862,12 +1862,6 @@ public abstract class SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testHavingBeforeGroupFails() {
-    final String sql = "select deptno from emp\n"
-        + "having count(*) > 5 and deptno < 4 ^group^ by deptno, emp";
-    sql(sql).fails("(?s).*Encountered \"group\" at .*");
-  }
-
   @Test void testHavingNoGroup() {
     sql("select deptno from emp having count(*) > 5")
         .ok("SELECT `DEPTNO`\n"

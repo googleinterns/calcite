@@ -3635,6 +3635,201 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "FROM `ABC`");
   }
 
+  @Test void testSqlTablePartitionRangeN() {
+    String sql =
+        "create table foo (bar integer, sales_date date format "
+        + "'yyyy-mm-dd' not null) "
+        + "partition by range_n(sales_date between date '2001-01-01' "
+        + "and date '2020-07-28' "
+        + "each interval '1' day)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
+            + "PARTITION BY(RANGE_N(`SALES_DATE` "
+            + "BETWEEN DATE '2001-01-01' "
+            + "AND DATE '2020-07-28' "
+            + "EACH INTERVAL '1' DAY))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testSqlTablePartitionCaseN() {
+    String sql =
+        "create table foo (bar integer, baz integer not null) "
+            + "partition by case_n(baz = 1, bar = 2, unknown)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, `BAZ` INTEGER NOT NULL) "
+            + "PARTITION BY(CASE_N((`BAZ` = 1), (`BAR` = 2), UNKNOWN))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testSqlTablePartitionExtract() {
+    String sql =
+        "create table foo (bar integer, a integer, sales_date date format "
+            + "'yyyy-mm-dd' not null) "
+            + "partition by "
+            + "extract(month from sales_date)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
+            + "PARTITION BY(EXTRACT(MONTH FROM `SALES_DATE`))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testSqlTablePartitionColumn() {
+    String sql =
+        "create table foo (bar integer) partition by column";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER) PARTITION BY(COLUMN)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testSqlTablePartitionSingleColumn() {
+    String sql =
+        "create table foo (bar integer) partition by column (bar)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER) PARTITION BY(COLUMN(`BAR`))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testSqlTablePartitionMultipleColumns() {
+    String sql =
+        "create table foo (bar integer, sales_date date format "
+            + "'yyyy-mm-dd' not null) "
+            + "partition by column (bar, sales_date)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
+            + "PARTITION BY(COLUMN(`BAR`, `SALES_DATE`))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testSqlTablePartitionMultiplePartitionExpressions() {
+    String sql =
+        "create table foo (bar integer, sales_date date format "
+            + "'yyyy-mm-dd' not null, baz integer not null) "
+            + "partition by (range_n(sales_date between date '2001-01-01' "
+            + "and date '2020-07-28' "
+            + "each interval '1' day), "
+            + "case_n(baz = 1, bar = 2, unknown),"
+            + "column (bar, sales_date))";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd', "
+            + "`BAZ` INTEGER NOT NULL) "
+            + "PARTITION BY("
+            + "RANGE_N(`SALES_DATE` "
+            + "BETWEEN DATE '2001-01-01' "
+            + "AND DATE '2020-07-28' "
+            + "EACH INTERVAL '1' DAY), "
+            + "CASE_N((`BAZ` = 1), (`BAR` = 2), UNKNOWN), "
+            + "COLUMN(`BAR`, `SALES_DATE`))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testSqlTablePartitionByColumnWithMultipleAllButSpecifier() {
+    String sql =
+        "create table foo (bar integer, sales_date date format "
+            + "'yyyy-mm-dd' not null) "
+            + "partition by column all but(bar, sales_date)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
+            + "PARTITION BY(COLUMN ALL BUT(`BAR`, `SALES_DATE`))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testSqlTablePartitionRowFormat() {
+    String sql =
+        "create table foo (bar integer, sales_date date format "
+            + "'yyyy-mm-dd' not null) "
+            + "partition by column ( row bar, sales_date)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
+            + "PARTITION BY(COLUMN(ROW(`BAR`), `SALES_DATE`))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testSqlTablePartitionRowFormatAutoCompress() {
+    String sql =
+        "create table foo (bar integer, a integer, sales_date date format "
+            + "'yyyy-mm-dd' not null) "
+            + "partition by column ( row (bar, a) auto compress, sales_date)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
+            + "PARTITION BY"
+            + "(COLUMN(ROW(`BAR`, `A`) AUTO COMPRESS, `SALES_DATE`))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testSqlTablePartitionRowFormatNoAutoCompress() {
+    String sql =
+        "create table foo (bar integer, a integer, sales_date date format "
+            + "'yyyy-mm-dd' not null) "
+            + "partition by column ( row (bar, a) no auto compress, sales_date)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
+            + "PARTITION BY"
+            + "(COLUMN(ROW(`BAR`, `A`) NO AUTO COMPRESS, `SALES_DATE`))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testSqlTablePartitionByColumnAllButWithRowFormatNoAutoCompress() {
+    String sql =
+        "create table foo (bar integer, a integer, sales_date date format "
+            + "'yyyy-mm-dd' not null) "
+            + "partition by "
+            + "column all but ( row (bar, a) no auto compress, sales_date)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
+            + "PARTITION BY"
+            + "(COLUMN ALL BUT(ROW(`BAR`, `A`) NO AUTO COMPRESS, `SALES_DATE`))";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testSqlTablePartitionExpressionWithAddConstant() {
+    String sql =
+        "create table foo (bar integer, a integer, sales_date date format "
+            + "'yyyy-mm-dd' not null) "
+            + "partition by column add 1000000";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER, `A` INTEGER, "
+            + "`SALES_DATE` DATE NOT NULL FORMAT 'yyyy-mm-dd') "
+            + "PARTITION BY(COLUMN ADD 1000000)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPrimaryIndexUseWithPartitionByOrdering() {
+    final String sql = "create table foo primary index bar (lname) "
+        + "partition by column";
+    final String expected = "CREATE TABLE `FOO` PRIMARY INDEX `BAR` (`LNAME`) "
+        + "PARTITION BY(COLUMN)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testUniqueIndexUseWithPartitionByReverseOrdering() {
+    final String sql = "create table foo (bar integer) partition by column "
+        + "unique index (bar)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER) "
+        + "UNIQUE INDEX (`BAR`) PARTITION BY(COLUMN)";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testMultipleIndicesUseWithPartitionByOrdering() {
+    final String sql = "create table foo (bar integer, baz integer) "
+        + "primary index (baz)"
+        + "partition by column "
+        + "unique index (bar)";
+    final String expected = "CREATE TABLE `FOO` "
+        + "(`BAR` INTEGER, `BAZ` INTEGER) "
+        + "PRIMARY INDEX (`BAZ`), "
+        + "UNIQUE INDEX (`BAR`) "
+        + "PARTITION BY(COLUMN)";
+  }
+
   @Test public void testTimeZoneOptionTime() {
     final String sql = "create table foo (bar time with time zone)";
     final String expected =
@@ -3660,6 +3855,17 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "create table foo (bar timestamp(6) with time zone)";
     final String expected =
         "CREATE TABLE `FOO` (`BAR` TIMESTAMP(6) WITH TIME ZONE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectClauseOrdering() {
+    final String sql = "select * qualify rank(a) = 1 having a > 2 group by a where a > 3 from foo";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` > 3)\n"
+        + "GROUP BY `A`\n"
+        + "HAVING (`A` > 2)\n"
+        + "QUALIFY ((RANK() OVER (ORDER BY `A` DESC)) = 1)";
     sql(sql).ok(expected);
   }
 
