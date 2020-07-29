@@ -1,0 +1,11 @@
+{
+    "keywords": [
+        {"foo": "foo"},
+        {"bar": "bar"},
+        {"baz": "baz"}
+    ],
+    "nonReservedKeywords": [
+        "bar",
+        "baz"
+    ]
+}

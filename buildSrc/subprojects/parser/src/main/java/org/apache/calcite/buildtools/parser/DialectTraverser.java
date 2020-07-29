@@ -24,8 +24,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -71,6 +77,8 @@ public class DialectTraverser {
   public ExtractedData extractData() {
     ExtractedData extractedData = new ExtractedData();
     traverse(getTraversalPath(rootDirectory), rootDirectory, extractedData);
+    //dialectGenerate.unparseReservedKeywords(extractedData);
+    //dialectGenerate.unparseNonReservedKeywords(extractedData);
     return extractedData;
   }
 
@@ -127,7 +135,9 @@ public class DialectTraverser {
   /**
    * Traverses the determined path given by the directories queue. Once the
    * queue is empty, the dialect directory has been reached. In that case any
-   * *.ftl file should be processed and no further traversal should happen.
+   * *.ftl file should be processed and no further traversal should happen. If
+   * a keywords.json file is encountered the json is converted to a desired
+   * format and is processed by {@code dialectGenerate.processKeywords()}.
    *
    * @param directories The directories to traverse in topdown order
    * @param currentDirectory The current directory the function is processing
@@ -143,35 +153,46 @@ public class DialectTraverser {
     String nextDirectory = directories.peek();
     for (File f : files) {
       String fileName = f.getName();
-      if (f.isFile() && fileName.endsWith(".ftl")) {
+      if (f.isFile()) {
+        String fileText = "";
         Path absoluteFilePath = f.toPath();
+        try {
+          fileText = new String(Files.readAllBytes(absoluteFilePath),
+              StandardCharsets.UTF_8);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
         Path rootPath = rootDirectory.toPath();
         String filePath = absoluteFilePath.subpath(rootPath.getNameCount() - 1,
             absoluteFilePath.getNameCount()).toString();
         // For windows paths change separator to forward slash.
         filePath = filePath.replace('\\', '/');
-        try {
-          String fileText = new String(Files.readAllBytes(absoluteFilePath),
-              StandardCharsets.UTF_8);
-          dialectGenerate.processFile(fileText, extractedData, filePath);
-        } catch (IOException e) {
-          e.printStackTrace();
-        } catch (IllegalStateException e) {
-          e.printStackTrace();
+        if (fileName.endsWith(".ftl")) {
+          try {
+            dialectGenerate.processFile(fileText, extractedData, filePath);
+          } catch (IllegalStateException e) {
+            e.printStackTrace();
+          }
+        } else if (fileName.equals("keywords.json")) {
+          JSONObject json = (JSONObject) new JSONTokener(fileText).nextValue();
+          JSONArray keywordsJson = json.isNull("keywords")
+            ? null
+            : json.getJSONArray("keywords");
+          JSONArray nonReservedKeywordsJson = json.isNull("nonReservedKeywords")
+            ? null
+            : json.getJSONArray("nonReservedKeywords");
+          Map<Keyword, String> keywords = unparseKeywordsJson(keywordsJson,
+              filePath);
+          Set<Keyword> nonReservedKeywords = unparseNonReservedKeywordsJson(
+              nonReservedKeywordsJson, filePath);
+          try {
+            dialectGenerate.processKeywords(keywords, nonReservedKeywords,
+                extractedData);
+          } catch (IllegalStateException e) {
+            e.printStackTrace();
+          }
         }
-      } else if (f.isFile() && fileName.equals("keywords.json")) {
-        String fileText = new String(Files.readAllBytes(f.toPath()),
-            StandardCharsets.UTF_8);
-        Map<Keyword, String> keywords = new LinkedHashMap<Keyword, String>();
-        Set<Keyword> nonReservedKeywords = new LinkedHashSet<Keyword>();
-        JSONObject json = (JSONObject) new JSONTokener(fileText).nextValue();
-        JSONObject keywordsJson = json.getJSONObject("keywords");
-        JSONArray nonReservedKeywordsJson = json.getJSONArray("nonReservedKeywords");
-        for (String keyword : keywordsJson.keySet()) {
-        }
-      }
-
-      else if (!directories.isEmpty() && fileName.equals(nextDirectory)) {
+      } else if (!directories.isEmpty() && fileName.equals(nextDirectory)) {
         // Remove the front element in the queue, the value is referenced above
         // with directories.peek() and is used in the next recursive call to
         // this function.
@@ -179,5 +200,65 @@ public class DialectTraverser {
         traverse(directories, f, extractedData);
       }
     }
+  }
+
+  /**
+   * Converts the {@code keywordsJson} into a {@code Map<Keyword, String>}.
+   * It is assumed that {@code keywordsJson} is either null or of the form:
+   *
+   * [
+   *     {"keyword1": "value1"},
+   *     {"keyword2": "value2"}
+   *     ...
+   * ]
+   *
+   * @param keywordsJson The keywords json
+   * @param filePath The file path these keywords were taken from
+   *
+   * @return The {@code Map<Keyword, String>} that the json was converted to
+   */
+  private Map<Keyword, String> unparseKeywordsJson(JSONArray keywordsJson,
+      String filePath) {
+    Map<Keyword, String> keywords = new LinkedHashMap<Keyword, String>();
+    if (keywordsJson == null) {
+      return keywords;
+    }
+    for (Object obj : keywordsJson) {
+      JSONObject keywordJson = (JSONObject) obj;
+      // There is only one key.
+      String keyword = keywordJson.keys().next();
+      keywords.put(new Keyword(keyword, filePath),
+          keywordJson.getString(keyword));
+    }
+    return keywords;
+  }
+
+  /**
+   * Converts the {@code nonReservedKeywordsJson} into a {@code Set<Keyword>}.
+   * It is assumed that {@code nonReservedKeywordsJson} is either null or of
+   * the form:
+   *
+   * [
+   *     "keyword1",
+   *     "keyword2"
+   *     ...
+   * ]
+   *
+   * @param nonReservedKeywordsJson The non reserved keywords json
+   * @param filePath The file path these keywords were taken from
+   *
+   * @return The {@code Map<Keyword, String>} that the json was converted to
+   */
+  private Set<Keyword> unparseNonReservedKeywordsJson(
+      JSONArray nonReservedKeywordsJson, String filePath) {
+    Set<Keyword> nonReservedKeywords = new LinkedHashSet<Keyword>();
+    if (nonReservedKeywordsJson == null) {
+      return nonReservedKeywords;
+    }
+    for (Object obj : nonReservedKeywordsJson) {
+      String keyword = (String) obj;
+      nonReservedKeywords.add(new Keyword(keyword, filePath));
+    }
+    return nonReservedKeywords;
   }
 }
