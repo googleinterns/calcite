@@ -2980,6 +2980,25 @@ SqlNode TableRefOrJoinClause() :
 }
 
 /**
+ * Parses a prefix row operator like NOT.
+ */
+SqlPrefixOperator PrefixRowOperator() :
+{}
+{
+    (
+        <PLUS> { return SqlStdOperatorTable.UNARY_PLUS; }
+    |
+        <MINUS> { return SqlStdOperatorTable.UNARY_MINUS; }
+    |
+        <NOT> { return SqlStdOperatorTable.NOT; }
+    |
+        <CARET> { return SqlStdOperatorTable.CARET_NEGATION; }
+    |
+        <EXISTS> { return SqlStdOperatorTable.EXISTS; }
+    )
+}
+
+/**
  * Parses a binary row expression, or a parenthesized expression of any
  * kind.
  *

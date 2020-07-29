@@ -3868,4 +3868,44 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "QUALIFY ((RANK() OVER (ORDER BY `A` DESC)) = 1)";
     sql(sql).ok(expected);
   }
+
+  @Test public void testCaretNegation() {
+    String sql = "select * from foo where ^a = 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (^(`A` = 1))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationWithParentheses() {
+    String sql = "select * from foo where ^(a <> 1)";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (^(`A` <> 1))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationAnd() {
+    String sql = "select * from foo where ^a <= 1 and ^b >= 2";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE ((^(`A` <= 1)) AND (^(`B` >= 2)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationOr() {
+    String sql = "select * from foo where ^a < 1 or ^b > 2";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE ((^(`A` < 1)) OR (^(`B` > 2)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationLikeAndNotLike() {
+    String sql = "select * from foo where ^a like 1 and ^b not like 2";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE ((^(`A` LIKE 1)) AND (^(`B` NOT LIKE 2)))";
+    sql(sql).ok(expected);
+  }
 }
