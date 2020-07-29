@@ -913,6 +913,9 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
           null,
           OperandTypes.ANY);
 
+  public static final SqlPrefixOperator CARET_NEGATION =
+      new SqlCaretNegationOperator();
+
   //-------------------------------------------------------------
   // AGGREGATE OPERATORS
   //-------------------------------------------------------------
@@ -1479,8 +1482,9 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
    * <p>It is defined in the SQL standard. See also the non-standard
    * {@link SqlLibraryOperators#TRANSLATE3}, which has a different purpose.
    */
-  public static final SqlFunction TRANSLATE =
-      new SqlConvertFunction("TRANSLATE");
+  public static final SqlFunction TRANSLATE = new SqlConvertFunction("TRANSLATE");
+
+  public static final SqlFunction TRANSLATE_CHK = new SqlConvertFunction("TRANSLATE_CHK");
 
   public static final SqlFunction OVERLAY = new SqlOverlayFunction();
 

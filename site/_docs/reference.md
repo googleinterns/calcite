@@ -48,6 +48,7 @@ here to appease testAllFunctionsAreDocumented:
 | SINGLE_VALUE() | Internal (but should it be?)
 | SUCCEEDS       | Documented as a period operator
 | TABLE          | Documented as part of FROM syntax
+| TRANSLATE_CHK()| Documented as part of TRANSLATE syntax
 | VARIANCE()     | In SqlStdOperatorTable, but not fully implemented
 | FORMAT()       | TODO: document
 {% endcomment %}
