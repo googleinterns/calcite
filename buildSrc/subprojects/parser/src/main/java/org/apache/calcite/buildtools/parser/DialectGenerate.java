@@ -127,7 +127,7 @@ public class DialectGenerate {
   }
 
   /**
-   * Partitions up {@code extractedData.nonReservedKeywords} amongst multiple
+   * Partitions {@code extractedData.nonReservedKeywords} amongst multiple
    * functions and creates one function that calls all of them of the form:
    *
    * void NonReservedKeyword():
@@ -136,7 +136,7 @@ public class DialectGenerate {
    * {
    *     (
    *         NonReservedKeyword0of<numPartitions>()
-   *     |   NonReservedKeyword1of<numPartitions()
+   *     |   NonReservedKeyword1of<numPartitions>()
    *     ...
    *     )
    *     { return unquotedIdentifier(); }
@@ -181,6 +181,7 @@ public class DialectGenerate {
 
   /**
    * Creates a string of the form:
+   *
    * <declaration>
    * {
    * }
@@ -244,6 +245,7 @@ public class DialectGenerate {
 
   /**
    * Creates a string of the form:
+   *
    * <declaration>
    * {
    * }
