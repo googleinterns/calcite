@@ -16,19 +16,25 @@
  */
 package org.apache.calcite.buildtools.parser;
 
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A simple container class to hold the data extracted from files.
  */
 public class ExtractedData {
+  public final Map<Keyword, String> keywords;
+  public final Set<Keyword> nonReservedKeywords;
   public final Map<String, String> functions;
   public final List<String> tokenAssignments;
 
   public ExtractedData() {
+    keywords = new LinkedHashMap<Keyword, String>();
+    nonReservedKeywords = new HashSet<Keyword>();
     functions = new LinkedHashMap<String, String>();
     tokenAssignments = new LinkedList<String>();
   }
