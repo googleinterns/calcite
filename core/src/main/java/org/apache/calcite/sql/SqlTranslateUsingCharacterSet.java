@@ -17,6 +17,7 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.jdbc.CalcitePrepare;
+import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
@@ -27,11 +28,9 @@ import java.util.List;
  * the Translate Using CharacterSet to CharacterSet with Error.
  */
 public class SqlTranslateUsingCharacterSet extends SqlCall implements SqlExecutableStatement {
-  private static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("TRANSLATE ", SqlKind.OTHER_FUNCTION);
-
-  private final List<SqlNode> args;
-  private final boolean isWithError;
+  public final List<SqlNode> args;
+  public final boolean isTranslateChk;
+  public final boolean isWithError;
 
   /**
    * Creates a {@code SqlTranslateUsingCharacterSet}.
@@ -39,17 +38,19 @@ public class SqlTranslateUsingCharacterSet extends SqlCall implements SqlExecuta
    * @param pos  Parser position, must not be null
    * @param args  List of SqlNode, the first one is an char sequence to be
    *              translated, the second one is the AST node of SqlCharacterSetToCharacterSet
-   * @param isWithError If the with error token is specified
+   * @param isTranslateChk  If the TRANSLATE_CHK function should be used instead of TRANSLATE
+   * @param isWithError  If the WITH ERROR tokens are specified
    */
-  public SqlTranslateUsingCharacterSet(final SqlParserPos pos, final List<SqlNode> args,
-      final boolean isWithError) {
+  public SqlTranslateUsingCharacterSet(SqlParserPos pos, List<SqlNode> args, boolean isTranslateChk,
+      boolean isWithError) {
     super(pos);
     this.args = args;
+    this.isTranslateChk = isTranslateChk;
     this.isWithError = isWithError;
   }
 
   @Override public SqlOperator getOperator() {
-    return OPERATOR;
+    return isTranslateChk ? SqlStdOperatorTable.TRANSLATE_CHK : SqlStdOperatorTable.TRANSLATE;
   }
 
   @Override public List<SqlNode> getOperandList() {
@@ -58,7 +59,11 @@ public class SqlTranslateUsingCharacterSet extends SqlCall implements SqlExecuta
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
-    writer.keyword("TRANSLATE");
+    if (isTranslateChk) {
+      writer.keyword("TRANSLATE_CHK");
+    } else {
+      writer.keyword("TRANSLATE");
+    }
     writer.print("(");
     args.get(0).unparse(writer, 0, 0);
     writer.keyword("USING");

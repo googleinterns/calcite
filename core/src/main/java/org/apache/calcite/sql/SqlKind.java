@@ -574,6 +574,10 @@ public enum SqlKind {
    */
   NEW_SPECIFICATION,
 
+  /**
+   * Caret negation operator.
+   */
+  CARET_NEGATION,
 
   /**
    * Special functions in MATCH_RECOGNIZE.
@@ -1165,6 +1169,9 @@ public enum SqlKind {
 
   /** {@code CREATE JOIN INDEX} DDL statement. */
   CREATE_JOIN_INDEX,
+
+  /** {@code CREATE PROCEDURE} DDL statement. */
+  CREATE_PROCEDURE,
 
   /** {@code HELP PROCEDURE} DDL statement. */
   HELP_PROCEDURE,
