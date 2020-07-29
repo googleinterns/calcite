@@ -47,11 +47,7 @@ public class Keyword {
   }
 
   @Override public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    } else if (obj == null) {
-      return false;
-    } else if (!(obj instanceof Keyword)) {
+    if (!(obj instanceof Keyword)) {
       return false;
     }
     Keyword other = (Keyword) obj;
