@@ -1420,6 +1420,11 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     expr(sql).ok(expected);
   }
 
+  @Test public void testTranslateChk() {
+    expr("translate_chk ('abc' using latin_to_unicode)")
+        .ok("TRANSLATE_CHK ('abc' USING LATIN_TO_UNICODE)");
+  }
+
   @Test public void testUsingRequestModifierSingular() {
     final String sql = "using (foo int)";
     final String expected = "USING (`FOO` INTEGER)";

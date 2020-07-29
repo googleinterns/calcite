@@ -3575,6 +3575,7 @@ SqlNode BuiltinFunctionCall() :
     TimeUnit interval;
     final TimeUnit unit;
     final SqlNode node;
+    final boolean isTranslateChk;
     boolean isWithError = false;
     boolean allowTranslateUsingCharSet = false;
 }
@@ -3628,7 +3629,12 @@ SqlNode BuiltinFunctionCall() :
             return SqlStdOperatorTable.CONVERT.createCall(s.end(this), args);
         }
     |
-        <TRANSLATE> { s = span(); }
+        (
+            <TRANSLATE> { isTranslateChk = false; }
+        |
+            <TRANSLATE_CHK> { isTranslateChk = true; }
+        )
+        { s = span(); }
         <LPAREN>
         e = Expression(ExprContext.ACCEPT_SUB_QUERY) {
             args = startList(e);
@@ -3654,10 +3660,12 @@ SqlNode BuiltinFunctionCall() :
             ]
             <RPAREN> {
                 if (allowTranslateUsingCharSet) {
-                    return new SqlTranslateUsingCharacterSet(s.end(this), args, isWithError);
+                    return new SqlTranslateUsingCharacterSet(s.end(this), args,
+                        isTranslateChk, isWithError);
                 }
-                return SqlStdOperatorTable.TRANSLATE.createCall(s.end(this),
-                    args);
+                return isTranslateChk ?
+                    SqlStdOperatorTable.TRANSLATE_CHK.createCall(s.end(this), args) :
+                    SqlStdOperatorTable.TRANSLATE.createCall(s.end(this), args);
             }
         |
             (
