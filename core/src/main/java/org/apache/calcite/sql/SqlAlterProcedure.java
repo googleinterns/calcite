@@ -20,6 +20,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Parse tree for {@code ALTER PROCEDURE} statement.
@@ -51,9 +52,9 @@ public class SqlAlterProcedure extends SqlAlter {
       List<AlterProcedureWithOption> options, boolean local,
       boolean isTimeZoneNegative, String timeZoneString) {
     super(pos, scope);
-    this.procedureName = procedureName;
+    this.procedureName = Objects.requireNonNull(procedureName);
     this.languageSql = languageSql;
-    this.options = options;
+    this.options = Objects.requireNonNull(options);
     this.local = local;
     this.isTimeZoneNegative = isTimeZoneNegative;
     this.timeZoneString = timeZoneString;
