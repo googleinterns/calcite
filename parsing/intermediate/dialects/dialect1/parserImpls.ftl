@@ -1490,8 +1490,22 @@ SqlNode LiteralRowConstructorItem() :
     }
 }
 
+SqlNode InlineModOperatorLiteralOrIdentifier() :
+{
+    final SqlNode e;
+    final SqlNode q;
+}
+{
+    (
+        e = NumericLiteral()
+    |
+        e = CompoundIdentifier()
+    )
+    q = InlineModOperator(e) { return q; }
+}
+
 // Parses inline MOD expression of form "x MOD y" where x, y must be numeric
-SqlNode InlineModOperator() :
+SqlNode InlineModOperator(SqlNode q) :
 {
     final List<SqlNode> args = new ArrayList<SqlNode>();
     final SqlIdentifier qualifiedName;
@@ -1501,22 +1515,17 @@ SqlNode InlineModOperator() :
     SqlLiteral quantifier = null;
 }
 {
-    (
-        e = NumericLiteral()
-    |
-        e = CompoundIdentifier()
-    )
-    {
-        s = span();
-        args.add(e);
-    }
     <MOD> {
+        s = span();
+        args.add(q);
         qualifiedName = new SqlIdentifier(unquotedIdentifier(), s.pos());
     }
     (
         e = NumericLiteral()
     |
         e = CompoundIdentifier()
+    |
+        e = ParenthesizedQueryOrCommaList(ExprContext.ACCEPT_SUB_QUERY)
     )
     {
         args.add(e);
@@ -3955,8 +3964,8 @@ SqlNode Expression3(ExprContext exprContext) :
     LOOKAHEAD(InlineCaseSpecific())
     e = InlineCaseSpecific() { return e; }
 |
-    LOOKAHEAD(InlineModOperator())
-    e = InlineModOperator() { return e; }
+    LOOKAHEAD(InlineModOperatorLiteralOrIdentifier())
+    e = InlineModOperatorLiteralOrIdentifier() { return e; }
 |
     LOOKAHEAD(NamedLiteralOrIdentifier())
     e = NamedLiteralOrIdentifier() { return e; }
@@ -4053,6 +4062,8 @@ SqlNode Expression3(ExprContext exprContext) :
         e = NamedQuery(list1.get(0)) { return e; }
     |
         e = AlternativeTypeConversionQuery(list1.get(0)) { return e; }
+    |
+        e = InlineModOperator(list1.get(0)) { return e; }
     |
         { return list1.get(0); }
     )
