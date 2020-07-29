@@ -1545,6 +1545,14 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testInlineModSyntaxExpressions() {
+    final String sql = "select (select foo from bar) mod (select baz from qux)";
+    final String expected = "SELECT MOD((SELECT `FOO`\n"
+        + "FROM `BAR`), (SELECT `BAZ`\n"
+        + "FROM `QUX`))";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testDateAtLocalWhere() {
     final String sql = "SELECT * FROM foo WHERE bar = DATE AT LOCAL";
     final String expected = "SELECT *\n"
