@@ -88,6 +88,8 @@ public class DialectGenerate {
   /**
    * Adds extractedData.keywords (if nonempty) to extractedData.tokenAssignments
    * with the form:
+   *
+   * // Auto generated.
    * <DEFAULT, DQID, BTID> TOKEN :
    * {
    *    <TOKEN_1: "TOKEN_1_VALUE">
@@ -131,6 +133,7 @@ public class DialectGenerate {
    * Partitions {@code extractedData.nonReservedKeywords} amongst multiple
    * functions and creates one function that calls all of them of the form:
    *
+   * // Auto generated.
    * void NonReservedKeyword():
    * {
    * }
@@ -183,6 +186,7 @@ public class DialectGenerate {
   /**
    * Creates a string of the form:
    *
+   * // Auto generated.
    * <declaration>
    * {
    * }
