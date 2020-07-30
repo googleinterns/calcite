@@ -12,6 +12,7 @@
         { "CASESPECIFIC": "CASESPECIFIC" },
         { "CHECKSUM": "CHECKSUM" },
         { "COLOCATE": "COLOCATE" },
+        {"COMPILE": "COMPILE"},
         { "COMPRESS": "COMPRESS" },
         { "CONCURRENT": "CONCURRENT" },
         { "CREATOR": "CREATOR" },
@@ -51,6 +52,7 @@
         { "SEL": "SEL" },
         { "SEMI": "SEMI" },
         { "STORAGE": "STORAGE" },
+        {"SPL": "SPL"},
         { "SUBSTR": "SUBSTR" },
         { "TEMP": "TEMP" },
         { "TITLE": "TITLE" },
@@ -61,6 +63,7 @@
         { "UPD": "UPD" },
         { "UPPERCASE": "UPPERCASE" },
         { "VARBYTE": "VARBYTE" },
-        { "VOLATILE": "VOLATILE" }
+        { "VOLATILE": "VOLATILE" },
+        {"WARNING": "WARNING"}
     ]
 }
