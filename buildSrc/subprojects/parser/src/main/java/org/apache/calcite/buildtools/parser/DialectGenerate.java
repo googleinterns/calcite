@@ -136,7 +136,7 @@ public class DialectGenerate {
    * functions and creates one function that calls all of them of the form:
    *
    * // Auto generated.
-   * void NonReservedKeyWord():
+   * String NonReservedKeyWord():
    * {
    * }
    * {
@@ -153,11 +153,9 @@ public class DialectGenerate {
    *
    * These partitions are required to avoid a {@code StackOverflowError}.
    * If {@code extractedData.nonReservedKeywords} is empty, the function
-   * only checks for the <EOF> token.
-   *
-   * Note: Whether or not the function with only an <EOF> works with a parser
-   * has NOT been tested as there is not currently a dialect that contains 0
-   * nonReservedKeywords.
+   * only checks for the <EOF> token. Whether or not the function with only an
+   * <EOF> works with a parser has NOT been tested as there is not currently a
+   * dialect that contains 0 nonReservedKeywords.
    *
    * @param extractedData The object which keeps state of all of the extracted
    *                      data
