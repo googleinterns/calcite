@@ -176,7 +176,7 @@ public class DialectTraverser {
           } catch (IllegalStateException e) {
             e.printStackTrace();
           }
-        } else if (fileName.equals("keywords.json")) {
+        } else if (fileName.equals("keywords.yaml")) {
           JSONObject json = (JSONObject) new JSONTokener(fileText).nextValue();
           JSONArray keywordsJson = json.isNull("keywords")
             ? null

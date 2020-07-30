@@ -37,11 +37,11 @@ MORE : {}
 // Auto generated.
 <DEFAULT, DQID, BTID> TOKEN :
 {
-< FOO: "FOO" > // From: parserTest/keywords.json
-| < BAR: "BAR" > // From: parserTest/keywords.json
-| < BAZ: "BAZ" > // From: parserTest/keywords.json
-| < QUX: "QUX1" > // From: parserTest/intermediate/dialects/testDialect/keywords.json
-| < QUUX: "QUUX1" > // From: parserTest/intermediate/dialects/testDialect/keywords.json
+< FOO: "FOO" > // From: parserTest/keywords.yaml
+| < BAR: "BAR" > // From: parserTest/keywords.yaml
+| < BAZ: "BAZ" > // From: parserTest/keywords.yaml
+| < QUX: "QUX1" > // From: parserTest/intermediate/dialects/testDialect/keywords.yaml
+| < QUUX: "QUUX1" > // From: parserTest/intermediate/dialects/testDialect/keywords.yaml
 }
 
 // Extracted from: parserTest/intermediate/dialects/testDialect/parserImpls.ftl
@@ -98,8 +98,8 @@ void NonReservedKeyword0of1():
 {
 }
 {
-<BAR> // From: parserTest/keywords.json
-| <BAZ> // From: parserTest/intermediate/keywords.json
+<BAR> // From: parserTest/keywords.yaml
+| <BAZ> // From: parserTest/intermediate/keywords.yaml
 }
 
 // Auto generated.
