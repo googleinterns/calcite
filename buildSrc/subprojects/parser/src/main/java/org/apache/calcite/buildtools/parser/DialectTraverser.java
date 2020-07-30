@@ -139,7 +139,7 @@ public class DialectTraverser {
    * Traverses the determined path given by the directories queue. Once the
    * queue is empty, the dialect directory has been reached. In that case any
    * *.ftl file should be processed and no further traversal should happen. If
-   * a keywords.json file is encountered the json is converted to a desired
+   * a keywords.yaml file is encountered the yaml is converted to a desired
    * format and is processed by {@code dialectGenerate.processKeywords()}.
    *
    * @param directories The directories to traverse in topdown order
@@ -177,6 +177,9 @@ public class DialectTraverser {
             e.printStackTrace();
           }
         } else if (fileName.equals("keywords.yaml")) {
+          // This is required to get past the license comment. The part after
+          // follows a JSON format is it can be parsed as JSON.
+          fileText = fileText.substring(fileText.indexOf("{"));
           JSONObject json = (JSONObject) new JSONTokener(fileText).nextValue();
           JSONArray keywordsJson = json.isNull("keywords")
             ? null

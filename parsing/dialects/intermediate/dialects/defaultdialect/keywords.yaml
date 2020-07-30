@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 {
-    "keywords": [
-        {"qux": "qux1"},
-        {"quux": "quux1"}
+    "nonReservedKeywords": [
+        "HOP",
+        "TUMBLE"
     ]
 }
