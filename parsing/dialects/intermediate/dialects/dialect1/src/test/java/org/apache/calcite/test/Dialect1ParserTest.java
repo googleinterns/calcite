@@ -4179,4 +4179,33 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "END";
     sql(sql).ok(expected);
   }
+
+  @Test public void testBeginEndNestedMultipleLevels() {
+    final String sql = "create procedure foo ()\n"
+        + "label1: begin\n"
+        + "insert baz (:a);\n"
+        + "begin\n"
+        + "select bar;\n"
+        + "label2: begin\n"
+        + "select bar;\n"
+        + "end label2;\n"
+        + "end;\n"
+        + "select qux from quxx where qux = 3;\n"
+        + "end label1";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "`LABEL1`: BEGIN\n"
+        + "INSERT INTO `BAZ`\n"
+        + "VALUES (ROW(:A));\n"
+        + "BEGIN\n"
+        + "SELECT `BAR`;\n"
+        + "`LABEL2`: BEGIN\n"
+        + "SELECT `BAR`;\n"
+        + "END `LABEL2`;\n"
+        + "END;\n"
+        + "SELECT `QUX`\n"
+        + "FROM `QUXX`\n"
+        + "WHERE (`QUX` = 3);\n"
+        + "END `LABEL1`";
+    sql(sql).ok(expected);
+  }
 }
