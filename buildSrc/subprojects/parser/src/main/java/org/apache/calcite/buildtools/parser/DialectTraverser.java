@@ -178,7 +178,7 @@ public class DialectTraverser {
           }
         } else if (fileName.equals("keywords.yaml")) {
           // This is required to get past the license comment. The part after
-          // follows a JSON format is it can be parsed as JSON.
+          // follows a JSON format so it can be parsed as such.
           fileText = fileText.substring(fileText.indexOf("{"));
           JSONObject json = (JSONObject) new JSONTokener(fileText).nextValue();
           JSONArray keywordsJson = json.isNull("keywords")

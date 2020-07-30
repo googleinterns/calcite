@@ -57,7 +57,7 @@ public class DialectGenerate {
     Pattern.compile("((<\\s*\\w+\\s*(\\s*,\\s*\\w+)*\\s*>\\s*)?(TOKEN|SKIP|MORE)\\s*:\n?)");
 
   // Used to determine the max size of the non reserved keyword functions.
-  private static final int PARTITION_SIZE = 250;
+  public static final int PARTITION_SIZE = 250;
 
   public static Queue<String> getTokens(String input) {
     return new LinkedList<String>(Arrays.asList(TOKENIZER_PATTERN.split(input)));
