@@ -78,7 +78,7 @@ public class DialectTraverser {
     ExtractedData extractedData = new ExtractedData();
     traverse(getTraversalPath(rootDirectory), rootDirectory, extractedData);
     dialectGenerate.unparseReservedKeywords(extractedData);
-    //dialectGenerate.unparseNonReservedKeywords(extractedData);
+    dialectGenerate.unparseNonReservedKeywords(extractedData);
     return extractedData;
   }
 
