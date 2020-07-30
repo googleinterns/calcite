@@ -72,13 +72,14 @@ public class DialectTraverser {
 
   /**
    * Traverses the parsing directory structure and extracts all of the
-   * functions located in *.ftl files into a Map.
+   * functions located in *.ftl files into a Map. This function also compiles
+   * the keywords as they are specified throughout the directory structure.
    */
   public ExtractedData extractData() {
     ExtractedData extractedData = new ExtractedData();
     traverse(getTraversalPath(rootDirectory), rootDirectory, extractedData);
-    //dialectGenerate.unparseReservedKeywords(extractedData);
-    //dialectGenerate.unparseNonReservedKeywords(extractedData);
+    dialectGenerate.unparseReservedKeywords(extractedData);
+    dialectGenerate.unparseNonReservedKeywords(extractedData);
     return extractedData;
   }
 
@@ -102,10 +103,10 @@ public class DialectTraverser {
       e.printStackTrace();
     }
     for (String tokenAssignment : extractedData.tokenAssignments) {
-      content.append(tokenAssignment + "\n");
+      content.append("\n").append(tokenAssignment).append("\n");
     }
     for (String function : extractedData.functions.values()) {
-      content.append(function + "\n");
+      content.append("\n").append(function).append("\n");
     }
     File outputFile = outputFilePath.toFile();
     outputFile.getParentFile().mkdirs();
@@ -212,6 +213,8 @@ public class DialectTraverser {
    *     ...
    * ]
    *
+   * Both the key and value are converted to uppercase.
+   *
    * @param keywordsJson The keywords json
    * @param filePath The file path these keywords were taken from
    *
@@ -228,7 +231,7 @@ public class DialectTraverser {
       // There is only one key.
       String keyword = keywordJson.keys().next();
       keywords.put(new Keyword(keyword, filePath),
-          keywordJson.getString(keyword));
+          keywordJson.getString(keyword).toUpperCase());
     }
     return keywords;
   }
@@ -243,6 +246,8 @@ public class DialectTraverser {
    *     "keyword2"
    *     ...
    * ]
+   *
+   * These values are all converted to uppercase.
    *
    * @param nonReservedKeywordsJson The non reserved keywords json
    * @param filePath The file path these keywords were taken from

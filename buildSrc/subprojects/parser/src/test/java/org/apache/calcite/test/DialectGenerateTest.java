@@ -119,10 +119,10 @@ public class DialectGenerateTest {
     StringBuilder actualText = new StringBuilder();
     actualText.append(licenseText);
     for (String value : extractedData.tokenAssignments) {
-      actualText.append(value + "\n");
+      actualText.append("\n").append(value).append("\n");
     }
     for (String value : extractedData.functions.values()) {
-      actualText.append(value + "\n");
+      actualText.append("\n").append(value).append("\n");
     }
     assertEquals(expectedText, actualText.toString());
   }

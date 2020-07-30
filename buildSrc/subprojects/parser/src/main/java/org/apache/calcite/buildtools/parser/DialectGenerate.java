@@ -332,7 +332,7 @@ public class DialectGenerate {
       while (charIndex < declaration.start()) {
         charIndex += tokens.poll().length();
       }
-      StringBuilder stringBuilder = new StringBuilder("\n");
+      StringBuilder stringBuilder = new StringBuilder();
       if (filePath != null) {
         stringBuilder.append("// Extracted from: ").append(filePath).append("\n");
       } else {

@@ -5,7 +5,6 @@
         {"baz": "baz"}
     ],
     "nonReservedKeywords": [
-        "bar",
-        "baz"
+        "bar"
     ]
 }
