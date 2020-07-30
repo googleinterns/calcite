@@ -136,7 +136,7 @@ public class DialectGenerate {
    * functions and creates one function that calls all of them of the form:
    *
    * // Auto generated.
-   * void NonReservedKeyword():
+   * void NonReservedKeyWord():
    * {
    * }
    * {
@@ -148,8 +148,9 @@ public class DialectGenerate {
    *     { return unquotedIdentifier(); }
    * }
    *
-   * If {@code extractedData.nonReservedKeywords} is empty, the function only contains
-   * the return statement.
+   * These partitions are required to avoid a {@code StackOverflowError}. If
+   * {@code extractedData.nonReservedKeywords} is empty, the function only
+   * contains the return statement.
    *
    * Note: Indentation is added here just for clarity, actual function doesn't
    * have indentation as it is difficult to format using String.join().
