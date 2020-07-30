@@ -432,6 +432,7 @@ public class DialectGenerateTest {
     String expected = "// Auto generated.\n"
          + "void NonReservedKeyword():\n"
          + "{\n}\n{\n"
+         + "<EOF>\n"
          + "{ return unquotedIdentifier(); }\n"
          + "}";
     assertEquals(expected, actual);

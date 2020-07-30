@@ -148,8 +148,8 @@ public class DialectGenerate {
    *     { return unquotedIdentifier(); }
    * }
    *
-   * If {@code extractedData.nonReservedKeywords} is empty, the function only contains
-   * the return statement.
+   * If {@code extractedData.nonReservedKeywords} is empty, the function
+   * only only checks for the <EOF> token.
    *
    * Note: Indentation is added here just for clarity, actual function doesn't
    * have indentation as it is difficult to format using String.join().
@@ -165,6 +165,8 @@ public class DialectGenerate {
     final List<String> functionCalls = new LinkedList<String>();
     if (!partitions.isEmpty()) {
       bodyBuilder.append("(\n");
+    } else {
+      bodyBuilder.append("<EOF>\n");
     }
     for (int i = 0; i < numPartitions; i++) {
       String functionName = String.format(functionNameTemplate, i);
