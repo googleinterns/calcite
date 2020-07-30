@@ -100,6 +100,7 @@ data: {
       "org.apache.calcite.sql.SqlSecondaryIndex",
       "org.apache.calcite.sql.SqlSelectTopN",
       "org.apache.calcite.sql.SqlSetTimeZone",
+      "org.apache.calcite.sql.SqlStatementList",
       "org.apache.calcite.sql.SqlTableAttribute",
       "org.apache.calcite.sql.SqlTableAttributeBlockCompression",
       "org.apache.calcite.sql.SqlTableAttributeBlockCompression.BlockCompressionOption",
