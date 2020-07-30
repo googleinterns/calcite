@@ -460,7 +460,7 @@ public class DialectGenerateTest {
   @Test public void testUnparseNonReservedKeywordsMultiplePartitions() {
     ExtractedData extractedData = new ExtractedData();
     DialectGenerate dialectGenerate = new DialectGenerate();
-    for (int i = 0; i < 501; i++) {
+    for (int i = 0; i < 251; i++) {
       extractedData.nonReservedKeywords.add(new Keyword("foo" + i));
     }
     dialectGenerate.unparseNonReservedKeywords(extractedData);

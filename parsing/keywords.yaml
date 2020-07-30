@@ -732,9 +732,9 @@
         "CONDITION_NUMBER",
         "CONNECTION",
         "CONNECTION_NAME",
+        "CONSTRAINTS",
         "CONSTRAINT_CATALOG",
         "CONSTRAINT_NAME",
-        "CONSTRAINTS",
         "CONSTRAINT_SCHEMA",
         "CONSTRUCTOR",
         "CONTINUE",
@@ -784,6 +784,7 @@
         "GOTO",
         "GRANTED",
         "HIERARCHY",
+        "HOP"
         "HOURS",
         "IGNORE",
         "IMMEDIATE",
@@ -975,6 +976,7 @@
         "TRIGGER_CATALOG",
         "TRIGGER_NAME",
         "TRIGGER_SCHEMA",
+        "TUMBLE"
         "TYPE",
         "UNBOUNDED",
         "UNCOMMITTED",
