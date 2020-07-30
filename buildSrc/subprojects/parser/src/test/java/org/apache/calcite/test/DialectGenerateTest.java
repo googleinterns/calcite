@@ -427,10 +427,10 @@ public class DialectGenerateTest {
     DialectGenerate dialectGenerate = new DialectGenerate();
     dialectGenerate.unparseNonReservedKeywords(extractedData);
     assertEquals(1, extractedData.functions.size());
-    assertTrue(extractedData.functions.containsKey("NonReservedKeyWord"));
-    String actual = extractedData.functions.get("NonReservedKeyWord");
+    assertTrue(extractedData.functions.containsKey("NonReservedKeyword"));
+    String actual = extractedData.functions.get("NonReservedKeyword");
     String expected = "// Auto generated.\n"
-         + "String NonReservedKeyWord():\n"
+         + "String NonReservedKeyword():\n"
          + "{\n}\n{\n"
          + "<EOF>\n"
          + "{ return unquotedIdentifier(); }\n"
@@ -444,14 +444,14 @@ public class DialectGenerateTest {
     extractedData.nonReservedKeywords.add(new Keyword("foo"));
     dialectGenerate.unparseNonReservedKeywords(extractedData);
     assertEquals(2, extractedData.functions.size());
-    assertTrue(extractedData.functions.containsKey("NonReservedKeyWord"));
-    assertTrue(extractedData.functions.containsKey("NonReservedKeyWord0of1"));
-    String actual = extractedData.functions.get("NonReservedKeyWord");
+    assertTrue(extractedData.functions.containsKey("NonReservedKeyword"));
+    assertTrue(extractedData.functions.containsKey("NonReservedKeyword0of1"));
+    String actual = extractedData.functions.get("NonReservedKeyword");
     String expected = "// Auto generated.\n"
-         + "String NonReservedKeyWord():\n"
+         + "String NonReservedKeyword():\n"
          + "{\n}\n{\n"
          + "(\n"
-         + "NonReservedKeyWord0of1()\n"
+         + "NonReservedKeyword0of1()\n"
          + ")\n"
          + "{ return unquotedIdentifier(); }\n"
          + "}";
@@ -466,16 +466,16 @@ public class DialectGenerateTest {
     }
     dialectGenerate.unparseNonReservedKeywords(extractedData);
     assertEquals(3, extractedData.functions.size());
-    assertTrue(extractedData.functions.containsKey("NonReservedKeyWord"));
-    assertTrue(extractedData.functions.containsKey("NonReservedKeyWord0of2"));
-    assertTrue(extractedData.functions.containsKey("NonReservedKeyWord1of2"));
-    String actual = extractedData.functions.get("NonReservedKeyWord");
+    assertTrue(extractedData.functions.containsKey("NonReservedKeyword"));
+    assertTrue(extractedData.functions.containsKey("NonReservedKeyword0of2"));
+    assertTrue(extractedData.functions.containsKey("NonReservedKeyword1of2"));
+    String actual = extractedData.functions.get("NonReservedKeyword");
     String expected = "// Auto generated.\n"
-         + "String NonReservedKeyWord():\n"
+         + "String NonReservedKeyword():\n"
          + "{\n}\n{\n"
          + "(\n"
-         + "NonReservedKeyWord0of2()\n"
-         + "| NonReservedKeyWord1of2()\n"
+         + "NonReservedKeyword0of2()\n"
+         + "| NonReservedKeyword1of2()\n"
          + ")\n"
          + "{ return unquotedIdentifier(); }\n"
          + "}";
