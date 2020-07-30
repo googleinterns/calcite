@@ -4610,8 +4610,6 @@ SqlBeginEndCall SqlBeginEndCall() :
     <BEGIN> { s = span(); }
     CreateProcedureStmtList(statements)
     <END>
-    [
-        endLabel = SimpleIdentifier()
-    ]
+    [ endLabel = SimpleIdentifier() ]
     { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
 }
