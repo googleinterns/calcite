@@ -56,6 +56,9 @@ public class DialectGenerate {
   private static final Pattern TOKEN_DECLARATION_PATTERN =
     Pattern.compile("((<\\s*\\w+\\s*(\\s*,\\s*\\w+)*\\s*>\\s*)?(TOKEN|SKIP|MORE)\\s*:\n?)");
 
+  // Used to determine the max size of the non reserved keyword functions.
+  private static final int PARTITION_SIZE = 500;
+
   public static Queue<String> getTokens(String input) {
     return new LinkedList<String>(Arrays.asList(TOKENIZER_PATTERN.split(input)));
   }
@@ -157,16 +160,15 @@ public class DialectGenerate {
   public void unparseNonReservedKeywords(ExtractedData extractedData) {
     final ArrayList<Set<Keyword>> partitions = getPartitions(extractedData.nonReservedKeywords);
     final int numPartitions = partitions.size();
-    final String declarationTemplate = "void NonReservedKeyword%dof"
-      + numPartitions + "():";
+    final String functionNameTemplate = "NonReservedKeyword%dof" + numPartitions;
     final StringBuilder bodyBuilder = new StringBuilder();
     final List<String> functionCalls = new LinkedList<String>();
     if (!partitions.isEmpty()) {
       bodyBuilder.append("(\n");
     }
     for (int i = 0; i < numPartitions; i++) {
-      String declaration = String.format(declarationTemplate, i, numPartitions);
-      String functionName = getFunctionName(declaration);
+      String functionName = String.format(functionNameTemplate, i);
+      String declaration = "void " + functionName + "():";
       extractedData.functions.put(functionName,
           getPartitionFunction(declaration, partitions.get(i)));
       functionCalls.add(functionName + "()\n");
@@ -203,13 +205,13 @@ public class DialectGenerate {
    *
    * @return The formatted string
    */
-  public String getPartitionFunction(String declaration, Set<Keyword> keywords) {
-    final List<String> tokens = new LinkedList<String>();
+  public String getPartitionFunction(final String declaration,
+      final Set<Keyword> keywords) {
+    final List<String> tokens = new LinkedList<>();
     final StringBuilder bodyBuilder = new StringBuilder();
     for (Keyword keyword : keywords) {
       StringBuilder tokenBuilder = new StringBuilder();
-      tokenBuilder.append("<").append(keyword.keyword)
-        .append(">");
+      tokenBuilder.append("<").append(keyword.keyword).append(">");
       if (keyword.filePath == null) {
         tokenBuilder.append(" // No file specified.");
       } else {
@@ -223,22 +225,23 @@ public class DialectGenerate {
   }
 
   /**
-   * Partitions {@code keywords} into sets of size at most 500.
+   * Partitions {@code keywords} into sets of size at most
+   * {@code PARTITION_SIZE}.
    *
    * @param keywords The keywords to partition
    *
    * @return The partitioned keywords
    */
-  private ArrayList<Set<Keyword>> getPartitions(Set<Keyword> keywords) {
-    final int partitionSize = 500;
-    final int numPartitions = (int) Math.ceil(((double) keywords.size()) / partitionSize);
-    final ArrayList<Set<Keyword>> partitions = new ArrayList<Set<Keyword>>();
+  private ArrayList<Set<Keyword>> getPartitions(final Set<Keyword> keywords) {
+    final int numPartitions =
+      (int) Math.ceil(((double) keywords.size()) / PARTITION_SIZE);
+    final ArrayList<Set<Keyword>> partitions = new ArrayList<>();
     int index = 0;
     for (int i = 0; i < numPartitions; i++) {
       partitions.add(new LinkedHashSet<Keyword>());
     }
     for (Keyword keyword : keywords) {
-      partitions.get(index / partitionSize).add(keyword);
+      partitions.get(index / PARTITION_SIZE).add(keyword);
       index++;
     }
     return partitions;
