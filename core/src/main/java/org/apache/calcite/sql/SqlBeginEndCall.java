@@ -19,21 +19,28 @@ package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
+import org.apache.calcite.util.Litmus;
 
 import java.util.List;
+
+import static org.apache.calcite.util.Static.RESOURCE;
 
 public class SqlBeginEndCall extends SqlCall {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("BEGIN_END ", SqlKind.BEGIN_END);
 
   public final SqlIdentifier label;
-  public final SqlNodeList statements;
+  public final SqlStatementList statements;
 
-  public SqlBeginEndCall(SqlParserPos pos, SqlIdentifier label,
-      SqlNodeList statements) {
+  public SqlBeginEndCall(SqlParserPos pos, SqlIdentifier beginLabel,
+      SqlIdentifier endLabel, SqlStatementList statements) {
     super(pos);
-    this.label = label;
+    this.label = beginLabel;
     this.statements = statements;
+    if (endLabel != null && !beginLabel.equalsDeep(endLabel, Litmus.IGNORE)) {
+      throw SqlUtil.newContextException(endLabel.getParserPosition(),
+          RESOURCE.beginEndLabelMismatch());
+    }
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
@@ -44,15 +51,7 @@ public class SqlBeginEndCall extends SqlCall {
     }
     writer.keyword("BEGIN");
     writer.newlineAndIndent();
-    SqlWriter.Frame frame = writer.startList(
-        SqlWriter.FrameTypeEnum.CREATE_PROCEDURE, "", "");
-    for (SqlNode e : statements) {
-      e.unparse(writer, 0, 0);
-      writer.setNeedWhitespace(false);
-      writer.sep(";");
-      writer.newlineAndIndent();
-    }
-    writer.endList(frame);
+    statements.unparse(writer, 0, 0);
     writer.keyword("END");
     if (label != null) {
       label.unparse(writer, 0, 0);

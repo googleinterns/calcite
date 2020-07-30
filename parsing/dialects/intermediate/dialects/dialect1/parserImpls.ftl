@@ -4503,7 +4503,7 @@ SqlNode CreateProcedureStmt() :
     { return e; }
 }
 
-void CreateProcedureStmtList(SqlNodeList statements) :
+void CreateProcedureStmtList(SqlStatementList statements) :
 {
     SqlNode e;
 }
@@ -4602,7 +4602,7 @@ SqlBeginEndCall SqlBeginEndCall() :
 {
     SqlIdentifier beginLabel = null;
     SqlIdentifier endLabel = null;
-    final SqlNodeList statements = new SqlNodeList(getPos());
+    final SqlStatementList statements = new SqlStatementList(getPos());
     final Span s;
 }
 {
@@ -4611,12 +4611,7 @@ SqlBeginEndCall SqlBeginEndCall() :
     CreateProcedureStmtList(statements)
     <END>
     [
-        endLabel = SimpleIdentifier() {
-            if (!beginLabel.equals(endLabel)) {
-                throw SqlUtil.newContextException(getPos(),
-                    RESOURCE.beginEndLabelMismatch());
-            }
-        }
+        endLabel = SimpleIdentifier()
     ]
-    { return new SqlBeginEndCall(s.end(this), beginLabel, statements); }
+    { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
 }

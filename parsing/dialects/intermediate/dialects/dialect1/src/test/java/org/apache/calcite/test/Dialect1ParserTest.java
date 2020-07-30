@@ -4117,6 +4117,27 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testBeginEndOnlyBeginLabel() {
+    final String sql = "create procedure foo ()\n"
+        + "label1: begin\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "`LABEL1`: BEGIN\n"
+        + "SELECT `BAR`;\n"
+        + "END `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testBeginEndMismatchedLabelsFail() {
+    final String sql = "create procedure foo ()\n"
+        + "label1: begin\n"
+        + "select bar;\n"
+        + "end ^label2^";
+    final String expected = "BEGIN label and END label must match";
+    sql(sql).fails(expected);
+  }
+
   @Test public void testBeginEndMultipleStatements() {
     final String sql = "create procedure foo ()\n"
         + "label1: begin\n"
@@ -4157,14 +4178,5 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "WHERE (`QUX` = 3);\n"
         + "END";
     sql(sql).ok(expected);
-  }
-
-  @Test public void testBeginEndMismatchedLabelsFail() {
-    final String sql = "create procedure foo ()\n"
-        + "label1: begin\n"
-        + "select bar;\n"
-        + "end ^label2^";
-    final String expected = "BEGIN label and END label must match";
-    sql(sql).fails(expected);
   }
 }

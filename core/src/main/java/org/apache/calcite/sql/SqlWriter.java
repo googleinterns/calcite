@@ -248,9 +248,9 @@ public interface SqlWriter {
     CREATE_MACRO,
 
     /**
-     * CREATE_PROCEDURE expression.
+     * List of statements.
      */
-    CREATE_PROCEDURE,
+    STATEMENT_LIST,
 
     /**
      * Same behavior as user-defined frame type.

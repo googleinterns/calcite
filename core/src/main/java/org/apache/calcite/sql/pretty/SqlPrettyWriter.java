@@ -387,7 +387,7 @@ public class SqlPrettyWriter implements SqlWriter {
         || (frame.frameType == FrameTypeEnum.WITH)
         || (frame.frameType == FrameTypeEnum.SETOP)
         || (frame.frameType == FrameTypeEnum.CREATE_MACRO)
-        || (frame.frameType == FrameTypeEnum.CREATE_PROCEDURE);
+        || (frame.frameType == FrameTypeEnum.STATEMENT_LIST);
   }
 
   @Deprecated
