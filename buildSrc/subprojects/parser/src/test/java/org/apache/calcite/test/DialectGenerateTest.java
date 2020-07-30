@@ -430,7 +430,7 @@ public class DialectGenerateTest {
     assertTrue(extractedData.functions.containsKey("NonReservedKeyWord"));
     String actual = extractedData.functions.get("NonReservedKeyWord");
     String expected = "// Auto generated.\n"
-         + "void NonReservedKeyWord():\n"
+         + "String NonReservedKeyWord():\n"
          + "{\n}\n{\n"
          + "{ return unquotedIdentifier(); }\n"
          + "}";
@@ -447,7 +447,7 @@ public class DialectGenerateTest {
     assertTrue(extractedData.functions.containsKey("NonReservedKeyword0of1"));
     String actual = extractedData.functions.get("NonReservedKeyWord");
     String expected = "// Auto generated.\n"
-         + "void NonReservedKeyWord():\n"
+         + "String NonReservedKeyWord():\n"
          + "{\n}\n{\n"
          + "(\n"
          + "NonReservedKeyword0of1()\n"
@@ -470,7 +470,7 @@ public class DialectGenerateTest {
     assertTrue(extractedData.functions.containsKey("NonReservedKeyword1of2"));
     String actual = extractedData.functions.get("NonReservedKeyWord");
     String expected = "// Auto generated.\n"
-         + "void NonReservedKeyWord():\n"
+         + "String NonReservedKeyWord():\n"
          + "{\n}\n{\n"
          + "(\n"
          + "NonReservedKeyword0of2()\n"

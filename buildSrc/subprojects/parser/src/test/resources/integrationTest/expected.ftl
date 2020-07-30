@@ -103,7 +103,7 @@ void NonReservedKeyword0of1():
 }
 
 // Auto generated.
-void NonReservedKeyWord():
+String NonReservedKeyWord():
 {
 }
 {
