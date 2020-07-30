@@ -2665,7 +2665,7 @@ SqlNode OptionallyParenthesizedFromClause() :
 }
 {
     (
-
+        LOOKAHEAD( FromClause() )
         fromClause = FromClause()
     |
         <LPAREN>
