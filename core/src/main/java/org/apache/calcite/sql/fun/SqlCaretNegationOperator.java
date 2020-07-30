@@ -14,28 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.calcite.buildtools.parser;
+package org.apache.calcite.sql.fun;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.apache.calcite.sql.SqlCall;
+import org.apache.calcite.sql.SqlKind;
+import org.apache.calcite.sql.SqlPrefixOperator;
+import org.apache.calcite.sql.SqlWriter;
 
 /**
- * A simple container class to hold the data extracted from files.
+ * SqlCaretNegationOperator represents the "^" operator that occurs before a
+ * binary row expression.
  */
-public class ExtractedData {
-  public final Map<Keyword, String> keywords;
-  public final Set<Keyword> nonReservedKeywords;
-  public final Map<String, String> functions;
-  public final List<String> tokenAssignments;
+public class SqlCaretNegationOperator extends SqlPrefixOperator {
 
-  public ExtractedData() {
-    keywords = new LinkedHashMap<>();
-    nonReservedKeywords = new LinkedHashSet<>();
-    functions = new LinkedHashMap<>();
-    tokenAssignments = new ArrayList<>();
+  public SqlCaretNegationOperator() {
+    super("^", SqlKind.CARET_NEGATION, /*prec=*/26,
+        /*returnTypeInference=*/null, /*operandTypeInference=*/null,
+        /*operandTypeChecker=*/null);
+  }
+
+  @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec,
+      int rightPrec) {
+    writer.keyword(getName());
+    writer.setNeedWhitespace(false);
+    call.operand(0).unparse(writer, leftPrec, rightPrec);
   }
 }

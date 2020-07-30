@@ -1420,6 +1420,11 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     expr(sql).ok(expected);
   }
 
+  @Test public void testTranslateChk() {
+    expr("translate_chk ('abc' using latin_to_unicode)")
+        .ok("TRANSLATE_CHK ('abc' USING LATIN_TO_UNICODE)");
+  }
+
   @Test public void testUsingRequestModifierSingular() {
     final String sql = "using (foo int)";
     final String expected = "USING (`FOO` INTEGER)";
@@ -1537,6 +1542,14 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testInlineModSyntaxCompoundIdentifiers() {
     final String sql = "select foo.bar mod baz.qux";
     final String expected = "SELECT MOD(`FOO`.`BAR`, `BAZ`.`QUX`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInlineModSyntaxExpressions() {
+    final String sql = "select (select foo from bar) mod (select baz from qux)";
+    final String expected = "SELECT MOD((SELECT `FOO`\n"
+        + "FROM `BAR`), (SELECT `BAZ`\n"
+        + "FROM `QUX`))";
     sql(sql).ok(expected);
   }
 
@@ -3866,6 +3879,148 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "GROUP BY `A`\n"
         + "HAVING (`A` > 2)\n"
         + "QUALIFY ((RANK() OVER (ORDER BY `A` DESC)) = 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegation() {
+    String sql = "select * from foo where ^a = 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (^(`A` = 1))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationWithParentheses() {
+    String sql = "select * from foo where ^(a <> 1)";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (^(`A` <> 1))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationAnd() {
+    String sql = "select * from foo where ^a <= 1 and ^b >= 2";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE ((^(`A` <= 1)) AND (^(`B` >= 2)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationOr() {
+    String sql = "select * from foo where ^a < 1 or ^b > 2";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE ((^(`A` < 1)) OR (^(`B` > 2)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationLikeAndNotLike() {
+    String sql = "select * from foo where ^a like 1 and ^b not like 2";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE ((^(`A` LIKE 1)) AND (^(`B` NOT LIKE 2)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedure() {
+    final String sql = "create procedure foo () select bar";
+    final String expected = "CREATE PROCEDURE `FOO` () SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testReplaceProcedure() {
+    final String sql = "replace procedure foo.bar () select baz from qux where "
+        + "baz = 1";
+    final String expected = "REPLACE PROCEDURE `FOO`.`BAR` () SELECT `BAZ`\n"
+        + "FROM `QUX`\n"
+        + "WHERE (`BAZ` = 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureParameters() {
+    final String sql = "create procedure foo (inout a integer, out b float, in "
+        + "c varchar(2), d blob(3)) select :a as bar";
+    final String expected = "CREATE PROCEDURE `FOO` (INOUT `A` INTEGER, OUT "
+        + "`B` FLOAT, IN `C` VARCHAR(2), IN `D` BLOB(3)) SELECT :A AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureDataAccessContainsSql() {
+    final String sql = "create procedure foo () contains sql select bar";
+    final String expected = "CREATE PROCEDURE `FOO` () CONTAINS SQL SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureDataAccessModifiesSqlData() {
+    final String sql = "create procedure foo () modifies sql data select bar";
+    final String expected = "CREATE PROCEDURE `FOO` () MODIFIES SQL DATA "
+        + "SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureDataAccessReadsSqlData() {
+    final String sql = "create procedure foo () reads sql data select bar";
+    final String expected = "CREATE PROCEDURE `FOO` () READS SQL DATA "
+        + "SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureDynamicResultSets() {
+    final String sql = "create procedure foo () dynamic result sets 5 select bar";
+    final String expected = "CREATE PROCEDURE `FOO` () DYNAMIC RESULT SETS 5 "
+        + "SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureDynamicResultSetsMax() {
+    final String sql = "create procedure foo () contains sql dynamic result "
+        + "sets 15 select bar";
+    final String expected = "CREATE PROCEDURE `FOO` () CONTAINS SQL DYNAMIC "
+        + "RESULT SETS 15 SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureDynamicResultSetsOutOfRangeFails() {
+    final String sql = "create procedure foo () dynamic result sets ^16^ "
+        + "select bar";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testCreateProcedureDynamicResultSetsNegativeFails() {
+    final String sql = "create procedure foo () dynamic result sets ^-^1 select bar";
+    final String expected = "(?s).*Encountered \"-\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testCreateProcedureSqlSecurityCreator() {
+    final String sql = "create procedure foo () sql security creator select "
+        + "bar";
+    final String expected = "CREATE PROCEDURE `FOO` () SQL SECURITY CREATOR "
+        + "SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureSqlSecurityDefiner() {
+    final String sql = "create procedure foo () sql security definer select "
+        + "bar";
+    final String expected = "CREATE PROCEDURE `FOO` () SQL SECURITY DEFINER "
+        + "SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureSqlSecurityInvoker() {
+    final String sql = "create procedure foo () sql security invoker select "
+        + "bar";
+    final String expected = "CREATE PROCEDURE `FOO` () SQL SECURITY INVOKER "
+        + "SELECT `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureSqlSecurityOwner() {
+    final String sql = "create procedure foo () sql security owner select bar";
+    final String expected = "CREATE PROCEDURE `FOO` () SQL SECURITY OWNER "
+        + "SELECT `BAR`";
     sql(sql).ok(expected);
   }
 }
