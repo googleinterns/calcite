@@ -4089,6 +4089,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   }
 
   @Test public void testDropProcedure() {
+    final String sql = "drop procedure foo";
+    final String expected = "DROP PROCEDURE `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDropProcedureCompoundIdentifier() {
     final String sql = "drop procedure foo.bar";
     final String expected = "DROP PROCEDURE `FOO`.`BAR`";
     sql(sql).ok(expected);
