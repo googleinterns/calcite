@@ -1,5 +1,8 @@
 {
     "keywords": [
         { "SEMI": "SEMI" }
+    ],
+    "nonReservedKeywords": [
+        "SEMI"
     ]
 }

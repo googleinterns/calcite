@@ -7,5 +7,15 @@
         { "MATERIALIZED": "MATERIALIZED" },
         { "STORED": "STORED" },
         { "VIRTUAL": "VIRTUAL" }
+    ],
+    "nonReservedKeywords": [
+        "ARCHIVE",
+        "FILE",
+        "IF",
+        "JAR",
+        "MATERIALIZED",
+        "STORED",
+        "VIRTUAL"
     ]
+
 }
