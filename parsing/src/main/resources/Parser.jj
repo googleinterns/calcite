@@ -648,6 +648,7 @@ of the 'normal states'.
 |   < CARET: "^" >
 |   < DOLLAR: "$" >
 }
+
 /* COMMENTS */
 
 <DEFAULT, DQID, BTID> TOKEN :
