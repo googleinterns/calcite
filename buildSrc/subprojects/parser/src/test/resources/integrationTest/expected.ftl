@@ -94,7 +94,7 @@ void quux(int arg1,
 }
 
 // Auto generated.
-void NonReservedKeyword0of1():
+void NonReservedKeyWord0of1():
 {
 }
 {
@@ -103,12 +103,12 @@ void NonReservedKeyword0of1():
 }
 
 // Auto generated.
-String NonReservedKeyword():
+String NonReservedKeyWord():
 {
 }
 {
 (
-NonReservedKeyword0of1()
+NonReservedKeyWord0of1()
 )
 { return unquotedIdentifier(); }
 }
