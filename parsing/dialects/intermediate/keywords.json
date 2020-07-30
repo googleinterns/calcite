@@ -1,0 +1,11 @@
+{
+    "keywords":[
+        { "ARCHIVE": "ARCHIVE" },
+        { "FILE": "FILE" },
+        { "IF": "IF" },
+        { "JAR": "JAR" },
+        { "MATERIALIZED": "MATERIALIZED" },
+        { "STORED": "STORED" },
+        { "VIRTUAL": "VIRTUAL" }
+    ]
+}

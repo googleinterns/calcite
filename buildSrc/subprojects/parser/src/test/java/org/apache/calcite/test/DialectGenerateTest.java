@@ -366,7 +366,7 @@ public class DialectGenerateTest {
     String expected = "// Auto generated.\n"
          + "<DEFAULT, DQID, BTID> TOKEN :\n"
          + "{\n"
-         + "<FOO : \"FOO\"> // From: path/file\n"
+         + "< FOO: \"FOO\" > // From: path/file\n"
          + "}";
     assertEquals(1, extractedData.tokenAssignments.size());
     assertEquals(expected, actual);
@@ -384,9 +384,9 @@ public class DialectGenerateTest {
     String expected = "// Auto generated.\n"
          + "<DEFAULT, DQID, BTID> TOKEN :\n"
          + "{\n"
-         + "<FOO : \"FOO\"> // From: path/file\n"
-         + "| <BAR : \"BAR\"> // No file specified.\n"
-         + "| <BAZ : \"BAZ\"> // From: path/file\n"
+         + "< FOO: \"FOO\" > // From: path/file\n"
+         + "| < BAR: \"BAR\" > // No file specified.\n"
+         + "| < BAZ: \"BAZ\" > // From: path/file\n"
          + "}";
     assertEquals(1, extractedData.tokenAssignments.size());
     assertEquals(expected, actual);

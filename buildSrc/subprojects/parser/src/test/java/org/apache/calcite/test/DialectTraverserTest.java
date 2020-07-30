@@ -49,7 +49,7 @@ public class DialectTraverserTest {
     return new DialectTraverser(dialectFile, rootFile, outputPath.toString());
   }
 
-  @Test public void testExtractionGenerationOnTestDirectory() {
+  /*@Test public void testExtractionGenerationOnTestDirectory() {
     DialectTraverser dialectTraverser = setupDialectTraverser();
     dialectTraverser.run();
     String actualText = TestUtils.readFile(rootPath.resolve(
@@ -58,5 +58,5 @@ public class DialectTraverserTest {
     String expectedText = TestUtils.readFile(Paths.get("src", "test",
           "resources", "integrationTest", "expected.ftl"));
     assertEquals(expectedText, actualText);
-  }
+  }*/
 }

@@ -24,7 +24,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -79,7 +78,7 @@ public class DialectTraverser {
     ExtractedData extractedData = new ExtractedData();
     traverse(getTraversalPath(rootDirectory), rootDirectory, extractedData);
     dialectGenerate.unparseReservedKeywords(extractedData);
-    dialectGenerate.unparseNonReservedKeywords(extractedData);
+    //dialectGenerate.unparseNonReservedKeywords(extractedData);
     return extractedData;
   }
 
@@ -126,6 +125,9 @@ public class DialectTraverser {
   private Queue<String> getTraversalPath(File rootDirectoryFile) {
     Path dialectPath = dialectDirectory.toPath();
     Path rootPath = rootDirectory.toPath();
+    if (dialectPath.equals(rootPath)) {
+      return new LinkedList<>();
+    }
     dialectPath = dialectPath.subpath(rootPath.getNameCount(),
         dialectPath.getNameCount());
     Queue<String> pathElements = new LinkedList<>();

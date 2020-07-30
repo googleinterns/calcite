@@ -704,9 +704,6 @@ public abstract class SqlDialectParserTest {
     sql("select 0.5e1^.1^ from sales.emps")
         .fails("(?s).*Encountered \".1\" at line 1, column 13.\n"
             + "Was expecting one of:\n"
-            + "    <EOF> \n"
-            + "    \"AS\" \\.\\.\\.\n"
-            + "    \"EXCEPT\" \\.\\.\\.\n"
             + ".*");
   }
 
