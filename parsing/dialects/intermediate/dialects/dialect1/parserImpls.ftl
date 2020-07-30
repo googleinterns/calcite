@@ -4600,15 +4600,23 @@ AlterProcedureWithOption AlterProcedureWithOption() :
 
 SqlBeginEndCall SqlBeginEndCall() :
 {
-    SqlIdentifier label = null;
+    SqlIdentifier beginLabel = null;
+    SqlIdentifier endLabel = null;
     final SqlNodeList statements = new SqlNodeList(getPos());
     final Span s;
 }
 {
-    [ label = SimpleIdentifier() <COLON> ]
+    [ beginLabel = SimpleIdentifier() <COLON> ]
     <BEGIN> { s = span(); }
     CreateProcedureStmtList(statements)
     <END>
-    [ SimpleIdentifier() ]
-    { return new SqlBeginEndCall(s.end(this), label, statements); }
+    [
+        endLabel = SimpleIdentifier() {
+            if (!beginLabel.equals(endLabel)) {
+                throw SqlUtil.newContextException(getPos(),
+                    RESOURCE.beginEndLabelMismatch());
+            }
+        }
+    ]
+    { return new SqlBeginEndCall(s.end(this), beginLabel, statements); }
 }

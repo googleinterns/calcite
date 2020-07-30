@@ -4158,4 +4158,13 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "END";
     sql(sql).ok(expected);
   }
+
+  @Test public void testBeginEndMismatchedLabelsFail() {
+    final String sql = "create procedure foo ()\n"
+        + "label1: begin\n"
+        + "select bar;\n"
+        + "end ^label2^";
+    final String expected = "BEGIN label and END label must match";
+    sql(sql).fails(expected);
+  }
 }

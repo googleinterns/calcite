@@ -939,4 +939,7 @@ public interface CalciteResource {
 
   @BaseMessage("Cannot specify non-integer value ''{0}'' without specifying PERCENT")
   ExInst<CalciteException> integerRequiredWhenNoPercent(String value);
+
+  @BaseMessage("BEGIN label and END label must match")
+  ExInst<SqlValidatorException> beginEndLabelMismatch();
 }
