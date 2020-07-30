@@ -7173,33 +7173,6 @@ public abstract class SqlDialectParserTest {
         .fails("(?s)Encountered \"with\" at .*");
   }
 
-  @Test void testParensInFrom() {
-    // UNNEST may not occur within parentheses.
-    // FIXME should fail at "unnest"
-    sql("select *from ^(^unnest(x))")
-        .fails("(?s)Encountered \"\\( unnest\" at .*");
-
-    // <table-name> may not occur within parentheses.
-    sql("select * from (^emp^)")
-        .fails("(?s)Non-query expression encountered in illegal context.*");
-
-    // <table-name> may not occur within parentheses.
-    sql("select * from (^emp^ as x)")
-        .fails("(?s)Non-query expression encountered in illegal context.*");
-
-    // <table-name> may not occur within parentheses.
-    sql("select * from (^emp^) as x")
-        .fails("(?s)Non-query expression encountered in illegal context.*");
-
-    // Parentheses around JOINs are OK, and sometimes necessary.
-    if (false) {
-      // todo:
-      sql("select * from (emp join dept using (deptno))").ok("xx");
-
-      sql("select * from (emp join dept using (deptno)) join foo using (x)").ok("xx");
-    }
-  }
-
   @Test void testProcedureCall() {
     sql("call blubber(5)")
         .ok("CALL `BLUBBER`(5)");

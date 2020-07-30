@@ -2486,21 +2486,6 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testNestedJoinParenthesizedTableFails() {
-    final String sql = "select * from foo cross join (bar cross join (^baz^))";
-    final String expected =
-        "(?s)Non-query expression encountered in illegal context.*";
-    sql(sql).fails(expected);
-  }
-
-  @Test public void testNestedJoinParenthesizedUnnestFails() {
-    final String sql = "select * from foo cross join"
-        + " (bar cross join ^(^unnest(x)))";
-    final String expected =
-        "(?s)Encountered \"\\( unnest \\( x \\) \\)\" at .*";
-    sql(sql).fails(expected);
-  }
-
   @Test public void testInlineCaseSpecificAbbreviated() {
     final String sql = "select * from foo where a (not cs) = 'Hello' (cs)";
     final String expected = "SELECT *\n"
@@ -3633,5 +3618,42 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + " ''), 'P', ''), 'Q', ''), 'R', ''), 'S', ''), 'T', ''), 'U ', ''),"
         + " 'V', ''), 'W', ''), 'X', ''), 'Y', '') AS `B`\n"
         + "FROM `ABC`");
+  }
+
+  @Test public void testParenthesizedFromClauseTableRef() {
+    final String sql = "select * from (foo)";
+    final String expected = "SELECT *\n"
+        +"FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testParenthesizedFromClauseJoin() {
+    final String sql = "select * from (foo inner join bar on foo.x = bar.x)";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "INNER JOIN `BAR` ON (`FOO`.`X` = `BAR`.`X`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testParenthesizedSecondTableRefInJoin() {
+    final String sql = "select * from foo inner join (bar) on foo.x = bar.x";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "INNER JOIN `BAR` ON (`FOO`.`X` = `BAR`.`X`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testParenthesizedFirstTableRefInJoin() {
+    final String sql = "select * from (foo) inner join bar on foo.x = bar.x";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "INNER JOIN `BAR` ON (`FOO`.`X` = `BAR`.`X`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testUnparenthesizedAliasFails() {
+    final String sql = "select * from (foo) ^as^ f";
+    final String expected = "(?s).*Encountered \"as\" at.*";
+    sql(sql).fails(expected);
   }
 }

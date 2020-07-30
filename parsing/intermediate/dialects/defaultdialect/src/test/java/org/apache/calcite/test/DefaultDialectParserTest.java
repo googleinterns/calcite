@@ -19,6 +19,8 @@ package org.apache.calcite.test;
 import org.apache.calcite.sql.parser.SqlParserImplFactory;
 import org.apache.calcite.sql.parser.defaultdialect.DefaultDialectParserImpl;
 
+import org.junit.jupiter.api.Test;
+
 /**
  * Tests the "Default" SQL parser.
  */
@@ -26,5 +28,33 @@ final class DefaultDialectParserTest extends SqlDialectParserTest {
 
   @Override protected SqlParserImplFactory parserImplFactory() {
     return DefaultDialectParserImpl.FACTORY;
+  }
+
+  @Test
+  void testParensInFrom() {
+    // UNNEST may not occur within parentheses.
+    // FIXME should fail at "unnest"
+    sql("select *from ^(^unnest(x))")
+        .fails("(?s)Encountered \"\\( unnest\" at .*");
+
+    // <table-name> may not occur within parentheses.
+    sql("select * from (^emp^)")
+        .fails("(?s)Non-query expression encountered in illegal context.*");
+
+    // <table-name> may not occur within parentheses.
+    sql("select * from (^emp^ as x)")
+        .fails("(?s)Non-query expression encountered in illegal context.*");
+
+    // <table-name> may not occur within parentheses.
+    sql("select * from (^emp^) as x")
+        .fails("(?s)Non-query expression encountered in illegal context.*");
+
+    // Parentheses around JOINs are OK, and sometimes necessary.
+    if (false) {
+      // todo:
+      sql("select * from (emp join dept using (deptno))").ok("xx");
+
+      sql("select * from (emp join dept using (deptno)) join foo using (x)").ok("xx");
+    }
   }
 }
