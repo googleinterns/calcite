@@ -784,7 +784,7 @@
         "GOTO",
         "GRANTED",
         "HIERARCHY",
-        "HOP"
+        "HOP",
         "HOURS",
         "IGNORE",
         "IMMEDIATE",
@@ -976,7 +976,7 @@
         "TRIGGER_CATALOG",
         "TRIGGER_NAME",
         "TRIGGER_SCHEMA",
-        "TUMBLE"
+        "TUMBLE",
         "TYPE",
         "UNBOUNDED",
         "UNCOMMITTED",
