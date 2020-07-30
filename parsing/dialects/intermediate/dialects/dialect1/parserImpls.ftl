@@ -3384,9 +3384,13 @@ SqlDrop SqlDrop() :
 {
     <DROP> { s = span(); }
     (
-        drop = SqlDropMaterializedView(s, replace)
+        drop = SqlDropFunction(s, replace)
     |
         drop = SqlDropMacro(s, replace)
+    |
+        drop = SqlDropMaterializedView(s, replace)
+    |
+        drop = SqlDropProcedure(s)
     |
         drop = SqlDropSchema(s, replace)
     |
@@ -3395,10 +3399,6 @@ SqlDrop SqlDrop() :
         drop = SqlDropType(s, replace)
     |
         drop = SqlDropView(s, replace)
-    |
-        drop = SqlDropFunction(s, replace)
-    |
-        drop = SqlDropProcedure(s)
     )
     {
         return drop;
