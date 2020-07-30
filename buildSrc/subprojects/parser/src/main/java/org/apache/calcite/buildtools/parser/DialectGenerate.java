@@ -149,7 +149,7 @@ public class DialectGenerate {
    * }
    *
    * If {@code extractedData.nonReservedKeywords} is empty, the function
-   * only only checks for the <EOF> token.
+   * only checks for the <EOF> token.
    *
    * Note: Indentation is added here just for clarity, actual function doesn't
    * have indentation as it is difficult to format using String.join().
