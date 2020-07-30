@@ -248,6 +248,11 @@ public interface SqlWriter {
     CREATE_MACRO,
 
     /**
+     * CREATE_PROCEDURE expression.
+     */
+    CREATE_PROCEDURE,
+
+    /**
      * Same behavior as user-defined frame type.
      */
     OTHER;

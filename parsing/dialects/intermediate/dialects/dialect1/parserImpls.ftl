@@ -4496,9 +4496,24 @@ SqlNode CreateProcedureStmt() :
 }
 {
     (
+        e = SqlBeginEndCall()
+    |
         e = SqlStmt()
     )
     { return e; }
+}
+
+void CreateProcedureStmtList(SqlNodeList statements) :
+{
+    SqlNode e;
+}
+{
+    (
+        LOOKAHEAD(1)
+        e = CreateProcedureStmt() <SEMICOLON> {
+            statements.add(e);
+        }
+    )+
 }
 
 SqlCreateProcedureParameter SqlCreateProcedureParameter() :
@@ -4581,4 +4596,19 @@ AlterProcedureWithOption AlterProcedureWithOption() :
     |
         <NO> <WARNING> { return AlterProcedureWithOption.NO_WARNING; }
     )
+}
+
+SqlBeginEndCall SqlBeginEndCall() :
+{
+    SqlIdentifier label = null;
+    final SqlNodeList statements = new SqlNodeList(getPos());
+    final Span s;
+}
+{
+    [ label = SimpleIdentifier() <COLON> ]
+    <BEGIN> { s = span(); }
+    CreateProcedureStmtList(statements)
+    <END>
+    [ SimpleIdentifier() ]
+    { return new SqlBeginEndCall(s.end(this), label, statements); }
 }

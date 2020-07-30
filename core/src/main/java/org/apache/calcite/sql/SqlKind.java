@@ -580,6 +580,11 @@ public enum SqlKind {
   CARET_NEGATION,
 
   /**
+   * BEGIN...END statement in a CREATE PROCEDURE call.
+   */
+  BEGIN_END,
+
+  /**
    * Special functions in MATCH_RECOGNIZE.
    */
   FINAL,
