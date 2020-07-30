@@ -149,7 +149,9 @@ public class DialectGenerate {
    * }
    *
    * If {@code extractedData.nonReservedKeywords} is empty, the function
-   * only checks for the <EOF> token.
+   * only checks for the <EOF> token. Note: Whether or not the function with
+   * only an <EOF> works with a parser has NOT been tested as there is not
+   * currently a dialect that contains 0 nonReservedKeywords.
    *
    * Note: Indentation is added here just for clarity, actual function doesn't
    * have indentation as it is difficult to format using String.join().
