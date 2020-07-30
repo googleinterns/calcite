@@ -62,7 +62,7 @@ public class SqlCreateProcedure extends SqlCreate {
     this.statement = statement;
   }
 
-  public List<SqlNode> getOperandList() {
+  @Override public List<SqlNode> getOperandList() {
     return ImmutableNullableList.of(procedureName, numResultSets, statement);
   }
 
