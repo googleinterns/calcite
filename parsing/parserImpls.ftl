@@ -4052,7 +4052,7 @@ void IdentifierSegment(List<String> names, List<SqlParserPos> positions) :
             id = lit.toValue();
         }
     |
-        id = NonReservedKeyword() {
+        id = NonReservedKeyWord() {
             pos = getPos();
         }
     )
