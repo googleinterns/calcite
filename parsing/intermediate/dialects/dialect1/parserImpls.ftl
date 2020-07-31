@@ -4544,7 +4544,7 @@ SqlIfStmt IfStmt() :
     )*
     [
         <ELSE>
-        StmtList(elseMultiStmtList)
+        CreateProcedureStmtList(elseMultiStmtList)
     ]
     <END> <IF>
     {
@@ -4562,14 +4562,14 @@ SqlNode ConditionMultiStmtPair() :
 {
     condition = Expression(ExprContext.ACCEPT_NON_QUERY)
     <THEN>
-    StmtList(multiStmtList)
+    CreateProcedureStmtList(multiStmtList)
     {
         return new SqlConditionalStmtListPair(getPos(), condition,
             multiStmtList);
     }
 }
 
-void StmtList(SqlNodeList stmtList) :
+void CreateProcedureStmtList(SqlStatementList statements) :
 {
     SqlNode e;
 }
@@ -4577,7 +4577,7 @@ void StmtList(SqlNodeList stmtList) :
     (
         LOOKAHEAD(CreateProcedureStmt())
         e = CreateProcedureStmt() <SEMICOLON> {
-            stmtList.add(e);
+            statements.add(e);
         }
     )+
 }
