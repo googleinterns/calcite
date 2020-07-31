@@ -21,7 +21,7 @@ plugins {
 }
 
 dependencies {
-    implementation("org.json:json:20200518")
+    implementation("com.google.code.gson:gson:2.8.5")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.5.1")
 }
