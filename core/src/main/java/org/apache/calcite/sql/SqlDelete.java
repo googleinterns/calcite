@@ -64,6 +64,7 @@ public class SqlDelete extends SqlCall {
     this.sourceSelect = sourceSelect;
     this.alias = alias;
   }
+
   //~ Methods ----------------------------------------------------------------
 
   @Override public SqlKind getKind() {
