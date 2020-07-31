@@ -119,10 +119,10 @@ public class DialectGenerateTest {
     StringBuilder actualText = new StringBuilder();
     actualText.append(licenseText);
     for (String value : extractedData.tokenAssignments) {
-      actualText.append(value + "\n");
+      actualText.append("\n").append(value).append("\n");
     }
     for (String value : extractedData.functions.values()) {
-      actualText.append(value + "\n");
+      actualText.append("\n").append(value).append("\n");
     }
     assertEquals(expectedText, actualText.toString());
   }
@@ -366,7 +366,7 @@ public class DialectGenerateTest {
     String expected = "// Auto generated.\n"
          + "<DEFAULT, DQID, BTID> TOKEN :\n"
          + "{\n"
-         + "<FOO : \"FOO\"> // From: path/file\n"
+         + "< FOO: \"FOO\" > // From: path/file\n"
          + "}";
     assertEquals(1, extractedData.tokenAssignments.size());
     assertEquals(expected, actual);
@@ -384,9 +384,9 @@ public class DialectGenerateTest {
     String expected = "// Auto generated.\n"
          + "<DEFAULT, DQID, BTID> TOKEN :\n"
          + "{\n"
-         + "<FOO : \"FOO\"> // From: path/file\n"
-         + "| <BAR : \"BAR\"> // No file specified.\n"
-         + "| <BAZ : \"BAZ\"> // From: path/file\n"
+         + "< FOO: \"FOO\" > // From: path/file\n"
+         + "| < BAR: \"BAR\" > // No file specified.\n"
+         + "| < BAZ: \"BAZ\" > // From: path/file\n"
          + "}";
     assertEquals(1, extractedData.tokenAssignments.size());
     assertEquals(expected, actual);
@@ -430,7 +430,7 @@ public class DialectGenerateTest {
     assertTrue(extractedData.functions.containsKey("NonReservedKeyword"));
     String actual = extractedData.functions.get("NonReservedKeyword");
     String expected = "// Auto generated.\n"
-         + "void NonReservedKeyword():\n"
+         + "String NonReservedKeyword():\n"
          + "{\n}\n{\n"
          + "<EOF>\n"
          + "{ return unquotedIdentifier(); }\n"
@@ -448,7 +448,7 @@ public class DialectGenerateTest {
     assertTrue(extractedData.functions.containsKey("NonReservedKeyword0of1"));
     String actual = extractedData.functions.get("NonReservedKeyword");
     String expected = "// Auto generated.\n"
-         + "void NonReservedKeyword():\n"
+         + "String NonReservedKeyword():\n"
          + "{\n}\n{\n"
          + "(\n"
          + "NonReservedKeyword0of1()\n"
@@ -461,7 +461,7 @@ public class DialectGenerateTest {
   @Test public void testUnparseNonReservedKeywordsMultiplePartitions() {
     ExtractedData extractedData = new ExtractedData();
     DialectGenerate dialectGenerate = new DialectGenerate();
-    for (int i = 0; i < 501; i++) {
+    for (int i = 0; i < DialectGenerate.PARTITION_SIZE + 1; i++) {
       extractedData.nonReservedKeywords.add(new Keyword("foo" + i));
     }
     dialectGenerate.unparseNonReservedKeywords(extractedData);
@@ -471,7 +471,7 @@ public class DialectGenerateTest {
     assertTrue(extractedData.functions.containsKey("NonReservedKeyword1of2"));
     String actual = extractedData.functions.get("NonReservedKeyword");
     String expected = "// Auto generated.\n"
-         + "void NonReservedKeyword():\n"
+         + "String NonReservedKeyword():\n"
          + "{\n}\n{\n"
          + "(\n"
          + "NonReservedKeyword0of2()\n"
