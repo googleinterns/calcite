@@ -20,6 +20,9 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
+
+import static org.apache.calcite.util.Static.RESOURCE;
+
 /**
  * Parse tree for a {@code SqlIfStmt}.
  */
@@ -41,6 +44,10 @@ public class SqlIfStmt extends SqlCall {
       final SqlNodeList conditionalStmtListPairs,
       final SqlNodeList elseStmtList) {
     super(pos);
+    if (conditionalStmtListPairs == null) {
+      throw SqlUtil.newContextException(pos,
+          RESOURCE.argumentMustNotBeNull("Condition statement list pair"));
+    }
     this.conditionalStmtListPairs = conditionalStmtListPairs;
     this.elseStmtList = elseStmtList;
   }
