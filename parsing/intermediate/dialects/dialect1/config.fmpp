@@ -613,7 +613,6 @@ data: {
       "AUTHORIZATION"
       "AVG"
       "BEFORE"
-      "BEGIN"
       "BEGIN_FRAME"
       "BEGIN_PARTITION"
       "BETWEEN"
@@ -715,7 +714,6 @@ data: {
       "ELSE"
 #     "ELSEIF" # not a keyword in Calcite
       "EMPTY"
-      "END"
 #     "END-EXEC" # not a keyword in Calcite, and contains '-'
       "END_FRAME"
       "END_PARTITION"

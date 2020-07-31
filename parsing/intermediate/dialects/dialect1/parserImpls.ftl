@@ -4575,6 +4575,7 @@ void StmtList(SqlNodeList stmtList) :
 }
 {
     (
+        LOOKAHEAD(CreateProcedureStmt())
         e = CreateProcedureStmt() <SEMICOLON> {
             stmtList.add(e);
         }
