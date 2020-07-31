@@ -4217,4 +4217,78 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "END `LABEL1`";
     sql(sql).ok(expected);
   }
+
+  @Test public void testDeclareVariable() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a integer;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A` INTEGER;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareVariableList() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a, b, c integer;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A`, `B`, `C` INTEGER;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareVariableDefaultLiteral() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a integer default 15;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A` INTEGER DEFAULT 15;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareVariableDefaultNull() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a integer default null;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A` INTEGER DEFAULT NULL;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareVariableMultipleStatements() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a, b, c integer;\n"
+        + "declare d integer default 15;\n"
+        + "declare e integer default null;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A`, `B`, `C` INTEGER;\n"
+        + "DECLARE `D` INTEGER DEFAULT 15;\n"
+        + "DECLARE `E` INTEGER DEFAULT NULL;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
 }

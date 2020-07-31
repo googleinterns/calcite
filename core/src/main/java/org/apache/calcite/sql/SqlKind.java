@@ -585,6 +585,11 @@ public enum SqlKind {
   BEGIN_END,
 
   /**
+   * DECLARE variable call in BEGIN...END statement.
+   */
+  DECLARE_VARIABLE,
+
+  /**
    * Special functions in MATCH_RECOGNIZE.
    */
   FINAL,
