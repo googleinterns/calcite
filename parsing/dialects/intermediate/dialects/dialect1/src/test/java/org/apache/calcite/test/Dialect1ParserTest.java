@@ -4094,7 +4094,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected =
         "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER) "
             + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
-        + "END IF";
+            + "END IF";
     sql(sql).ok(expected);
   }
 
