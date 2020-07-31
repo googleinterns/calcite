@@ -3980,7 +3980,7 @@ SqlNode Expression3(ExprContext exprContext) :
     final SqlNodeList list2;
     final SqlOperator op;
     final Span s;
-    SqlNode inlineCall;
+    final SqlNode inlineCall;
     Span rowSpan = null;
 }
 {
