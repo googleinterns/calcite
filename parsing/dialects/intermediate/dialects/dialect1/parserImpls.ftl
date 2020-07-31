@@ -4509,7 +4509,7 @@ void CreateProcedureStmtList(SqlStatementList statements) :
 }
 {
     (
-        LOOKAHEAD(1)
+        LOOKAHEAD(CreateProcedureStmt())
         e = CreateProcedureStmt() <SEMICOLON> {
             statements.add(e);
         }
@@ -4603,11 +4603,11 @@ SqlBeginEndCall SqlBeginEndCall() :
     SqlIdentifier beginLabel = null;
     SqlIdentifier endLabel = null;
     final SqlStatementList statements = new SqlStatementList(getPos());
-    final Span s;
+    final Span s = Span.of();
 }
 {
     [ beginLabel = SimpleIdentifier() <COLON> ]
-    <BEGIN> { s = span(); }
+    <BEGIN>
     CreateProcedureStmtList(statements)
     <END>
     [ endLabel = SimpleIdentifier() ]
