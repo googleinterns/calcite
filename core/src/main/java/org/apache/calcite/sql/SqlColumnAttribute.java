@@ -47,7 +47,7 @@ public abstract class SqlColumnAttribute extends SqlNode {
   }
 
   @Override public <R> R accept(SqlVisitor<R> visitor) {
-    return null;
+    return visitor.visit(this);
   }
 
   @Override public boolean equalsDeep(SqlNode node, Litmus litmus) {
