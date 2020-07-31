@@ -93,7 +93,7 @@ public class DialectTraverser {
    * @param extractedData The extracted data to write to the output file
    */
   public void generateParserImpls(ExtractedData extractedData) {
-    Path outputFilePath = Paths.get(outputPath);
+    Path outputFilePath = dialectDirectory.toPath().resolve(outputPath);
     Path licensePath = rootDirectory.toPath().resolve(
         Paths.get("src", "resources", "license.txt"));
     StringBuilder content = new StringBuilder();
