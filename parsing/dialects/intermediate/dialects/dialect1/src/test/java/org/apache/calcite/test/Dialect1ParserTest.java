@@ -4274,19 +4274,51 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testDeclareCondition() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a condition;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A` CONDITION;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareConditionForStateCode() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a condition for '10001';\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A` CONDITION FOR '10001';\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testDeclareVariableMultipleStatements() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
         + "declare a, b, c integer;\n"
-        + "declare d integer default 15;\n"
-        + "declare e integer default null;\n"
+        + "declare d condition;\n"
+        + "declare e integer default 15;\n"
+        + "declare f condition for '10001';\n"
+        + "declare g integer default null;\n"
         + "select bar;\n"
         + "end";
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
         + "DECLARE `A`, `B`, `C` INTEGER;\n"
-        + "DECLARE `D` INTEGER DEFAULT 15;\n"
-        + "DECLARE `E` INTEGER DEFAULT NULL;\n"
+        + "DECLARE `D` CONDITION;\n"
+        + "DECLARE `E` INTEGER DEFAULT 15;\n"
+        + "DECLARE `F` CONDITION FOR '10001';\n"
+        + "DECLARE `G` INTEGER DEFAULT NULL;\n"
         + "SELECT `BAR`;\n"
         + "END";
     sql(sql).ok(expected);

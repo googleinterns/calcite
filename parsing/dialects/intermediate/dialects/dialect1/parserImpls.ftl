@@ -4622,6 +4622,9 @@ SqlCall LocalDeclaration() :
 }
 {
     (
+        LOOKAHEAD(3)
+        e = SqlDeclareCondition()
+    |
         e = SqlDeclareVariable()
     )
     <SEMICOLON>
@@ -4659,4 +4662,22 @@ SqlDeclareVariable SqlDeclareVariable() :
         return new SqlDeclareVariable(s.end(this), variableNames, dataType,
             defaultValue);
     }
+}
+
+SqlDeclareCondition SqlDeclareCondition() :
+{
+    final SqlIdentifier conditionName;
+    final SqlNode stateCode;
+    final Span s = Span.of();
+}
+{
+    <DECLARE>
+    conditionName = SimpleIdentifier()
+    <CONDITION>
+    (
+        <FOR> stateCode = StringLiteral()
+    |
+        { stateCode = null; }
+    )
+    { return new SqlDeclareCondition(s.end(this), conditionName, stateCode); }
 }
