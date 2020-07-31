@@ -35,7 +35,7 @@ public class SqlIfStmt extends SqlCall {
    * @param pos                       Parser position, must not be null.
    * @param conditionalStmtListPairs  List of conditional expression pairs
    *                                  with StatementList.
-   * @param elseStmtList              List of statement in the else clause.
+   * @param elseStmtList              List of statements in the else clause.
    */
   public SqlIfStmt(final SqlParserPos pos,
       final SqlNodeList conditionalStmtListPairs,
@@ -58,11 +58,10 @@ public class SqlIfStmt extends SqlCall {
     for (int i = 0; i < conditionalStmtListPairs.size(); i++) {
       if (i != 0) {
         writer.keyword("ELSE IF");
-        conditionalStmtListPairs.get(i).unparse(writer, leftPrec, rightPrec);
       } else {
         writer.keyword("IF");
-        conditionalStmtListPairs.get(i).unparse(writer, leftPrec, rightPrec);
       }
+      conditionalStmtListPairs.get(i).unparse(writer, leftPrec, rightPrec);
     }
     if (!SqlNodeList.isEmptyList(elseStmtList)) {
       writer.keyword("ELSE");

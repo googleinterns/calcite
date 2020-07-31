@@ -4622,7 +4622,6 @@ SqlNode ConditionMultiStmtPair() :
 {
     final SqlNode condition;
     final SqlStatementList multiStmtList = new SqlStatementList(getPos());
-    SqlNode e;
 }
 {
     condition = Expression(ExprContext.ACCEPT_NON_QUERY)

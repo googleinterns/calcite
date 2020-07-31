@@ -31,11 +31,13 @@ public class SqlStatementList extends SqlNodeList {
     super(pos);
   }
 
-  public SqlStatementList(Collection<? extends SqlNode> collection, SqlParserPos pos) {
+  public SqlStatementList(Collection<? extends SqlNode> collection,
+      SqlParserPos pos) {
     super(collection, pos);
   }
 
-  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
+  @Override public void unparse(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
     SqlWriter.Frame frame = writer.startList(
         SqlWriter.FrameTypeEnum.STATEMENT_LIST, "", "");
     for (SqlNode e : getList()) {

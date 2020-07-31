@@ -21,7 +21,7 @@ import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 /**
- * Parse tree conditional expression paring with a list of statements .
+ * Parse tree conditional expression pairing with a list of statements .
  */
 public class SqlConditionalStmtListPair extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
