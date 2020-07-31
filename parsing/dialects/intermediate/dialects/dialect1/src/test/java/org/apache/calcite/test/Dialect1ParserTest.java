@@ -3930,6 +3930,14 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCaretNegationNotEquals() {
+    String sql = "select * from foo where a ^<> 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` = 1)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCaretNegationLessThan() {
     String sql = "select * from foo where a ^< 1";
     String expected = "SELECT *\n"
@@ -3983,6 +3991,14 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     String expected = "SELECT *\n"
         + "FROM `FOO`\n"
         + "WHERE (`A` <> 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotWithNotEquals() {
+    String sql = "select * from foo where a not <> 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` = 1)";
     sql(sql).ok(expected);
   }
 

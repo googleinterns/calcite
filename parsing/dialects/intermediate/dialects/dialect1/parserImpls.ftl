@@ -3015,9 +3015,11 @@ SqlBinaryOperator BinaryRowOperator() :
     SqlBinaryOperator op;
 }
 {
-    // <IN> is handled as a special case
+    // <IN> and <LIKE> are handled as special cases
     (
-        <EQ> { return SqlStdOperatorTable.EQUALS; }
+        ( <EQ> | ( <CARET> | <NOT> ) <NE> ) {
+            return SqlStdOperatorTable.EQUALS;
+        }
     |
         ( <GT> | ( <CARET> | <NOT> ) <LE> ) {
             return SqlStdOperatorTable.GREATER_THAN;
