@@ -47,7 +47,8 @@ public class SqlBeginEndCall extends SqlCall {
     super(pos);
     this.label = beginLabel;
     this.statements = statements;
-    if (endLabel != null && !beginLabel.equalsDeep(endLabel, Litmus.IGNORE)) {
+    if (endLabel != null && (beginLabel == null
+        || !beginLabel.equalsDeep(endLabel, Litmus.IGNORE))) {
       throw SqlUtil.newContextException(endLabel.getParserPosition(),
           RESOURCE.beginEndLabelMismatch());
     }
