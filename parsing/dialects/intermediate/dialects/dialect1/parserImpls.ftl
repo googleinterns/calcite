@@ -2172,7 +2172,7 @@ SqlHostVariable SqlHostVariable() :
     (
         <IDENTIFIER> { name = unquotedIdentifier(); }
     |
-        name = NonReservedKeyWord()
+        name = NonReservedKeyword()
     )
     { return new SqlHostVariable(name, getPos()); }
 }
