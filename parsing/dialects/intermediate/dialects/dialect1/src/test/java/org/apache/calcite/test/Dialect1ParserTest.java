@@ -3922,6 +3922,102 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCaretNegationEquals() {
+    String sql = "select * from foo where a ^= 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` <> 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationLessThan() {
+    String sql = "select * from foo where a ^< 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` >= 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationGreaterThan() {
+    String sql = "select * from foo where a ^> 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` <= 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationLessThanOrEqualTo() {
+    String sql = "select * from foo where a ^<= 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` > 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationGreaterThanOrEqualTo() {
+    String sql = "select * from foo where a ^>= 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` < 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationIn() {
+    String sql = "select * from emp where deptno ^ in (10, 20)";
+    String expected = "SELECT *\n"
+        + "FROM `EMP`\n"
+        + "WHERE (`DEPTNO` NOT IN (10, 20))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationLike() {
+    String sql = "select * from emp where deptno ^ LIKE 10";
+    String expected = "SELECT *\n"
+        + "FROM `EMP`\n"
+        + "WHERE (`DEPTNO` NOT LIKE 10)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotEquals() {
+    String sql = "select * from foo where a not = 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` <> 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotLessThan() {
+    String sql = "select * from foo where a not < 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` >= 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotGreaterThan() {
+    String sql = "select * from foo where a not > 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` <= 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotLessThanOrEqualTo() {
+    String sql = "select * from foo where a not <= 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` > 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotGreaterThanOrEqualTo() {
+    String sql = "select * from foo where a not >= 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` < 1)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateProcedure() {
     final String sql = "create procedure foo () select bar";
     final String expected = "CREATE PROCEDURE `FOO` () SELECT `BAR`";

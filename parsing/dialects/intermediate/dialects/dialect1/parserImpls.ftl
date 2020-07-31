@@ -3008,6 +3008,109 @@ SqlPrefixOperator PrefixRowOperator() :
 }
 
 /**
+ * Parses a binary row operator like AND.
+ */
+SqlBinaryOperator BinaryRowOperator() :
+{
+    SqlBinaryOperator op;
+}
+{
+    // <IN> is handled as a special case
+    (
+        <EQ> { return SqlStdOperatorTable.EQUALS; }
+    |
+        ( <GT> | (<CARET> | <NOT>) <LE> ) {
+            return SqlStdOperatorTable.GREATER_THAN;
+        }
+    |
+        ( <LT> | (<CARET> | <NOT>) <GE> ) {
+            return SqlStdOperatorTable.LESS_THAN;
+        }
+    |
+        ( <LE> | (<CARET> | <NOT>) <GT> ) {
+            return SqlStdOperatorTable.LESS_THAN_OR_EQUAL;
+        }
+    |
+        ( <GE> | (<CARET> | <NOT>) <LT> ) {
+            return SqlStdOperatorTable.GREATER_THAN_OR_EQUAL;
+        }
+    |
+        ( <NE> | (<CARET> | <NOT>) <EQ> )
+        {
+            return SqlStdOperatorTable.NOT_EQUALS;
+        }
+    |
+        <NE2> {
+            if (!this.conformance.isBangEqualAllowed()) {
+                throw SqlUtil.newContextException(getPos(),
+                    RESOURCE.bangEqualNotAllowed());
+            }
+            return SqlStdOperatorTable.NOT_EQUALS;
+        }
+    |
+        <PLUS> { return SqlStdOperatorTable.PLUS; }
+    |
+        <MINUS> { return SqlStdOperatorTable.MINUS; }
+    |
+        <STAR> { return SqlStdOperatorTable.MULTIPLY; }
+    |
+        <SLASH> { return SqlStdOperatorTable.DIVIDE; }
+    |
+        <PERCENT_REMAINDER> {
+            if (!this.conformance.isPercentRemainderAllowed()) {
+                throw SqlUtil.newContextException(getPos(),
+                    RESOURCE.percentRemainderNotAllowed());
+            }
+            return SqlStdOperatorTable.PERCENT_REMAINDER;
+        }
+    |
+        <CONCAT> { return SqlStdOperatorTable.CONCAT; }
+    |
+        <AND> { return SqlStdOperatorTable.AND; }
+    |
+        <OR> { return SqlStdOperatorTable.OR; }
+    |
+        LOOKAHEAD(2) <IS> <DISTINCT> <FROM> {
+            return SqlStdOperatorTable.IS_DISTINCT_FROM;
+        }
+    |
+        <IS> <NOT> <DISTINCT> <FROM> {
+            return SqlStdOperatorTable.IS_NOT_DISTINCT_FROM;
+        }
+    |
+        <MEMBER> <OF> { return SqlStdOperatorTable.MEMBER_OF; }
+    |
+        LOOKAHEAD(2) <SUBMULTISET> <OF> {
+            return SqlStdOperatorTable.SUBMULTISET_OF;
+        }
+    |
+        <NOT> <SUBMULTISET> <OF> {
+            return SqlStdOperatorTable.NOT_SUBMULTISET_OF;
+        }
+    |
+        <CONTAINS> { return SqlStdOperatorTable.CONTAINS; }
+    |
+        <OVERLAPS> { return SqlStdOperatorTable.OVERLAPS; }
+    |
+        <EQUALS> { return SqlStdOperatorTable.PERIOD_EQUALS; }
+    |
+        <PRECEDES> { return SqlStdOperatorTable.PRECEDES; }
+    |
+        <SUCCEEDS> { return SqlStdOperatorTable.SUCCEEDS; }
+    |
+        LOOKAHEAD(2) <IMMEDIATELY> <PRECEDES> {
+            return SqlStdOperatorTable.IMMEDIATELY_PRECEDES;
+        }
+    |
+        <IMMEDIATELY> <SUCCEEDS> {
+            return SqlStdOperatorTable.IMMEDIATELY_SUCCEEDS;
+        }
+    |
+        op = BinaryMultisetOperator() { return op; }
+    )
+}
+
+/**
  * Parses a binary row expression, or a parenthesized expression of any
  * kind.
  *
@@ -3045,7 +3148,7 @@ List<Object> Expression2(ExprContext exprContext) :
                     checkNonQueryExpression(exprContext);
                 }
                 (
-                    <NOT> <IN> { op = SqlStdOperatorTable.NOT_IN; }
+                    ( <NOT> | <CARET>) <IN> { op = SqlStdOperatorTable.NOT_IN; }
                 |
                     <IN> { op = SqlStdOperatorTable.IN; }
                 |
@@ -3118,7 +3221,7 @@ List<Object> Expression2(ExprContext exprContext) :
                 |
                     (
                         (
-                            <NOT>
+                            ( <NOT> | <CARET>)
                             (
                                 <LIKE> { op = SqlStdOperatorTable.NOT_LIKE; }
                             |
