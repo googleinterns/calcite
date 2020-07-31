@@ -27,11 +27,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -79,7 +79,7 @@ public class DialectTraverser {
    */
   public ExtractedData extractData() {
     ExtractedData extractedData = new ExtractedData();
-    traverse(getTraversalPath(rootDirectory), rootDirectory, extractedData);
+    traverse(getTraversalPath(), rootDirectory, extractedData);
     dialectGenerate.unparseReservedKeywords(extractedData);
     dialectGenerate.unparseNonReservedKeywords(extractedData);
     return extractedData;
@@ -93,7 +93,7 @@ public class DialectTraverser {
    * @param extractedData The extracted data to write to the output file
    */
   public void generateParserImpls(ExtractedData extractedData) {
-    Path outputFilePath = dialectDirectory.toPath().resolve(outputPath);
+    Path outputFilePath = Paths.get(outputPath);
     Path licensePath = rootDirectory.toPath().resolve(
         Paths.get("src", "resources", "license.txt"));
     StringBuilder content = new StringBuilder();
@@ -122,18 +122,16 @@ public class DialectTraverser {
   /**
    * Gets the traversal path for the dialect by "subtracting" the root
    * absolute path from the dialect directory absolute path.
-   *
-   * @param rootDirectoryFile The file for the root parsing directory
    */
-  private Queue<String> getTraversalPath(File rootDirectoryFile) {
+  private Queue<String> getTraversalPath() {
     Path dialectPath = dialectDirectory.toPath();
     Path rootPath = rootDirectory.toPath();
     if (dialectPath.equals(rootPath)) {
-      return new LinkedList<>();
+      return new ArrayDeque<>();
     }
     dialectPath = dialectPath.subpath(rootPath.getNameCount(),
         dialectPath.getNameCount());
-    Queue<String> pathElements = new LinkedList<>();
+    Queue<String> pathElements = new ArrayDeque<>();
     dialectPath.forEach(p -> pathElements.add(p.toString()));
     return pathElements;
   }
@@ -231,9 +229,9 @@ public class DialectTraverser {
    *
    * @return The {@code Map<Keyword, String>} that the json was converted to
    */
-  private Map<Keyword, String> unparseKeywordsJson(JsonArray keywordsJson,
+  private static Map<Keyword, String> unparseKeywordsJson(JsonArray keywordsJson,
       String filePath) {
-    Map<Keyword, String> keywords = new LinkedHashMap<Keyword, String>();
+    Map<Keyword, String> keywords = new LinkedHashMap<>();
     if (keywordsJson == null) {
       return keywords;
     }
@@ -265,9 +263,9 @@ public class DialectTraverser {
    *
    * @return The {@code Map<Keyword, String>} that the json was converted to
    */
-  private Set<Keyword> unparseNonReservedKeywordsJson(
+  private static Set<Keyword> unparseNonReservedKeywordsJson(
       JsonArray nonReservedKeywordsJson, String filePath) {
-    Set<Keyword> nonReservedKeywords = new LinkedHashSet<Keyword>();
+    Set<Keyword> nonReservedKeywords = new LinkedHashSet<>();
     if (nonReservedKeywordsJson == null) {
       return nonReservedKeywords;
     }
