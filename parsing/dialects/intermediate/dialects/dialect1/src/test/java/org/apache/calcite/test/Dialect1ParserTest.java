@@ -114,6 +114,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testDeleteWithTable() {
+    final String sql = "delete foo from bar";
+    final String expected = "DELETE `FOO` FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithTableWithoutFrom() {
+    final String sql = "delete foo bar";
+    final String expected = "DELETE `FOO` `BAR`";
+    sql(sql).ok(expected);
+  }
+
   @Test void testYearIsNotReserved() {
     final String sql = "select 1 as year from t";
     final String expected = "SELECT 1 AS `YEAR`\n"
