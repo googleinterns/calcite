@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
@@ -22,19 +21,19 @@ import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 
-public class SqlConditionalStmtList extends SqlCall{
+public class SqlConditionalStmtListPair extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("CONDITION_MULTI_STATEMENT_PAIR", SqlKind.OTHER);
+      new SqlSpecialOperator("CONDITION_STATEMENT_LIST_PAIR", SqlKind.OTHER);
 
   public final SqlNode condition;
-  public final SqlNodeList multiStmt;
+  public final SqlStatementList stmtList;
 
-  public SqlConditionalStmtList(final SqlParserPos pos,
+  public SqlConditionalStmtListPair(final SqlParserPos pos,
       final SqlNode condition,
-      final SqlNodeList multiStmt) {
+      final SqlStatementList multiStmt) {
     super(pos);
     this.condition = condition;
-    this.multiStmt = multiStmt;
+    this.stmtList = multiStmt;
   }
 
   @Override public SqlOperator getOperator() {
@@ -42,15 +41,13 @@ public class SqlConditionalStmtList extends SqlCall{
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(condition, multiStmt);
+    return ImmutableNullableList.of(condition, stmtList);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
     condition.unparse(writer, leftPrec, rightPrec);
-    for (SqlNode stmt : multiStmt) {
-      stmt.unparse(writer, leftPrec, rightPrec);
-      writer.print(";");
-    }
+    writer.keyword("THEN");
+    stmtList.unparse(writer, leftPrec, rightPrec);
   }
 }

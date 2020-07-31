@@ -4023,4 +4023,25 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "SELECT `BAR`";
     sql(sql).ok(expected);
   }
+
+  @Test public void testIfStmtBase() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee = 2 then select bar; end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER) "
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+        + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtMultipleStatements() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee = 2 then select bar; select baz; end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER) "
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "SELECT `BAZ`;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
 }

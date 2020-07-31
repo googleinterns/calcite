@@ -4494,9 +4494,9 @@ SqlNode CreateProcedureStmt() :
 }
 {
     (
-        e = SqlStmt()
-    |
         e = ConditionalStmt()
+    |
+        e = SqlStmt()
     )
     { return e; }
 }
@@ -4531,9 +4531,9 @@ SqlNode ConditionalStmt() :
 
 SqlIfStmt IfStmt() :
 {
-    final SqlNodeList conditionMultiStmtList = new SqlNodeList(getPos());
     SqlNode e;
-    final SqlNodeList elseMultiStmtList = new SqlNodeList(getPos());
+    final SqlNodeList conditionMultiStmtList = new SqlNodeList(getPos());
+    final SqlStatementList elseMultiStmtList = new SqlStatementList(getPos());
 }
 {
     <IF> e = ConditionMultiStmtPair()
@@ -4544,7 +4544,7 @@ SqlIfStmt IfStmt() :
     )*
     [
         <ELSE>
-        MultiStmt(elseMultiStmtList);
+        StmtList(elseMultiStmtList)
     ]
     <END> <IF>
     {
@@ -4556,30 +4556,27 @@ SqlIfStmt IfStmt() :
 SqlNode ConditionMultiStmtPair() :
 {
     final SqlNode condition;
-    final SqlNodeList multiStmtList = new SqlNodeList(getPos());
+    final SqlStatementList multiStmtList = new SqlStatementList(getPos());
     SqlNode e;
 }
 {
-    condition = Expression3(ExprContext.ACCEPT_NON_QUERY)
+    condition = Expression(ExprContext.ACCEPT_NON_QUERY)
     <THEN>
-    MultiStmt(multiStmtList)
+    StmtList(multiStmtList)
     {
-        return new SqlConditionalStmtList(getPos(), condition,
+        return new SqlConditionalStmtListPair(getPos(), condition,
             multiStmtList);
     }
 }
 
-void MultiStmt(SqlNodeList stmtList) :
+void StmtList(SqlNodeList stmtList) :
 {
     SqlNode e;
 }
 {
-    e = CreateProcedureStmt()
-    { stmtList.add(e); }
-    <SEMICOLON>
     (
-        e = CreateProcedureStmt()
-        { stmtList.add(e); }
-        <SEMICOLON>
-    )*
+        e = CreateProcedureStmt() <SEMICOLON> {
+            stmtList.add(e);
+        }
+    )+
 }

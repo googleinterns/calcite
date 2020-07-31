@@ -14,14 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 import java.util.List;
 
-public class SqlIfStmt extends SqlCall{
+public class SqlIfStmt extends SqlCall {
   public final SqlNodeList conditionalStmtListPairs;
   public final SqlNodeList elseStmtList;
 
@@ -39,5 +38,23 @@ public class SqlIfStmt extends SqlCall{
 
   @Override public List<SqlNode> getOperandList() {
     return null;
+  }
+
+  @Override public void unparse(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
+    for (int i = 0; i < conditionalStmtListPairs.size(); i++) {
+      if (i != 0) {
+        writer.keyword("ELSE IF");
+        conditionalStmtListPairs.get(i).unparse(writer, leftPrec, rightPrec);
+      } else {
+        writer.keyword("IF");
+        conditionalStmtListPairs.get(i).unparse(writer, leftPrec, rightPrec);
+      }
+      if (!SqlNodeList.isEmptyList(elseStmtList)) {
+        writer.keyword("ELSE");
+        elseStmtList.unparse(writer, leftPrec, rightPrec);
+      }
+    }
+    writer.keyword("END IF");
   }
 }

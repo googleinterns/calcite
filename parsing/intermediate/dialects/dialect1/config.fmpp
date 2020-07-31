@@ -58,6 +58,7 @@ data: {
       "org.apache.calcite.sql.SqlColumnAttributeNamed",
       "org.apache.calcite.sql.SqlColumnAttributeTitle",
       "org.apache.calcite.sql.SqlColumnAttributeUpperCase",
+      "org.apache.calcite.sql.SqlConditionalStmtListPair",
       "org.apache.calcite.sql.SqlCreate",
       "org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier",
       "org.apache.calcite.sql.SqlCreateFunctionSqlForm",
@@ -82,6 +83,7 @@ data: {
       "org.apache.calcite.sql.SqlHexCharStringLiteral",
       "org.apache.calcite.sql.SqlHexCharStringLiteral.HexCharLiteralFormat",
       "org.apache.calcite.sql.SqlHostVariable",
+      "org.apache.calcite.sql.SqlIfStmt",
       "org.apache.calcite.sql.SqlIndex",
       "org.apache.calcite.sql.SqlJsonTypeNameSpec",
       "org.apache.calcite.sql.SqlJsonTypeNameSpec.StorageFormat",
@@ -195,7 +197,6 @@ data: {
       "STORED"
       "SUBSTR"
       "TEMP"
-      "THEN"
       "TITLE"
       "TOP"
       "TRANSLATE_CHK"
@@ -567,7 +568,6 @@ data: {
       "SEMI"
       "STORAGE"
       "STORED"
-      "THEN"
       "TITLE"
       "UBJSON"
       "UNICODE"
