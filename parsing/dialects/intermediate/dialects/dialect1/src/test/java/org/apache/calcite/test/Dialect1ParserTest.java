@@ -122,7 +122,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testDeleteWithTableWithoutFrom() {
     final String sql = "delete foo bar";
-    final String expected = "DELETE `FOO` `BAR`";
+    final String expected = "DELETE `FOO` FROM `BAR`";
     sql(sql).ok(expected);
   }
 

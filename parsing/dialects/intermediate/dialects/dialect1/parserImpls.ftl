@@ -2876,6 +2876,7 @@ SqlNode SqlDelete() :
     )
     { s = span(); }
     [
+        LOOKAHEAD( CompoundIdentifier() [ <FROM> ] TableRefWithHintsOpt() )
         deleteTable = CompoundIdentifier()
     ]
     [ <FROM> ]
