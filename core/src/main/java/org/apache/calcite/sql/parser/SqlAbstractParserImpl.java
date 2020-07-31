@@ -584,7 +584,7 @@ public abstract class SqlAbstractParserImpl {
     public MetadataImpl(SqlAbstractParserImpl sqlParser) {
       initList(sqlParser, reservedFunctionNames, "ReservedFunctionName");
       initList(sqlParser, contextVariableNames, "ContextVariable");
-      initList(sqlParser, nonReservedKeyWordSet, "NonReservedKeyWord");
+      initList(sqlParser, nonReservedKeyWordSet, "NonReservedKeyword");
       tokenList = ImmutableList.copyOf(tokenSet);
       sql92ReservedWords = constructSql92ReservedWordList();
       Set<String> reservedWordSet = new TreeSet<>();

@@ -16,9 +16,9 @@
  */
 package org.apache.calcite.buildtools.parser;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,9 +33,9 @@ public class ExtractedData {
   public final List<String> tokenAssignments;
 
   public ExtractedData() {
-    keywords = new LinkedHashMap<Keyword, String>();
-    nonReservedKeywords = new HashSet<Keyword>();
-    functions = new LinkedHashMap<String, String>();
-    tokenAssignments = new LinkedList<String>();
+    keywords = new LinkedHashMap<>();
+    nonReservedKeywords = new LinkedHashSet<>();
+    functions = new LinkedHashMap<>();
+    tokenAssignments = new ArrayList<>();
   }
 }
