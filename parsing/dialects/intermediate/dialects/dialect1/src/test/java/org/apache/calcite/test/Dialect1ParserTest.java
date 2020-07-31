@@ -134,7 +134,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testDeleteWithTableWithWhere() {
     final String sql = "delete foo from bar where bar.x = 0";
-    final String expected = "DELETE `FOO` FROM `BAR` WHERE (`BAR`.`X` = 0)";
+    final String expected = "DELETE `FOO` FROM `BAR`\n"
+        + "WHERE (`BAR`.`X` = 0)";
     sql(sql).ok(expected);
   }
 
