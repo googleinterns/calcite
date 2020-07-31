@@ -4089,9 +4089,9 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   }
 
   @Test public void testAlternativeCastWithBuiltInFunction() {
-    final String sql = "select cast(a as date) (format 'yyy-mm-dd')";
+    final String sql = "select cast(a as date) (format 'yyyy-mm-dd')";
     final String expected = "SELECT CAST(CAST(`A` AS DATE) AS FORMAT "
-        + "'yyy-mm-dd')";
+        + "'yyyy-mm-dd')";
     sql(sql).ok(expected);
   }
 
