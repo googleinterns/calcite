@@ -4087,4 +4087,11 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "TIME ZONE 'gmt'";
     sql(sql).ok(expected);
   }
+
+  @Test public void testAlternativeCastWithBuiltInFunction() {
+    final String sql = "select cast(a as date) (format 'yyy-mm-dd')";
+    final String expected = "SELECT CAST(CAST(`A` AS DATE) AS FORMAT "
+        + "'yyy-mm-dd')";
+    sql(sql).ok(expected);
+  }
 }
