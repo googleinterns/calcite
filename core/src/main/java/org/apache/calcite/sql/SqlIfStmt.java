@@ -17,13 +17,26 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
-
+/**
+ * Parse tree for a {@code SqlIfStmt}.
+ */
 public class SqlIfStmt extends SqlCall {
+  public static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("IF", SqlKind.CONDITIONAL_STATEMENT);
+
   public final SqlNodeList conditionalStmtListPairs;
   public final SqlNodeList elseStmtList;
 
+  /**
+   * Creates a {@code SqlTablePartitionByColumn}.
+   * @param pos                       Parser position, must not be null.
+   * @param conditionalStmtListPairs  List of conditional expression pairs
+   *                                  with StatementList.
+   * @param elseStmtList              List of statement in the else clause.
+   */
   public SqlIfStmt(final SqlParserPos pos,
       final SqlNodeList conditionalStmtListPairs,
       final SqlNodeList elseStmtList) {
@@ -33,11 +46,11 @@ public class SqlIfStmt extends SqlCall {
   }
 
   @Override public SqlOperator getOperator() {
-    return null;
+    return OPERATOR;
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return null;
+    return ImmutableNullableList.of(conditionalStmtListPairs,elseStmtList);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
@@ -50,10 +63,10 @@ public class SqlIfStmt extends SqlCall {
         writer.keyword("IF");
         conditionalStmtListPairs.get(i).unparse(writer, leftPrec, rightPrec);
       }
-      if (!SqlNodeList.isEmptyList(elseStmtList)) {
-        writer.keyword("ELSE");
-        elseStmtList.unparse(writer, leftPrec, rightPrec);
-      }
+    }
+    if (!SqlNodeList.isEmptyList(elseStmtList)) {
+      writer.keyword("ELSE");
+      elseStmtList.unparse(writer, leftPrec, rightPrec);
     }
     writer.keyword("END IF");
   }

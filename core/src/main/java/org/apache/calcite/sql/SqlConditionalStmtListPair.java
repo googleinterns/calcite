@@ -20,7 +20,9 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
-
+/**
+ * Parse tree conditional expression paring with a list of statements .
+ */
 public class SqlConditionalStmtListPair extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("CONDITION_STATEMENT_LIST_PAIR", SqlKind.OTHER);
@@ -28,12 +30,18 @@ public class SqlConditionalStmtListPair extends SqlCall {
   public final SqlNode condition;
   public final SqlStatementList stmtList;
 
+  /**
+   * Creates a {@code SqlConditionalStmtListPair}.
+   * @param pos         Parser position, must not be null.
+   * @param condition   Condition expression.
+   * @param stmtList    A List of statements.
+   */
   public SqlConditionalStmtListPair(final SqlParserPos pos,
       final SqlNode condition,
-      final SqlStatementList multiStmt) {
+      final SqlStatementList stmtList) {
     super(pos);
     this.condition = condition;
-    this.stmtList = multiStmt;
+    this.stmtList = stmtList;
   }
 
   @Override public SqlOperator getOperator() {

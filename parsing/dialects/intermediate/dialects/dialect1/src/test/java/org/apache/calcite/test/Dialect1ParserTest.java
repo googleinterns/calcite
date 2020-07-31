@@ -4108,4 +4108,47 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
             + "END IF";
     sql(sql).ok(expected);
   }
+
+  @Test public void testIfStmtWithElseIf() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee = 2 then select bar; "
+        + "else if bee = 3 then select baz; "
+        + "end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER) "
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "ELSE IF (`BEE` = 3) THEN SELECT `BAZ`;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtWithElseIfWithElse() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee = 2 then select bar; "
+        + "else if bee = 3 then select baz; "
+        + "else select xyz;"
+        + "end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER) "
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "ELSE IF (`BEE` = 3) THEN SELECT `BAZ`;\n"
+            + "ELSE SELECT `XYZ`;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtNestedIf() {
+    final String sql = "create procedure foo (bee integer, abc integer) "
+        + "if bee = 2 then "
+        + "select bar; "
+        + "if abc = 3 then select baz; end if;"
+        + "end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER, IN `ABC` INTEGER) "
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "IF (`ABC` = 3) THEN SELECT `BAZ`;\n"
+            + "END IF;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
 }
