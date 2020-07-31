@@ -3019,23 +3019,23 @@ SqlBinaryOperator BinaryRowOperator() :
     (
         <EQ> { return SqlStdOperatorTable.EQUALS; }
     |
-        ( <GT> | (<CARET> | <NOT>) <LE> ) {
+        ( <GT> | ( <CARET> | <NOT> ) <LE> ) {
             return SqlStdOperatorTable.GREATER_THAN;
         }
     |
-        ( <LT> | (<CARET> | <NOT>) <GE> ) {
+        ( <LT> | ( <CARET> | <NOT> ) <GE> ) {
             return SqlStdOperatorTable.LESS_THAN;
         }
     |
-        ( <LE> | (<CARET> | <NOT>) <GT> ) {
+        ( <LE> | ( <CARET> | <NOT> ) <GT> ) {
             return SqlStdOperatorTable.LESS_THAN_OR_EQUAL;
         }
     |
-        ( <GE> | (<CARET> | <NOT>) <LT> ) {
+        ( <GE> | ( <CARET> | <NOT> ) <LT> ) {
             return SqlStdOperatorTable.GREATER_THAN_OR_EQUAL;
         }
     |
-        ( <NE> | (<CARET> | <NOT>) <EQ> )
+        ( <NE> | ( <CARET> | <NOT> ) <EQ> )
         {
             return SqlStdOperatorTable.NOT_EQUALS;
         }
@@ -3148,7 +3148,7 @@ List<Object> Expression2(ExprContext exprContext) :
                     checkNonQueryExpression(exprContext);
                 }
                 (
-                    ( <NOT> | <CARET>) <IN> { op = SqlStdOperatorTable.NOT_IN; }
+                    ( <NOT> | <CARET> ) <IN> { op = SqlStdOperatorTable.NOT_IN; }
                 |
                     <IN> { op = SqlStdOperatorTable.IN; }
                 |
@@ -3221,7 +3221,7 @@ List<Object> Expression2(ExprContext exprContext) :
                 |
                     (
                         (
-                            ( <NOT> | <CARET>)
+                            ( <NOT> | <CARET> )
                             (
                                 <LIKE> { op = SqlStdOperatorTable.NOT_LIKE; }
                             |
