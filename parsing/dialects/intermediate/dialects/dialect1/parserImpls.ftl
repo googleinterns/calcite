@@ -2876,6 +2876,8 @@ SqlNode SqlDelete() :
     )
     { s = span(); }
     [
+        // LOOKAHEAD is required for queries like "DELETE FOO" since "FOO" in
+        // this case is supposed to be "table" not "deleteTable".
         LOOKAHEAD( CompoundIdentifier() [ <FROM> ] TableRefWithHintsOpt() )
         deleteTable = CompoundIdentifier()
     ]
