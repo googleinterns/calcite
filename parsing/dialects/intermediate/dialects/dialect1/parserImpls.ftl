@@ -4498,6 +4498,8 @@ SqlNode CreateProcedureStmt() :
     (
         e = SqlBeginEndCall()
     |
+        e = SqlBeginRequestCall()
+    |
         e = SqlStmt()
     )
     { return e; }
@@ -4612,4 +4614,18 @@ SqlBeginEndCall SqlBeginEndCall() :
     <END>
     [ endLabel = SimpleIdentifier() ]
     { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
+}
+
+SqlBeginRequestCall SqlBeginRequestCall() :
+{
+    final SqlStatementList statements = new SqlStatementList(getPos());
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <BEGIN> <REQUEST>
+    ( e = SqlStmt() <SEMICOLON> { statements.add(e); } )+
+    <END> <REQUEST>
+    [ endLabel = SimpleIdentifier() ]
+    { return new SqlBeginRequestCall(s.end(this), statements); }
 }

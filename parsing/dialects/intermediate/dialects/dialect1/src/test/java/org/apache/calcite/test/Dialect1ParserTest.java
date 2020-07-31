@@ -4217,4 +4217,16 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "END `LABEL1`";
     sql(sql).ok(expected);
   }
+
+  @Test public void testBeginRequest() {
+    final String sql = "create procedure foo ()\n"
+        + "begin request\n"
+        + "select bar;\n"
+        + "end request";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN REQUEST\n"
+        + "SELECT `BAR`;\n"
+        + "END REQUEST";
+    sql(sql).ok(expected);
+  }
 }
