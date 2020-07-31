@@ -4495,6 +4495,8 @@ SqlNode CreateProcedureStmt() :
 {
     (
         e = SqlStmt()
+    |
+        e = ConditionalStmt()
     )
     { return e; }
 }
@@ -4516,4 +4518,68 @@ SqlCreateProcedureParameter SqlCreateProcedureParameter() :
     name = SimpleIdentifier()
     dataType = DataType()
     { return new SqlCreateProcedureParameter(parameterType, name, dataType); }
+}
+
+SqlNode ConditionalStmt() :
+{
+    final SqlNode e;
+}
+{
+    e = IfStmt()
+    { return e; }
+}
+
+SqlIfStmt IfStmt() :
+{
+    final SqlNodeList conditionMultiStmtList = new SqlNodeList(getPos());
+    SqlNode e;
+    final SqlNodeList elseMultiStmtList = new SqlNodeList(getPos());
+}
+{
+    <IF> e = ConditionMultiStmtPair()
+    { conditionMultiStmtList.add(e); }
+    (
+        <ELSE> <IF> e = ConditionMultiStmtPair()
+        { conditionMultiStmtList.add(e); }
+    )*
+    [
+        <ELSE>
+        MultiStmt(elseMultiStmtList);
+    ]
+    <END> <IF>
+    {
+        return new SqlIfStmt(getPos(), conditionMultiStmtList,
+            elseMultiStmtList);
+    }
+}
+
+SqlNode ConditionMultiStmtPair() :
+{
+    final SqlNode condition;
+    final SqlNodeList multiStmtList = new SqlNodeList(getPos());
+    SqlNode e;
+}
+{
+    condition = Expression3(ExprContext.ACCEPT_NON_QUERY)
+    <THEN>
+    MultiStmt(multiStmtList)
+    {
+        return new SqlConditionalStmtList(getPos(), condition,
+            multiStmtList);
+    }
+}
+
+void MultiStmt(SqlNodeList stmtList) :
+{
+    SqlNode e;
+}
+{
+    e = CreateProcedureStmt()
+    { stmtList.add(e); }
+    <SEMICOLON>
+    (
+        e = CreateProcedureStmt()
+        { stmtList.add(e); }
+        <SEMICOLON>
+    )*
 }
