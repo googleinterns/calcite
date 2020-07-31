@@ -50,7 +50,7 @@ public class SqlIfStmt extends SqlCall {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(conditionalStmtListPairs,elseStmtList);
+    return ImmutableNullableList.of(conditionalStmtListPairs, elseStmtList);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
