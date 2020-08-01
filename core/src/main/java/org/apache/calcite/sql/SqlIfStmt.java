@@ -22,8 +22,6 @@ import org.apache.calcite.util.ImmutableNullableList;
 import java.util.List;
 import java.util.Objects;
 
-import static org.apache.calcite.util.Static.RESOURCE;
-
 /**
  * Parse tree for a {@code SqlIfStmt}.
  */
