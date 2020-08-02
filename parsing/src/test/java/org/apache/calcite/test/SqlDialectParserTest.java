@@ -710,14 +710,6 @@ public abstract class SqlDialectParserTest {
             + ".*");
   }
 
-  @Test void testInvalidToken() {
-    // Causes problems to the test infrastructure because the token mgr
-    // throws a java.lang.Error. The usual case is that the parser throws
-    // an exception.
-    sql("values (a^#^b)")
-        .fails("Lexical error at line 1, column 10\\.  Encountered: \"#\" \\(35\\), after : \"\"");
-  }
-
   // TODO: should fail in parser
   @Test void testStarAsFails() {
     sql("select * as x from emp")

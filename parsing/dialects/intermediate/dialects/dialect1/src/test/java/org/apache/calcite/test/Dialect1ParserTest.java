@@ -4117,4 +4117,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "TIME ZONE 'gmt'";
     sql(sql).ok(expected);
   }
+
+  @Test public void testIdentifierWithNumberSign() {
+    final String sql = "select * from #foo";
+    final String expected = "SELECT *\n"
+        + "FROM `#FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIdentifierWithDollarSign() {
+    final String sql = "select * from $foo";
+    final String expected = "SELECT *\n"
+        + "FROM `$FOO`";
+    sql(sql).ok(expected);
+  }
 }

@@ -647,6 +647,7 @@ of the 'normal states'.
 |   < VERTICAL_BAR: "|" >
 |   < CARET: "^" >
 |   < DOLLAR: "$" >
+|   < NUMBER_SIGN: "#" >
 }
 
 /* COMMENTS */
@@ -741,7 +742,7 @@ MORE :
     ("$" (<LETTER>|<DIGIT>|"_")+)?
     >
 |
-    < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+    < IDENTIFIER: (<LETTER>|<DOLLAR>|<NUMBER_SIGN>) (<LETTER>|<DOLLAR>|<NUMBER_SIGN>|<DIGIT>)* >
 |
     < UNICODE_QUOTED_IDENTIFIER: "U" "&" <QUOTED_IDENTIFIER> >
 |
