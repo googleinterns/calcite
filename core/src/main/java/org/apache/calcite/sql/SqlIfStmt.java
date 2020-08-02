@@ -36,16 +36,17 @@ public class SqlIfStmt extends SqlCall {
    * Creates a {@code SqlTablePartitionByColumn}.
    * @param pos                       Parser position, must not be null.
    * @param conditionalStmtListPairs  List of conditional expression pairs
-   *                                  with StatementList.
-   * @param elseStmtList              List of statements in the else clause.
+   *                                  with StatementList, must not be null.
+   * @param elseStmtList              List of statements in the else clause,
+   *                                  must not be null.
    */
   public SqlIfStmt(final SqlParserPos pos,
       final SqlNodeList conditionalStmtListPairs,
       final SqlNodeList elseStmtList) {
     super(pos);
-    Objects.requireNonNull(conditionalStmtListPairs);
-    this.conditionalStmtListPairs = conditionalStmtListPairs;
-    this.elseStmtList = elseStmtList;
+    this.conditionalStmtListPairs =
+        Objects.requireNonNull(conditionalStmtListPairs);
+    this.elseStmtList = Objects.requireNonNull(elseStmtList);
   }
 
   @Override public SqlOperator getOperator() {
