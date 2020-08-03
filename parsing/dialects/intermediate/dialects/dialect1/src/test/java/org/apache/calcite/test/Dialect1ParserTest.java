@@ -4154,6 +4154,28 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testAlternativeCastWithBuiltInFunction() {
+    final String sql = "select cast(a as date) (format 'yyyy-mm-dd')";
+    final String expected = "SELECT CAST(CAST(`A` AS DATE) AS FORMAT "
+        + "'yyyy-mm-dd')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNamedExpressionWithBuiltInFunction() {
+    final String sql = "select cast(a as date) (named b)";
+    final String expected = "SELECT CAST(`A` AS DATE) AS `B`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInlineCasespecificWithBuiltInFunction() {
+    final String sql = "select * from foo where cast(a as date) (casespecific) "
+        + "= 'Hello'";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (CAST(`A` AS DATE) (CASESPECIFIC) = 'Hello')";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testDropProcedure() {
     final String sql = "drop procedure foo";
     final String expected = "DROP PROCEDURE `FOO`";

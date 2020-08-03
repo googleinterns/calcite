@@ -3947,15 +3947,7 @@ SqlNode NamedFunctionCall() :
             call = SqlStdOperatorTable.OVER.createCall(s.end(over), call, over);
         }
     ]
-    (
-        e = NamedQuery(call) { return e; }
-    |
-        e = AlternativeTypeConversionQuery(call) { return e; }
-    |
-        e = CaseSpecific(call) { return e; }
-    |
-        { return call; }
-    )
+    { return call; }
 }
 
 SqlLiteral JoinType() :
@@ -4005,6 +3997,7 @@ SqlNode Expression3(ExprContext exprContext) :
     final SqlNodeList list2;
     final SqlOperator op;
     final Span s;
+    final SqlNode inlineCall;
     Span rowSpan = null;
 }
 {
@@ -4022,10 +4015,18 @@ SqlNode Expression3(ExprContext exprContext) :
 |
     LOOKAHEAD(2)
     e = AtomicRowExpression()
-    {
-        checkNonQueryExpression(exprContext);
-        return e;
-    }
+    (
+        inlineCall = NamedQuery(e) { return inlineCall; }
+    |
+        inlineCall = AlternativeTypeConversionQuery(e) { return inlineCall; }
+    |
+        inlineCall = CaseSpecific(e) { return inlineCall; }
+    |
+        {
+            checkNonQueryExpression(exprContext);
+            return e;
+        }
+    )
 |
     e = CursorExpression(exprContext) { return e; }
 |
