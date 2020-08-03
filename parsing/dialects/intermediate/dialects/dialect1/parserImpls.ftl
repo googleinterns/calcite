@@ -4622,6 +4622,22 @@ AlterProcedureWithOption AlterProcedureWithOption() :
     )
 }
 
+SqlBeginEndCall SqlBeginEndCall() :
+{
+    SqlIdentifier beginLabel = null;
+    SqlIdentifier endLabel = null;
+    final SqlStatementList statements = new SqlStatementList(getPos());
+    final Span s = Span.of();
+}
+{
+    [ beginLabel = SimpleIdentifier() <COLON> ]
+    <BEGIN>
+    CreateProcedureStmtList(statements)
+    <END>
+    [ endLabel = SimpleIdentifier() ]
+    { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
+}
+
 SqlDrop SqlDropProcedure(Span s) :
 {
     final SqlIdentifier procedureName;
@@ -4680,22 +4696,6 @@ SqlRenameProcedure SqlRenameProcedure() :
     {
         return new SqlRenameProcedure(getPos(), oldProcedure, newProcedure);
     }
-}
-
-SqlBeginEndCall SqlBeginEndCall() :
-{
-    SqlIdentifier beginLabel = null;
-    SqlIdentifier endLabel = null;
-    final SqlStatementList statements = new SqlStatementList(getPos());
-    final Span s = Span.of();
-}
-{
-    [ beginLabel = SimpleIdentifier() <COLON> ]
-    <BEGIN>
-    CreateProcedureStmtList(statements)
-    <END>
-    [ endLabel = SimpleIdentifier() ]
-    { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
 }
 
 SqlNode CursorStmt() :
