@@ -4877,6 +4877,10 @@ void CreateProcedureStmtList(SqlStatementList statements) :
 }
 
 SqlNode CursorStmt() :
+{
+    final SqlNode e;
+}
+{
     (
         e = SqlAllocateCursor()
     )
