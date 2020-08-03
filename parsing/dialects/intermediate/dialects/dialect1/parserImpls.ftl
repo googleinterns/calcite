@@ -4642,6 +4642,8 @@ SqlNode CreateProcedureStmt() :
     |
         e = SqlBeginEndCall()
     |
+        e = ConditionalStmt()
+    |
         e = SqlStmt()
     )
     { return e; }
@@ -4816,6 +4818,67 @@ SqlRenameProcedure SqlRenameProcedure() :
     {
         return new SqlRenameProcedure(getPos(), oldProcedure, newProcedure);
     }
+}
+
+SqlNode ConditionalStmt() :
+{
+    final SqlNode e;
+}
+{
+    e = IfStmt()
+    { return e; }
+}
+
+SqlIfStmt IfStmt() :
+{
+    SqlNode e;
+    final SqlNodeList conditionMultiStmtList = new SqlNodeList(getPos());
+    final SqlStatementList elseMultiStmtList = new SqlStatementList(getPos());
+}
+{
+    <IF> e = ConditionMultiStmtPair()
+    { conditionMultiStmtList.add(e); }
+    (
+        <ELSE> <IF> e = ConditionMultiStmtPair()
+        { conditionMultiStmtList.add(e); }
+    )*
+    [
+        <ELSE>
+        CreateProcedureStmtList(elseMultiStmtList)
+    ]
+    <END> <IF>
+    {
+        return new SqlIfStmt(getPos(), conditionMultiStmtList,
+            elseMultiStmtList);
+    }
+}
+
+SqlNode ConditionMultiStmtPair() :
+{
+    final SqlNode condition;
+    final SqlStatementList multiStmtList = new SqlStatementList(getPos());
+}
+{
+    condition = Expression(ExprContext.ACCEPT_NON_QUERY)
+    <THEN>
+    CreateProcedureStmtList(multiStmtList)
+    {
+        return new SqlConditionalStmtListPair(getPos(), condition,
+            multiStmtList);
+    }
+}
+
+void CreateProcedureStmtList(SqlStatementList statements) :
+{
+    SqlNode e;
+}
+{
+    (
+        LOOKAHEAD(CreateProcedureStmt())
+        e = CreateProcedureStmt() <SEMICOLON> {
+            statements.add(e);
+        }
+    )+
 }
 
 SqlNode CursorStmt() :

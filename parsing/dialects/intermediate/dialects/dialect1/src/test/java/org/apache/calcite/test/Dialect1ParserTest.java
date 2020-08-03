@@ -4515,6 +4515,84 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testIfStmtBase() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee = 2 then select bar; end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtMultipleStatements() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee = 2 then select bar; select baz; end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "SELECT `BAZ`;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtWithElseIf() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee = 2 then select bar; "
+        + "else if bee = 3 then select baz; "
+        + "end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "ELSE IF (`BEE` = 3) THEN SELECT `BAZ`;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtWithElseIfWithElse() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee = 2 then select bar; "
+        + "else if bee = 3 then select baz; "
+        + "else select xyz;"
+        + "end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "ELSE IF (`BEE` = 3) THEN SELECT `BAZ`;\n"
+            + "ELSE SELECT `XYZ`;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtNestedIf() {
+    final String sql = "create procedure foo (bee integer, abc integer) "
+        + "if bee = 2 then "
+        + "select bar; "
+        + "if abc = 3 then select baz; end if;"
+        + "end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER, IN `ABC` INTEGER)\n"
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "IF (`ABC` = 3) THEN SELECT `BAZ`;\n"
+            + "END IF;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtWithEmptyThenClauseFails() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee > 2 then ^end^ if";
+    final String expected = "(?s)Encountered \"end\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testIfStmtStartWithElseIfFails() {
+    final String sql = "create procedure foo (bee integer) "
+        + "^else^ if bee > 2 then end if";
+    final String expected = "(?s)Encountered \"else\" at .*";
+    sql(sql).fails(expected);
+  }
+
   @Test public void testAllocateCursor() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
