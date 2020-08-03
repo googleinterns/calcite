@@ -3954,14 +3954,16 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testCreateProcedure() {
     final String sql = "create procedure foo () select bar";
-    final String expected = "CREATE PROCEDURE `FOO` () SELECT `BAR`";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "SELECT `BAR`";
     sql(sql).ok(expected);
   }
 
   @Test public void testReplaceProcedure() {
     final String sql = "replace procedure foo.bar () select baz from qux where "
         + "baz = 1";
-    final String expected = "REPLACE PROCEDURE `FOO`.`BAR` () SELECT `BAZ`\n"
+    final String expected = "REPLACE PROCEDURE `FOO`.`BAR` ()\n"
+        + "SELECT `BAZ`\n"
         + "FROM `QUX`\n"
         + "WHERE (`BAZ` = 1)";
     sql(sql).ok(expected);
@@ -3971,33 +3973,35 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "create procedure foo (inout a integer, out b float, in "
         + "c varchar(2), d blob(3)) select :a as bar";
     final String expected = "CREATE PROCEDURE `FOO` (INOUT `A` INTEGER, OUT "
-        + "`B` FLOAT, IN `C` VARCHAR(2), IN `D` BLOB(3)) SELECT :A AS `BAR`";
+        + "`B` FLOAT, IN `C` VARCHAR(2), IN `D` BLOB(3))\n"
+        + "SELECT :A AS `BAR`";
     sql(sql).ok(expected);
   }
 
   @Test public void testCreateProcedureDataAccessContainsSql() {
     final String sql = "create procedure foo () contains sql select bar";
-    final String expected = "CREATE PROCEDURE `FOO` () CONTAINS SQL SELECT `BAR`";
+    final String expected = "CREATE PROCEDURE `FOO` () CONTAINS SQL\n"
+        + "SELECT `BAR`";
     sql(sql).ok(expected);
   }
 
   @Test public void testCreateProcedureDataAccessModifiesSqlData() {
     final String sql = "create procedure foo () modifies sql data select bar";
-    final String expected = "CREATE PROCEDURE `FOO` () MODIFIES SQL DATA "
+    final String expected = "CREATE PROCEDURE `FOO` () MODIFIES SQL DATA\n"
         + "SELECT `BAR`";
     sql(sql).ok(expected);
   }
 
   @Test public void testCreateProcedureDataAccessReadsSqlData() {
     final String sql = "create procedure foo () reads sql data select bar";
-    final String expected = "CREATE PROCEDURE `FOO` () READS SQL DATA "
+    final String expected = "CREATE PROCEDURE `FOO` () READS SQL DATA\n"
         + "SELECT `BAR`";
     sql(sql).ok(expected);
   }
 
   @Test public void testCreateProcedureDynamicResultSets() {
     final String sql = "create procedure foo () dynamic result sets 5 select bar";
-    final String expected = "CREATE PROCEDURE `FOO` () DYNAMIC RESULT SETS 5 "
+    final String expected = "CREATE PROCEDURE `FOO` () DYNAMIC RESULT SETS 5\n"
         + "SELECT `BAR`";
     sql(sql).ok(expected);
   }
@@ -4006,7 +4010,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "create procedure foo () contains sql dynamic result "
         + "sets 15 select bar";
     final String expected = "CREATE PROCEDURE `FOO` () CONTAINS SQL DYNAMIC "
-        + "RESULT SETS 15 SELECT `BAR`";
+        + "RESULT SETS 15\n"
+        + "SELECT `BAR`";
     sql(sql).ok(expected);
   }
 
@@ -4026,7 +4031,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testCreateProcedureSqlSecurityCreator() {
     final String sql = "create procedure foo () sql security creator select "
         + "bar";
-    final String expected = "CREATE PROCEDURE `FOO` () SQL SECURITY CREATOR "
+    final String expected = "CREATE PROCEDURE `FOO` () SQL SECURITY CREATOR\n"
         + "SELECT `BAR`";
     sql(sql).ok(expected);
   }
@@ -4034,7 +4039,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testCreateProcedureSqlSecurityDefiner() {
     final String sql = "create procedure foo () sql security definer select "
         + "bar";
-    final String expected = "CREATE PROCEDURE `FOO` () SQL SECURITY DEFINER "
+    final String expected = "CREATE PROCEDURE `FOO` () SQL SECURITY DEFINER\n"
         + "SELECT `BAR`";
     sql(sql).ok(expected);
   }
@@ -4042,14 +4047,14 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testCreateProcedureSqlSecurityInvoker() {
     final String sql = "create procedure foo () sql security invoker select "
         + "bar";
-    final String expected = "CREATE PROCEDURE `FOO` () SQL SECURITY INVOKER "
+    final String expected = "CREATE PROCEDURE `FOO` () SQL SECURITY INVOKER\n"
         + "SELECT `BAR`";
     sql(sql).ok(expected);
   }
 
   @Test public void testCreateProcedureSqlSecurityOwner() {
     final String sql = "create procedure foo () sql security owner select bar";
-    final String expected = "CREATE PROCEDURE `FOO` () SQL SECURITY OWNER "
+    final String expected = "CREATE PROCEDURE `FOO` () SQL SECURITY OWNER\n"
         + "SELECT `BAR`";
     sql(sql).ok(expected);
   }
@@ -4165,6 +4170,131 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "select * from $foo";
     final String expected = "SELECT *\n"
         + "FROM `$FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testBeginEnd() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testBeginEndLabels() {
+    final String sql = "create procedure foo ()\n"
+        + "label1: begin\n"
+        + "select bar;\n"
+        + "end label1";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "`LABEL1`: BEGIN\n"
+        + "SELECT `BAR`;\n"
+        + "END `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testBeginEndOnlyBeginLabel() {
+    final String sql = "create procedure foo ()\n"
+        + "label1: begin\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "`LABEL1`: BEGIN\n"
+        + "SELECT `BAR`;\n"
+        + "END `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testBeginEndMismatchedLabelsFail() {
+    final String sql = "create procedure foo ()\n"
+        + "label1: begin\n"
+        + "select bar;\n"
+        + "end ^label2^";
+    final String expected = "BEGIN label and END label must match";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testBeginEndNoBeginLabel() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select bar;\n"
+        + "end ^label1^";
+    final String expected = "BEGIN label and END label must match";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testBeginEndMultipleStatements() {
+    final String sql = "create procedure foo ()\n"
+        + "label1: begin\n"
+        + "select bar;\n"
+        + "insert baz (:a);\n"
+        + "select qux from quxx where qux = 3;\n"
+        + "end label1";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "`LABEL1`: BEGIN\n"
+        + "SELECT `BAR`;\n"
+        + "INSERT INTO `BAZ`\n"
+        + "VALUES (ROW(:A));\n"
+        + "SELECT `QUX`\n"
+        + "FROM `QUXX`\n"
+        + "WHERE (`QUX` = 3);\n"
+        + "END `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testBeginEndNested() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "insert baz (:a);\n"
+        + "label1: begin\n"
+        + "select bar;\n"
+        + "end label1;\n"
+        + "select qux from quxx where qux = 3;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "INSERT INTO `BAZ`\n"
+        + "VALUES (ROW(:A));\n"
+        + "`LABEL1`: BEGIN\n"
+        + "SELECT `BAR`;\n"
+        + "END `LABEL1`;\n"
+        + "SELECT `QUX`\n"
+        + "FROM `QUXX`\n"
+        + "WHERE (`QUX` = 3);\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testBeginEndNestedMultipleLevels() {
+    final String sql = "create procedure foo ()\n"
+        + "label1: begin\n"
+        + "insert baz (:a);\n"
+        + "begin\n"
+        + "select bar;\n"
+        + "label2: begin\n"
+        + "select bar;\n"
+        + "end label2;\n"
+        + "end;\n"
+        + "select qux from quxx where qux = 3;\n"
+        + "end label1";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "`LABEL1`: BEGIN\n"
+        + "INSERT INTO `BAZ`\n"
+        + "VALUES (ROW(:A));\n"
+        + "BEGIN\n"
+        + "SELECT `BAR`;\n"
+        + "`LABEL2`: BEGIN\n"
+        + "SELECT `BAR`;\n"
+        + "END `LABEL2`;\n"
+        + "END;\n"
+        + "SELECT `QUX`\n"
+        + "FROM `QUXX`\n"
+        + "WHERE (`QUX` = 3);\n"
+        + "END `LABEL1`";
     sql(sql).ok(expected);
   }
 
