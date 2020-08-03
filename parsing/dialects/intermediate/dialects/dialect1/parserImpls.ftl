@@ -4518,6 +4518,8 @@ SqlNode CreateProcedureStmt() :
 }
 {
     (
+        e = CursorStmt()
+    |
         e = SqlBeginEndCall()
     |
         e = SqlStmt()
@@ -4694,4 +4696,27 @@ SqlRenameProcedure SqlRenameProcedure() :
     {
         return new SqlRenameProcedure(getPos(), oldProcedure, newProcedure);
     }
+}
+
+SqlNode CursorStmt() :
+{
+    final SqlNode e;
+}
+{
+    (
+        e = SqlAllocateCursor()
+    )
+    { return e; }
+}
+
+SqlAllocateCursor SqlAllocateCursor() :
+{
+    final SqlIdentifier cursorName;
+    final SqlIdentifier procedureName;
+    final Span s = Span.of();
+}
+{
+    <ALLOCATE> cursorName = SimpleIdentifier()
+    <CURSOR> <FOR> <PROCEDURE> procedureName = SimpleIdentifier()
+    { return new SqlAllocateCursor(s.end(this), cursorName, procedureName); }
 }

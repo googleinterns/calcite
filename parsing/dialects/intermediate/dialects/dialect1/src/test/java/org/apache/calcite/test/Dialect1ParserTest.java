@@ -4374,4 +4374,16 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "RENAME PROCEDURE `FOO`.`BAR` AS `BAZ`.`QUX`";
     sql(sql).ok(expected);
   }
+
+  @Test public void testAllocateCursor() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "allocate bar cursor for procedure baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "ALLOCATE `BAR` CURSOR FOR PROCEDURE `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
 }
