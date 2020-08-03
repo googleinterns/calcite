@@ -3656,9 +3656,7 @@ SqlLiteral DateTimeLiteral() :
         return SqlParserUtil.parseTimestampLiteral(p, s.end(this));
     }
 |
-    <DATE> { s = span(); } <QUOTED_STRING> {
-        return SqlParserUtil.parseDateLiteral(token.image, s.end(this));
-    }
+    DateLiteral()
 |
     <TIME> { s = span(); } <QUOTED_STRING> {
         return SqlParserUtil.parseTimeLiteral(token.image, s.end(this));
@@ -3666,6 +3664,16 @@ SqlLiteral DateTimeLiteral() :
 |
     <TIMESTAMP> { s = span(); } <QUOTED_STRING> {
         return SqlParserUtil.parseTimestampLiteral(token.image, s.end(this));
+    }
+}
+
+SqlLiteral DateLiteral():
+{
+    final Span s;
+}
+{
+    <DATE> { s = span(); } <QUOTED_STRING> {
+        return SqlParserUtil.parseDateLiteral(token.image, s.end(this));
     }
 }
 

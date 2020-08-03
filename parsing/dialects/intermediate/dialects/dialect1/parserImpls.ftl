@@ -194,6 +194,8 @@ SqlColumnAttribute ColumnAttributeDefault() :
     |
         defaultValue = CurrentTimestampFunction()
     |
+        defaultValue = DateLiteral()
+    |
         defaultValue = ContextVariable()
     )
     {

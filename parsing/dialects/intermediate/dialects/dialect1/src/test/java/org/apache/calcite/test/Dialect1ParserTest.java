@@ -927,6 +927,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateTableDefaultDateColumnLevelAttribute() {
+    final String sql = "create table foo (bar date default date '2000-07-04')";
+    final String expected = "CREATE TABLE `FOO` (`BAR` DATE DEFAULT DATE '2000-07-04')";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTableWithDateFormatStringColumnLevelAttribute() {
     final String sql = "create table foo (bar date format 'YYYY-MM-DD')";
     final String expected = "CREATE TABLE `FOO` (`BAR` DATE FORMAT 'YYYY-MM-DD')";
