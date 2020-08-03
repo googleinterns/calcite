@@ -4434,7 +4434,7 @@ SqlCreateProcedure SqlCreateProcedure() :
     <LPAREN>
     [
         parameter = SqlCreateProcedureParameter() {
-            parameters.add(parameter);
+            parameters.add(parameter  );
         }
         (
             <COMMA>
@@ -4616,6 +4616,7 @@ SqlBeginEndCall SqlBeginEndCall() :
     { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
 }
 
+// Semicolon is optional after the last statement.
 SqlBeginRequestCall SqlBeginRequestCall() :
 {
     final SqlStatementList statements = new SqlStatementList(getPos());
@@ -4624,8 +4625,9 @@ SqlBeginRequestCall SqlBeginRequestCall() :
 }
 {
     <BEGIN> <REQUEST>
-    ( e = SqlStmt() <SEMICOLON> { statements.add(e); } )+
+    e = SqlStmt() { statements.add(e); }
+    ( <SEMICOLON> e = SqlStmt() { statements.add(e); } )*
+    [ <SEMICOLON> ]
     <END> <REQUEST>
-    [ endLabel = SimpleIdentifier() ]
     { return new SqlBeginRequestCall(s.end(this), statements); }
 }
