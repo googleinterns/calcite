@@ -2612,7 +2612,10 @@ SqlNodeList ParenthesizedQueryOrCommaListWithDefault(
 }
 
 /**
- * Parses an SQL statement.
+ * Parses an SQL statement. SqlUpsert() must be parsed before SqlUpdate() since
+ * it uses a LOOKAHEAD for SqlUpdate(). OrderedQueryOrExpr() must also be parsed
+ * at the end or it will attempt to parse some statements such as "UPD
+ * expressions.
  */
 SqlNode SqlStmt() :
 {
@@ -2620,17 +2623,31 @@ SqlNode SqlStmt() :
 }
 {
     (
-        stmt = SqlSetOption(Span.of(), null)
-    |
         stmt = SqlAlter()
     |
         stmt = SqlCreate()
     |
-        stmt = SqlRename()
+        stmt = SqlDelete()
+    |
+        stmt = SqlDescribe()
+    |
+        stmt = SqlDrop()
     |
         stmt = SqlExec()
     |
-        stmt = SqlUsing()
+        stmt = SqlExplain()
+    |
+        stmt = SqlHelp()
+    |
+        stmt = SqlInsert()
+    |
+        stmt = SqlMerge()
+    |
+        stmt = SqlRename()
+    |
+        stmt = SqlProcedureCall()
+    |
+        stmt = SqlSetOption(Span.of(), null)
     |
         stmt = SqlSetTimeZone()
     |
@@ -2639,21 +2656,9 @@ SqlNode SqlStmt() :
     |
         stmt = SqlUpdate()
     |
-        stmt = SqlInsert()
-    |
-        stmt = SqlDrop()
+        stmt = SqlUsing()
     |
         stmt = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
-    |
-        stmt = SqlExplain()
-    |
-        stmt = SqlDescribe()
-    |
-        stmt = SqlDelete()
-    |
-        stmt = SqlMerge()
-    |
-        stmt = SqlProcedureCall()
     )
     {
         return stmt;
@@ -3331,6 +3336,8 @@ SqlRename SqlRename() :
     (
         source = SqlRenameMacro()
     |
+        source = SqlRenameProcedure()
+    |
         source = SqlRenameTable()
     )
     {
@@ -3385,9 +3392,13 @@ SqlDrop SqlDrop() :
 {
     <DROP> { s = span(); }
     (
-        drop = SqlDropMaterializedView(s, replace)
+        drop = SqlDropFunction(s, replace)
     |
         drop = SqlDropMacro(s, replace)
+    |
+        drop = SqlDropMaterializedView(s, replace)
+    |
+        drop = SqlDropProcedure(s)
     |
         drop = SqlDropSchema(s, replace)
     |
@@ -3396,8 +3407,6 @@ SqlDrop SqlDrop() :
         drop = SqlDropType(s, replace)
     |
         drop = SqlDropView(s, replace)
-    |
-        drop = SqlDropFunction(s, replace)
     )
     {
         return drop;
@@ -4613,4 +4622,64 @@ SqlBeginEndCall SqlBeginEndCall() :
     <END>
     [ endLabel = SimpleIdentifier() ]
     { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
+}
+
+SqlDrop SqlDropProcedure(Span s) :
+{
+    final SqlIdentifier procedureName;
+}
+{
+    <PROCEDURE> procedureName = CompoundIdentifier() {
+        return new SqlDropProcedure(s.end(this), procedureName);
+    }
+}
+
+/**
+ * Parses a HELP statement.
+ */
+SqlHelp SqlHelp() :
+{
+    final SqlHelp help;
+    final Span s;
+}
+{
+    <HELP> { s = span(); }
+    (
+        help = SqlHelpProcedure(s)
+    )
+    { return help; }
+}
+
+SqlHelpProcedure SqlHelpProcedure(Span s) :
+{
+    final SqlIdentifier procedureName;
+    boolean attributes = false;
+}
+{
+    <PROCEDURE> procedureName = CompoundIdentifier()
+    [
+        ( <ATTRIBUTES> | <ATTR> | <ATTRS> ) {
+            attributes = true;
+        }
+    ]
+    { return new SqlHelpProcedure(s.end(this), procedureName, attributes); }
+}
+
+SqlRenameProcedure SqlRenameProcedure() :
+{
+    final SqlIdentifier oldProcedure;
+    final SqlIdentifier newProcedure;
+}
+{
+    <PROCEDURE>
+    oldProcedure = CompoundIdentifier()
+    (
+        <TO>
+    |
+        <AS>
+    )
+    newProcedure = CompoundIdentifier()
+    {
+        return new SqlRenameProcedure(getPos(), oldProcedure, newProcedure);
+    }
 }

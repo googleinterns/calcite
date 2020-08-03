@@ -4123,6 +4123,42 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testDropProcedure() {
+    final String sql = "drop procedure foo";
+    final String expected = "DROP PROCEDURE `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDropProcedureCompoundIdentifier() {
+    final String sql = "drop procedure foo.bar";
+    final String expected = "DROP PROCEDURE `FOO`.`BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHelpProcedure() {
+    final String sql = "help procedure foo";
+    final String expected = "HELP PROCEDURE `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHelpProcedureAttributes() {
+    final String sql = "help procedure foo attributes";
+    final String expected = "HELP PROCEDURE `FOO` ATTRIBUTES";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHelpProcedureAttr() {
+    final String sql = "help procedure foo attr";
+    final String expected = "HELP PROCEDURE `FOO` ATTRIBUTES";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHelpProcedureAttrs() {
+    final String sql = "help procedure foo attrs";
+    final String expected = "HELP PROCEDURE `FOO` ATTRIBUTES";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testIdentifierWithNumberSign() {
     final String sql = "select * from #foo";
     final String expected = "SELECT *\n"
@@ -4259,6 +4295,24 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "FROM `QUXX`\n"
         + "WHERE (`QUX` = 3);\n"
         + "END `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureTo() {
+    final String sql = "rename procedure foo to bar";
+    final String expected = "RENAME PROCEDURE `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureAs() {
+    final String sql = "rename procedure foo as bar";
+    final String expected = "RENAME PROCEDURE `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureWithCompoundIdentifiers() {
+    final String sql = "rename procedure foo.bar as baz.qux";
+    final String expected = "RENAME PROCEDURE `FOO`.`BAR` AS `BAZ`.`QUX`";
     sql(sql).ok(expected);
   }
 }
