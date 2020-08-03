@@ -3331,6 +3331,8 @@ SqlRename SqlRename() :
     (
         source = SqlRenameMacro()
     |
+        source = SqlRenameProcedure()
+    |
         source = SqlRenameTable()
     )
     {
@@ -4582,4 +4584,23 @@ AlterProcedureWithOption AlterProcedureWithOption() :
     |
         <NO> <WARNING> { return AlterProcedureWithOption.NO_WARNING; }
     )
+}
+
+SqlRenameProcedure SqlRenameProcedure() :
+{
+    final SqlIdentifier oldProcedure;
+    final SqlIdentifier newProcedure;
+}
+{
+    <PROCEDURE>
+    oldProcedure = CompoundIdentifier()
+    (
+        <TO>
+    |
+        <AS>
+    )
+    newProcedure = CompoundIdentifier()
+    {
+        return new SqlRenameProcedure(getPos(), oldProcedure, newProcedure);
+    }
 }

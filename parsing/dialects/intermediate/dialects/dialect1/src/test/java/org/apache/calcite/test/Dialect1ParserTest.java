@@ -4131,4 +4131,22 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "FROM `$FOO`";
     sql(sql).ok(expected);
   }
+
+  @Test public void testRenameProcedureTo() {
+    final String sql = "rename procedure foo to bar";
+    final String expected = "RENAME PROCEDURE `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureAs() {
+    final String sql = "rename procedure foo as bar";
+    final String expected = "RENAME PROCEDURE `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureWithCompoundIdentifiers() {
+    final String sql = "rename procedure foo.bar as baz.qux";
+    final String expected = "RENAME PROCEDURE `FOO`.`BAR` AS `BAZ`.`QUX`";
+    sql(sql).ok(expected);
+  }
 }
