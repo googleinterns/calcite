@@ -3882,6 +3882,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  // TODO: Add failing test cases for queries with NOT and "^" together
   @Test public void testCaretNegation() {
     String sql = "select * from foo where ^a = 1";
     String expected = "SELECT *\n"
