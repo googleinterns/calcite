@@ -81,6 +81,8 @@ data: {
       "org.apache.calcite.sql.SqlDropMacro",
       "org.apache.calcite.sql.SqlExecMacro",
       "org.apache.calcite.sql.SqlExecMacroParam",
+      "org.apache.calcite.sql.SqlHelp",
+      "org.apache.calcite.sql.SqlHelpProcedure",
       "org.apache.calcite.sql.SqlHexCharStringLiteral",
       "org.apache.calcite.sql.SqlHexCharStringLiteral.HexCharLiteralFormat",
       "org.apache.calcite.sql.SqlHostVariable",
