@@ -4518,9 +4518,9 @@ SqlNode CreateProcedureStmt() :
 }
 {
     (
-        e = SqlBeginEndCall()
-    |
         e = CursorStmt()
+    |
+        e = SqlBeginEndCall()
     |
         e = SqlStmt()
     )
