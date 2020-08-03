@@ -20,6 +20,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Parse tree for {@code SqlDeallocatePrepare} call.
@@ -34,11 +35,11 @@ public class SqlDeallocatePrepare extends SqlCall {
    * Creates a {@code SqlDeallocatePrepare}.
    *
    * @param pos  Parser position, must not be null
-   * @param statementName  Name of the statement to deallocate
+   * @param statementName  Name of the statement to deallocate, must not be null
    */
   public SqlDeallocatePrepare(SqlParserPos pos, SqlIdentifier statementName) {
     super(pos);
-    this.statementName = statementName;
+    this.statementName = Objects.requireNonNull(statementName);
   }
 
   @Override public SqlOperator getOperator() {
