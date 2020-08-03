@@ -4703,7 +4703,11 @@ SqlNode ConditionalStmt() :
     final SqlNode e;
 }
 {
-    e = IfStmt()
+    (
+        e = IfStmt()
+    |
+        e = CaseStmt()
+    )
     { return e; }
 }
 
@@ -4728,6 +4732,36 @@ SqlIfStmt IfStmt() :
     {
         return new SqlIfStmt(getPos(), conditionMultiStmtList,
             elseMultiStmtList);
+    }
+}
+
+SqlCaseStmt CaseStmt() :
+{
+    SqlNode firstOperand = null;
+    SqlNode e = null;
+    final SqlNodeList conditionMultiStmtList = new SqlNodeList(getPos());
+    final SqlStatementList elseMultiStmtList = new SqlStatementList(getPos());
+}
+{
+    <CASE>
+    [ firstOperand = Expression(ExprContext.ACCEPT_NON_QUERY) ]
+    (
+        <WHEN> e = ConditionMultiStmtPair()
+        { conditionMultiStmtList.add(e); }
+    )+
+    [
+        <ELSE>
+        CreateProcedureStmtList(elseMultiStmtList)
+    ]
+    <END> <CASE>
+    {
+        if (firstOperand == null) {
+            return new SqlCaseStmtWithConditionalExpression(getPos(),
+                conditionMultiStmtList, elseMultiStmtList);
+        } else {
+            return new SqlCaseStmtWithOperand(getPos(), firstOperand,
+                conditionMultiStmtList, elseMultiStmtList);
+        }
     }
 }
 
