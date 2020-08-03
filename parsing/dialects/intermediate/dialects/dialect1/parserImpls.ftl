@@ -194,6 +194,10 @@ SqlColumnAttribute ColumnAttributeDefault() :
     |
         defaultValue = CurrentTimestampFunction()
     |
+        <DATE> <QUOTED_STRING> {
+            defaultValue = SqlParserUtil.parseDateLiteral(token.image, getPos());
+        }
+    |
         defaultValue = ContextVariable()
     )
     {
