@@ -36,8 +36,8 @@ public class SqlAllocateCursor extends SqlCall {
    * Creates a {@code SqlAllocateCursor}.
    *
    * @param pos  Parser position, must not be null
-   * @param cursorName  Name of the cursor previously opened
-   * @param procedureName  Name of the procedure called
+   * @param cursorName  Name of the cursor previously opened, must not be null
+   * @param procedureName  Name of the procedure called, must not be null
    */
   public SqlAllocateCursor(SqlParserPos pos, SqlIdentifier cursorName,
       SqlIdentifier procedureName) {
