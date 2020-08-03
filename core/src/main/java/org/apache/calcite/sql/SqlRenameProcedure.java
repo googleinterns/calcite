@@ -14,22 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+package org.apache.calcite.sql;
 
-plugins {
-    kotlin("jvm")
-}
+import org.apache.calcite.sql.parser.SqlParserPos;
 
-dependencies {
-    implementation("com.google.code.gson:gson:2.8.5")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.5.1")
-}
+/**
+ * Parse tree for {@code RENAME PROCEDURE} statement.
+ */
+public class SqlRenameProcedure extends SqlRename {
+  public static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("RENAME PROCEDURE", SqlKind.RENAME_PROCEDURE);
 
-tasks.named<Test>("test") {
-    useJUnitPlatform()
-    testLogging {
-        exceptionFormat = TestExceptionFormat.FULL
-        showStandardStreams = true
-    }
+  /** Creates a {@code SqlRenameProcedure}. */
+  public SqlRenameProcedure(SqlParserPos pos, SqlIdentifier oldProcedure,
+      SqlIdentifier newProcedure) {
+    super(OPERATOR, pos, oldProcedure, newProcedure);
+  }
 }

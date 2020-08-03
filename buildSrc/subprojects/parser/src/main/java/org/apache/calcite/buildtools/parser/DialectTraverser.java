@@ -16,23 +16,26 @@
  */
 package org.apache.calcite.buildtools.parser;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
+
 
 /**
  * Traverses the parserImpls tree for the given dialect. Processing is done
@@ -76,7 +79,7 @@ public class DialectTraverser {
    */
   public ExtractedData extractData() {
     ExtractedData extractedData = new ExtractedData();
-    traverse(getTraversalPath(rootDirectory), rootDirectory, extractedData);
+    traverse(getTraversalPath(), rootDirectory, extractedData);
     dialectGenerate.unparseReservedKeywords(extractedData);
     dialectGenerate.unparseNonReservedKeywords(extractedData);
     return extractedData;
@@ -119,18 +122,16 @@ public class DialectTraverser {
   /**
    * Gets the traversal path for the dialect by "subtracting" the root
    * absolute path from the dialect directory absolute path.
-   *
-   * @param rootDirectoryFile The file for the root parsing directory
    */
-  private Queue<String> getTraversalPath(File rootDirectoryFile) {
+  private Queue<String> getTraversalPath() {
     Path dialectPath = dialectDirectory.toPath();
     Path rootPath = rootDirectory.toPath();
     if (dialectPath.equals(rootPath)) {
-      return new LinkedList<>();
+      return new ArrayDeque<>();
     }
     dialectPath = dialectPath.subpath(rootPath.getNameCount(),
         dialectPath.getNameCount());
-    Queue<String> pathElements = new LinkedList<>();
+    Queue<String> pathElements = new ArrayDeque<>();
     dialectPath.forEach(p -> pathElements.add(p.toString()));
     return pathElements;
   }
@@ -180,13 +181,16 @@ public class DialectTraverser {
           // This is required to get past the license comment. The part after
           // follows a JSON format so it can be parsed as such.
           fileText = fileText.substring(fileText.indexOf("{"));
-          JSONObject json = (JSONObject) new JSONTokener(fileText).nextValue();
-          JSONArray keywordsJson = json.isNull("keywords")
-            ? null
-            : json.getJSONArray("keywords");
-          JSONArray nonReservedKeywordsJson = json.isNull("nonReservedKeywords")
-            ? null
-            : json.getJSONArray("nonReservedKeywords");
+          JsonObject json = new JsonParser().parse(fileText)
+            .getAsJsonObject();
+          JsonArray keywordsJson = json.get("keywords") == null
+            || json.get("keywords").isJsonNull()
+              ? null
+              : json.getAsJsonArray("keywords");
+          JsonArray nonReservedKeywordsJson = json.get("nonReservedKeywords") == null
+            || json.get("nonReservedKeywords").isJsonNull()
+              ? null
+              : json.getAsJsonArray("nonReservedKeywords");
           Map<Keyword, String> keywords = unparseKeywordsJson(keywordsJson,
               filePath);
           Set<Keyword> nonReservedKeywords = unparseNonReservedKeywordsJson(
@@ -225,18 +229,18 @@ public class DialectTraverser {
    *
    * @return The {@code Map<Keyword, String>} that the json was converted to
    */
-  private Map<Keyword, String> unparseKeywordsJson(JSONArray keywordsJson,
+  private static Map<Keyword, String> unparseKeywordsJson(JsonArray keywordsJson,
       String filePath) {
-    Map<Keyword, String> keywords = new LinkedHashMap<Keyword, String>();
+    Map<Keyword, String> keywords = new LinkedHashMap<>();
     if (keywordsJson == null) {
       return keywords;
     }
     for (Object obj : keywordsJson) {
-      JSONObject keywordJson = (JSONObject) obj;
+      JsonObject keywordJson = (JsonObject) obj;
       // There is only one key.
-      String keyword = keywordJson.keys().next();
+      String keyword = keywordJson.keySet().iterator().next();
       keywords.put(new Keyword(keyword, filePath),
-          keywordJson.getString(keyword).toUpperCase());
+          keywordJson.get(keyword).getAsString().toUpperCase());
     }
     return keywords;
   }
@@ -259,14 +263,14 @@ public class DialectTraverser {
    *
    * @return The {@code Map<Keyword, String>} that the json was converted to
    */
-  private Set<Keyword> unparseNonReservedKeywordsJson(
-      JSONArray nonReservedKeywordsJson, String filePath) {
-    Set<Keyword> nonReservedKeywords = new LinkedHashSet<Keyword>();
+  private static Set<Keyword> unparseNonReservedKeywordsJson(
+      JsonArray nonReservedKeywordsJson, String filePath) {
+    Set<Keyword> nonReservedKeywords = new LinkedHashSet<>();
     if (nonReservedKeywordsJson == null) {
       return nonReservedKeywords;
     }
-    for (Object obj : nonReservedKeywordsJson) {
-      String keyword = (String) obj;
+    for (JsonElement element : nonReservedKeywordsJson) {
+      String keyword = element.getAsString();
       nonReservedKeywords.add(new Keyword(keyword, filePath));
     }
     return nonReservedKeywords;

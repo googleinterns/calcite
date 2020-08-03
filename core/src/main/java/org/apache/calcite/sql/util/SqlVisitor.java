@@ -17,6 +17,7 @@
 package org.apache.calcite.sql.util;
 
 import org.apache.calcite.sql.SqlCall;
+import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDynamicParam;
 import org.apache.calcite.sql.SqlIdentifier;
@@ -98,4 +99,12 @@ public interface SqlVisitor<R> {
    * @see SqlIntervalQualifier#accept(SqlVisitor)
    */
   R visit(SqlIntervalQualifier intervalQualifier);
+
+  /**
+   * Visits a column attribute.
+   *
+   * @param attribute Attribute
+   * @see SqlColumnAttribute#accept(SqlVisitor)
+   */
+  R visit(SqlColumnAttribute attribute);
 }
