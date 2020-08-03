@@ -4456,7 +4456,7 @@ SqlCreateProcedure SqlCreateProcedure() :
     <LPAREN>
     [
         parameter = SqlCreateProcedureParameter() {
-            parameters.add(parameter  );
+            parameters.add(parameter);
         }
         (
             <COMMA>

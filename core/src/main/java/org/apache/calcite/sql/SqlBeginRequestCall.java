@@ -29,7 +29,7 @@ import static org.apache.calcite.util.Static.RESOURCE;
  */
 public class SqlBeginRequestCall extends SqlCall {
   private static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("BEGIN_REQUEST", SqlKind.BEGIN_REQUEST);
+      new SqlSpecialOperator("BEGIN REQUEST", SqlKind.BEGIN_REQUEST);
 
   public final SqlStatementList statements;
 
