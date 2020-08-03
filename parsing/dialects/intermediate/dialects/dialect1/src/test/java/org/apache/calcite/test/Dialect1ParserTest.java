@@ -3571,6 +3571,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     expr(sql).ok(expected);
   }
 
+  @Test public void testRangeNExpression() {
+    final String sql = "range_n (cast(a as integer) between 3 and 10)";
+    final String expected = "RANGE_N(CAST(`A` AS INTEGER) BETWEEN 3 AND 10)";
+    expr(sql).ok(expected);
+  }
+
   @Test public void testRangeNBaseEach() {
     final String sql = "range_n (foo between 3 and 10 each 2)";
     final String expected = "RANGE_N(`FOO` BETWEEN 3 AND 10 EACH 2)";
@@ -3762,6 +3768,14 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testSqlTablePartitionExpression() {
+    String sql =
+        "create table foo (bar integer) partition by cast(a as int)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER) PARTITION BY(CAST(`A` AS INTEGER))";
+    sql(sql).ok(expected);
+  }
+
   @Test void testSqlTablePartitionColumn() {
     String sql =
         "create table foo (bar integer) partition by column";
@@ -3790,7 +3804,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testSqlTablePartitionMultiplePartitionExpressions() {
+  @Test void testSqlTablePartitionMultiplePartitions() {
     String sql =
         "create table foo (bar integer, sales_date date format "
             + "'yyyy-mm-dd' not null, baz integer not null) "

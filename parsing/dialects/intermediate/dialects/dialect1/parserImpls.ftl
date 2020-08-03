@@ -1035,6 +1035,8 @@ SqlNode  PartitionExpression() :
         e = SqlExtractFromDateTime()
     |
         e = PartitionByColumnOption()
+    |
+        e = AtomicRowExpression()
     )
     [
         <ADD> { constant = UnsignedIntLiteral(); }
@@ -4452,7 +4454,7 @@ SqlRangeN RangeN() :
 {
     <RANGE_N>
     <LPAREN>
-    testExpression = CompoundIdentifier()
+    testExpression = AtomicRowExpression()
     <BETWEEN>
     (
         <STAR> { startAsterisk = true; }
