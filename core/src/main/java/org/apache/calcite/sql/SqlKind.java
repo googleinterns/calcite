@@ -1176,6 +1176,9 @@ public enum SqlKind {
   /** {@code ALTER PROCEDURE} DDL statement. */
   ALTER_PROCEDURE,
 
+  /** {@code DROP PROCEDURE} DDL statement. */
+  DROP_PROCEDURE,
+
   /** {@code HELP PROCEDURE} DDL statement. */
   HELP_PROCEDURE,
 

@@ -79,6 +79,7 @@ data: {
       "org.apache.calcite.sql.SqlDdlNodes",
       "org.apache.calcite.sql.SqlDrop",
       "org.apache.calcite.sql.SqlDropMacro",
+      "org.apache.calcite.sql.SqlDropProcedure",
       "org.apache.calcite.sql.SqlExecMacro",
       "org.apache.calcite.sql.SqlExecMacroParam",
       "org.apache.calcite.sql.SqlHelp",

@@ -3392,9 +3392,13 @@ SqlDrop SqlDrop() :
 {
     <DROP> { s = span(); }
     (
-        drop = SqlDropMaterializedView(s, replace)
+        drop = SqlDropFunction(s, replace)
     |
         drop = SqlDropMacro(s, replace)
+    |
+        drop = SqlDropMaterializedView(s, replace)
+    |
+        drop = SqlDropProcedure(s)
     |
         drop = SqlDropSchema(s, replace)
     |
@@ -3403,8 +3407,6 @@ SqlDrop SqlDrop() :
         drop = SqlDropType(s, replace)
     |
         drop = SqlDropView(s, replace)
-    |
-        drop = SqlDropFunction(s, replace)
     )
     {
         return drop;
@@ -4589,6 +4591,16 @@ AlterProcedureWithOption AlterProcedureWithOption() :
     |
         <NO> <WARNING> { return AlterProcedureWithOption.NO_WARNING; }
     )
+}
+
+SqlDrop SqlDropProcedure(Span s) :
+{
+    final SqlIdentifier procedureName;
+}
+{
+    <PROCEDURE> procedureName = CompoundIdentifier() {
+        return new SqlDropProcedure(s.end(this), procedureName);
+    }
 }
 
 /**
