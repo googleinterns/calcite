@@ -33,7 +33,7 @@ public class SqlIfStmt extends SqlCall {
   public final SqlNodeList elseStmtList;
 
   /**
-   * Creates a {@code SqlTablePartitionByColumn}.
+   * Creates a {@code SqlIfStmt}.
    * @param pos                       Parser position, must not be null.
    * @param conditionalStmtListPairs  List of conditional expression pairs
    *                                  with StatementList, must not be null.
