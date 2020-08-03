@@ -14,28 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.calcite.buildtools.parser;
+package org.apache.calcite.sql;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * A simple container class to hold the data extracted from files.
+ * Parse tree for {@code DROP PROCEDURE} statement.
  */
-public class ExtractedData {
-  public final Map<Keyword, String> keywords;
-  public final Set<Keyword> nonReservedKeywords;
-  public final Map<String, String> functions;
-  public final List<String> tokenAssignments;
+public class SqlDropProcedure extends SqlDropObject {
+  private static final SqlOperator OPERATOR =
+      new SqlSpecialOperator("DROP PROCEDURE", SqlKind.DROP_PROCEDURE);
 
-  public ExtractedData() {
-    keywords = new LinkedHashMap<>();
-    nonReservedKeywords = new LinkedHashSet<>();
-    functions = new LinkedHashMap<>();
-    tokenAssignments = new ArrayList<>();
+  /** Creates a {@code SqlDropProcedure}. */
+  public SqlDropProcedure(SqlParserPos pos, SqlIdentifier name) {
+    super(OPERATOR, pos, /*ifExists=*/false, name);
   }
 }

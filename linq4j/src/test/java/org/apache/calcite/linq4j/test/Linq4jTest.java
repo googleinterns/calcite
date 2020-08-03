@@ -61,9 +61,7 @@ import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNot.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -612,7 +610,6 @@ public class Linq4jTest {
   @Test void testIdentityEqualityComparer() {
     final Integer one = 1000;
     final Integer one2 = Integer.valueOf(one.toString());
-    assertThat(one, not(sameInstance(one2)));
     final Integer two = 2;
     final EqualityComparer<Integer> idComparer = Functions.identityComparer();
     assertTrue(idComparer.equal(one, one));

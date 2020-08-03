@@ -151,7 +151,14 @@ tasks.withType<Checkstyle>().configureEach {
     exclude("org/apache/calcite/runtime/Resources.java")
 }
 
+val dialectGenerate by tasks.registering(org.apache.calcite.buildtools.parser.DialectGenerateTask::class) {
+    rootDirectory.set(file("$rootDir/parsing"))
+    dialectDirectory.set(file("$rootDir/parsing"))
+    outputFile = "build/generated/templates/parserImpls.ftl"
+}
+
 val fmppMain by tasks.registering(org.apache.calcite.buildtools.fmpp.FmppTask::class) {
+    dependsOn(dialectGenerate)
     config.set(file("$rootDir/parsing/config.fmpp"))
     templates.set(file("$rootDir/parsing/src/main/resources"))
 }

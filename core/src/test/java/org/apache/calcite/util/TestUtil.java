@@ -23,6 +23,9 @@ import org.junit.jupiter.api.Assertions;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,6 +46,11 @@ public abstract class TestUtil {
 
   private static final String JAVA_VERSION =
       System.getProperties().getProperty("java.version");
+
+  // True when day names are printed as abbreviations by default (ex. "Thu"
+  // than "Thursday"). Different Java versions print dates differently.
+  private static final boolean IS_SHORT_DAY_FORMAT = LocalDate.of(1970, 1, 1)
+      .format(DateTimeFormatter.ofPattern("EEEE", Locale.ROOT)).length() == 3;
 
   /** This is to be used by {@link #rethrow(Throwable, String)} to add extra information via
    * {@link Throwable#addSuppressed(Throwable)}. */
@@ -224,6 +232,13 @@ public abstract class TestUtil {
     }
 
     return Integer.parseInt(matcher.group());
+  }
+
+  /** Returns true if current Java version prints days in abbreviated format
+   * (ex. "Thu" rather than "Thursday").
+   */
+  public static boolean isShortDayFormat() {
+    return IS_SHORT_DAY_FORMAT;
   }
 
   /** Checks if exceptions have give substring. That is handy to prevent logging SQL text twice */

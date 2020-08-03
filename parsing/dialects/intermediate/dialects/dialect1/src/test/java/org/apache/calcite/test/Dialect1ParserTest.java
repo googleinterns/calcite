@@ -114,6 +114,37 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testDeleteWithTable() {
+    final String sql = "delete foo from bar";
+    final String expected = "DELETE `FOO` FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithTableCompoundIdentifier() {
+    final String sql = "delete foo.bar from baz";
+    final String expected = "DELETE `FOO`.`BAR` FROM `BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithTableWithAlias() {
+    final String sql = "delete foo from bar as b";
+    final String expected = "DELETE `FOO` FROM `BAR` AS `B`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithTableWithWhere() {
+    final String sql = "delete foo from bar where bar.x = 0";
+    final String expected = "DELETE `FOO` FROM `BAR`\n"
+        + "WHERE (`BAR`.`X` = 0)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithTableWithoutFrom() {
+    final String sql = "delete foo bar";
+    final String expected = "DELETE `FOO` FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
   @Test void testYearIsNotReserved() {
     final String sql = "select 1 as year from t";
     final String expected = "SELECT 1 AS `YEAR`\n"
@@ -604,8 +635,38 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeChecksumAll() {
+    final String sql = "create table foo, checksum = all (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeChecksumLow() {
+    final String sql = "create table foo, checksum = low (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeChecksumMedium() {
+    final String sql = "create table foo, checksum = medium (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeChecksumHigh() {
+    final String sql = "create table foo, checksum = high (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testTableAttributeChecksumOff() {
     final String sql = "create table foo, checksum = off (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = OFF (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeChecksumNone() {
+    final String sql = "create table foo, checksum = none (bar integer)";
     final String expected = "CREATE TABLE `FOO`, CHECKSUM = OFF (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
@@ -4093,6 +4154,78 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testAlternativeCastWithBuiltInFunction() {
+    final String sql = "select cast(a as date) (format 'yyyy-mm-dd')";
+    final String expected = "SELECT CAST(CAST(`A` AS DATE) AS FORMAT "
+        + "'yyyy-mm-dd')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNamedExpressionWithBuiltInFunction() {
+    final String sql = "select cast(a as date) (named b)";
+    final String expected = "SELECT CAST(`A` AS DATE) AS `B`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInlineCasespecificWithBuiltInFunction() {
+    final String sql = "select * from foo where cast(a as date) (casespecific) "
+        + "= 'Hello'";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (CAST(`A` AS DATE) (CASESPECIFIC) = 'Hello')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDropProcedure() {
+    final String sql = "drop procedure foo";
+    final String expected = "DROP PROCEDURE `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDropProcedureCompoundIdentifier() {
+    final String sql = "drop procedure foo.bar";
+    final String expected = "DROP PROCEDURE `FOO`.`BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHelpProcedure() {
+    final String sql = "help procedure foo";
+    final String expected = "HELP PROCEDURE `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHelpProcedureAttributes() {
+    final String sql = "help procedure foo attributes";
+    final String expected = "HELP PROCEDURE `FOO` ATTRIBUTES";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHelpProcedureAttr() {
+    final String sql = "help procedure foo attr";
+    final String expected = "HELP PROCEDURE `FOO` ATTRIBUTES";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHelpProcedureAttrs() {
+    final String sql = "help procedure foo attrs";
+    final String expected = "HELP PROCEDURE `FOO` ATTRIBUTES";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIdentifierWithNumberSign() {
+    final String sql = "select * from #foo";
+    final String expected = "SELECT *\n"
+        + "FROM `#FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIdentifierWithDollarSign() {
+    final String sql = "select * from $foo";
+    final String expected = "SELECT *\n"
+        + "FROM `$FOO`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testBeginEnd() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -4217,6 +4350,25 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "END `LABEL1`";
     sql(sql).ok(expected);
   }
+
+  @Test public void testRenameProcedureTo() {
+    final String sql = "rename procedure foo to bar";
+    final String expected = "RENAME PROCEDURE `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureAs() {
+    final String sql = "rename procedure foo as bar";
+    final String expected = "RENAME PROCEDURE `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureWithCompoundIdentifiers() {
+    final String sql = "rename procedure foo.bar as baz.qux";
+    final String expected = "RENAME PROCEDURE `FOO`.`BAR` AS `BAZ`.`QUX`";
+    sql(sql).ok(expected);
+  }
+
 
   @Test public void testDeclareVariable() {
     final String sql = "create procedure foo ()\n"

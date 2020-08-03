@@ -8005,7 +8005,7 @@ public class JdbcTest {
       // In root locale, for Java versions 9 and higher, day and month names
       // are shortened to 3 letters. This means root locale behaves differently
       // to English.
-      return TestUtil.getJavaMajorVersion() > 8 ? name.substring(0, 3) : name;
+      return TestUtil.isShortDayFormat() ? name.substring(0, 3) : name;
     }
 
     public final String localeName;

@@ -17,40 +17,29 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.sql.util.SqlVisitor;
-import org.apache.calcite.sql.validate.SqlValidator;
-import org.apache.calcite.sql.validate.SqlValidatorScope;
-import org.apache.calcite.util.Litmus;
 
-/**
- * A <code>SqlColumnAttribute</code> is a base class that can be used
- * to create custom attributes for columns created by the SQL CREATE TABLE
- * function.
- */
-public abstract class SqlColumnAttribute extends SqlNode {
+public class SqlHelpProcedure extends SqlHelp {
+  public static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("HELP PROCEDURE", SqlKind.HELP_PROCEDURE);
+
+  public final boolean attributes;
 
   /**
-   * Creates a {@code SqlColumnAttribute}.
-   *
+   * Creates a {@code SqlHelpProcedure}.
    * @param pos  Parser position, must not be null
+   * @param name  Name of the procedure
+   * @param attributes  True if ATTRIBUTES keyword is present
    */
-  protected SqlColumnAttribute(SqlParserPos pos) {
-    super(pos);
+  public SqlHelpProcedure(SqlParserPos pos, SqlIdentifier name,
+      boolean attributes) {
+    super(OPERATOR, pos, name);
+    this.attributes = attributes;
   }
 
-  @Override public SqlNode clone(SqlParserPos pos) {
-    return null;
-  }
-
-  @Override public void validate(SqlValidator validator,
-      final SqlValidatorScope scope) {
-  }
-
-  @Override public <R> R accept(SqlVisitor<R> visitor) {
-    return visitor.visit(this);
-  }
-
-  @Override public boolean equalsDeep(SqlNode node, Litmus litmus) {
-    return false;
+  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
+    super.unparse(writer, leftPrec, rightPrec);
+    if (attributes) {
+      writer.keyword("ATTRIBUTES");
+    }
   }
 }

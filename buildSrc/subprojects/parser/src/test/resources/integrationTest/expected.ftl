@@ -34,6 +34,16 @@ SKIP :
 // Extracted from: parserTest/intermediate/dialects/testDialect/parserImpls.ftl
 MORE : {}
 
+// Auto generated.
+<DEFAULT, DQID, BTID> TOKEN :
+{
+< FOO: "FOO" > // From: parserTest/keywords.yaml
+| < BAR: "BAR" > // From: parserTest/keywords.yaml
+| < BAZ: "BAZ" > // From: parserTest/keywords.yaml
+| < QUX: "QUX1" > // From: parserTest/intermediate/dialects/testDialect/keywords.yaml
+| < QUUX: "QUUX1" > // From: parserTest/intermediate/dialects/testDialect/keywords.yaml
+}
+
 // Extracted from: parserTest/intermediate/dialects/testDialect/parserImpls.ftl
 void foo() :
 {
@@ -81,4 +91,24 @@ void quux(int arg1,
     }
 
     // Not a string: "
+}
+
+// Auto generated.
+void NonReservedKeyword0of1():
+{
+}
+{
+<BAR> // From: parserTest/keywords.yaml
+| <BAZ> // From: parserTest/intermediate/keywords.yaml
+}
+
+// Auto generated.
+String NonReservedKeyword():
+{
+}
+{
+(
+NonReservedKeyword0of1()
+)
+{ return unquotedIdentifier(); }
 }
