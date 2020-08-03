@@ -194,6 +194,10 @@ SqlColumnAttribute ColumnAttributeDefault() :
     |
         defaultValue = CurrentTimestampFunction()
     |
+        <DATE> <QUOTED_STRING> {
+            defaultValue = SqlParserUtil.parseDateLiteral(token.image, getPos());
+        }
+    |
         defaultValue = ContextVariable()
     )
     {
@@ -2612,7 +2616,10 @@ SqlNodeList ParenthesizedQueryOrCommaListWithDefault(
 }
 
 /**
- * Parses an SQL statement.
+ * Parses an SQL statement. SqlUpsert() must be parsed before SqlUpdate() since
+ * it uses a LOOKAHEAD for SqlUpdate(). OrderedQueryOrExpr() must also be parsed
+ * at the end or it will attempt to parse some statements such as "UPD
+ * expressions.
  */
 SqlNode SqlStmt() :
 {
@@ -2620,17 +2627,31 @@ SqlNode SqlStmt() :
 }
 {
     (
-        stmt = SqlSetOption(Span.of(), null)
-    |
         stmt = SqlAlter()
     |
         stmt = SqlCreate()
     |
-        stmt = SqlRename()
+        stmt = SqlDelete()
+    |
+        stmt = SqlDescribe()
+    |
+        stmt = SqlDrop()
     |
         stmt = SqlExec()
     |
-        stmt = SqlUsing()
+        stmt = SqlExplain()
+    |
+        stmt = SqlHelp()
+    |
+        stmt = SqlInsert()
+    |
+        stmt = SqlMerge()
+    |
+        stmt = SqlRename()
+    |
+        stmt = SqlProcedureCall()
+    |
+        stmt = SqlSetOption(Span.of(), null)
     |
         stmt = SqlSetTimeZone()
     |
@@ -2639,21 +2660,9 @@ SqlNode SqlStmt() :
     |
         stmt = SqlUpdate()
     |
-        stmt = SqlInsert()
-    |
-        stmt = SqlDrop()
+        stmt = SqlUsing()
     |
         stmt = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
-    |
-        stmt = SqlExplain()
-    |
-        stmt = SqlDescribe()
-    |
-        stmt = SqlDelete()
-    |
-        stmt = SqlMerge()
-    |
-        stmt = SqlProcedureCall()
     )
     {
         return stmt;
@@ -2863,6 +2872,7 @@ SqlNode SqlInsert() :
 SqlNode SqlDelete() :
 {
     SqlNode table;
+    SqlIdentifier deleteTable = null;
     SqlNodeList extendList = null;
     SqlIdentifier alias = null;
     final SqlNode condition;
@@ -2875,6 +2885,12 @@ SqlNode SqlDelete() :
         <DEL>
     )
     { s = span(); }
+    [
+        // LOOKAHEAD is required for queries like "DELETE FOO" since "FOO" in
+        // this case is supposed to be "table" not "deleteTable".
+        LOOKAHEAD( CompoundIdentifier() [ <FROM> ] TableRefWithHintsOpt() )
+        deleteTable = CompoundIdentifier()
+    ]
     [ <FROM> ]
     table = TableRefWithHintsOpt()
     [
@@ -2887,7 +2903,7 @@ SqlNode SqlDelete() :
     condition = WhereOpt()
     {
         return new SqlDelete(s.add(table).addIf(extendList).addIf(alias)
-            .addIf(condition).pos(), table, condition, null, alias);
+            .addIf(condition).pos(), deleteTable, table, condition, null, alias);
     }
 }
 
@@ -3331,6 +3347,8 @@ SqlRename SqlRename() :
     (
         source = SqlRenameMacro()
     |
+        source = SqlRenameProcedure()
+    |
         source = SqlRenameTable()
     )
     {
@@ -3385,9 +3403,13 @@ SqlDrop SqlDrop() :
 {
     <DROP> { s = span(); }
     (
-        drop = SqlDropMaterializedView(s, replace)
+        drop = SqlDropFunction(s, replace)
     |
         drop = SqlDropMacro(s, replace)
+    |
+        drop = SqlDropMaterializedView(s, replace)
+    |
+        drop = SqlDropProcedure(s)
     |
         drop = SqlDropSchema(s, replace)
     |
@@ -3396,8 +3418,6 @@ SqlDrop SqlDrop() :
         drop = SqlDropType(s, replace)
     |
         drop = SqlDropView(s, replace)
-    |
-        drop = SqlDropFunction(s, replace)
     )
     {
         return drop;
@@ -3931,15 +3951,7 @@ SqlNode NamedFunctionCall() :
             call = SqlStdOperatorTable.OVER.createCall(s.end(over), call, over);
         }
     ]
-    (
-        e = NamedQuery(call) { return e; }
-    |
-        e = AlternativeTypeConversionQuery(call) { return e; }
-    |
-        e = CaseSpecific(call) { return e; }
-    |
-        { return call; }
-    )
+    { return call; }
 }
 
 SqlLiteral JoinType() :
@@ -3989,6 +4001,7 @@ SqlNode Expression3(ExprContext exprContext) :
     final SqlNodeList list2;
     final SqlOperator op;
     final Span s;
+    final SqlNode inlineCall;
     Span rowSpan = null;
 }
 {
@@ -4006,10 +4019,18 @@ SqlNode Expression3(ExprContext exprContext) :
 |
     LOOKAHEAD(2)
     e = AtomicRowExpression()
-    {
-        checkNonQueryExpression(exprContext);
-        return e;
-    }
+    (
+        inlineCall = NamedQuery(e) { return inlineCall; }
+    |
+        inlineCall = AlternativeTypeConversionQuery(e) { return inlineCall; }
+    |
+        inlineCall = CaseSpecific(e) { return inlineCall; }
+    |
+        {
+            checkNonQueryExpression(exprContext);
+            return e;
+        }
+    )
 |
     e = CursorExpression(exprContext) { return e; }
 |
@@ -4615,6 +4636,66 @@ SqlBeginEndCall SqlBeginEndCall() :
     <END>
     [ endLabel = SimpleIdentifier() ]
     { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
+}
+
+SqlDrop SqlDropProcedure(Span s) :
+{
+    final SqlIdentifier procedureName;
+}
+{
+    <PROCEDURE> procedureName = CompoundIdentifier() {
+        return new SqlDropProcedure(s.end(this), procedureName);
+    }
+}
+
+/**
+ * Parses a HELP statement.
+ */
+SqlHelp SqlHelp() :
+{
+    final SqlHelp help;
+    final Span s;
+}
+{
+    <HELP> { s = span(); }
+    (
+        help = SqlHelpProcedure(s)
+    )
+    { return help; }
+}
+
+SqlHelpProcedure SqlHelpProcedure(Span s) :
+{
+    final SqlIdentifier procedureName;
+    boolean attributes = false;
+}
+{
+    <PROCEDURE> procedureName = CompoundIdentifier()
+    [
+        ( <ATTRIBUTES> | <ATTR> | <ATTRS> ) {
+            attributes = true;
+        }
+    ]
+    { return new SqlHelpProcedure(s.end(this), procedureName, attributes); }
+}
+
+SqlRenameProcedure SqlRenameProcedure() :
+{
+    final SqlIdentifier oldProcedure;
+    final SqlIdentifier newProcedure;
+}
+{
+    <PROCEDURE>
+    oldProcedure = CompoundIdentifier()
+    (
+        <TO>
+    |
+        <AS>
+    )
+    newProcedure = CompoundIdentifier()
+    {
+        return new SqlRenameProcedure(getPos(), oldProcedure, newProcedure);
+    }
 }
 
 // Semicolon is optional after the last statement.
