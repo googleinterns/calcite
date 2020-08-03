@@ -4151,4 +4151,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
             + "END IF";
     sql(sql).ok(expected);
   }
+
+  @Test public void testIfStmtWithEmptyThenClauseFails() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee > 2 then ^end^ if";
+    final String expected = "(?s)Encountered \"end\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testIfStmtStartWithElseIfFails() {
+    final String sql = "create procedure foo (bee integer) "
+        + "^else^ if bee > 2 then end if";
+    final String expected = "(?s)Encountered \"else\" at .*";
+    sql(sql).fails(expected);
+  }
 }
