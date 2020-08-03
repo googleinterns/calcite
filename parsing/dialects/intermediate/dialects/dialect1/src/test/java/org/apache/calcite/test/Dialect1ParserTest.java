@@ -4273,4 +4273,16 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "END";
     sql(sql).ok(expected);
   }
+
+  @Test public void testDeallocatePrepare() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "deallocate prepare bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DEALLOCATE PREPARE `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
 }
