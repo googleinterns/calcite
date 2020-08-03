@@ -4624,6 +4624,8 @@ SqlNode CursorStmt() :
 {
     (
         e = SqlAllocateCursor()
+    |
+        e = SqlCloseCursor()
     )
     { return e; }
 }
@@ -4638,4 +4640,14 @@ SqlAllocateCursor SqlAllocateCursor() :
     <ALLOCATE> cursorName = SimpleIdentifier()
     <CURSOR> <FOR> <PROCEDURE> procedureName = SimpleIdentifier()
     { return new SqlAllocateCursor(s.end(this), cursorName, procedureName); }
+}
+
+SqlCloseCursor SqlCloseCursor() :
+{
+    final SqlIdentifier cursorName;
+    final Span s = Span.of();
+}
+{
+    <CLOSE> cursorName = SimpleIdentifier()
+    { return new SqlCloseCursor(s.end(this), cursorName); }
 }
