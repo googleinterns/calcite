@@ -216,8 +216,9 @@ public abstract class ListScope extends DelegatingScope {
         found++;
         if (child.namespace.getType() instanceof UnknownRecordType) {
           unknownFound++;
-          // If table is unknown, only set {@code type} to ANY if it has not already been set.
-          // This ensures that the column will be resolved to a known (non-ANY) type if possible.
+          // If table is unknown, only set {@code type} to ANY if it has not
+          // already been set. This ensures that the column will be resolved to
+          // a known (non-ANY) type if possible.
           if (type == null) {
             type = field.getType();
           }
@@ -232,11 +233,14 @@ public abstract class ListScope extends DelegatingScope {
     case 1:
       return type;
     default:
-      // Only return type if unknown tables are allowed, and at most one of the matched tables
-      // is a known table (if more than one known table is matched, then the column would be
-      // ambiguous even with full schema information). If more than one unknown table is matched,
-      // it doesn't matter which one the column actually comes from, since the column type is ANY.
-      if (validator.config().allowUnknownTables() && found - unknownFound <= 1) {
+      // Only return type if unknown tables are allowed, and at most one of the
+      // matched tables is a known table (if more than one known table is
+      // matched, then the column would be ambiguous even with full schema
+      // information). If more than one unknown table is matched, it doesn't
+      // matter which one the column actually comes from, since the column type
+      // is ANY.
+      if (validator.config().allowUnknownTables()
+          && found - unknownFound <= 1) {
         return type;
       }
       throw validator.newValidationError(ctx,
