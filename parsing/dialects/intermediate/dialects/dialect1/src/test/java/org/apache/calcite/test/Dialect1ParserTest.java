@@ -4232,24 +4232,6 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testRenameProcedureTo() {
-    final String sql = "rename procedure foo to bar";
-    final String expected = "RENAME PROCEDURE `FOO` AS `BAR`";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testRenameProcedureAs() {
-    final String sql = "rename procedure foo as bar";
-    final String expected = "RENAME PROCEDURE `FOO` AS `BAR`";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testRenameProcedureWithCompoundIdentifiers() {
-    final String sql = "rename procedure foo.bar as baz.qux";
-    final String expected = "RENAME PROCEDURE `FOO`.`BAR` AS `BAZ`.`QUX`";
-    sql(sql).ok(expected);
-  }
-
   @Test public void testBeginEnd() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -4372,6 +4354,24 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "FROM `QUXX`\n"
         + "WHERE (`QUX` = 3);\n"
         + "END `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureTo() {
+    final String sql = "rename procedure foo to bar";
+    final String expected = "RENAME PROCEDURE `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureAs() {
+    final String sql = "rename procedure foo as bar";
+    final String expected = "RENAME PROCEDURE `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureWithCompoundIdentifiers() {
+    final String sql = "rename procedure foo.bar as baz.qux";
+    final String expected = "RENAME PROCEDURE `FOO`.`BAR` AS `BAZ`.`QUX`";
     sql(sql).ok(expected);
   }
 

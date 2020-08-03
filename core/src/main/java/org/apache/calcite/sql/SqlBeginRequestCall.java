@@ -21,6 +21,7 @@ import org.apache.calcite.util.ImmutableNullableList;
 import org.apache.calcite.util.Litmus;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.apache.calcite.util.Static.RESOURCE;
 
@@ -41,7 +42,7 @@ public class SqlBeginRequestCall extends SqlCall {
    */
   public SqlBeginRequestCall(SqlParserPos pos, SqlStatementList statements) {
     super(pos);
-    this.statements = statements;
+    this.statements = Objects.requireNonNull(statements);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
