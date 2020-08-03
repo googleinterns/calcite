@@ -4522,4 +4522,15 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
             + "END CASE";
     sql(sql).ok(expected);
   }
+
+  @Test public void testCaseStmtWithConditionalExpressionStartWithElseFails() {
+    final String sql = "create procedure foo (bee integer) "
+        + "^case^ "
+        + "else "
+        + "select cde;"
+        + "end case";
+    final String expected =
+        "(?s)Encountered \"case else\" at .*";
+    sql(sql).fails(expected);
+  }
 }
