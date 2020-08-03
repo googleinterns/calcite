@@ -32,6 +32,7 @@ public class SqlDelete extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("DELETE", SqlKind.DELETE);
 
+  public final SqlIdentifier deleteTable;
   SqlNode targetTable;
   SqlNode condition;
   SqlSelect sourceSelect;
@@ -45,7 +46,19 @@ public class SqlDelete extends SqlCall {
       SqlNode condition,
       SqlSelect sourceSelect,
       SqlIdentifier alias) {
+    this(pos, /*deleteTable=*/ null, targetTable, condition, sourceSelect,
+        alias);
+  }
+
+  public SqlDelete(
+      SqlParserPos pos,
+      SqlIdentifier deleteTable,
+      SqlNode targetTable,
+      SqlNode condition,
+      SqlSelect sourceSelect,
+      SqlIdentifier alias) {
     super(pos);
+    this.deleteTable = deleteTable;
     this.targetTable = targetTable;
     this.condition = condition;
     this.sourceSelect = sourceSelect;
@@ -63,7 +76,7 @@ public class SqlDelete extends SqlCall {
   }
 
   public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(targetTable, condition, alias);
+    return ImmutableNullableList.of(targetTable, condition, alias, deleteTable);
   }
 
   @Override public void setOperand(int i, SqlNode operand) {
@@ -121,8 +134,12 @@ public class SqlDelete extends SqlCall {
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    writer.keyword("DELETE");
+    if (deleteTable != null) {
+      deleteTable.unparse(writer, leftPrec, rightPrec);
+    }
     final SqlWriter.Frame frame =
-        writer.startList(SqlWriter.FrameTypeEnum.SELECT, "DELETE FROM", "");
+        writer.startList(SqlWriter.FrameTypeEnum.SELECT, "FROM", "");
     final int opLeft = getOperator().getLeftPrec();
     final int opRight = getOperator().getRightPrec();
     targetTable.unparse(writer, opLeft, opRight);

@@ -20,44 +20,32 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
- * Parse tree for {@code SqlAllocateCursor} call.
+ * Base class for {@code HELP} statement parse tree nodes.
  */
-public class SqlAllocateCursor extends SqlCall {
-  private static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("ALLOCATE CURSOR", SqlKind.ALLOCATE_CURSOR);
+public abstract class SqlHelp extends SqlDdl {
 
-  public final SqlIdentifier cursorName;
-  public final SqlIdentifier procedureName;
+  public final SqlIdentifier name;
 
   /**
-   * Creates a {@code SqlAllocateCursor}.
-   *
+   * Creates a {@code SqlHelp}.
+   * @param operator  The specific HELP operator
    * @param pos  Parser position, must not be null
-   * @param cursorName  Name of the cursor previously opened, must not be null
-   * @param procedureName  Name of the procedure called, must not be null
+   * @param name  The provided name
    */
-  public SqlAllocateCursor(SqlParserPos pos, SqlIdentifier cursorName,
-      SqlIdentifier procedureName) {
-    super(pos);
-    this.cursorName = Objects.requireNonNull(cursorName);
-    this.procedureName = Objects.requireNonNull(procedureName);
-  }
-
-  @Override public SqlOperator getOperator() {
-    return OPERATOR;
+  protected SqlHelp(SqlOperator operator, SqlParserPos pos,
+      SqlIdentifier name) {
+    super(operator, pos);
+    this.name = name;
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(cursorName, procedureName);
+    return ImmutableNullableList.of(name);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.keyword("ALLOCATE");
-    cursorName.unparse(writer, 0, 0);
-    writer.keyword("CURSOR FOR PROCEDURE");
-    procedureName.unparse(writer, 0, 0);
+    writer.keyword(getOperator().getName());
+    name.unparse(writer, leftPrec, rightPrec);
   }
 }

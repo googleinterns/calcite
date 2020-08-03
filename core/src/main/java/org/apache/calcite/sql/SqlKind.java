@@ -585,14 +585,14 @@ public enum SqlKind {
   BEGIN_END,
 
   /**
-   * DEALLOCATE PREPARE statement in a CREATE PROCEDURE call.
-   */
-  DEALLOCATE_PREPARE,
-
-  /**
    * ALLOCATE CURSOR call.
    */
   ALLOCATE_CURSOR,
+
+  /**
+   * DEALLOCATE PREPARE statement in a CREATE PROCEDURE call.
+   */
+  DEALLOCATE_PREPARE,
 
   /**
    * Special functions in MATCH_RECOGNIZE.
@@ -1190,6 +1190,15 @@ public enum SqlKind {
 
   /** {@code ALTER PROCEDURE} DDL statement. */
   ALTER_PROCEDURE,
+
+  /** {@code DROP PROCEDURE} DDL statement. */
+  DROP_PROCEDURE,
+
+  /** {@code HELP PROCEDURE} DDL statement. */
+  HELP_PROCEDURE,
+
+  /** {@code RENAME PROCEDURE} DDL statement. */
+  RENAME_PROCEDURE,
 
   /** DDL statement not handled above.
    *

@@ -114,6 +114,37 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testDeleteWithTable() {
+    final String sql = "delete foo from bar";
+    final String expected = "DELETE `FOO` FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithTableCompoundIdentifier() {
+    final String sql = "delete foo.bar from baz";
+    final String expected = "DELETE `FOO`.`BAR` FROM `BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithTableWithAlias() {
+    final String sql = "delete foo from bar as b";
+    final String expected = "DELETE `FOO` FROM `BAR` AS `B`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithTableWithWhere() {
+    final String sql = "delete foo from bar where bar.x = 0";
+    final String expected = "DELETE `FOO` FROM `BAR`\n"
+        + "WHERE (`BAR`.`X` = 0)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithTableWithoutFrom() {
+    final String sql = "delete foo bar";
+    final String expected = "DELETE `FOO` FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
   @Test void testYearIsNotReserved() {
     final String sql = "select 1 as year from t";
     final String expected = "SELECT 1 AS `YEAR`\n"
@@ -294,6 +325,13 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testCreateVolatileTable() {
     final String sql = "create volatile table foo (bar int not null, baz varchar(30))";
     final String expected = "CREATE VOLATILE TABLE `FOO` "
+        + "(`BAR` INTEGER NOT NULL, `BAZ` VARCHAR(30))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateGlobalTemporaryTable() {
+    final String sql = "create global temporary table foo (bar int not null, baz varchar(30))";
+    final String expected = "CREATE TEMP TABLE `FOO` "
         + "(`BAR` INTEGER NOT NULL, `BAZ` VARCHAR(30))";
     sql(sql).ok(expected);
   }
@@ -924,6 +962,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testCreateTableDefaultCaseSpecificColumnLevelAttributes() {
     final String sql = "create table foo (bar int default 1 casespecific)";
     final String expected = "CREATE TABLE `FOO` (`BAR` INTEGER DEFAULT 1 CASESPECIFIC)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultDateColumnLevelAttribute() {
+    final String sql = "create table foo (bar date default date '2000-07-04')";
+    final String expected = "CREATE TABLE `FOO` (`BAR` DATE DEFAULT DATE '2000-07-04')";
     sql(sql).ok(expected);
   }
 
@@ -3912,6 +3956,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  // TODO: Add failing test cases for queries with NOT and "^" together
   @Test public void testCaretNegation() {
     String sql = "select * from foo where ^a = 1";
     String expected = "SELECT *\n"
@@ -3949,6 +3994,118 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     String expected = "SELECT *\n"
         + "FROM `FOO`\n"
         + "WHERE ((^(`A` LIKE 1)) AND (^(`B` NOT LIKE 2)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationEquals() {
+    String sql = "select * from foo where a ^= 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` <> 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationNotEquals() {
+    String sql = "select * from foo where a ^<> 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` = 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationLessThan() {
+    String sql = "select * from foo where a ^< 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` >= 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationGreaterThan() {
+    String sql = "select * from foo where a ^> 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` <= 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationLessThanOrEqualTo() {
+    String sql = "select * from foo where a ^<= 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` > 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationGreaterThanOrEqualTo() {
+    String sql = "select * from foo where a ^>= 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` < 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationIn() {
+    String sql = "select * from emp where deptno ^ in (10, 20)";
+    String expected = "SELECT *\n"
+        + "FROM `EMP`\n"
+        + "WHERE (`DEPTNO` NOT IN (10, 20))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationLike() {
+    String sql = "select * from emp where deptno ^ LIKE 10";
+    String expected = "SELECT *\n"
+        + "FROM `EMP`\n"
+        + "WHERE (`DEPTNO` NOT LIKE 10)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotEquals() {
+    String sql = "select * from foo where a not = 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` <> 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotWithNotEquals() {
+    String sql = "select * from foo where a not <> 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` = 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotLessThan() {
+    String sql = "select * from foo where a not < 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` >= 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotGreaterThan() {
+    String sql = "select * from foo where a not > 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` <= 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotLessThanOrEqualTo() {
+    String sql = "select * from foo where a not <= 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` > 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotGreaterThanOrEqualTo() {
+    String sql = "select * from foo where a not >= 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` < 1)";
     sql(sql).ok(expected);
   }
 
@@ -4123,6 +4280,64 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testAlternativeCastWithBuiltInFunction() {
+    final String sql = "select cast(a as date) (format 'yyyy-mm-dd')";
+    final String expected = "SELECT CAST(CAST(`A` AS DATE) AS FORMAT "
+        + "'yyyy-mm-dd')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNamedExpressionWithBuiltInFunction() {
+    final String sql = "select cast(a as date) (named b)";
+    final String expected = "SELECT CAST(`A` AS DATE) AS `B`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testInlineCasespecificWithBuiltInFunction() {
+    final String sql = "select * from foo where cast(a as date) (casespecific) "
+        + "= 'Hello'";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (CAST(`A` AS DATE) (CASESPECIFIC) = 'Hello')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDropProcedure() {
+    final String sql = "drop procedure foo";
+    final String expected = "DROP PROCEDURE `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDropProcedureCompoundIdentifier() {
+    final String sql = "drop procedure foo.bar";
+    final String expected = "DROP PROCEDURE `FOO`.`BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHelpProcedure() {
+    final String sql = "help procedure foo";
+    final String expected = "HELP PROCEDURE `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHelpProcedureAttributes() {
+    final String sql = "help procedure foo attributes";
+    final String expected = "HELP PROCEDURE `FOO` ATTRIBUTES";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHelpProcedureAttr() {
+    final String sql = "help procedure foo attr";
+    final String expected = "HELP PROCEDURE `FOO` ATTRIBUTES";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testHelpProcedureAttrs() {
+    final String sql = "help procedure foo attrs";
+    final String expected = "HELP PROCEDURE `FOO` ATTRIBUTES";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testIdentifierWithNumberSign() {
     final String sql = "select * from #foo";
     final String expected = "SELECT *\n"
@@ -4259,6 +4474,24 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "FROM `QUXX`\n"
         + "WHERE (`QUX` = 3);\n"
         + "END `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureTo() {
+    final String sql = "rename procedure foo to bar";
+    final String expected = "RENAME PROCEDURE `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureAs() {
+    final String sql = "rename procedure foo as bar";
+    final String expected = "RENAME PROCEDURE `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureWithCompoundIdentifiers() {
+    final String sql = "rename procedure foo.bar as baz.qux";
+    final String expected = "RENAME PROCEDURE `FOO`.`BAR` AS `BAZ`.`QUX`";
     sql(sql).ok(expected);
   }
 
