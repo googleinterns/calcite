@@ -740,9 +740,10 @@ SqlTableAttribute TableAttributeChecksum() :
     (
         <DEFAULT_> { checksumEnabled = ChecksumEnabled.DEFAULT; }
     |
-        <ON> { checksumEnabled = ChecksumEnabled.ON; }
+        ( <ON> | <ALL> | <LOW> | <MEDIUM> | <HIGH> )
+        { checksumEnabled = ChecksumEnabled.ON; }
     |
-        <OFF> { checksumEnabled = ChecksumEnabled.OFF; }
+        ( <OFF> | <NONE> ) { checksumEnabled = ChecksumEnabled.OFF; }
     )
     { return new SqlTableAttributeChecksum(checksumEnabled, getPos()); }
 }
@@ -3335,6 +3336,8 @@ SqlRename SqlRename() :
     (
         source = SqlRenameMacro()
     |
+        source = SqlRenameProcedure()
+    |
         source = SqlRenameTable()
     )
     {
@@ -4617,4 +4620,23 @@ SqlHelpProcedure SqlHelpProcedure(Span s) :
         }
     ]
     { return new SqlHelpProcedure(s.end(this), procedureName, attributes); }
+}
+
+SqlRenameProcedure SqlRenameProcedure() :
+{
+    final SqlIdentifier oldProcedure;
+    final SqlIdentifier newProcedure;
+}
+{
+    <PROCEDURE>
+    oldProcedure = CompoundIdentifier()
+    (
+        <TO>
+    |
+        <AS>
+    )
+    newProcedure = CompoundIdentifier()
+    {
+        return new SqlRenameProcedure(getPos(), oldProcedure, newProcedure);
+    }
 }

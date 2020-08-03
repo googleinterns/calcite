@@ -604,8 +604,38 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTableAttributeChecksumAll() {
+    final String sql = "create table foo, checksum = all (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeChecksumLow() {
+    final String sql = "create table foo, checksum = low (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeChecksumMedium() {
+    final String sql = "create table foo, checksum = medium (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeChecksumHigh() {
+    final String sql = "create table foo, checksum = high (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = ON (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testTableAttributeChecksumOff() {
     final String sql = "create table foo, checksum = off (bar integer)";
+    final String expected = "CREATE TABLE `FOO`, CHECKSUM = OFF (`BAR` INTEGER)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testTableAttributeChecksumNone() {
+    final String sql = "create table foo, checksum = none (bar integer)";
     final String expected = "CREATE TABLE `FOO`, CHECKSUM = OFF (`BAR` INTEGER)";
     sql(sql).ok(expected);
   }
@@ -4109,6 +4139,38 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testHelpProcedureAttrs() {
     final String sql = "help procedure foo attrs";
     final String expected = "HELP PROCEDURE `FOO` ATTRIBUTES";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIdentifierWithNumberSign() {
+    final String sql = "select * from #foo";
+    final String expected = "SELECT *\n"
+        + "FROM `#FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIdentifierWithDollarSign() {
+    final String sql = "select * from $foo";
+    final String expected = "SELECT *\n"
+        + "FROM `$FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureTo() {
+    final String sql = "rename procedure foo to bar";
+    final String expected = "RENAME PROCEDURE `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureAs() {
+    final String sql = "rename procedure foo as bar";
+    final String expected = "RENAME PROCEDURE `FOO` AS `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRenameProcedureWithCompoundIdentifiers() {
+    final String sql = "rename procedure foo.bar as baz.qux";
+    final String expected = "RENAME PROCEDURE `FOO`.`BAR` AS `BAZ`.`QUX`";
     sql(sql).ok(expected);
   }
 }

@@ -1179,6 +1179,9 @@ public enum SqlKind {
   /** {@code HELP PROCEDURE} DDL statement. */
   HELP_PROCEDURE,
 
+  /** {@code RENAME PROCEDURE} DDL statement. */
+  RENAME_PROCEDURE,
+
   /** DDL statement not handled above.
    *
    * <p><b>Note to other projects</b>: If you are extending Calcite's SQL parser
