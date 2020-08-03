@@ -20,6 +20,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Parse tree for {@code SqlAllocateCursor} call.
@@ -41,8 +42,8 @@ public class SqlAllocateCursor extends SqlCall {
   public SqlAllocateCursor(SqlParserPos pos, SqlIdentifier cursorName,
       SqlIdentifier procedureName) {
     super(pos);
-    this.cursorName = cursorName;
-    this.procedureName = procedureName;
+    this.cursorName = Objects.requireNonNull(cursorName);
+    this.procedureName = Objects.requireNonNull(procedureName);
   }
 
   @Override public SqlOperator getOperator() {
