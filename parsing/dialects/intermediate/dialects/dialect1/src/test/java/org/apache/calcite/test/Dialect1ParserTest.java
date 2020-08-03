@@ -4379,7 +4379,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "create procedure foo (bee integer) "
         + "if bee = 2 then select bar; end if";
     final String expected =
-        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER) "
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
             + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
             + "END IF";
     sql(sql).ok(expected);
@@ -4389,7 +4389,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "create procedure foo (bee integer) "
         + "if bee = 2 then select bar; select baz; end if";
     final String expected =
-        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER) "
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
             + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
             + "SELECT `BAZ`;\n"
             + "END IF";
@@ -4402,7 +4402,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "else if bee = 3 then select baz; "
         + "end if";
     final String expected =
-        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER) "
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
             + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
             + "ELSE IF (`BEE` = 3) THEN SELECT `BAZ`;\n"
             + "END IF";
@@ -4416,7 +4416,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "else select xyz;"
         + "end if";
     final String expected =
-        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER) "
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
             + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
             + "ELSE IF (`BEE` = 3) THEN SELECT `BAZ`;\n"
             + "ELSE SELECT `XYZ`;\n"
@@ -4431,7 +4431,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "if abc = 3 then select baz; end if;"
         + "end if";
     final String expected =
-        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER, IN `ABC` INTEGER) "
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER, IN `ABC` INTEGER)\n"
             + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
             + "IF (`ABC` = 3) THEN SELECT `BAZ`;\n"
             + "END IF;\n"
