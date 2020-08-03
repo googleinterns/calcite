@@ -4537,7 +4537,7 @@ void CreateProcedureStmtList(SqlStatementList statements) :
         e = CreateProcedureStmt() <SEMICOLON> {
             statements.add(e);
         }
-    )+
+    )*
 }
 
 SqlCreateProcedureParameter SqlCreateProcedureParameter() :
@@ -4628,10 +4628,12 @@ SqlBeginEndCall SqlBeginEndCall() :
     SqlIdentifier endLabel = null;
     final SqlStatementList statements = new SqlStatementList(getPos());
     final Span s = Span.of();
+    SqlNode e;
 }
 {
     [ beginLabel = SimpleIdentifier() <COLON> ]
     <BEGIN>
+    ( e = SqlDeclareCursor() <SEMICOLON> { statements.add(e); } )*
     CreateProcedureStmtList(statements)
     <END>
     [ endLabel = SimpleIdentifier() ]
@@ -4719,4 +4721,72 @@ SqlAllocateCursor SqlAllocateCursor() :
     <ALLOCATE> cursorName = SimpleIdentifier()
     <CURSOR> <FOR> <PROCEDURE> procedureName = SimpleIdentifier()
     { return new SqlAllocateCursor(s.end(this), cursorName, procedureName); }
+}
+
+SqlDeclareCursor SqlDeclareCursor() :
+{
+    final SqlIdentifier cursorName;
+    CursorScrollType scrollType = CursorScrollType.UNSPECIFIED;
+    CursorReturnType returnType = CursorReturnType.UNSPECIFIED;
+    CursorReturnToType returnToType = CursorReturnToType.UNSPECIFIED;
+    CursorUpdateType updateType = CursorUpdateType.UNSPECIFIED;
+    boolean only = false;
+    SqlNode cursorSpecification = null;
+    SqlIdentifier statementName = null;
+    SqlIdentifier preparedStatementName = null;
+    SqlNode prepareFrom = null;
+    final Span s = Span.of();
+}
+{
+    <DECLARE> cursorName = SimpleIdentifier()
+    [
+        (
+            <SCROLL> { scrollType = CursorScrollType.SCROLL; }
+        |
+            <NO> <SCROLL> { scrollType = CursorScrollType.NO_SCROLL; }
+        )
+    ]
+    <CURSOR>
+    [
+        (
+            <WITHOUT> <RETURN> { returnType = CursorReturnType.WITHOUT_RETURN; }
+        |
+            <WITH> <RETURN> { returnType = CursorReturnType.WITH_RETURN; }
+            [ <ONLY> { only = true; } ]
+            [
+                (
+                    <TO> <CALLER> { returnToType = CursorReturnToType.CALLER; }
+                |
+                    <TO> <CLIENT> { returnToType = CursorReturnToType.CLIENT; }
+                )
+            ]
+        )
+    ]
+    <FOR>
+    (
+        statementName = SimpleIdentifier()
+    |
+        LOOKAHEAD(OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY))
+        cursorSpecification = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+        (
+            [
+                <FOR>
+                (
+                    <READ> <ONLY> { updateType = CursorUpdateType.READ_ONLY; }
+                |
+                    <UPDATE> { updateType = CursorUpdateType.UPDATE; }
+                )
+            ]
+        )
+    )
+    [
+        <PREPARE> preparedStatementName = SimpleIdentifier()
+        <FROM>
+        (
+            prepareFrom = SimpleIdentifier()
+        |
+            prepareFrom = StringLiteral()
+        )
+    ]
+    { return new SqlDeclareCursor(s.end(this), cursorName, scrollType, returnType, returnToType, only, updateType, cursorSpecification, statementName, preparedStatementName, prepareFrom); }
 }

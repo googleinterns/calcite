@@ -942,4 +942,7 @@ public interface CalciteResource {
 
   @BaseMessage("BEGIN label and END label must match")
   ExInst<SqlValidatorException> beginEndLabelMismatch();
+
+  @BaseMessage("FOR statement name must match PREPARE statement name")
+  ExInst<SqlValidatorException> declareCursorStatementNameMismatch();
 }
