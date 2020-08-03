@@ -4821,7 +4821,7 @@ SqlNode CursorStmt() :
     (
         e = SqlAllocateCursor()
     |
-        e = SqlgfrsDeallocatePrepare()
+        e = SqlDeallocatePrepare()
     )
     { return e; }
 }
