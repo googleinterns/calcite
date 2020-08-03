@@ -329,6 +329,13 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCreateGlobalTemporaryTable() {
+    final String sql = "create global temporary table foo (bar int not null, baz varchar(30))";
+    final String expected = "CREATE TEMP TABLE `FOO` "
+        + "(`BAR` INTEGER NOT NULL, `BAZ` VARCHAR(30))";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCreateTableWithSetTypeBeforeVolatility() {
     final String sql = "create multiset volatile table foo (bar integer)";
     final String expected = "CREATE MULTISET VOLATILE TABLE `FOO` (`BAR` INTEGER)";

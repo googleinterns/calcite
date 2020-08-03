@@ -116,7 +116,7 @@ Volatility VolatilityOpt() :
 {
     <VOLATILE> { return Volatility.VOLATILE; }
 |
-    <TEMP> { return Volatility.TEMP; }
+    ( <TEMP> | <GLOBAL> <TEMPORARY> ) { return Volatility.TEMP; }
 }
 
 OnCommitType OnCommitTypeOpt() :
@@ -893,7 +893,9 @@ SqlCreate SqlCreateTable() :
 {
     final Span s;
     SqlCreateSpecifier createSpecifier = SqlCreateSpecifier.CREATE;
+    SetType tmpSetType;
     SetType setType = SetType.UNSPECIFIED;
+    Volatility tmpVolatility;
     Volatility volatility = Volatility.UNSPECIFIED;
     final boolean ifNotExists;
     final SqlIdentifier id;
@@ -917,17 +919,25 @@ SqlCreate SqlCreateTable() :
                 createSpecifier = SqlCreateSpecifier.CREATE_OR_REPLACE;
             }
         ]
-        [
-            setType = SetTypeOpt()
-            volatility = VolatilityOpt()
+        (
+            tmpSetType = SetTypeOpt()
+            {
+                if (setType != SetType.UNSPECIFIED) {
+                    throw SqlUtil.newContextException(s.pos(),
+                        RESOURCE.illegalSetType());
+                }
+                setType = tmpSetType;
+            }
         |
-            volatility = VolatilityOpt()
-            setType = SetTypeOpt()
-        |
-            setType = SetTypeOpt()
-        |
-            volatility = VolatilityOpt()
-        ]
+            tmpVolatility = VolatilityOpt()
+            {
+                if (volatility != Volatility.UNSPECIFIED) {
+                    throw SqlUtil.newContextException(s.pos(),
+                        RESOURCE.illegalVolatility());
+                }
+                volatility = tmpVolatility;
+            }
+        )*
         <TABLE>
     )
     ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
