@@ -114,6 +114,37 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testDeleteWithTable() {
+    final String sql = "delete foo from bar";
+    final String expected = "DELETE `FOO` FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithTableCompoundIdentifier() {
+    final String sql = "delete foo.bar from baz";
+    final String expected = "DELETE `FOO`.`BAR` FROM `BAZ`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithTableWithAlias() {
+    final String sql = "delete foo from bar as b";
+    final String expected = "DELETE `FOO` FROM `BAR` AS `B`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithTableWithWhere() {
+    final String sql = "delete foo from bar where bar.x = 0";
+    final String expected = "DELETE `FOO` FROM `BAR`\n"
+        + "WHERE (`BAR`.`X` = 0)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithTableWithoutFrom() {
+    final String sql = "delete foo bar";
+    final String expected = "DELETE `FOO` FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
   @Test void testYearIsNotReserved() {
     final String sql = "select 1 as year from t";
     final String expected = "SELECT 1 AS `YEAR`\n"

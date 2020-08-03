@@ -2868,6 +2868,7 @@ SqlNode SqlInsert() :
 SqlNode SqlDelete() :
 {
     SqlNode table;
+    SqlIdentifier deleteTable = null;
     SqlNodeList extendList = null;
     SqlIdentifier alias = null;
     final SqlNode condition;
@@ -2880,6 +2881,12 @@ SqlNode SqlDelete() :
         <DEL>
     )
     { s = span(); }
+    [
+        // LOOKAHEAD is required for queries like "DELETE FOO" since "FOO" in
+        // this case is supposed to be "table" not "deleteTable".
+        LOOKAHEAD( CompoundIdentifier() [ <FROM> ] TableRefWithHintsOpt() )
+        deleteTable = CompoundIdentifier()
+    ]
     [ <FROM> ]
     table = TableRefWithHintsOpt()
     [
@@ -2892,7 +2899,7 @@ SqlNode SqlDelete() :
     condition = WhereOpt()
     {
         return new SqlDelete(s.add(table).addIf(extendList).addIf(alias)
-            .addIf(condition).pos(), table, condition, null, alias);
+            .addIf(condition).pos(), deleteTable, table, condition, null, alias);
     }
 }
 
