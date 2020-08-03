@@ -20,6 +20,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Parse tree for {@code SqlCloseCursor} call.
@@ -34,11 +35,11 @@ public class SqlCloseCursor extends SqlCall {
    * Creates an instance of {@code SqlCloseCursor}.
    *
    * @param pos SQL parser position
-   * @param cursorName Name of the cursor to close
+   * @param cursorName Name of the cursor to close, must not be null
    */
   public SqlCloseCursor(SqlParserPos pos, SqlIdentifier cursorName) {
     super(pos);
-    this.cursorName = cursorName;
+    this.cursorName = Objects.requireNonNull(cursorName);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
