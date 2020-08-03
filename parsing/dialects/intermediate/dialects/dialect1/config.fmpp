@@ -27,6 +27,7 @@ data: {
       "org.apache.calcite.sql.CharacterSet"
       "org.apache.calcite.sql.OnCommitType",
       "org.apache.calcite.sql.SetType",
+      "org.apache.calcite.sql.SqlAllocateCursor",
       "org.apache.calcite.sql.SqlAlterProcedure",
       "org.apache.calcite.sql.SqlAlterProcedure.AlterProcedureWithOption",
       "org.apache.calcite.sql.SqlAlterTable",
