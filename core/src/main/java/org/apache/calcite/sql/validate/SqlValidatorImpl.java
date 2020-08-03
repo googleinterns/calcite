@@ -47,6 +47,7 @@ import org.apache.calcite.sql.SqlAggFunction;
 import org.apache.calcite.sql.SqlBasicCall;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCallBinding;
+import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
@@ -5857,6 +5858,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     @Override public Void visit(SqlIntervalQualifier intervalQualifier) {
       throw Util.needToImplement(intervalQualifier);
     }
+
+    @Override public Void visit(SqlColumnAttribute attribute) {
+      throw Util.needToImplement(attribute);
+    }
   }
 
   /**
@@ -5989,6 +5994,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
     public RelDataType visit(SqlIntervalQualifier intervalQualifier) {
       return typeFactory.createSqlIntervalType(intervalQualifier);
+    }
+
+    @Override public RelDataType visit(SqlColumnAttribute attribute) {
+      return unknownType;
     }
   }
 
@@ -6589,6 +6598,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     }
 
     @Override public Set<String> visit(SqlIntervalQualifier qualifier) {
+      return ImmutableSet.of();
+    }
+
+    @Override public Set<String> visit(SqlColumnAttribute attribute) {
       return ImmutableSet.of();
     }
 

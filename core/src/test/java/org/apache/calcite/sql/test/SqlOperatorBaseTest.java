@@ -1958,7 +1958,7 @@ public abstract class SqlOperatorBaseTest {
     tester.checkType("{fn CURTIME()}", "TIME(0) NOT NULL");
     tester.checkScalar("{fn DAYNAME(DATE '2014-12-10')}",
         // Day names in root locale changed from long to short in JDK 9
-        TestUtil.getJavaMajorVersion() <= 8 ? "Wednesday" : "Wed",
+        TestUtil.isShortDayFormat() ? "Wed" : "Wednesday",
         "VARCHAR(2000) NOT NULL");
     tester.checkScalar("{fn DAYOFMONTH(DATE '2014-12-10')}", 10,
         "BIGINT NOT NULL");
@@ -1977,7 +1977,7 @@ public abstract class SqlOperatorBaseTest {
     tester.checkScalar("{fn MONTH(DATE '2014-12-10')}", 12, "BIGINT NOT NULL");
     tester.checkScalar("{fn MONTHNAME(DATE '2014-12-10')}",
         // Month names in root locale changed from long to short in JDK 9
-        TestUtil.getJavaMajorVersion() <= 8 ? "December" : "Dec",
+        TestUtil.isShortDayFormat() ? "Dec" : "December",
         "VARCHAR(2000) NOT NULL");
     tester.checkType("{fn NOW()}", "TIMESTAMP(0) NOT NULL");
     tester.checkScalar("{fn QUARTER(DATE '2014-12-10')}", "4",

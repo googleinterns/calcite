@@ -740,9 +740,10 @@ SqlTableAttribute TableAttributeChecksum() :
     (
         <DEFAULT_> { checksumEnabled = ChecksumEnabled.DEFAULT; }
     |
-        <ON> { checksumEnabled = ChecksumEnabled.ON; }
+        ( <ON> | <ALL> | <LOW> | <MEDIUM> | <HIGH> )
+        { checksumEnabled = ChecksumEnabled.ON; }
     |
-        <OFF> { checksumEnabled = ChecksumEnabled.OFF; }
+        ( <OFF> | <NONE> ) { checksumEnabled = ChecksumEnabled.OFF; }
     )
     { return new SqlTableAttributeChecksum(checksumEnabled, getPos()); }
 }
@@ -2172,7 +2173,7 @@ SqlHostVariable SqlHostVariable() :
     (
         <IDENTIFIER> { name = unquotedIdentifier(); }
     |
-        name = NonReservedKeyWord()
+        name = NonReservedKeyword()
     )
     { return new SqlHostVariable(name, getPos()); }
 }

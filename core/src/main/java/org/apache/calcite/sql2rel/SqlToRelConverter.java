@@ -100,6 +100,7 @@ import org.apache.calcite.sql.SqlAggFunction;
 import org.apache.calcite.sql.SqlBasicCall;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCallBinding;
+import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
@@ -5026,6 +5027,10 @@ public class SqlToRelConverter {
       return convertInterval(intervalQualifier);
     }
 
+    @Override public RexNode visit(SqlColumnAttribute attribute) {
+      throw new UnsupportedOperationException();
+    }
+
     public List<SqlMonotonicity> getColumnMonotonicities() {
       return columnMonotonicities;
     }
@@ -5243,6 +5248,10 @@ public class SqlToRelConverter {
     }
 
     public Void visit(SqlIntervalQualifier intervalQualifier) {
+      return null;
+    }
+
+    @Override public Void visit(SqlColumnAttribute attribute) {
       return null;
     }
 
