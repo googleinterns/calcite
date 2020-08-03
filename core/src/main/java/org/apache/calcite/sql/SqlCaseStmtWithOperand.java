@@ -21,6 +21,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
+import java.util.Objects;
 
 public class SqlCaseStmtWithOperand extends SqlCaseStmt {
   public final SqlNode firstOperand;
@@ -30,7 +31,7 @@ public class SqlCaseStmtWithOperand extends SqlCaseStmt {
       final SqlNodeList conditionalStmtListPairs,
       final SqlNodeList elseStmtList) {
     super(pos, conditionalStmtListPairs, elseStmtList);
-    this.firstOperand = firstOperand;
+    this.firstOperand = Objects.requireNonNull(firstOperand);
   }
 
   @Override public List<SqlNode> getOperandList() {
