@@ -22,10 +22,22 @@ import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 import java.util.Objects;
-
+/**
+ * Parse tree for a {@code SqlCaseStmtWithOperand}.
+ */
 public class SqlCaseStmtWithOperand extends SqlCaseStmt {
   public final SqlNode firstOperand;
 
+  /**
+   * Creates a {@code SqlCaseStmtWithOperand}.
+   * @param pos                       Parser position, must not be null.
+   * @param firstOperand              SqlNode representing the base operand for
+   *                                  comparison.
+   * @param conditionalStmtListPairs  List of SqlNode pairs
+   *                                  with StatementList, must not be null.
+   * @param elseStmtList              List of statements in the else clause,
+   *                                  must not be null.
+   */
   public SqlCaseStmtWithOperand(final SqlParserPos pos,
       final SqlNode firstOperand,
       final SqlNodeList conditionalStmtListPairs,

@@ -18,9 +18,18 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
-
+/**
+ * Parse tree for a {@code SqlCaseStmtWithConditionalExpression}.
+ */
 public class SqlCaseStmtWithConditionalExpression extends SqlCaseStmt {
-
+  /**
+   * Creates a {@code SqlCaseStmtWithConditionalExpression}.
+   * @param pos                       Parser position, must not be null.
+   * @param conditionalStmtListPairs  List of SqlNode pairs
+   *                                  with StatementList, must not be null.
+   * @param elseStmtList              List of statements in the else clause,
+   *                                  must not be null.
+   */
   public SqlCaseStmtWithConditionalExpression(final SqlParserPos pos,
       final SqlNodeList conditionalStmtListPairs,
       final SqlNodeList elseStmtList) {
