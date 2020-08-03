@@ -4369,7 +4369,6 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-
   @Test public void testDeclareVariable() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
