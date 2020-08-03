@@ -4452,4 +4452,74 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "(?s)Encountered \"else\" at .*";
     sql(sql).fails(expected);
   }
+
+  @Test public void testCaseStmtWithOperandBase() {
+    final String sql = "create procedure foo (bee integer) "
+        + "case bee "
+        + "when 2 then "
+        + "select bar; "
+        + "when 3 then "
+        + "select abc; "
+        + "end case";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "CASE `BEE` WHEN 2 THEN SELECT `BAR`;\n"
+            + "WHEN 3 THEN SELECT `ABC`;\n"
+            + "END CASE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaseStmtWithOperandWithElse() {
+    final String sql = "create procedure foo (bee integer) "
+        + "case bee "
+        + "when 2 then "
+        + "select bar; "
+        + "when 3 then "
+        + "select abc; "
+        + "else "
+        + "select cde;"
+        + "end case";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "CASE `BEE` WHEN 2 THEN SELECT `BAR`;\n"
+            + "WHEN 3 THEN SELECT `ABC`;\n"
+            + "ELSE SELECT `CDE`;\n"
+            + "END CASE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaseStmtWithConditionalExpressionBase() {
+    final String sql = "create procedure foo (bee integer) "
+        + "case "
+        + "when bee = 2 then "
+        + "select bar; "
+        + "when bee = 3 then "
+        + "select abc; "
+        + "end case";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "CASE WHEN (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "WHEN (`BEE` = 3) THEN SELECT `ABC`;\n"
+            + "END CASE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaseStmtWithConditionalExpressionWithElse() {
+    final String sql = "create procedure foo (bee integer) "
+        + "case "
+        + "when bee = 2 then "
+        + "select bar; "
+        + "when bee = 3 then "
+        + "select abc; "
+        + "else "
+        + "select cde;"
+        + "end case";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "CASE WHEN (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "WHEN (`BEE` = 3) THEN SELECT `ABC`;\n"
+            + "ELSE SELECT `CDE`;\n"
+            + "END CASE";
+    sql(sql).ok(expected);
+  }
 }

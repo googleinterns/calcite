@@ -57,5 +57,6 @@ public class SqlCaseStmt extends SqlCall {
       writer.keyword("ELSE");
       elseStmtList.unparse(writer, leftPrec, rightPrec);
     }
+    writer.keyword("END CASE");
   }
 }
