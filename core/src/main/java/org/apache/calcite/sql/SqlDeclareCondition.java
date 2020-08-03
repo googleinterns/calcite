@@ -20,6 +20,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Parse tree for {@code SqlDeclareCondition} expression.
@@ -42,7 +43,7 @@ public class SqlDeclareCondition extends SqlCall {
   public SqlDeclareCondition(SqlParserPos pos, SqlIdentifier conditionName,
       SqlNode stateCode) {
     super(pos);
-    this.conditionName = conditionName;
+    this.conditionName = Objects.requireNonNull(conditionName);
     this.stateCode = stateCode;
   }
 

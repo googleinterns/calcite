@@ -20,6 +20,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Parse tree for {@code SqlDeclareVariable} expression.
@@ -44,8 +45,8 @@ public class SqlDeclareVariable extends SqlCall {
   public SqlDeclareVariable(SqlParserPos pos, SqlNodeList variableNames,
       SqlDataTypeSpec dataType, SqlNode defaultValue) {
     super(pos);
-    this.variableNames = variableNames;
-    this.dataType = dataType;
+    this.variableNames = Objects.requireNonNull(variableNames);
+    this.dataType = Objects.requireNonNull(dataType);
     this.defaultValue = defaultValue;
   }
 
