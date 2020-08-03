@@ -580,6 +580,11 @@ public enum SqlKind {
   CARET_NEGATION,
 
   /**
+   * BEGIN...END statement in a CREATE PROCEDURE call.
+   */
+  BEGIN_END,
+
+  /**
    * Special functions in MATCH_RECOGNIZE.
    */
   FINAL,
@@ -1175,6 +1180,15 @@ public enum SqlKind {
 
   /** {@code ALTER PROCEDURE} DDL statement. */
   ALTER_PROCEDURE,
+
+  /** {@code DROP PROCEDURE} DDL statement. */
+  DROP_PROCEDURE,
+
+  /** {@code HELP PROCEDURE} DDL statement. */
+  HELP_PROCEDURE,
+
+  /** {@code RENAME PROCEDURE} DDL statement. */
+  RENAME_PROCEDURE,
 
   /** DDL statement not handled above.
    *

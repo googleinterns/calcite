@@ -97,6 +97,7 @@ public class SqlCreateProcedure extends SqlCreate {
       writer.keyword("SQL SECURITY");
       writer.keyword(security.toString());
     }
+    writer.newlineAndIndent();
     statement.unparse(writer, 0, 0);
   }
 

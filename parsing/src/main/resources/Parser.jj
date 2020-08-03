@@ -558,6 +558,98 @@ of the 'normal states'.
 |   "\f"
 }
 
+/* LITERALS */
+
+<DEFAULT, DQID, BTID> TOKEN :
+{
+    < UNSIGNED_INTEGER_LITERAL: (["0"-"9"])+ >
+|
+    < APPROX_NUMERIC_LITERAL:
+    (<UNSIGNED_INTEGER_LITERAL> | <DECIMAL_NUMERIC_LITERAL>) <EXPONENT> >
+|
+    < DECIMAL_NUMERIC_LITERAL:
+    (["0"-"9"])+(".")?(["0"-"9"])*
+    | "."(["0"-"9"])+
+    >
+|
+    < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+|
+    < #HEXDIGIT: ["0"-"9","a"-"f","A"-"F"] >
+|
+    < #WHITESPACE:
+    [ " ","\t","\n","\r","\f" ]
+    >
+|
+    < BINARY_STRING_LITERAL: ["x","X"] <QUOTE> ( (~["'"]) | ("''"))* <QUOTE> >
+|
+    < QUOTED_STRING: <QUOTE> ( (~["'"]) | ("''"))* <QUOTE> >
+|
+    < PREFIXED_STRING_LITERAL: ("_" <CHARSETNAME> | "N") <QUOTED_STRING> >
+|
+    < UNICODE_STRING_LITERAL: "U" "&" <QUOTED_STRING> >
+|
+    < #CHARSETNAME: (["a"-"z","A"-"Z","0"-"9"])
+    (["a"-"z","A"-"Z","0"-"9",":",".","-","_"])*
+    >
+}
+
+<DEFAULT, DQID, BTID> TOKEN :
+{
+    < UNICODE_QUOTED_ESCAPE_CHAR:
+    <QUOTE>
+    (~["0"-"9","a"-"f","A"-"F","+","\""," ","\t","\n","\r","\f"])
+    <QUOTE>
+    >
+}
+
+/* SEPARATORS */
+
+<DEFAULT, DQID, BTID> TOKEN :
+{
+    < LPAREN: "(">
+|   < RPAREN: ")">
+|   < LBRACE_D: "{" (" ")* ["d","D"] >
+|   < LBRACE_T: "{" (" ")* ["t","T"] >
+|   < LBRACE_TS: "{" (" ")* ["t","T"] ["s","S"] >
+|   < LBRACE_FN: "{" (" ")* ["f","F"] ["n","N"] >
+|   < LBRACE: "{" >
+|   < RBRACE: "}" >
+|   < LBRACKET: "[" >
+|   < RBRACKET: "]" >
+|   < SEMICOLON: ";" >
+|   < DOT: "." >
+|   < COMMA: "," >
+}
+
+/* OPERATORS */
+
+<DEFAULT, DQID, BTID> TOKEN :
+{
+    < EQ: "=" >
+|   < GT: ">" >
+|   < LT: "<" >
+|   < HOOK: "?" >
+|   < COLON: ":" >
+|   < LE: "<=" >
+|   < GE: ">=" >
+|   < NE: "<>" >
+|   < NE2: "!=" >
+|   < PLUS: "+" >
+|   < MINUS: "-" >
+|   < STAR: "*" >
+|   < SLASH: "/" >
+|   < PERCENT_REMAINDER: "%" >
+|   < CONCAT: "||" >
+|   < NAMED_ARGUMENT_ASSIGNMENT: "=>" >
+|   < DOUBLE_PERIOD: ".." >
+|   < QUOTE: "'" >
+|   < DOUBLE_QUOTE: "\"" >
+|   < VERTICAL_BAR: "|" >
+|   < CARET: "^" >
+|   < DOLLAR: "$" >
+|   < NUMBER_SIGN: "#" >
+}
+
 /* COMMENTS */
 
 <DEFAULT, DQID, BTID> TOKEN :
@@ -650,7 +742,7 @@ MORE :
     ("$" (<LETTER>|<DIGIT>|"_")+)?
     >
 |
-    < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+    < IDENTIFIER: (<LETTER>|<DOLLAR>|<NUMBER_SIGN>) (<LETTER>|<DOLLAR>|<NUMBER_SIGN>|<DIGIT>)* >
 |
     < UNICODE_QUOTED_IDENTIFIER: "U" "&" <QUOTED_IDENTIFIER> >
 |
