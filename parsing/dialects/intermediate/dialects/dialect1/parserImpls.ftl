@@ -4499,6 +4499,8 @@ SqlNode CreateProcedureStmt() :
     (
         e = SqlBeginEndCall()
     |
+        e = CursorStmt()
+    |
         e = SqlStmt()
     )
     { return e; }
@@ -4613,4 +4615,27 @@ SqlBeginEndCall SqlBeginEndCall() :
     <END>
     [ endLabel = SimpleIdentifier() ]
     { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
+}
+
+SqlNode CursorStmt() :
+{
+    final SqlNode e;
+}
+{
+    (
+        e = SqlAllocateCursor()
+    )
+    { return e; }
+}
+
+SqlAllocateCursor SqlAllocateCursor() :
+{
+    final SqlIdentifier cursorName;
+    final SqlIdentifier procedureName;
+    final Span s = Span.of();
+}
+{
+    <ALLOCATE> cursorName = SimpleIdentifier()
+    <CURSOR> <FOR> <PROCEDURE> procedureName = SimpleIdentifier()
+    { return new SqlAllocateCursor(s.end(this), cursorName, procedureName); }
 }
