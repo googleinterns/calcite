@@ -4604,4 +4604,40 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "END";
     sql(sql).ok(expected);
   }
+
+  @Test public void testDeleteUsingCursor() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "delete from bar where current of baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DELETE FROM `BAR` WHERE CURRENT OF `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteUsingCursorDelKeyword() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "del from bar.qux where current of baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DELETE FROM `BAR`.`QUX` WHERE CURRENT OF `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteUsingCursorCompoundIdentifier() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "delete from bar.qux where current of baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DELETE FROM `BAR`.`QUX` WHERE CURRENT OF `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
 }
