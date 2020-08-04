@@ -595,6 +595,16 @@ public enum SqlKind {
   CLOSE_CURSOR,
 
   /**
+   * DECLARE variable call in BEGIN...END statement.
+   */
+  DECLARE_VARIABLE,
+
+  /**
+   * DECLARE CONDITION call in BEGIN...END statement.
+   */
+  DECLARE_CONDITION,
+
+  /**
    * Special functions in MATCH_RECOGNIZE.
    */
   FINAL,
@@ -1199,6 +1209,9 @@ public enum SqlKind {
 
   /** {@code RENAME PROCEDURE} DDL statement. */
   RENAME_PROCEDURE,
+
+  /** {@code CONDITIONAL STATEMENT} PL statement */
+  CONDITIONAL_STATEMENT,
 
   /** DDL statement not handled above.
    *

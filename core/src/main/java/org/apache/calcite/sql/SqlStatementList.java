@@ -19,6 +19,7 @@ package org.apache.calcite.sql;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * A <code>SqlStatementList</code> is a list of {@link SqlNode}s that are SQL
@@ -36,7 +37,12 @@ public class SqlStatementList extends SqlNodeList {
     super(collection, pos);
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+  @Override public void add(final SqlNode node) {
+    super.add(Objects.requireNonNull(node));
+  }
+
+  @Override public void unparse(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
     SqlWriter.Frame frame = writer.startList(
         SqlWriter.FrameTypeEnum.STATEMENT_LIST, "", "");
     for (SqlNode e : getList()) {

@@ -966,6 +966,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   }
 
   @Test public void testCreateTableDefaultDateColumnLevelAttribute() {
+    final String sql = "create table foo (bar date default date)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` DATE DEFAULT DATE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultDateColumnLevelAttributeWithLiteral() {
     final String sql = "create table foo (bar date default date '2000-07-04')";
     final String expected = "CREATE TABLE `FOO` (`BAR` DATE DEFAULT DATE '2000-07-04')";
     sql(sql).ok(expected);
@@ -3571,6 +3577,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     expr(sql).ok(expected);
   }
 
+  @Test public void testRangeNExpression() {
+    final String sql = "range_n (cast(a as integer) between 3 and 10)";
+    final String expected = "RANGE_N(CAST(`A` AS INTEGER) BETWEEN 3 AND 10)";
+    expr(sql).ok(expected);
+  }
+
   @Test public void testRangeNBaseEach() {
     final String sql = "range_n (foo between 3 and 10 each 2)";
     final String expected = "RANGE_N(`FOO` BETWEEN 3 AND 10 EACH 2)";
@@ -3762,6 +3774,14 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testSqlTablePartitionExpression() {
+    String sql =
+        "create table foo (bar integer) partition by cast(a as int)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER) PARTITION BY(CAST(`A` AS INTEGER))";
+    sql(sql).ok(expected);
+  }
+
   @Test void testSqlTablePartitionColumn() {
     String sql =
         "create table foo (bar integer) partition by column";
@@ -3790,7 +3810,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testSqlTablePartitionMultiplePartitionExpressions() {
+  @Test void testSqlTablePartitionMultiplePartitions() {
     String sql =
         "create table foo (bar integer, sales_date date format "
             + "'yyyy-mm-dd' not null, baz integer not null) "
@@ -4495,6 +4515,84 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testIfStmtBase() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee = 2 then select bar; end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtMultipleStatements() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee = 2 then select bar; select baz; end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "SELECT `BAZ`;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtWithElseIf() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee = 2 then select bar; "
+        + "else if bee = 3 then select baz; "
+        + "end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "ELSE IF (`BEE` = 3) THEN SELECT `BAZ`;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtWithElseIfWithElse() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee = 2 then select bar; "
+        + "else if bee = 3 then select baz; "
+        + "else select xyz;"
+        + "end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "ELSE IF (`BEE` = 3) THEN SELECT `BAZ`;\n"
+            + "ELSE SELECT `XYZ`;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtNestedIf() {
+    final String sql = "create procedure foo (bee integer, abc integer) "
+        + "if bee = 2 then "
+        + "select bar; "
+        + "if abc = 3 then select baz; end if;"
+        + "end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER, IN `ABC` INTEGER)\n"
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "IF (`ABC` = 3) THEN SELECT `BAZ`;\n"
+            + "END IF;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtWithEmptyThenClauseFails() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee > 2 then ^end^ if";
+    final String expected = "(?s)Encountered \"end\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testIfStmtStartWithElseIfFails() {
+    final String sql = "create procedure foo (bee integer) "
+        + "^else^ if bee > 2 then end if";
+    final String expected = "(?s)Encountered \"else\" at .*";
+    sql(sql).fails(expected);
+  }
+
   @Test public void testAllocateCursor() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -4515,6 +4613,112 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
         + "CLOSE `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareVariable() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a integer;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A` INTEGER;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareVariableList() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a, b, c integer;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A`, `B`, `C` INTEGER;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareVariableDefaultLiteral() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a integer default 15;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A` INTEGER DEFAULT 15;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareVariableDefaultNull() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a integer default null;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A` INTEGER DEFAULT NULL;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareCondition() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a condition;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A` CONDITION;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareConditionForStateCode() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a condition for '10001';\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A` CONDITION FOR '10001';\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareVariableMultipleStatements() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a, b, c integer;\n"
+        + "declare d condition;\n"
+        + "declare e integer default 15;\n"
+        + "declare f condition for '10001';\n"
+        + "declare g integer default null;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A`, `B`, `C` INTEGER;\n"
+        + "DECLARE `D` CONDITION;\n"
+        + "DECLARE `E` INTEGER DEFAULT 15;\n"
+        + "DECLARE `F` CONDITION FOR '10001';\n"
+        + "DECLARE `G` INTEGER DEFAULT NULL;\n"
+        + "SELECT `BAR`;\n"
         + "END";
     sql(sql).ok(expected);
   }
