@@ -16,11 +16,6 @@
  */
 package org.apache.calcite.buildtools.parser;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -65,45 +60,64 @@ public class DialectTraverser {
 
   /**
    * Extracts functions and token assignments and generates a parserImpls.ftl
-   * file containing them at the specified output file.
+   * file containing them at the specified output file. It is assumed that
+   * there exists a path src/resources/license.txt at the root parsing directory
+   * which was specified in the constructor.
    */
   public void run() {
-    ExtractedData extractedData = extractData();
-    generateParserImpls(extractedData);
+    String licenseText = getLicenseText();
+    ExtractedData extractedData = extractData(licenseText);
+    generateParserImpls(extractedData, licenseText);
   }
 
   /**
    * Traverses the parsing directory structure and extracts all of the
    * functions located in *.ftl files into a Map. This function also compiles
    * the keywords as they are specified throughout the directory structure.
+   *
+   * @param licenseText The apache license text
    */
-  public ExtractedData extractData() {
+  public ExtractedData extractData(String licenseText) {
     ExtractedData extractedData = new ExtractedData();
-    traverse(getTraversalPath(), rootDirectory, extractedData);
+    traverse(getTraversalPath(), rootDirectory, extractedData, licenseText);
+    try {
+      dialectGenerate.validateNonReservedKeywords(extractedData);
+    } catch (IllegalStateException e) {
+      e.printStackTrace();
+    }
     dialectGenerate.unparseReservedKeywords(extractedData);
     dialectGenerate.unparseNonReservedKeywords(extractedData);
     return extractedData;
   }
 
   /**
-   * Generates the parserImpls.ftl file for the dialect. It is assumed that
-   * there exists a path src/resources/license.txt at the root parsing directory
-   * which was specified in the constructor.
+   * Reads the contents of the file which contains the apache license.
    *
-   * @param extractedData The extracted data to write to the output file
+   * @return The license text if file exists, empty string otherwise
    */
-  public void generateParserImpls(ExtractedData extractedData) {
-    Path outputFilePath = dialectDirectory.toPath().resolve(outputPath);
+  private String getLicenseText() {
     Path licensePath = rootDirectory.toPath().resolve(
         Paths.get("src", "resources", "license.txt"));
-    StringBuilder content = new StringBuilder();
     try {
-      String licenseText = new String(Files.readAllBytes(licensePath),
+      return new String(Files.readAllBytes(licensePath),
           StandardCharsets.UTF_8);
-      content.append(licenseText);
-    } catch (IOException e) {
+    } catch (IOException e ) {
       e.printStackTrace();
     }
+    return "";
+  }
+
+  /**
+   * Generates the parserImpls.ftl file for the dialect.
+   *
+   * @param extractedData The extracted data to write to the output file
+   * @param licenseText The apache license text
+   */
+  public void generateParserImpls(ExtractedData extractedData,
+      String licenseText) {
+    Path outputFilePath = dialectDirectory.toPath().resolve(outputPath);
+    StringBuilder content = new StringBuilder();
+    content.append(licenseText);
     for (String tokenAssignment : extractedData.tokenAssignments) {
       content.append("\n").append(tokenAssignment).append("\n");
     }
@@ -140,17 +154,19 @@ public class DialectTraverser {
    * Traverses the determined path given by the directories queue. Once the
    * queue is empty, the dialect directory has been reached. In that case any
    * *.ftl file should be processed and no further traversal should happen. If
-   * a keywords.yaml file is encountered the yaml is converted to a desired
-   * format and is processed by {@code dialectGenerate.processKeywords()}.
+   * a *.txt file is found, the contents are processed and added to
+   * {@code extractedData}.
    *
    * @param directories The directories to traverse in topdown order
    * @param currentDirectory The current directory the function is processing
    * @param functionMap The map to which the parsing functions will be added to
+   * @param licenseText The apache license text
    */
   private void traverse(
       Queue<String> directories,
       File currentDirectory,
-      ExtractedData extractedData) {
+      ExtractedData extractedData,
+      String licenseText) {
     File[] files = currentDirectory.listFiles();
     // Ensures that files are processed first.
     Arrays.sort(files, fileComparator);
@@ -177,29 +193,15 @@ public class DialectTraverser {
           } catch (IllegalStateException e) {
             e.printStackTrace();
           }
-        } else if (fileName.equals("keywords.yaml")) {
-          // This is required to get past the license comment. The part after
-          // follows a JSON format so it can be parsed as such.
-          fileText = fileText.substring(fileText.indexOf("{"));
-          JsonObject json = new JsonParser().parse(fileText)
-            .getAsJsonObject();
-          JsonArray keywordsJson = json.get("keywords") == null
-            || json.get("keywords").isJsonNull()
-              ? null
-              : json.getAsJsonArray("keywords");
-          JsonArray nonReservedKeywordsJson = json.get("nonReservedKeywords") == null
-            || json.get("nonReservedKeywords").isJsonNull()
-              ? null
-              : json.getAsJsonArray("nonReservedKeywords");
-          Map<Keyword, String> keywords = unparseKeywordsJson(keywordsJson,
-              filePath);
-          Set<Keyword> nonReservedKeywords = unparseNonReservedKeywordsJson(
-              nonReservedKeywordsJson, filePath);
-          try {
-            dialectGenerate.processKeywords(keywords, nonReservedKeywords,
-                extractedData);
-          } catch (IllegalStateException e) {
-            e.printStackTrace();
+        } else if (fileName.endsWith(".txt")) {
+          fileText = fileText.substring(licenseText.length());
+          String[] lines = fileText.split("\n");
+          if (fileName.equals("nonReservedKeywords.txt")) {
+            extractedData.nonReservedKeywords
+              .addAll(processNonReservedKeywords(lines, filePath));
+          } else if (fileName.equals("keywords.txt")) {
+            extractedData.keywords
+              .putAll(processKeyValuePairs(lines, filePath));
           }
         }
       } else if (!directories.isEmpty() && fileName.equals(nextDirectory)) {
@@ -207,72 +209,52 @@ public class DialectTraverser {
         // with directories.peek() and is used in the next recursive call to
         // this function.
         directories.poll();
-        traverse(directories, f, extractedData);
+        traverse(directories, f, extractedData, licenseText);
       }
     }
   }
 
   /**
-   * Converts the {@code keywordsJson} into a {@code Map<Keyword, String>}.
-   * It is assumed that {@code keywordsJson} is either null or of the form:
+   * Parses the {@code lines} array into a {@code Set<Keyword>}. Empty lines
+   * are skipped.
    *
-   * [
-   *     {"keyword1": "value1"},
-   *     {"keyword2": "value2"}
-   *     ...
-   * ]
+   * @param lines The lines to parse
+   * @param filePath The file these lines are from
    *
-   * Both the key and value are converted to uppercase.
-   *
-   * @param keywordsJson The keywords json
-   * @param filePath The file path these keywords were taken from
-   *
-   * @return The {@code Map<Keyword, String>} that the json was converted to
+   * @return The parsed lines as a {@code Set<Keyword>}
    */
-  private static Map<Keyword, String> unparseKeywordsJson(JsonArray keywordsJson,
+  private Set<Keyword> processNonReservedKeywords(String[] lines,
       String filePath) {
-    Map<Keyword, String> keywords = new LinkedHashMap<>();
-    if (keywordsJson == null) {
-      return keywords;
+    Set<Keyword> nonReservedKeywords = new LinkedHashSet<>();
+    for (String line : lines) {
+      line = line.trim();
+      if (!line.equals("")) {
+        nonReservedKeywords.add(new Keyword(line, filePath));
+      }
     }
-    for (Object obj : keywordsJson) {
-      JsonObject keywordJson = (JsonObject) obj;
-      // There is only one key.
-      String keyword = keywordJson.keySet().iterator().next();
-      keywords.put(new Keyword(keyword, filePath),
-          keywordJson.get(keyword).getAsString().toUpperCase());
-    }
-    return keywords;
+    return nonReservedKeywords;
   }
 
   /**
-   * Converts the {@code nonReservedKeywordsJson} into a {@code Set<Keyword>}.
-   * It is assumed that {@code nonReservedKeywordsJson} is either null or of
-   * the form:
+   * Parses the {@code lines} array into a {@code Map<Keyword, String}. It is
+   * assumed that each line contains a key-value pair separated by a colon.
+   * Empty lines are skipped.
    *
-   * [
-   *     "keyword1",
-   *     "keyword2"
-   *     ...
-   * ]
-   *
-   * These values are all converted to uppercase.
-   *
-   * @param nonReservedKeywordsJson The non reserved keywords json
-   * @param filePath The file path these keywords were taken from
-   *
-   * @return The {@code Map<Keyword, String>} that the json was converted to
+   * @param lines The lines to parse
+   * @param filepath The file these lines came from
    */
-  private static Set<Keyword> unparseNonReservedKeywordsJson(
-      JsonArray nonReservedKeywordsJson, String filePath) {
-    Set<Keyword> nonReservedKeywords = new LinkedHashSet<>();
-    if (nonReservedKeywordsJson == null) {
-      return nonReservedKeywords;
+  private Map<Keyword, String> processKeyValuePairs(String[] lines,
+      String filePath) {
+    Map<Keyword, String> map = new LinkedHashMap<>();
+    for (String line : lines) {
+      line = line.trim();
+      if (!line.equals("")) {
+        int colonIndex = line.indexOf(":");
+        String key = line.substring(0, colonIndex);
+        String value = line.substring(colonIndex + 1);
+        map.put(new Keyword(key.trim(), filePath), value.trim());
+      }
     }
-    for (JsonElement element : nonReservedKeywordsJson) {
-      String keyword = element.getAsString();
-      nonReservedKeywords.add(new Keyword(keyword, filePath));
-    }
-    return nonReservedKeywords;
+    return map;
   }
 }
