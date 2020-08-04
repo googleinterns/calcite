@@ -4982,6 +4982,8 @@ SqlNode CursorStmt() :
         e = SqlExecuteImmediate()
     |
         e = SqlExecuteStatement()
+    |
+        e = SqlPrepareStatement()
     )
     { return e; }
 }
@@ -5049,3 +5051,21 @@ SqlCloseCursor SqlCloseCursor() :
     <CLOSE> cursorName = SimpleIdentifier()
     { return new SqlCloseCursor(s.end(this), cursorName); }
 }
+
+SqlPrepareStatement SqlPrepareStatement() :
+{
+    final SqlIdentifier statementName;
+    final SqlNode statement;
+    final Span s = Span.of();
+}
+{
+    <PREPARE> statementName = SimpleIdentifier()
+    <FROM>
+    (
+        statement = SimpleIdentifier()
+    |
+        statement = StringLiteral()
+    )
+    { return new SqlPrepareStatement(s.end(this), statementName, statement); }
+}
+

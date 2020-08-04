@@ -106,6 +106,7 @@ data: {
       "org.apache.calcite.sql.SqlPartitionByNoneUnknown",
       "org.apache.calcite.sql.SqlPeriodTypeNameSpec",
       "org.apache.calcite.sql.SqlPeriodTypeNameSpec.TimeScale",
+      "org.apache.calcite.sql.SqlPrepareStatement",
       "org.apache.calcite.sql.SqlPrimaryIndex",
       "org.apache.calcite.sql.SqlRangeN",
       "org.apache.calcite.sql.SqlRangeNStartEnd",

@@ -625,6 +625,11 @@ public enum SqlKind {
   DECLARE_CONDITION,
 
   /**
+   * PREPARE statement call in BEGIN...END statement.
+   */
+  PREPARE_STATEMENT,
+
+  /**
    * Special functions in MATCH_RECOGNIZE.
    */
   FINAL,

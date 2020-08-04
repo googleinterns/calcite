@@ -4844,4 +4844,28 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "SELECT CAST(`A` AS FORMAT '999')";
     sql(sql).ok(expected);
   }
+
+  @Test public void testPrepareStatementIdentifier() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "prepare bar from baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "PREPARE `BAR` FROM `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPrepareStatementString() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "prepare bar from 'select baz from qux';\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "PREPARE `BAR` FROM 'select baz from qux';\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
 }
