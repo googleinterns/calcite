@@ -92,6 +92,8 @@ data: {
       "org.apache.calcite.sql.SqlDropProcedure",
       "org.apache.calcite.sql.SqlExecMacro",
       "org.apache.calcite.sql.SqlExecMacroParam",
+      "org.apache.calcite.sql.SqlExecuteImmediate",
+      "org.apache.calcite.sql.SqlExecuteStatement",
       "org.apache.calcite.sql.SqlHelp",
       "org.apache.calcite.sql.SqlHelpProcedure",
       "org.apache.calcite.sql.SqlHexCharStringLiteral",
