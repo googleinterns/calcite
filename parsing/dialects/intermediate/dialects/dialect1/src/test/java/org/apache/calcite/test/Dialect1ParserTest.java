@@ -4636,7 +4636,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testDeclareCursorNoScrollWithoutReturnReadOnly() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
-        + "declare bar no scroll cursor without return for select baz from qux for read only;\n"
+        + "declare bar no scroll cursor without return for select baz from qux "
+        + "for read only;\n"
         + "end";
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
@@ -4649,7 +4650,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testDeclareCursorScrollWithReturnUpdate() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
-        + "declare bar scroll cursor with return for select baz from qux for update;\n"
+        + "declare bar scroll cursor with return for select baz from qux for "
+        + "update;\n"
         + "end";
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
@@ -4675,7 +4677,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testDeclareCursorWithReturnToCaller() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
-        + "declare bar cursor with return only to caller for select baz from qux;\n"
+        + "declare bar cursor with return only to caller for select baz from "
+        + "qux;\n"
         + "end";
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
@@ -4701,7 +4704,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testDeclareCursorPrepareString() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
-        + "declare bar cursor for select baz from qux prepare a from 'select b from c';\n"
+        + "declare bar cursor for select baz from qux prepare a from 'select b "
+        + "from c';\n"
         + "end";
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
@@ -4729,7 +4733,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "begin\n"
         + "declare bar cursor for baz prepare ^qux^ from a;\n"
         + "end";
-    final String expected = "FOR statement name must match PREPARE statement name";
+    final String expected = "FOR statement name must match PREPARE statement "
+        + "name";
     sql(sql).fails(expected);
   }
 }
