@@ -590,6 +590,11 @@ public enum SqlKind {
   ALLOCATE_CURSOR,
 
   /**
+   * CLOSE cursor statement in a CREATE PROCEDURE call.
+   */
+  CLOSE_CURSOR,
+
+  /**
    * DECLARE variable call in BEGIN...END statement.
    */
   DECLARE_VARIABLE,

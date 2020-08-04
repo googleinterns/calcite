@@ -45,6 +45,7 @@ data: {
       "org.apache.calcite.sql.SqlCaseSpecific",
       "org.apache.calcite.sql.SqlCharacterSetToCharacterSet",
       "org.apache.calcite.sql.SqlClobTypeNameSpec",
+      "org.apache.calcite.sql.SqlCloseCursor",
       "org.apache.calcite.sql.SqlColumnAttribute",
       "org.apache.calcite.sql.SqlColumnAttributeCaseSpecific",
       "org.apache.calcite.sql.SqlColumnAttributeCharacterSet",
