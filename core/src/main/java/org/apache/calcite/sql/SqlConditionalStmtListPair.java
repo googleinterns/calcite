@@ -23,27 +23,28 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Parse tree for {@code SqlAllocateCursor} call.
+ * Parse tree representing a conditional expression pairing with a list of
+ * statements.
  */
-public class SqlAllocateCursor extends SqlCall {
-  private static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("ALLOCATE CURSOR", SqlKind.ALLOCATE_CURSOR);
+public class SqlConditionalStmtListPair extends SqlCall {
+  public static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("CONDITION_STATEMENT_LIST_PAIR", SqlKind.OTHER);
 
-  public final SqlIdentifier cursorName;
-  public final SqlIdentifier procedureName;
+  public final SqlNode condition;
+  public final SqlStatementList stmtList;
 
   /**
-   * Creates a {@code SqlAllocateCursor}.
-   *
-   * @param pos  Parser position, must not be null
-   * @param cursorName  Name of the cursor previously opened, must not be null
-   * @param procedureName  Name of the procedure called, must not be null
+   * Creates a {@code SqlConditionalStmtListPair}.
+   * @param pos         Parser position, must not be null.
+   * @param condition   Condition expression, must not be null.
+   * @param stmtList    A List of statements, must not be null.
    */
-  public SqlAllocateCursor(SqlParserPos pos, SqlIdentifier cursorName,
-      SqlIdentifier procedureName) {
+  public SqlConditionalStmtListPair(final SqlParserPos pos,
+      final SqlNode condition,
+      final SqlStatementList stmtList) {
     super(pos);
-    this.cursorName = Objects.requireNonNull(cursorName);
-    this.procedureName = Objects.requireNonNull(procedureName);
+    this.condition = Objects.requireNonNull(condition);
+    this.stmtList = Objects.requireNonNull(stmtList);
   }
 
   @Override public SqlOperator getOperator() {
@@ -51,13 +52,13 @@ public class SqlAllocateCursor extends SqlCall {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(cursorName, procedureName);
+    return ImmutableNullableList.of(condition, stmtList);
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.keyword("ALLOCATE");
-    cursorName.unparse(writer, 0, 0);
-    writer.keyword("CURSOR FOR PROCEDURE");
-    procedureName.unparse(writer, 0, 0);
+  @Override public void unparse(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
+    condition.unparse(writer, leftPrec, rightPrec);
+    writer.keyword("THEN");
+    stmtList.unparse(writer, leftPrec, rightPrec);
   }
 }
