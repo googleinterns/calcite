@@ -4757,15 +4757,21 @@ SqlBeginEndCall SqlBeginEndCall() :
 {
     [ beginLabel = SimpleIdentifier() <COLON> ]
     <BEGIN>
-    ( LOOKAHEAD(LocalDeclaration()) e = LocalDeclaration() { statements.add(e); } )*
+    (
+        LOOKAHEAD(LocalDeclaration())
+        e = LocalDeclaration() { statements.add(e); }
+    )*
     ( e = SqlDeclareCursor() { statements.add(e); } )*
-        [
-            LOOKAHEAD({ getToken(1).kind != END })
-            CreateProcedureStmtList(statements)
-        ]
+    [
+        LOOKAHEAD({ getToken(1).kind != END })
+        CreateProcedureStmtList(statements)
+    ]
     <END>
     [ endLabel = SimpleIdentifier() ]
-    { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
+    {
+        return new SqlBeginEndCall(s.end(this), beginLabel, endLabel,
+            statements);
+    }
 }
 
 SqlCall LocalDeclaration() :
