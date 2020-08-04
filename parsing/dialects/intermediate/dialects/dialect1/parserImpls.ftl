@@ -4956,6 +4956,8 @@ SqlNode CursorStmt() :
 {
     (
         e = SqlAllocateCursor()
+    |
+        e = SqlOpenCursor()
     )
     { return e; }
 }
@@ -4970,4 +4972,21 @@ SqlAllocateCursor SqlAllocateCursor() :
     <ALLOCATE> cursorName = SimpleIdentifier()
     <CURSOR> <FOR> <PROCEDURE> procedureName = SimpleIdentifier()
     { return new SqlAllocateCursor(s.end(this), cursorName, procedureName); }
+}
+
+SqlOpenCursor SqlOpenCursor() :
+{
+    final SqlIdentifier cursorName;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <OPEN> cursorName = SimpleIdentifier()
+    [
+        <USING>
+        e = SimpleIdentifier() { parameters.add(e); }
+        ( <COMMA> e = SimpleIdentifier() { parameters.add(e); } )*
+    ]
+    { return new SqlOpenCursor(s.end(this), cursorName, parameters); }
 }

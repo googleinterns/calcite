@@ -600,6 +600,11 @@ public enum SqlKind {
   DECLARE_CONDITION,
 
   /**
+   * OPEN cursor call in BEGIN...END statement.
+   */
+  OPEN_CURSOR,
+
+  /**
    * Special functions in MATCH_RECOGNIZE.
    */
   FINAL,

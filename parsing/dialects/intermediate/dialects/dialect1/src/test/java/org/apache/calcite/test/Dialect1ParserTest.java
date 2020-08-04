@@ -4710,4 +4710,40 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "END";
     sql(sql).ok(expected);
   }
+
+  @Test public void testOpenCursor() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "open bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "OPEN `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testOpenCursorWithParameteER() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "open bar using a, b, c;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "OPEN `BAR` USING `A`, `B`, `C`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testOpenCursorWithParameterList() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "open bar using a, b, c;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "OPEN `BAR` USING `A`, `B`, `C`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
 }
