@@ -27,7 +27,7 @@ import java.util.Objects;
  */
 public class SqlCloseCursor extends SqlCall {
   private static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("CLOSE", SqlKind.CLOSE);
+      new SqlSpecialOperator("CLOSE CURSOR", SqlKind.CLOSE_CURSOR);
 
   public final SqlIdentifier cursorName;
 

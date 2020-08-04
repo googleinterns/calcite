@@ -592,7 +592,7 @@ public enum SqlKind {
   /**
    * CLOSE cursor statement in a CREATE PROCEDURE call.
    */
-  CLOSE,
+  CLOSE_CURSOR,
 
   /**
    * Special functions in MATCH_RECOGNIZE.
