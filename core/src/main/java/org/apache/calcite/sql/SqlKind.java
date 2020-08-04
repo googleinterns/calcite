@@ -585,9 +585,44 @@ public enum SqlKind {
   BEGIN_END,
 
   /**
+   * BEGIN REQUEST statement in a CREATE PROCEDURE call.
+   */
+  BEGIN_REQUEST,
+
+  /**
    * ALLOCATE CURSOR call.
    */
   ALLOCATE_CURSOR,
+
+  /**
+   * EXECUTE IMMEDIATE call in a CREATE PROCEDURE statement.
+   */
+  EXECUTE_IMMEDIATE,
+
+  /**
+   * EXECUTE statement call in CREATE PROCEDURE statement.
+   */
+  EXECUTE_STATEMENT,
+
+  /**
+   * DEALLOCATE PREPARE statement in a CREATE PROCEDURE call.
+   */
+  DEALLOCATE_PREPARE,
+
+  /**
+   * CLOSE cursor statement in a CREATE PROCEDURE call.
+   */
+  CLOSE_CURSOR,
+
+  /**
+   * DECLARE variable call in BEGIN...END statement.
+   */
+  DECLARE_VARIABLE,
+
+  /**
+   * DECLARE CONDITION call in BEGIN...END statement.
+   */
+  DECLARE_CONDITION,
 
   /**
    * Special functions in MATCH_RECOGNIZE.
