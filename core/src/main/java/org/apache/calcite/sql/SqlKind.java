@@ -590,11 +590,6 @@ public enum SqlKind {
   ALLOCATE_CURSOR,
 
   /**
-   * DELETE using cursor statement in CREATE PROCEDURE call.
-   */
-  DELETE_USING_CURSOR,
-
-  /**
    * Special functions in MATCH_RECOGNIZE.
    */
   FINAL,
