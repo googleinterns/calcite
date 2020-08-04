@@ -77,9 +77,8 @@ data: {
       "org.apache.calcite.sql.SqlCreateTableDialect1",
       "org.apache.calcite.sql.SqlDateTimeAtLocal",
       "org.apache.calcite.sql.SqlDateTimeAtTimeZone",
-      "org.apache.calcite.sql.SqlDeallocatePrepare",
       "org.apache.calcite.sql.SqlDdlNodes"
-      "org.apache.calcite.sql.SqlDdlNodes",
+      "org.apache.calcite.sql.SqlDeallocatePrepare",
       "org.apache.calcite.sql.SqlDrop",
       "org.apache.calcite.sql.SqlDropMacro",
       "org.apache.calcite.sql.SqlDropProcedure",

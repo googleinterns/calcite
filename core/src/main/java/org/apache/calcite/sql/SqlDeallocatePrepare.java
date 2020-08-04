@@ -27,7 +27,8 @@ import java.util.Objects;
  */
 public class SqlDeallocatePrepare extends SqlCall {
   private static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("DEALLOCATE PREPARE", SqlKind.DEALLOCATE_PREPARE);
+      new SqlSpecialOperator("DEALLOCATE PREPARE",
+          SqlKind.DEALLOCATE_PREPARE);
 
   public final SqlIdentifier statementName;
 
