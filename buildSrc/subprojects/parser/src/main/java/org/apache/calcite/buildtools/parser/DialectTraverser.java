@@ -49,7 +49,6 @@ public class DialectTraverser {
   private final File rootDirectory;
   private final String outputPath;
   private final DialectGenerate dialectGenerate;
-  private String licenseText;
 
   public DialectTraverser(File dialectDirectory, File rootDirectory,
       String outputPath) {
@@ -61,29 +60,26 @@ public class DialectTraverser {
 
   /**
    * Extracts functions and token assignments and generates a parserImpls.ftl
-   * file containing them at the specified output file.
+   * file containing them at the specified output file. It is assumed that
+   * there exists a path src/resources/license.txt at the root parsing directory
+   * which was specified in the constructor.
    */
   public void run() {
-    ExtractedData extractedData = extractData();
-    generateParserImpls(extractedData);
+    String licenseText = getLicenseText();
+    ExtractedData extractedData = extractData(licenseText);
+    generateParserImpls(extractedData, licenseText);
   }
 
   /**
    * Traverses the parsing directory structure and extracts all of the
    * functions located in *.ftl files into a Map. This function also compiles
    * the keywords as they are specified throughout the directory structure.
+   *
+   * @param licenseText The apache license text
    */
-  public ExtractedData extractData() {
+  public ExtractedData extractData(String licenseText) {
     ExtractedData extractedData = new ExtractedData();
-    Path licensePath = rootDirectory.toPath().resolve(
-        Paths.get("src", "resources", "license.txt"));
-    try {
-      licenseText = new String(Files.readAllBytes(licensePath),
-          StandardCharsets.UTF_8);
-    } catch (IOException e ) {
-      e.printStackTrace();
-    }
-    traverse(getTraversalPath(), rootDirectory, extractedData);
+    traverse(getTraversalPath(), rootDirectory, extractedData, licenseText);
     try {
       dialectGenerate.validateNonReservedKeywords(extractedData);
     } catch (IllegalStateException e) {
@@ -95,13 +91,30 @@ public class DialectTraverser {
   }
 
   /**
-   * Generates the parserImpls.ftl file for the dialect. It is assumed that
-   * there exists a path src/resources/license.txt at the root parsing directory
-   * which was specified in the constructor.
+   * Reads the contents of the file which contains the apache license.
+   *
+   * @return The license text if file exists, empty string otherwise
+   */
+  private String getLicenseText() {
+    Path licensePath = rootDirectory.toPath().resolve(
+        Paths.get("src", "resources", "license.txt"));
+    try {
+      return new String(Files.readAllBytes(licensePath),
+          StandardCharsets.UTF_8);
+    } catch (IOException e ) {
+      e.printStackTrace();
+    }
+    return "";
+  }
+
+  /**
+   * Generates the parserImpls.ftl file for the dialect.
    *
    * @param extractedData The extracted data to write to the output file
+   * @param licenseText The apache license text
    */
-  public void generateParserImpls(ExtractedData extractedData) {
+  public void generateParserImpls(ExtractedData extractedData,
+      String licenseText) {
     Path outputFilePath = dialectDirectory.toPath().resolve(outputPath);
     StringBuilder content = new StringBuilder();
     content.append(licenseText);
@@ -141,17 +154,19 @@ public class DialectTraverser {
    * Traverses the determined path given by the directories queue. Once the
    * queue is empty, the dialect directory has been reached. In that case any
    * *.ftl file should be processed and no further traversal should happen. If
-   * a keywords.yaml file is encountered the yaml is converted to a desired
-   * format and is processed by {@code dialectGenerate.processKeywords()}.
+   * a *.txt file is found, the contents are processed and added to
+   * {@code extractedData}.
    *
    * @param directories The directories to traverse in topdown order
    * @param currentDirectory The current directory the function is processing
    * @param functionMap The map to which the parsing functions will be added to
+   * @param licenseText The apache license text
    */
   private void traverse(
       Queue<String> directories,
       File currentDirectory,
-      ExtractedData extractedData) {
+      ExtractedData extractedData,
+      String licenseText) {
     File[] files = currentDirectory.listFiles();
     // Ensures that files are processed first.
     Arrays.sort(files, fileComparator);
@@ -194,11 +209,20 @@ public class DialectTraverser {
         // with directories.peek() and is used in the next recursive call to
         // this function.
         directories.poll();
-        traverse(directories, f, extractedData);
+        traverse(directories, f, extractedData, licenseText);
       }
     }
   }
 
+  /**
+   * Parses the {@code lines} array into a {@code Set<Keyword>}. Empty lines
+   * are skipped.
+   *
+   * @param lines The lines to parse
+   * @param filePath The file these lines are from
+   *
+   * @return The parsed lines as a {@code Set<Keyword>}
+   */
   private Set<Keyword> processNonReservedKeywords(String[] lines,
       String filePath) {
     Set<Keyword> nonReservedKeywords = new LinkedHashSet<>();
@@ -211,6 +235,14 @@ public class DialectTraverser {
     return nonReservedKeywords;
   }
 
+  /**
+   * Parses the {@code lines} array into a {@code Map<Keyword, String}. It is
+   * assumed that each line contains a key-value pair separated by a colon.
+   * Empty lines are skipped.
+   *
+   * @param lines The lines to parse
+   * @param filepath The file these lines came from
+   */
   private Map<Keyword, String> processKeyValuePairs(String[] lines,
       String filePath) {
     Map<Keyword, String> map = new LinkedHashMap<>();

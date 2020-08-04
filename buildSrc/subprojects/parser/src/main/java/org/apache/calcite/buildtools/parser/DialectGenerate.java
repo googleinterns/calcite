@@ -63,6 +63,15 @@ public class DialectGenerate {
     return new ArrayDeque<>(Arrays.asList(TOKENIZER_PATTERN.split(input)));
   }
 
+  /**
+   * Checks that each element of {@code extractedData.nonReservedKeyword} is
+   * also present as a key in {@code extractedData.keywords}. If an invalid
+   * element is found, a {@code IllegalStateException} is thrown.
+   *
+   * @param extractedData The extracted data
+   *
+   * @throws IllegalStateException If a nonReservedKeyword is not also a keyword
+   */
   public void validateNonReservedKeywords(ExtractedData extractedData) {
     for (Keyword keyword : extractedData.nonReservedKeywords) {
       if (!extractedData.keywords.containsKey(keyword)) {
@@ -78,8 +87,8 @@ public class DialectGenerate {
    * // Auto generated.
    * <DEFAULT, DQID, BTID> TOKEN :
    * {
-   *    < TOKEN_1: "TOKEN_1_VALUE" >
-   *   |< TOKEN_2: "TOKEN_2_VALUE" >
+   *    < TOKEN_1: TOKEN_1_VALUE >
+   *   |< TOKEN_2: TOKEN_2_VALUE >
    *   ...
    * }
    * File annotations are added as single-line comments following each token
