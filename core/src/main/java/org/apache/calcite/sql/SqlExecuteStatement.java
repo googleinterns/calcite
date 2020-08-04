@@ -39,7 +39,7 @@ public class SqlExecuteStatement extends SqlCall {
    * @param statementName  Name of prepared statement to execute, must not be
    *                       null
    * @param parameters  List of parameters after USING keyword, must not be
-   *                       null
+   *                    null
    */
   public SqlExecuteStatement(SqlParserPos pos, SqlIdentifier statementName,
       SqlNodeList parameters) {
