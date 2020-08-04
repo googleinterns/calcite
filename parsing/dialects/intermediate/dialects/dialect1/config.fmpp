@@ -81,7 +81,7 @@ data: {
       "org.apache.calcite.sql.SqlDateTimeAtLocal",
       "org.apache.calcite.sql.SqlDateTimeAtTimeZone",
       "org.apache.calcite.sql.SqlDdlNodes"
-      "org.apache.calcite.sql.SqlDdlNodes",
+      "org.apache.calcite.sql.SqlDeallocatePrepare",
       "org.apache.calcite.sql.SqlDeclareCondition",
       "org.apache.calcite.sql.SqlDeclareVariable",
       "org.apache.calcite.sql.SqlDrop",

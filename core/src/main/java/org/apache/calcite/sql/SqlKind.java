@@ -595,6 +595,11 @@ public enum SqlKind {
   ALLOCATE_CURSOR,
 
   /**
+   * DEALLOCATE PREPARE statement in a CREATE PROCEDURE call.
+   */
+  DEALLOCATE_PREPARE,
+
+  /**
    * CLOSE cursor statement in a CREATE PROCEDURE call.
    */
   CLOSE_CURSOR,
