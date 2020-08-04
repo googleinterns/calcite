@@ -172,10 +172,6 @@ public class SqlSelectOperator extends SqlOperator {
             : SqlNodeList.of(SqlIdentifier.star(SqlParserPos.ZERO));
     writer.list(SqlWriter.FrameTypeEnum.SELECT_LIST, SqlWriter.COMMA,
         selectClause);
-    if (select.exceptExpression != null) {
-      writer.setNeedWhitespace(true);
-      select.exceptExpression.unparse(writer, leftPrec, rightPrec);
-    }
     if (select.from != null) {
       // Calcite SQL requires FROM but MySQL does not.
       writer.sep("FROM");
