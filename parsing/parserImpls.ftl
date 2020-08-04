@@ -805,10 +805,10 @@ SqlSelect SqlSelect() :
     )
     {
         return new SqlSelect(s.end(this), keywordList, /*topN=*/ null,
-            new SqlNodeList(selectList, Span.of(selectList).pos()),
-            /*exceptExpression=*/ null, fromClause, where, groupBy, having,
-            /*qualify=*/ null, windowDecls, /*orderBy=*/ null, /*offset=*/ null,
-            /*fetch=*/ null, new SqlNodeList(hints, getPos()));
+            new SqlNodeList(selectList, Span.of(selectList).pos()), fromClause,
+            where, groupBy, having, /*qualify=*/ null, windowDecls,
+            /*orderBy=*/ null, /*offset=*/ null, /*fetch=*/ null,
+            new SqlNodeList(hints, getPos()));
     }
 }
 

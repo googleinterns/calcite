@@ -2805,9 +2805,9 @@ SqlSelect SqlSelect() :
                     RESOURCE.selectMissingFrom());
         }
         return new SqlSelect(s.end(this), keywordList, topN,
-            new SqlNodeList(selectList, Span.of(selectList).pos()),
-            /*exceptExpression=*/ null, from, where, groupBy, having, qualify,
-            window, /*orderBy=*/ null, /*offset=*/ null, /*fetch=*/ null,
+            new SqlNodeList(selectList, Span.of(selectList).pos()), from, where,
+            groupBy, having, qualify, window, /*orderBy=*/ null,
+            /*offset=*/ null, /*fetch=*/ null,
             new SqlNodeList(hints, getPos()));
     }
 }
