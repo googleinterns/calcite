@@ -116,7 +116,7 @@ Volatility VolatilityOpt() :
 {
     <VOLATILE> { return Volatility.VOLATILE; }
 |
-    <TEMP> { return Volatility.TEMP; }
+    ( <TEMP> | <GLOBAL> <TEMPORARY> ) { return Volatility.TEMP; }
 }
 
 OnCommitType OnCommitTypeOpt() :
@@ -195,8 +195,11 @@ SqlColumnAttribute ColumnAttributeDefault() :
         defaultValue = CurrentTimestampFunction()
     |
         <DATE> <QUOTED_STRING> {
-            defaultValue = SqlParserUtil.parseDateLiteral(token.image, getPos());
+            defaultValue = SqlParserUtil.parseDateLiteral(token.image,
+                getPos());
         }
+    |
+        defaultValue = DateFunctionCall()
     |
         defaultValue = ContextVariable()
     )
@@ -893,7 +896,9 @@ SqlCreate SqlCreateTable() :
 {
     final Span s;
     SqlCreateSpecifier createSpecifier = SqlCreateSpecifier.CREATE;
+    SetType tmpSetType;
     SetType setType = SetType.UNSPECIFIED;
+    Volatility tmpVolatility;
     Volatility volatility = Volatility.UNSPECIFIED;
     final boolean ifNotExists;
     final SqlIdentifier id;
@@ -917,17 +922,25 @@ SqlCreate SqlCreateTable() :
                 createSpecifier = SqlCreateSpecifier.CREATE_OR_REPLACE;
             }
         ]
-        [
-            setType = SetTypeOpt()
-            volatility = VolatilityOpt()
+        (
+            tmpSetType = SetTypeOpt()
+            {
+                if (setType != SetType.UNSPECIFIED) {
+                    throw SqlUtil.newContextException(s.pos(),
+                        RESOURCE.illegalSetType());
+                }
+                setType = tmpSetType;
+            }
         |
-            volatility = VolatilityOpt()
-            setType = SetTypeOpt()
-        |
-            setType = SetTypeOpt()
-        |
-            volatility = VolatilityOpt()
-        ]
+            tmpVolatility = VolatilityOpt()
+            {
+                if (volatility != Volatility.UNSPECIFIED) {
+                    throw SqlUtil.newContextException(s.pos(),
+                        RESOURCE.illegalVolatility());
+                }
+                volatility = tmpVolatility;
+            }
+        )*
         <TABLE>
     )
     ifNotExists = IfNotExistsOpt() id = CompoundIdentifier()
@@ -1025,6 +1038,8 @@ SqlNode  PartitionExpression() :
         e = SqlExtractFromDateTime()
     |
         e = PartitionByColumnOption()
+    |
+        e = AtomicRowExpression()
     )
     [
         <ADD> { constant = UnsignedIntLiteral(); }
@@ -3025,6 +3040,111 @@ SqlPrefixOperator PrefixRowOperator() :
 }
 
 /**
+ * Parses a binary row operator like AND.
+ */
+SqlBinaryOperator BinaryRowOperator() :
+{
+    SqlBinaryOperator op;
+}
+{
+    // <IN> and <LIKE> are handled as special cases
+    (
+        ( <EQ> | ( <CARET> | <NOT> ) <NE> ) {
+            return SqlStdOperatorTable.EQUALS;
+        }
+    |
+        ( <GT> | ( <CARET> | <NOT> ) <LE> ) {
+            return SqlStdOperatorTable.GREATER_THAN;
+        }
+    |
+        ( <LT> | ( <CARET> | <NOT> ) <GE> ) {
+            return SqlStdOperatorTable.LESS_THAN;
+        }
+    |
+        ( <LE> | ( <CARET> | <NOT> ) <GT> ) {
+            return SqlStdOperatorTable.LESS_THAN_OR_EQUAL;
+        }
+    |
+        ( <GE> | ( <CARET> | <NOT> ) <LT> ) {
+            return SqlStdOperatorTable.GREATER_THAN_OR_EQUAL;
+        }
+    |
+        ( <NE> | ( <CARET> | <NOT> ) <EQ> )
+        {
+            return SqlStdOperatorTable.NOT_EQUALS;
+        }
+    |
+        <NE2> {
+            if (!this.conformance.isBangEqualAllowed()) {
+                throw SqlUtil.newContextException(getPos(),
+                    RESOURCE.bangEqualNotAllowed());
+            }
+            return SqlStdOperatorTable.NOT_EQUALS;
+        }
+    |
+        <PLUS> { return SqlStdOperatorTable.PLUS; }
+    |
+        <MINUS> { return SqlStdOperatorTable.MINUS; }
+    |
+        <STAR> { return SqlStdOperatorTable.MULTIPLY; }
+    |
+        <SLASH> { return SqlStdOperatorTable.DIVIDE; }
+    |
+        <PERCENT_REMAINDER> {
+            if (!this.conformance.isPercentRemainderAllowed()) {
+                throw SqlUtil.newContextException(getPos(),
+                    RESOURCE.percentRemainderNotAllowed());
+            }
+            return SqlStdOperatorTable.PERCENT_REMAINDER;
+        }
+    |
+        <CONCAT> { return SqlStdOperatorTable.CONCAT; }
+    |
+        <AND> { return SqlStdOperatorTable.AND; }
+    |
+        <OR> { return SqlStdOperatorTable.OR; }
+    |
+        LOOKAHEAD(2) <IS> <DISTINCT> <FROM> {
+            return SqlStdOperatorTable.IS_DISTINCT_FROM;
+        }
+    |
+        <IS> <NOT> <DISTINCT> <FROM> {
+            return SqlStdOperatorTable.IS_NOT_DISTINCT_FROM;
+        }
+    |
+        <MEMBER> <OF> { return SqlStdOperatorTable.MEMBER_OF; }
+    |
+        LOOKAHEAD(2) <SUBMULTISET> <OF> {
+            return SqlStdOperatorTable.SUBMULTISET_OF;
+        }
+    |
+        <NOT> <SUBMULTISET> <OF> {
+            return SqlStdOperatorTable.NOT_SUBMULTISET_OF;
+        }
+    |
+        <CONTAINS> { return SqlStdOperatorTable.CONTAINS; }
+    |
+        <OVERLAPS> { return SqlStdOperatorTable.OVERLAPS; }
+    |
+        <EQUALS> { return SqlStdOperatorTable.PERIOD_EQUALS; }
+    |
+        <PRECEDES> { return SqlStdOperatorTable.PRECEDES; }
+    |
+        <SUCCEEDS> { return SqlStdOperatorTable.SUCCEEDS; }
+    |
+        LOOKAHEAD(2) <IMMEDIATELY> <PRECEDES> {
+            return SqlStdOperatorTable.IMMEDIATELY_PRECEDES;
+        }
+    |
+        <IMMEDIATELY> <SUCCEEDS> {
+            return SqlStdOperatorTable.IMMEDIATELY_SUCCEEDS;
+        }
+    |
+        op = BinaryMultisetOperator() { return op; }
+    )
+}
+
+/**
  * Parses a binary row expression, or a parenthesized expression of any
  * kind.
  *
@@ -3062,7 +3182,7 @@ List<Object> Expression2(ExprContext exprContext) :
                     checkNonQueryExpression(exprContext);
                 }
                 (
-                    <NOT> <IN> { op = SqlStdOperatorTable.NOT_IN; }
+                    ( <NOT> | <CARET> ) <IN> { op = SqlStdOperatorTable.NOT_IN; }
                 |
                     <IN> { op = SqlStdOperatorTable.IN; }
                 |
@@ -3135,7 +3255,7 @@ List<Object> Expression2(ExprContext exprContext) :
                 |
                     (
                         (
-                            <NOT>
+                            ( <NOT> | <CARET> )
                             (
                                 <LIKE> { op = SqlStdOperatorTable.NOT_LIKE; }
                             |
@@ -4337,7 +4457,7 @@ SqlRangeN RangeN() :
 {
     <RANGE_N>
     <LPAREN>
-    testExpression = CompoundIdentifier()
+    testExpression = AtomicRowExpression()
     <BETWEEN>
     (
         <STAR> { startAsterisk = true; }
@@ -4518,6 +4638,10 @@ SqlNode CreateProcedureStmt() :
 }
 {
     (
+        e = ConditionalStmt()
+    |
+        e = CursorStmt()
+    |
         e = SqlBeginEndCall()
     |
         e = SqlBeginRequestCall()
@@ -4628,14 +4752,82 @@ SqlBeginEndCall SqlBeginEndCall() :
     SqlIdentifier endLabel = null;
     final SqlStatementList statements = new SqlStatementList(getPos());
     final Span s = Span.of();
+    SqlNode e;
 }
 {
     [ beginLabel = SimpleIdentifier() <COLON> ]
     <BEGIN>
+    ( e = LocalDeclaration() { statements.add(e); } )*
     CreateProcedureStmtList(statements)
     <END>
     [ endLabel = SimpleIdentifier() ]
     { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
+}
+
+SqlCall LocalDeclaration() :
+{
+    final SqlCall e;
+}
+{
+    (
+        LOOKAHEAD(3)
+        e = SqlDeclareCondition()
+    |
+        e = SqlDeclareVariable()
+    )
+    <SEMICOLON>
+    { return e; }
+}
+
+SqlDeclareVariable SqlDeclareVariable() :
+{
+    final SqlNodeList variableNames = new SqlNodeList(getPos());
+    final SqlDataTypeSpec dataType;
+    final SqlNode defaultValue;
+    final Span s = Span.of();
+    SqlIdentifier variableName;
+}
+{
+    <DECLARE>
+    variableName = SimpleIdentifier() { variableNames.add(variableName); }
+    (
+        <COMMA> variableName = SimpleIdentifier() {
+            variableNames.add(variableName);
+        }
+    )*
+    dataType = DataType()
+    (
+        <DEFAULT_>
+        (
+            defaultValue = Literal()
+        |
+            <NULL> { defaultValue = SqlLiteral.createNull(getPos()); }
+        )
+    |
+        { defaultValue = null; }
+    )
+    {
+        return new SqlDeclareVariable(s.end(this), variableNames, dataType,
+            defaultValue);
+    }
+}
+
+SqlDeclareCondition SqlDeclareCondition() :
+{
+    final SqlIdentifier conditionName;
+    final SqlNode stateCode;
+    final Span s = Span.of();
+}
+{
+    <DECLARE>
+    conditionName = SimpleIdentifier()
+    <CONDITION>
+    (
+        <FOR> stateCode = StringLiteral()
+    |
+        { stateCode = null; }
+    )
+    { return new SqlDeclareCondition(s.end(this), conditionName, stateCode); }
 }
 
 SqlDrop SqlDropProcedure(Span s) :
@@ -4712,4 +4904,88 @@ SqlBeginRequestCall SqlBeginRequestCall() :
     [ <SEMICOLON> ]
     <END> <REQUEST>
     { return new SqlBeginRequestCall(s.end(this), statements); }
+}
+
+SqlNode ConditionalStmt() :
+{
+    final SqlNode e;
+}
+{
+    e = IfStmt()
+    { return e; }
+}
+
+SqlIfStmt IfStmt() :
+{
+    SqlNode e;
+    final SqlNodeList conditionMultiStmtList = new SqlNodeList(getPos());
+    final SqlStatementList elseMultiStmtList = new SqlStatementList(getPos());
+}
+{
+    <IF> e = ConditionMultiStmtPair()
+    { conditionMultiStmtList.add(e); }
+    (
+        <ELSE> <IF> e = ConditionMultiStmtPair()
+        { conditionMultiStmtList.add(e); }
+    )*
+    [
+        <ELSE>
+        CreateProcedureStmtList(elseMultiStmtList)
+    ]
+    <END> <IF>
+    {
+        return new SqlIfStmt(getPos(), conditionMultiStmtList,
+            elseMultiStmtList);
+    }
+}
+
+SqlNode ConditionMultiStmtPair() :
+{
+    final SqlNode condition;
+    final SqlStatementList multiStmtList = new SqlStatementList(getPos());
+}
+{
+    condition = Expression(ExprContext.ACCEPT_NON_QUERY)
+    <THEN>
+    CreateProcedureStmtList(multiStmtList)
+    {
+        return new SqlConditionalStmtListPair(getPos(), condition,
+            multiStmtList);
+    }
+}
+
+void CreateProcedureStmtList(SqlStatementList statements) :
+{
+    SqlNode e;
+}
+{
+    (
+        LOOKAHEAD(CreateProcedureStmt())
+        e = CreateProcedureStmt() <SEMICOLON> {
+            statements.add(e);
+        }
+    )+
+}
+
+SqlNode CursorStmt() :
+{
+    final SqlNode e;
+}
+{
+    (
+        e = SqlAllocateCursor()
+    )
+    { return e; }
+}
+
+SqlAllocateCursor SqlAllocateCursor() :
+{
+    final SqlIdentifier cursorName;
+    final SqlIdentifier procedureName;
+    final Span s = Span.of();
+}
+{
+    <ALLOCATE> cursorName = SimpleIdentifier()
+    <CURSOR> <FOR> <PROCEDURE> procedureName = SimpleIdentifier()
+    { return new SqlAllocateCursor(s.end(this), cursorName, procedureName); }
 }

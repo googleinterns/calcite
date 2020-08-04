@@ -51,9 +51,16 @@ final class BigQueryParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testExceptMultipleSelectList() {
+    final String sql = "SELECT a, * EXCEPT(b), c FROM abc";
+    final String expected = "SELECT `A`, * EXCEPT (`B`), `C`\n"
+        + "FROM `ABC`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testExceptSelectNotStarFails() {
-    final String sql = "SELECT foo EXCEPT(x^)^ FROM bar";
-    final String expected = "Query expression encountered in illegal context";
+    final String sql = "SELECT foo EXCEPT(^x^) FROM bar";
+    final String expected = "Non-query expression encountered in illegal context";
     sql(sql).fails(expected);
   }
 }

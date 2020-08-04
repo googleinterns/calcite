@@ -27,6 +27,7 @@ data: {
       "org.apache.calcite.sql.CharacterSet"
       "org.apache.calcite.sql.OnCommitType",
       "org.apache.calcite.sql.SetType",
+      "org.apache.calcite.sql.SqlAllocateCursor",
       "org.apache.calcite.sql.SqlAlterProcedure",
       "org.apache.calcite.sql.SqlAlterProcedure.AlterProcedureWithOption",
       "org.apache.calcite.sql.SqlAlterTable",
@@ -62,6 +63,7 @@ data: {
       "org.apache.calcite.sql.SqlColumnAttributeNamed",
       "org.apache.calcite.sql.SqlColumnAttributeTitle",
       "org.apache.calcite.sql.SqlColumnAttributeUpperCase",
+      "org.apache.calcite.sql.SqlConditionalStmtListPair",
       "org.apache.calcite.sql.SqlCreate",
       "org.apache.calcite.sql.SqlCreate.SqlCreateSpecifier",
       "org.apache.calcite.sql.SqlCreateFunctionSqlForm",
@@ -79,6 +81,8 @@ data: {
       "org.apache.calcite.sql.SqlDateTimeAtTimeZone",
       "org.apache.calcite.sql.SqlDdlNodes"
       "org.apache.calcite.sql.SqlDdlNodes",
+      "org.apache.calcite.sql.SqlDeclareCondition",
+      "org.apache.calcite.sql.SqlDeclareVariable",
       "org.apache.calcite.sql.SqlDrop",
       "org.apache.calcite.sql.SqlDropMacro",
       "org.apache.calcite.sql.SqlDropProcedure",
@@ -89,6 +93,7 @@ data: {
       "org.apache.calcite.sql.SqlHexCharStringLiteral",
       "org.apache.calcite.sql.SqlHexCharStringLiteral.HexCharLiteralFormat",
       "org.apache.calcite.sql.SqlHostVariable",
+      "org.apache.calcite.sql.SqlIfStmt",
       "org.apache.calcite.sql.SqlIndex",
       "org.apache.calcite.sql.SqlJsonTypeNameSpec",
       "org.apache.calcite.sql.SqlJsonTypeNameSpec.StorageFormat",
