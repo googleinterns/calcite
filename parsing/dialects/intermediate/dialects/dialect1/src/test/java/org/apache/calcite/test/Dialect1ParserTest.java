@@ -4515,6 +4515,50 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testBeginRequest() {
+    final String sql = "create procedure foo ()\n"
+        + "begin request\n"
+        + "select bar;\n"
+        + "end request";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN REQUEST\n"
+        + "SELECT `BAR`;\n"
+        + "END REQUEST";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testBeginRequestMultipleStatements() {
+    final String sql = "create procedure foo ()\n"
+        + "begin request\n"
+        + "select bar;\n"
+        + "select bar;\n"
+        + "select bar;\n"
+        + "end request";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN REQUEST\n"
+        + "SELECT `BAR`;\n"
+        + "SELECT `BAR`;\n"
+        + "SELECT `BAR`;\n"
+        + "END REQUEST";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testBeginRequestNoTerminatingSemicolon() {
+    final String sql = "create procedure foo ()\n"
+        + "begin request\n"
+        + "select bar;\n"
+        + "select bar;\n"
+        + "select bar\n"
+        + "end request";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN REQUEST\n"
+        + "SELECT `BAR`;\n"
+        + "SELECT `BAR`;\n"
+        + "SELECT `BAR`;\n"
+        + "END REQUEST";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testIfStmtBase() {
     final String sql = "create procedure foo (bee integer) "
         + "if bee = 2 then select bar; end if";
@@ -4601,6 +4645,30 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
         + "ALLOCATE `BAR` CURSOR FOR PROCEDURE `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeallocatePrepare() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "deallocate prepare bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DEALLOCATE PREPARE `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCloseCursor() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "close bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "CLOSE `BAR`;\n"
         + "END";
     sql(sql).ok(expected);
   }
