@@ -116,32 +116,32 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testDeleteWithTable() {
     final String sql = "delete foo from bar";
-    final String expected = "DELETE `FOO` FROM `BAR`";
+    final String expected = "DELETE FROM `FOO`";
     sql(sql).ok(expected);
   }
 
   @Test public void testDeleteWithTableCompoundIdentifier() {
     final String sql = "delete foo.bar from baz";
-    final String expected = "DELETE `FOO`.`BAR` FROM `BAZ`";
+    final String expected = "DELETE FROM `FOO`.`BAR`";
     sql(sql).ok(expected);
   }
 
   @Test public void testDeleteWithTableWithAlias() {
     final String sql = "delete foo from bar as b";
-    final String expected = "DELETE `FOO` FROM `BAR` AS `B`";
+    final String expected = "DELETE FROM `FOO` AS `B`";
     sql(sql).ok(expected);
   }
 
   @Test public void testDeleteWithTableWithWhere() {
     final String sql = "delete foo from bar where bar.x = 0";
-    final String expected = "DELETE `FOO` FROM `BAR`\n"
+    final String expected = "DELETE FROM `FOO`\n"
         + "WHERE (`BAR`.`X` = 0)";
     sql(sql).ok(expected);
   }
 
   @Test public void testDeleteWithTableWithoutFrom() {
     final String sql = "delete foo bar";
-    final String expected = "DELETE `FOO` FROM `BAR`";
+    final String expected = "DELETE FROM `FOO`";
     sql(sql).ok(expected);
   }
 
