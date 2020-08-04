@@ -4918,7 +4918,8 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "declare a, b, c integer;\n"
         + "declare d condition;\n"
         + "declare bar cursor for select baz from qux;\n"
-        + "select e from f;"
+        + "declare bar2 cursor for select baz2;\n"
+        + "select e from f;\n"
         + "end";
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
@@ -4926,6 +4927,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "DECLARE `D` CONDITION;\n"
         + "DECLARE `BAR` CURSOR FOR SELECT `BAZ`\n"
         + "FROM `QUX`;\n"
+        + "DECLARE `BAR2` CURSOR FOR SELECT `BAZ2`;\n"
         + "SELECT `E`\n"
         + "FROM `F`;\n"
         + "END";
