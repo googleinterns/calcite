@@ -4978,6 +4978,8 @@ SqlNode CursorStmt() :
         e = SqlCloseCursor()
     |
         e = SqlDeallocatePrepare()
+    |
+        e = SqlExecuteStatement()
     )
     { return e; }
 }
@@ -4992,6 +4994,23 @@ SqlAllocateCursor SqlAllocateCursor() :
     <ALLOCATE> cursorName = SimpleIdentifier()
     <CURSOR> <FOR> <PROCEDURE> procedureName = SimpleIdentifier()
     { return new SqlAllocateCursor(s.end(this), cursorName, procedureName); }
+}
+
+SqlExecuteStatement SqlExecuteStatement() :
+{
+    final SqlIdentifier statementName;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <EXECUTE> statementName = SimpleIdentifier()
+    [
+        <USING>
+        e = SimpleIdentifier() { parameters.add(e); }
+        ( <COMMA> e = SimpleIdentifier() { parameters.add(e); } )*
+    ]
+    { return new SqlExecuteStatement(s.end(this), statementName, parameters); }
 }
 
 SqlDeallocatePrepare SqlDeallocatePrepare() :
