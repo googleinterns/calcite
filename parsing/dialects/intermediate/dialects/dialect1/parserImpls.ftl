@@ -4659,7 +4659,7 @@ void CreateProcedureStmtList(SqlStatementList statements) :
         e = CreateProcedureStmt() <SEMICOLON> {
             statements.add(e);
         }
-    )*
+    )+
 }
 
 SqlCreateProcedureParameter SqlCreateProcedureParameter() :
@@ -4871,19 +4871,6 @@ SqlNode ConditionMultiStmtPair() :
         return new SqlConditionalStmtListPair(getPos(), condition,
             multiStmtList);
     }
-}
-
-void CreateProcedureStmtList(SqlStatementList statements) :
-{
-    SqlNode e;
-}
-{
-    (
-        LOOKAHEAD(CreateProcedureStmt())
-        e = CreateProcedureStmt() <SEMICOLON> {
-            statements.add(e);
-        }
-    )+
 }
 
 SqlNode CursorStmt() :
