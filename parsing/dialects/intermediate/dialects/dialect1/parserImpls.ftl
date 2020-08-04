@@ -4750,14 +4750,82 @@ SqlBeginEndCall SqlBeginEndCall() :
     SqlIdentifier endLabel = null;
     final SqlStatementList statements = new SqlStatementList(getPos());
     final Span s = Span.of();
+    SqlNode e;
 }
 {
     [ beginLabel = SimpleIdentifier() <COLON> ]
     <BEGIN>
+    ( e = LocalDeclaration() { statements.add(e); } )*
     CreateProcedureStmtList(statements)
     <END>
     [ endLabel = SimpleIdentifier() ]
     { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
+}
+
+SqlCall LocalDeclaration() :
+{
+    final SqlCall e;
+}
+{
+    (
+        LOOKAHEAD(3)
+        e = SqlDeclareCondition()
+    |
+        e = SqlDeclareVariable()
+    )
+    <SEMICOLON>
+    { return e; }
+}
+
+SqlDeclareVariable SqlDeclareVariable() :
+{
+    final SqlNodeList variableNames = new SqlNodeList(getPos());
+    final SqlDataTypeSpec dataType;
+    final SqlNode defaultValue;
+    final Span s = Span.of();
+    SqlIdentifier variableName;
+}
+{
+    <DECLARE>
+    variableName = SimpleIdentifier() { variableNames.add(variableName); }
+    (
+        <COMMA> variableName = SimpleIdentifier() {
+            variableNames.add(variableName);
+        }
+    )*
+    dataType = DataType()
+    (
+        <DEFAULT_>
+        (
+            defaultValue = Literal()
+        |
+            <NULL> { defaultValue = SqlLiteral.createNull(getPos()); }
+        )
+    |
+        { defaultValue = null; }
+    )
+    {
+        return new SqlDeclareVariable(s.end(this), variableNames, dataType,
+            defaultValue);
+    }
+}
+
+SqlDeclareCondition SqlDeclareCondition() :
+{
+    final SqlIdentifier conditionName;
+    final SqlNode stateCode;
+    final Span s = Span.of();
+}
+{
+    <DECLARE>
+    conditionName = SimpleIdentifier()
+    <CONDITION>
+    (
+        <FOR> stateCode = StringLiteral()
+    |
+        { stateCode = null; }
+    )
+    { return new SqlDeclareCondition(s.end(this), conditionName, stateCode); }
 }
 
 SqlDrop SqlDropProcedure(Span s) :
