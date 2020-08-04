@@ -4649,6 +4649,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testExecuteImmediateIdentifier() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "execute immediate bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "EXECUTE IMMEDIATE `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testExecuteStatement() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -4657,7 +4669,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
         + "EXECUTE `BAR`;\n"
-    + "END";
+        + "END";
     sql(sql).ok(expected);
   }
 
@@ -4789,6 +4801,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "BEGIN\n"
         + "DECLARE `A` CONDITION FOR '10001';\n"
         + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testExecuteImmediateLiteral() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "execute immediate 'select bar from baz';\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "EXECUTE IMMEDIATE 'select bar from baz';\n"
         + "END";
     sql(sql).ok(expected);
   }

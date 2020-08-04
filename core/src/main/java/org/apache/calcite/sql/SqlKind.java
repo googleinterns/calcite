@@ -595,6 +595,11 @@ public enum SqlKind {
   ALLOCATE_CURSOR,
 
   /**
+   * EXECUTE IMMEDIATE call in a CREATE PROCEDURE statement.
+   */
+  EXECUTE_IMMEDIATE,
+
+  /**
    * EXECUTE statement call in CREATE PROCEDURE statement.
    */
   EXECUTE_STATEMENT,
