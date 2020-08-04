@@ -4911,4 +4911,24 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "name";
     sql(sql).fails(expected);
   }
+
+  @Test public void testDeclareCursorWithOtherStatements() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a, b, c integer;\n"
+        + "declare d condition;\n"
+        + "declare bar cursor for select baz from qux;\n"
+        + "select e from f;"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A`, `B`, `C` INTEGER;\n"
+        + "DECLARE `D` CONDITION;\n"
+        + "DECLARE `BAR` CURSOR FOR SELECT `BAZ`\n"
+        + "FROM `QUX`;\n"
+        + "SELECT `E`\n"
+        + "FROM `F`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
 }
