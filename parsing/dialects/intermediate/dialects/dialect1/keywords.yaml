@@ -71,6 +71,7 @@
         { "QUALIFY": "QUALIFY" },
         { "RANGE_N": "RANGE_N" },
         { "RENAME": "RENAME" },
+        { "REQUEST": "REQUEST" },
         { "SEL": "SEL" },
         { "SEMI": "SEMI" },
         { "STORAGE": "STORAGE" },
