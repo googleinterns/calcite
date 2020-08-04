@@ -4982,6 +4982,8 @@ SqlNode CursorStmt() :
         e = SqlExecuteImmediate()
     |
         e = SqlExecuteStatement()
+    |
+        e = SqlSelectAndConsume()
     )
     { return e; }
 }
@@ -5048,4 +5050,49 @@ SqlCloseCursor SqlCloseCursor() :
 {
     <CLOSE> cursorName = SimpleIdentifier()
     { return new SqlCloseCursor(s.end(this), cursorName); }
+}
+
+SqlSelectAndConsume SqlSelectAndConsume() :
+{
+    boolean set = false;
+    final List<SqlNode> selectList;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    final SqlIdentifier fromTable;
+    final int topNum;
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <SELECT>
+    [ <SET> { set = true; } ]
+    <AND> <CONSUME> <TOP> topNum = IntLiteral() {
+        if (topNum != 1) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.numberLiteralOutOfRange(String.valueOf(topNum)));
+        }
+    }
+    selectList = SelectList()
+    <INTO>
+    (
+        e = SimpleIdentifier()
+    |
+        e = SqlHostVariable()
+    )
+    { parameters.add(e); }
+    (
+        <COMMA>
+        (
+            e = SimpleIdentifier()
+        |
+            e = SqlHostVariable()
+        )
+        { parameters.add(e); }
+    )*
+    <FROM>
+    fromTable = SimpleIdentifier()
+    {
+        return new SqlSelectAndConsume(s.end(this), set,
+            new SqlNodeList(selectList, Span.of(selectList).pos()), parameters,
+            fromTable);
+    }
 }

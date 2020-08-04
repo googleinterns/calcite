@@ -4844,4 +4844,53 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "SELECT CAST(`A` AS FORMAT '999')";
     sql(sql).ok(expected);
   }
+
+  @Test public void testSelectAndConsume() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select and consume top 1 bar into baz from qux;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT AND CONSUME TOP 1 `BAR` INTO `BAZ` FROM `QUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectAndConsumeWithSetKeyword() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select set and consume top 1 bar into baz from qux;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT SET AND CONSUME TOP 1 `BAR` INTO `BAZ` FROM `QUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectAndConsumeAsterisk() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select and consume top 1 * into d, e, f from bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT AND CONSUME TOP 1 * INTO `D`, `E`, `F` FROM "
+        + "`BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectAndConsumeWithHostVariables() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select and consume top 1 a, b, c into :d, :e, :f from bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT AND CONSUME TOP 1 `A`, `B`, `C` INTO :D, :E, :F FROM `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
 }
