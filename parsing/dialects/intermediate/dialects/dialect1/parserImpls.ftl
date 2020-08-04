@@ -4638,11 +4638,13 @@ SqlNode CreateProcedureStmt() :
 }
 {
     (
+        e = ConditionalStmt()
+    |
         e = CursorStmt()
     |
         e = SqlBeginEndCall()
     |
-        e = ConditionalStmt()
+        e = SqlBeginRequestCall()
     |
         e = SqlStmt()
     )
@@ -4888,6 +4890,22 @@ SqlRenameProcedure SqlRenameProcedure() :
     }
 }
 
+// Semicolon is optional after the last statement.
+SqlBeginRequestCall SqlBeginRequestCall() :
+{
+    final SqlStatementList statements = new SqlStatementList(getPos());
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <BEGIN> <REQUEST>
+    e = SqlStmt() { statements.add(e); }
+    ( <SEMICOLON> e = SqlStmt() { statements.add(e); } )*
+    [ <SEMICOLON> ]
+    <END> <REQUEST>
+    { return new SqlBeginRequestCall(s.end(this), statements); }
+}
+
 SqlNode ConditionalStmt() :
 {
     final SqlNode e;
@@ -4956,6 +4974,14 @@ SqlNode CursorStmt() :
 {
     (
         e = SqlAllocateCursor()
+    |
+        e = SqlCloseCursor()
+    |
+        e = SqlDeallocatePrepare()
+    |
+        e = SqlExecuteImmediate()
+    |
+        e = SqlExecuteStatement()
     )
     { return e; }
 }
@@ -4970,4 +4996,56 @@ SqlAllocateCursor SqlAllocateCursor() :
     <ALLOCATE> cursorName = SimpleIdentifier()
     <CURSOR> <FOR> <PROCEDURE> procedureName = SimpleIdentifier()
     { return new SqlAllocateCursor(s.end(this), cursorName, procedureName); }
+}
+
+SqlExecuteImmediate SqlExecuteImmediate() :
+{
+    final SqlNode statementName;
+    final Span s = Span.of();
+}
+{
+    <EXECUTE> <IMMEDIATE>
+    (
+        statementName = SimpleIdentifier()
+    |
+        statementName = StringLiteral()
+    )
+    { return new SqlExecuteImmediate(s.end(this), statementName); }
+}
+
+SqlExecuteStatement SqlExecuteStatement() :
+{
+    final SqlIdentifier statementName;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <EXECUTE> statementName = SimpleIdentifier()
+    [
+        <USING>
+        e = SimpleIdentifier() { parameters.add(e); }
+        ( <COMMA> e = SimpleIdentifier() { parameters.add(e); } )*
+    ]
+    { return new SqlExecuteStatement(s.end(this), statementName, parameters); }
+}
+
+SqlDeallocatePrepare SqlDeallocatePrepare() :
+{
+    final SqlIdentifier statementName;
+    final Span s = Span.of();
+}
+{
+    <DEALLOCATE> <PREPARE> statementName = SimpleIdentifier()
+    { return new SqlDeallocatePrepare(s.end(this), statementName); }
+}
+
+SqlCloseCursor SqlCloseCursor() :
+{
+    final SqlIdentifier cursorName;
+    final Span s = Span.of();
+}
+{
+    <CLOSE> cursorName = SimpleIdentifier()
+    { return new SqlCloseCursor(s.end(this), cursorName); }
 }
