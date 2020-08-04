@@ -590,6 +590,11 @@ public enum SqlKind {
   ALLOCATE_CURSOR,
 
   /**
+   * EXECUTE statement call in CREATE PROCEDURE statement.
+   */
+  EXECUTE_STATEMENT,
+
+  /**
    * Special functions in MATCH_RECOGNIZE.
    */
   FINAL,
