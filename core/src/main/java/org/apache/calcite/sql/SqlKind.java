@@ -585,6 +585,11 @@ public enum SqlKind {
   BEGIN_END,
 
   /**
+   * BEGIN REQUEST statement in a CREATE PROCEDURE call.
+   */
+  BEGIN_REQUEST,
+
+  /**
    * ALLOCATE CURSOR call.
    */
   ALLOCATE_CURSOR,
@@ -593,6 +598,21 @@ public enum SqlKind {
    * DEALLOCATE PREPARE statement in a CREATE PROCEDURE call.
    */
   DEALLOCATE_PREPARE,
+
+  /**
+   * CLOSE cursor statement in a CREATE PROCEDURE call.
+   */
+  CLOSE_CURSOR,
+
+  /**
+   * DECLARE variable call in BEGIN...END statement.
+   */
+  DECLARE_VARIABLE,
+
+  /**
+   * DECLARE CONDITION call in BEGIN...END statement.
+   */
+  DECLARE_CONDITION,
 
   /**
    * Special functions in MATCH_RECOGNIZE.
@@ -1199,6 +1219,9 @@ public enum SqlKind {
 
   /** {@code RENAME PROCEDURE} DDL statement. */
   RENAME_PROCEDURE,
+
+  /** {@code CONDITIONAL STATEMENT} PL statement */
+  CONDITIONAL_STATEMENT,
 
   /** DDL statement not handled above.
    *

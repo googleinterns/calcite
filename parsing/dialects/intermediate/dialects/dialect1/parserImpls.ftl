@@ -195,8 +195,11 @@ SqlColumnAttribute ColumnAttributeDefault() :
         defaultValue = CurrentTimestampFunction()
     |
         <DATE> <QUOTED_STRING> {
-            defaultValue = SqlParserUtil.parseDateLiteral(token.image, getPos());
+            defaultValue = SqlParserUtil.parseDateLiteral(token.image,
+                getPos());
         }
+    |
+        defaultValue = DateFunctionCall()
     |
         defaultValue = ContextVariable()
     )
@@ -1035,6 +1038,8 @@ SqlNode  PartitionExpression() :
         e = SqlExtractFromDateTime()
     |
         e = PartitionByColumnOption()
+    |
+        e = AtomicRowExpression()
     )
     [
         <ADD> { constant = UnsignedIntLiteral(); }
@@ -4452,7 +4457,7 @@ SqlRangeN RangeN() :
 {
     <RANGE_N>
     <LPAREN>
-    testExpression = CompoundIdentifier()
+    testExpression = AtomicRowExpression()
     <BETWEEN>
     (
         <STAR> { startAsterisk = true; }
@@ -4633,9 +4638,13 @@ SqlNode CreateProcedureStmt() :
 }
 {
     (
+        e = ConditionalStmt()
+    |
         e = CursorStmt()
     |
         e = SqlBeginEndCall()
+    |
+        e = SqlBeginRequestCall()
     |
         e = SqlStmt()
     )
@@ -4743,14 +4752,82 @@ SqlBeginEndCall SqlBeginEndCall() :
     SqlIdentifier endLabel = null;
     final SqlStatementList statements = new SqlStatementList(getPos());
     final Span s = Span.of();
+    SqlNode e;
 }
 {
     [ beginLabel = SimpleIdentifier() <COLON> ]
     <BEGIN>
+    ( e = LocalDeclaration() { statements.add(e); } )*
     CreateProcedureStmtList(statements)
     <END>
     [ endLabel = SimpleIdentifier() ]
     { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
+}
+
+SqlCall LocalDeclaration() :
+{
+    final SqlCall e;
+}
+{
+    (
+        LOOKAHEAD(3)
+        e = SqlDeclareCondition()
+    |
+        e = SqlDeclareVariable()
+    )
+    <SEMICOLON>
+    { return e; }
+}
+
+SqlDeclareVariable SqlDeclareVariable() :
+{
+    final SqlNodeList variableNames = new SqlNodeList(getPos());
+    final SqlDataTypeSpec dataType;
+    final SqlNode defaultValue;
+    final Span s = Span.of();
+    SqlIdentifier variableName;
+}
+{
+    <DECLARE>
+    variableName = SimpleIdentifier() { variableNames.add(variableName); }
+    (
+        <COMMA> variableName = SimpleIdentifier() {
+            variableNames.add(variableName);
+        }
+    )*
+    dataType = DataType()
+    (
+        <DEFAULT_>
+        (
+            defaultValue = Literal()
+        |
+            <NULL> { defaultValue = SqlLiteral.createNull(getPos()); }
+        )
+    |
+        { defaultValue = null; }
+    )
+    {
+        return new SqlDeclareVariable(s.end(this), variableNames, dataType,
+            defaultValue);
+    }
+}
+
+SqlDeclareCondition SqlDeclareCondition() :
+{
+    final SqlIdentifier conditionName;
+    final SqlNode stateCode;
+    final Span s = Span.of();
+}
+{
+    <DECLARE>
+    conditionName = SimpleIdentifier()
+    <CONDITION>
+    (
+        <FOR> stateCode = StringLiteral()
+    |
+        { stateCode = null; }
+    )
+    { return new SqlDeclareCondition(s.end(this), conditionName, stateCode); }
 }
 
 SqlDrop SqlDropProcedure(Span s) :
@@ -4813,6 +4890,83 @@ SqlRenameProcedure SqlRenameProcedure() :
     }
 }
 
+// Semicolon is optional after the last statement.
+SqlBeginRequestCall SqlBeginRequestCall() :
+{
+    final SqlStatementList statements = new SqlStatementList(getPos());
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <BEGIN> <REQUEST>
+    e = SqlStmt() { statements.add(e); }
+    ( <SEMICOLON> e = SqlStmt() { statements.add(e); } )*
+    [ <SEMICOLON> ]
+    <END> <REQUEST>
+    { return new SqlBeginRequestCall(s.end(this), statements); }
+}
+
+SqlNode ConditionalStmt() :
+{
+    final SqlNode e;
+}
+{
+    e = IfStmt()
+    { return e; }
+}
+
+SqlIfStmt IfStmt() :
+{
+    SqlNode e;
+    final SqlNodeList conditionMultiStmtList = new SqlNodeList(getPos());
+    final SqlStatementList elseMultiStmtList = new SqlStatementList(getPos());
+}
+{
+    <IF> e = ConditionMultiStmtPair()
+    { conditionMultiStmtList.add(e); }
+    (
+        <ELSE> <IF> e = ConditionMultiStmtPair()
+        { conditionMultiStmtList.add(e); }
+    )*
+    [
+        <ELSE>
+        CreateProcedureStmtList(elseMultiStmtList)
+    ]
+    <END> <IF>
+    {
+        return new SqlIfStmt(getPos(), conditionMultiStmtList,
+            elseMultiStmtList);
+    }
+}
+
+SqlNode ConditionMultiStmtPair() :
+{
+    final SqlNode condition;
+    final SqlStatementList multiStmtList = new SqlStatementList(getPos());
+}
+{
+    condition = Expression(ExprContext.ACCEPT_NON_QUERY)
+    <THEN>
+    CreateProcedureStmtList(multiStmtList)
+    {
+        return new SqlConditionalStmtListPair(getPos(), condition,
+            multiStmtList);
+    }
+}
+
+void CreateProcedureStmtList(SqlStatementList statements) :
+{
+    SqlNode e;
+}
+{
+    (
+        LOOKAHEAD(CreateProcedureStmt())
+        e = CreateProcedureStmt() <SEMICOLON> {
+            statements.add(e);
+        }
+    )+
+}
+
 SqlNode CursorStmt() :
 {
     final SqlNode e;
@@ -4820,6 +4974,8 @@ SqlNode CursorStmt() :
 {
     (
         e = SqlAllocateCursor()
+    |
+        e = SqlCloseCursor()
     |
         e = SqlDeallocatePrepare()
     )
@@ -4846,4 +5002,14 @@ SqlDeallocatePrepare SqlDeallocatePrepare() :
 {
     <DEALLOCATE> <PREPARE> statementName = SimpleIdentifier()
     { return new SqlDeallocatePrepare(s.end(this), statementName); }
+}
+
+SqlCloseCursor SqlCloseCursor() :
+{
+    final SqlIdentifier cursorName;
+    final Span s = Span.of();
+}
+{
+    <CLOSE> cursorName = SimpleIdentifier()
+    { return new SqlCloseCursor(s.end(this), cursorName); }
 }
