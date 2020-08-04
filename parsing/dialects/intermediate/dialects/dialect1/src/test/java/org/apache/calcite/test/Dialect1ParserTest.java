@@ -4838,4 +4838,10 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "END";
     sql(sql).ok(expected);
   }
+
+  @Test public void testCastWithAttributeNoDataType() {
+    final String sql = "select cast(a as format '999')";
+    final String expected = "SELECT CAST(`A` AS FORMAT '999')";
+    sql(sql).ok(expected);
+  }
 }
