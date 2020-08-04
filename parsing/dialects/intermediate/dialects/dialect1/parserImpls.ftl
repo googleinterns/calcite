@@ -4888,6 +4888,8 @@ SqlNode CursorStmt() :
 {
     (
         e = SqlAllocateCursor()
+    |
+        e = SqlFetchCursor()
     )
     { return e; }
 }
@@ -4902,4 +4904,34 @@ SqlAllocateCursor SqlAllocateCursor() :
     <ALLOCATE> cursorName = SimpleIdentifier()
     <CURSOR> <FOR> <PROCEDURE> procedureName = SimpleIdentifier()
     { return new SqlAllocateCursor(s.end(this), cursorName, procedureName); }
+}
+
+SqlFetchCursor SqlFetchCursor() :
+{
+    final FetchType fetchType;
+    final SqlIdentifier cursorName;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <FETCH>
+    (
+        (
+            <NEXT> { fetchType = FetchType.NEXT; }
+        |
+            <FIRST> { fetchType = FetchType.FIRST; }
+        )
+        <FROM>
+    |
+        [ <FROM> ] { fetchType = FetchType.UNSPECIFIED; }
+    )
+    cursorName = SimpleIdentifier()
+    <INTO>
+    e = SimpleIdentifier() { parameters.add(e); }
+    ( <COMMA> e = SimpleIdentifier() { parameters.add(e); } )*
+    {
+        return new SqlFetchCursor(s.end(this), fetchType, cursorName,
+            parameters);
+    }
 }
