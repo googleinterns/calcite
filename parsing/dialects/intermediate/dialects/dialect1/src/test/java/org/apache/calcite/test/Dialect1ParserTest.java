@@ -4656,6 +4656,31 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCaseStmtNested() {
+    final String sql = "create procedure foo (bee integer) "
+        + "case "
+        + "when bee = 2 then "
+        + "select bar; "
+        + "case "
+        + "when bee = 2 then "
+        + "select bar; "
+        + "when bee = 3 then "
+        + "select abc; "
+        + "end case; "
+        + "when bee = 3 then "
+        + "select abc; "
+        + "end case";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "CASE WHEN (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "CASE WHEN (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "WHEN (`BEE` = 3) THEN SELECT `ABC`;\n"
+            + "END CASE;\n"
+            + "WHEN (`BEE` = 3) THEN SELECT `ABC`;\n"
+            + "END CASE";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCaseStmtWithConditionalExpressionWithElse() {
     final String sql = "create procedure foo (bee integer) "
         + "case "
