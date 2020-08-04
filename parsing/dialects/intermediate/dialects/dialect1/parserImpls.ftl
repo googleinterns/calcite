@@ -4888,6 +4888,8 @@ SqlNode CursorStmt() :
 {
     (
         e = SqlAllocateCursor()
+    |
+        e = SqlExecuteImmediate()
     )
     { return e; }
 }
@@ -4902,4 +4904,19 @@ SqlAllocateCursor SqlAllocateCursor() :
     <ALLOCATE> cursorName = SimpleIdentifier()
     <CURSOR> <FOR> <PROCEDURE> procedureName = SimpleIdentifier()
     { return new SqlAllocateCursor(s.end(this), cursorName, procedureName); }
+}
+
+SqlExecuteImmediate SqlExecuteImmediate() :
+{
+    final SqlNode statementName;
+    final Span s = Span.of();
+}
+{
+    <EXECUTE> <IMMEDIATE>
+    (
+        statementName = SimpleIdentifier()
+    |
+        statementName = StringLiteral()
+    )
+    { return new SqlExecuteImmediate(s.end(this), statementName); }
 }
