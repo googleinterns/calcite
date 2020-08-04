@@ -4799,7 +4799,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
         + "EXECUTE `BAR` USING `BAZ`;\n"
-    + "END";
+        + "END";
     sql(sql).ok(expected);
   }
 
@@ -4823,7 +4823,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
         + "EXECUTE `BAR` USING `A`, `B`, `C`;\n"
-    + "END";
+        + "END";
     sql(sql).ok(expected);
   }
 
