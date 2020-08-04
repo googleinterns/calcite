@@ -39,7 +39,7 @@ public class SqlDeclareCursor extends SqlCall {
   public final CursorUpdateType updateType;
   public final SqlNode cursorSpecification;
   public final SqlIdentifier statementName;
-  public final SqlIdentifier preparedStatementName;
+  public final SqlIdentifier prepareStatementName;
   public final SqlNode prepareFrom;
 
   /**
@@ -75,9 +75,9 @@ public class SqlDeclareCursor extends SqlCall {
     this.updateType = Objects.requireNonNull(updateType);
     this.cursorSpecification = cursorSpecification;
     this.statementName = statementName;
-    this.preparedStatementName = prepareStatementName;
+    this.prepareStatementName = prepareStatementName;
     this.prepareFrom = prepareFrom;
-    if (statementName != null && preparedStatementName != null
+    if (statementName != null && prepareStatementName != null
         && !statementName.equals(prepareStatementName)) {
       throw SqlUtil.newContextException(
           prepareStatementName.getParserPosition(),
@@ -91,7 +91,7 @@ public class SqlDeclareCursor extends SqlCall {
 
   @Override public List<SqlNode> getOperandList() {
     return ImmutableNullableList.of(cursorName, cursorSpecification,
-        statementName, prepareFrom);
+        statementName, prepareStatementName, prepareFrom);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
@@ -140,9 +140,9 @@ public class SqlDeclareCursor extends SqlCall {
     } else {
       statementName.unparse(writer, 0, 0);
     }
-    if (preparedStatementName != null) {
+    if (prepareStatementName != null) {
       writer.keyword("PREPARE");
-      preparedStatementName.unparse(writer, 0, 0);
+      prepareStatementName.unparse(writer, 0, 0);
       writer.keyword("FROM");
       prepareFrom.unparse(writer, 0, 0);
     }

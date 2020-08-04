@@ -4758,6 +4758,8 @@ SqlBeginEndCall SqlBeginEndCall() :
     [ beginLabel = SimpleIdentifier() <COLON> ]
     <BEGIN>
     (
+        // LOOKAHEAD ensures statement should not be parsed by
+        // SqlDeclareCursor() instead.
         LOOKAHEAD(LocalDeclaration())
         e = LocalDeclaration() { statements.add(e); }
     )*
@@ -5092,16 +5094,14 @@ SqlDeclareCursor SqlDeclareCursor() :
     |
         LOOKAHEAD(OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY))
         cursorSpecification = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
-        (
-            [
-                <FOR>
-                (
-                    <READ> <ONLY> { updateType = CursorUpdateType.READ_ONLY; }
-                |
-                    <UPDATE> { updateType = CursorUpdateType.UPDATE; }
-                )
-            ]
-        )
+        [
+            <FOR>
+            (
+                <READ> <ONLY> { updateType = CursorUpdateType.READ_ONLY; }
+            |
+                <UPDATE> { updateType = CursorUpdateType.UPDATE; }
+            )
+        ]
     )
     [
         <PREPARE> preparedStatementName = SimpleIdentifier()
