@@ -4883,7 +4883,7 @@ void CreateProcedureStmtList(SqlStatementList statements) :
         e = CreateProcedureStmt() <SEMICOLON> {
             statements.add(e);
         }
-    )*
+    )+
 }
 
 SqlNode CursorStmt() :
