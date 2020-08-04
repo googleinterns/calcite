@@ -4638,11 +4638,13 @@ SqlNode CreateProcedureStmt() :
 }
 {
     (
+        e = ConditionalStmt()
+    |
         e = CursorStmt()
     |
         e = SqlBeginEndCall()
     |
-        e = ConditionalStmt()
+        e = SqlBeginRequestCall()
     |
         e = SqlStmt()
     )
@@ -4886,6 +4888,22 @@ SqlRenameProcedure SqlRenameProcedure() :
     {
         return new SqlRenameProcedure(getPos(), oldProcedure, newProcedure);
     }
+}
+
+// Semicolon is optional after the last statement.
+SqlBeginRequestCall SqlBeginRequestCall() :
+{
+    final SqlStatementList statements = new SqlStatementList(getPos());
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <BEGIN> <REQUEST>
+    e = SqlStmt() { statements.add(e); }
+    ( <SEMICOLON> e = SqlStmt() { statements.add(e); } )*
+    [ <SEMICOLON> ]
+    <END> <REQUEST>
+    { return new SqlBeginRequestCall(s.end(this), statements); }
 }
 
 SqlNode ConditionalStmt() :

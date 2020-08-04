@@ -585,6 +585,11 @@ public enum SqlKind {
   BEGIN_END,
 
   /**
+   * BEGIN REQUEST statement in a CREATE PROCEDURE call.
+   */
+  BEGIN_REQUEST,
+
+  /**
    * ALLOCATE CURSOR call.
    */
   ALLOCATE_CURSOR,
