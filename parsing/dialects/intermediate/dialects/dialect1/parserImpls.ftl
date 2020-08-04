@@ -4755,8 +4755,11 @@ SqlBeginEndCall SqlBeginEndCall() :
 {
     [ beginLabel = SimpleIdentifier() <COLON> ]
     <BEGIN>
-    ( e = SqlDeclareCursor() <SEMICOLON> { statements.add(e); } )*
-    CreateProcedureStmtList(statements)
+    ( e = SqlDeclareCursor() { statements.add(e); } )*
+    [
+        LOOKAHEAD({ getToken(1).kind != END })
+        CreateProcedureStmtList(statements)
+    ]
     <END>
     [ endLabel = SimpleIdentifier() ]
     { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
@@ -4971,5 +4974,10 @@ SqlDeclareCursor SqlDeclareCursor() :
             prepareFrom = StringLiteral()
         )
     ]
-    { return new SqlDeclareCursor(s.end(this), cursorName, scrollType, returnType, returnToType, only, updateType, cursorSpecification, statementName, preparedStatementName, prepareFrom); }
+    <SEMICOLON>
+    {
+        return new SqlDeclareCursor(s.end(this), cursorName, scrollType,
+            returnType, returnToType, only, updateType, cursorSpecification,
+            statementName, preparedStatementName, prepareFrom);
+    }
 }

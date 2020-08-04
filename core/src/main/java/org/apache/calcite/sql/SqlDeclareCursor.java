@@ -81,7 +81,7 @@ public class SqlDeclareCursor extends SqlCall {
         && !statementName.equals(prepareStatementName)) {
       throw SqlUtil.newContextException(
           prepareStatementName.getParserPosition(),
-          RESOURCE.declareCursorStatementNameMismatch());
+              RESOURCE.declareCursorStatementNameMismatch());
     }
   }
 
