@@ -111,7 +111,7 @@ public class DialectGenerate {
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append("// Auto generated.\n");
     stringBuilder.append("<DEFAULT, DQID, BTID> TOKEN :\n{\n");
-    String tokenTemplate = "< %s: \"%s\" >";
+    String tokenTemplate = "< %s: %s >";
     List<String> tokens = new ArrayList<>();
     for (Map.Entry<Keyword, String> entry : extractedData.keywords.entrySet()) {
       StringBuilder tokenBuilder = new StringBuilder();
