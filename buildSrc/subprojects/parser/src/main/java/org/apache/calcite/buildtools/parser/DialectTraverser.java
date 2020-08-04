@@ -84,6 +84,11 @@ public class DialectTraverser {
       e.printStackTrace();
     }
     traverse(getTraversalPath(), rootDirectory, extractedData);
+    try {
+      dialectGenerate.validateNonReservedKeywords(extractedData);
+    } catch (IllegalStateException e) {
+      e.printStackTrace();
+    }
     dialectGenerate.unparseReservedKeywords(extractedData);
     dialectGenerate.unparseNonReservedKeywords(extractedData);
     return extractedData;
@@ -151,8 +156,6 @@ public class DialectTraverser {
     // Ensures that files are processed first.
     Arrays.sort(files, fileComparator);
     String nextDirectory = directories.peek();
-    Set<Keyword> nonReservedKeywords = new LinkedHashSet<>();
-    Map<Keyword, String> keywords = new LinkedHashMap<>();
     for (File f : files) {
       String fileName = f.getName();
       if (f.isFile()) {
@@ -179,45 +182,38 @@ public class DialectTraverser {
           fileText = fileText.substring(licenseText.length());
           String[] lines = fileText.split("\n");
           if (fileName.equals("nonReservedKeywords.txt")) {
-            processNonReservedKeywords(lines, nonReservedKeywords, filePath);
+            extractedData.nonReservedKeywords.
+              addAll(processNonReservedKeywords(lines, filePath));
           } else if (fileName.equals("keywords.txt")) {
-            processKeyValuePairs(lines, keywords, filePath);
+            extractedData.keywords
+              .putAll(processKeyValuePairs(lines, filePath));
           }
         }
       } else if (!directories.isEmpty() && fileName.equals(nextDirectory)) {
         // Remove the front element in the queue, the value is referenced above
         // with directories.peek() and is used in the next recursive call to
         // this function.
-        try {
-          dialectGenerate.processKeywords(keywords, nonReservedKeywords,
-              extractedData);
-        } catch (IllegalStateException e) {
-          e.printStackTrace();
-        }
         directories.poll();
         traverse(directories, f, extractedData);
       }
     }
-    try {
-      dialectGenerate.processKeywords(keywords, nonReservedKeywords,
-          extractedData);
-    } catch (IllegalStateException e) {
-      e.printStackTrace();
-    }
   }
 
-  private void processNonReservedKeywords(String[] lines,
-      Set<Keyword> nonReservedKeywords, String filePath) {
+  private Set<Keyword> processNonReservedKeywords(String[] lines,
+      String filePath) {
+    Set<Keyword> nonReservedKeywords = new LinkedHashSet<>();
     for (String line : lines) {
       line = line.trim();
       if (!line.equals("")) {
         nonReservedKeywords.add(new Keyword(line, filePath));
       }
     }
+    return nonReservedKeywords;
   }
 
-  private void processKeyValuePairs(String[] lines,
-      Map<Keyword, String> map, String filePath) {
+  private Map<Keyword, String> processKeyValuePairs(String[] lines,
+      String filePath) {
+    Map<Keyword, String> map = new LinkedHashMap<>();
     for (String line : lines) {
       line = line.trim();
       if (!line.equals("")) {
@@ -227,5 +223,6 @@ public class DialectTraverser {
         map.put(new Keyword(key.trim(), filePath), value.trim());
       }
     }
+    return map;
   }
 }

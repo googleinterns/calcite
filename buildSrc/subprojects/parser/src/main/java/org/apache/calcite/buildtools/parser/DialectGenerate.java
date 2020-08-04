@@ -63,28 +63,12 @@ public class DialectGenerate {
     return new ArrayDeque<>(Arrays.asList(TOKENIZER_PATTERN.split(input)));
   }
 
-  /**
-   * Adds specified keywords and nonReservedKeywords to extractedData. Also ensures that
-   * nonReservedKeywords is a subset of the union of keywords and extractedData.keywords.
-   *
-   * @param keywords The keywords to add
-   * @param nonReservedKeywords The non reserved keywords to add
-   * @param extractedData The object to which the keywords will be added to
-   * @throws IllegalStateException When an an element in nonReservedKeywords is not in keywords or
-   *     extractedData.keywords
-   */
-  public void processKeywords(
-      Map<Keyword, String> keywords,
-      Set<Keyword> nonReservedKeywords,
-      ExtractedData extractedData) {
-    for (Keyword keyword : nonReservedKeywords) {
-      if (!keywords.containsKey(keyword)
-            && !extractedData.keywords.containsKey(keyword)) {
+  public void validateNonReservedKeywords(ExtractedData extractedData) {
+    for (Keyword keyword : extractedData.nonReservedKeywords) {
+      if (!extractedData.keywords.containsKey(keyword)) {
         throw new IllegalStateException(keyword.keyword + " is not a keyword.");
       }
     }
-    extractedData.keywords.putAll(keywords);
-    extractedData.nonReservedKeywords.addAll(nonReservedKeywords);
   }
 
   /**
