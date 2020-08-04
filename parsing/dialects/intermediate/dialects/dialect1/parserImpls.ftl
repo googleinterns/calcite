@@ -3739,14 +3739,14 @@ SqlNode BuiltinFunctionCall() :
         <LPAREN> e = Expression(ExprContext.ACCEPT_SUB_QUERY) { args = startList(e); }
         <AS>
         (
+            ( e = AlternativeTypeConversionAttribute() { args.add(e); } )+
+        |
             (
                 dt = DataType() { args.add(dt); }
             |
                 <INTERVAL> e = IntervalQualifier() { args.add(e); }
             )
             ( e = AlternativeTypeConversionAttribute() { args.add(e); } )*
-        |
-            ( e = AlternativeTypeConversionAttribute() { args.add(e); } )+
         )
         <RPAREN> {
             return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
