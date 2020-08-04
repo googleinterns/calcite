@@ -3739,14 +3739,14 @@ SqlNode BuiltinFunctionCall() :
         <LPAREN> e = Expression(ExprContext.ACCEPT_SUB_QUERY) { args = startList(e); }
         <AS>
         (
+            ( e = AlternativeTypeConversionAttribute() { args.add(e); } )+
+        |
             (
                 dt = DataType() { args.add(dt); }
             |
                 <INTERVAL> e = IntervalQualifier() { args.add(e); }
             )
             ( e = AlternativeTypeConversionAttribute() { args.add(e); } )*
-        |
-            ( e = AlternativeTypeConversionAttribute() { args.add(e); } )+
         )
         <RPAREN> {
             return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
@@ -4969,6 +4969,10 @@ SqlNode CursorStmt() :
         e = SqlCloseCursor()
     |
         e = SqlDeallocatePrepare()
+    |
+        e = SqlExecuteImmediate()
+    |
+        e = SqlExecuteStatement()
     )
     { return e; }
 }
@@ -4983,6 +4987,38 @@ SqlAllocateCursor SqlAllocateCursor() :
     <ALLOCATE> cursorName = SimpleIdentifier()
     <CURSOR> <FOR> <PROCEDURE> procedureName = SimpleIdentifier()
     { return new SqlAllocateCursor(s.end(this), cursorName, procedureName); }
+}
+
+SqlExecuteImmediate SqlExecuteImmediate() :
+{
+    final SqlNode statementName;
+    final Span s = Span.of();
+}
+{
+    <EXECUTE> <IMMEDIATE>
+    (
+        statementName = SimpleIdentifier()
+    |
+        statementName = StringLiteral()
+    )
+    { return new SqlExecuteImmediate(s.end(this), statementName); }
+}
+
+SqlExecuteStatement SqlExecuteStatement() :
+{
+    final SqlIdentifier statementName;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <EXECUTE> statementName = SimpleIdentifier()
+    [
+        <USING>
+        e = SimpleIdentifier() { parameters.add(e); }
+        ( <COMMA> e = SimpleIdentifier() { parameters.add(e); } )*
+    ]
+    { return new SqlExecuteStatement(s.end(this), statementName, parameters); }
 }
 
 SqlDeallocatePrepare SqlDeallocatePrepare() :
