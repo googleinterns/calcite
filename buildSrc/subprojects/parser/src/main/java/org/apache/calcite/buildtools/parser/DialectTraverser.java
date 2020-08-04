@@ -228,7 +228,7 @@ public class DialectTraverser {
     Set<Keyword> nonReservedKeywords = new LinkedHashSet<>();
     for (String line : lines) {
       line = line.trim();
-      if (!line.equals("")) {
+      if (!line.isEmpty()) {
         nonReservedKeywords.add(new Keyword(line, filePath));
       }
     }
@@ -248,12 +248,13 @@ public class DialectTraverser {
     Map<Keyword, String> map = new LinkedHashMap<>();
     for (String line : lines) {
       line = line.trim();
-      if (!line.equals("")) {
-        int colonIndex = line.indexOf(":");
-        String key = line.substring(0, colonIndex);
-        String value = line.substring(colonIndex + 1);
-        map.put(new Keyword(key.trim(), filePath), value.trim());
+      if (line.isEmpty()) {
+        continue;
       }
+      int colonIndex = line.indexOf(":");
+      String key = line.substring(0, colonIndex);
+      String value = line.substring(colonIndex + 1);
+      map.put(new Keyword(key.trim(), filePath), value.trim());
     }
     return map;
   }

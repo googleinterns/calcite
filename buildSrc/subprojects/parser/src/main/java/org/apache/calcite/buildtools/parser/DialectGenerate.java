@@ -72,7 +72,7 @@ public class DialectGenerate {
    *
    * @throws IllegalStateException If a nonReservedKeyword is not also a keyword
    */
-  public void validateNonReservedKeywords(ExtractedData extractedData) {
+  public void validateNonReservedKeywords(final ExtractedData extractedData) {
     for (Keyword keyword : extractedData.nonReservedKeywords) {
       if (!extractedData.keywords.containsKey(keyword)) {
         throw new IllegalStateException(keyword.keyword + " is not a keyword.");
