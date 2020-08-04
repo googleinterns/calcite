@@ -197,8 +197,8 @@ public class DialectTraverser {
           fileText = fileText.substring(licenseText.length());
           String[] lines = fileText.split("\n");
           if (fileName.equals("nonReservedKeywords.txt")) {
-            extractedData.nonReservedKeywords.
-              addAll(processNonReservedKeywords(lines, filePath));
+            extractedData.nonReservedKeywords
+              .addAll(processNonReservedKeywords(lines, filePath));
           } else if (fileName.equals("keywords.txt")) {
             extractedData.keywords
               .putAll(processKeyValuePairs(lines, filePath));
