@@ -1195,8 +1195,11 @@ public enum SqlKind {
   /** {@code RENAME PROCEDURE} DDL statement. */
   RENAME_PROCEDURE,
 
-  /** {@code CONDITIONAL STATEMENT} PL statement */
-  CONDITIONAL_STATEMENT,
+  /** {@code CASE STATEMENT} PL statement */
+  CASE_STATEMENT,
+
+  /** {@code IF STATEMENT} PL statement */
+  IF_STATEMENT,
 
   /** DDL statement not handled above.
    *

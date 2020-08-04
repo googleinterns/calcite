@@ -26,7 +26,7 @@ import java.util.Objects;
  */
 public class SqlCaseStmt extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("CASE", SqlKind.CONDITIONAL_STATEMENT);
+      new SqlSpecialOperator("CASE", SqlKind.CASE_STATEMENT);
 
   public final SqlNodeList conditionalStmtListPairs;
   public final SqlNodeList elseStmtList;
@@ -57,7 +57,7 @@ public class SqlCaseStmt extends SqlCall {
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
-    for (SqlNode pair: conditionalStmtListPairs) {
+    for (SqlNode pair : conditionalStmtListPairs) {
       writer.keyword("WHEN");
       pair.unparse(writer, leftPrec, rightPrec);
     }

@@ -27,7 +27,7 @@ import java.util.Objects;
  */
 public class SqlIfStmt extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("IF", SqlKind.CONDITIONAL_STATEMENT);
+      new SqlSpecialOperator("IF", SqlKind.IF_STATEMENT);
 
   public final SqlNodeList conditionalStmtListPairs;
   public final SqlNodeList elseStmtList;

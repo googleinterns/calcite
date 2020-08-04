@@ -4826,9 +4826,9 @@ SqlNode ConditionalStmt() :
 }
 {
     (
-        e = IfStmt()
-    |
         e = CaseStmt()
+    |
+        e = IfStmt()
     )
     { return e; }
 }
