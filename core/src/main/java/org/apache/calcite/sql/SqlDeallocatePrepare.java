@@ -16,30 +16,31 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
- * Parse tree for {@code SqlExcept} statement.
+ * Parse tree for {@code SqlDeallocatePrepare} call.
  */
-public class SqlExcept extends SqlCall implements SqlExecutableStatement {
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("EXCEPT", SqlKind.EXCEPT);
+public class SqlDeallocatePrepare extends SqlCall {
+  private static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("DEALLOCATE PREPARE",
+          SqlKind.DEALLOCATE_PREPARE);
 
-  public final SqlNodeList exceptList;
+  public final SqlIdentifier statementName;
 
   /**
-   * Create an {@code SqlExcept}.
+   * Creates a {@code SqlDeallocatePrepare}.
    *
    * @param pos  Parser position, must not be null
-   * @param exceptList  List of columns to not select
+   * @param statementName  Name of the statement to deallocate, must not be null
    */
-  public SqlExcept(SqlParserPos pos, SqlNodeList exceptList) {
+  public SqlDeallocatePrepare(SqlParserPos pos, SqlIdentifier statementName) {
     super(pos);
-    this.exceptList = exceptList;
+    this.statementName = Objects.requireNonNull(statementName);
   }
 
   @Override public SqlOperator getOperator() {
@@ -47,20 +48,11 @@ public class SqlExcept extends SqlCall implements SqlExecutableStatement {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(exceptList);
+    return ImmutableNullableList.of(statementName);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    // This query is only ever valid when preceded by an asterisk.
-    writer.keyword("* EXCEPT");
-    SqlWriter.Frame frame = writer.startList("(", ")");
-    for (SqlNode e : exceptList) {
-      writer.sep(",", false);
-      e.unparse(writer, 0, 0);
-    }
-    writer.endList(frame);
+    writer.keyword("DEALLOCATE PREPARE");
+    statementName.unparse(writer, 0, 0);
   }
-
-  // Intentionally left empty.
-  @Override public void execute(CalcitePrepare.Context context) {}
 }
