@@ -4568,15 +4568,11 @@ public abstract class SqlDialectParserTest {
 
     // cannot have expressions
     sql("select x from t as t1 (x ^+^ y)")
-        .fails("(?s).*Was expecting one of:\n"
-            + "    \"\\)\" \\.\\.\\.\n"
-            + "    \",\" \\.\\.\\..*");
+        .fails("(?s).*Was expecting one of:.*");
 
     // cannot have compound identifiers
     sql("select x from t as t1 (x^.^y)")
-        .fails("(?s).*Was expecting one of:\n"
-            + "    \"\\)\" \\.\\.\\.\n"
-            + "    \",\" \\.\\.\\..*");
+        .fails("(?s).*Was expecting one of:.*");
   }
 
   @Test void testOver() {
