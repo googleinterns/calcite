@@ -6448,14 +6448,13 @@ public abstract class SqlDialectParserTest {
   @Test void testUnparseableIntervalQualifiers() {
     // No qualifier
     expr("interval '1^'^")
-        .fails("Encountered \"<EOF>\" at line 1, column 12\\.\n"
+        .fails("(?s)Encountered \"<EOF>\" at line 1, column 12\\.\n"
             + "Was expecting one of:.*");
 
     // illegal qualifiers, no precision in either field
     expr("interval '1' year ^to^ year")
         .fails("(?s)Encountered \"to year\" at line 1, column 19.\n"
             + "Was expecting one of:.*");
-
     expr("interval '1-2' year ^to^ day")
         .fails(ANY);
     expr("interval '1-2' year ^to^ hour")
