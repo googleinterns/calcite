@@ -4979,6 +4979,8 @@ SqlNode CursorStmt() :
     |
         e = SqlDeallocatePrepare()
     |
+        e = SqlDeleteUsingCursor()
+    |
         e = SqlExecuteImmediate()
     |
         e = SqlExecuteStatement()
@@ -4996,6 +4998,18 @@ SqlAllocateCursor SqlAllocateCursor() :
     <ALLOCATE> cursorName = SimpleIdentifier()
     <CURSOR> <FOR> <PROCEDURE> procedureName = SimpleIdentifier()
     { return new SqlAllocateCursor(s.end(this), cursorName, procedureName); }
+}
+
+SqlDeleteUsingCursor SqlDeleteUsingCursor() :
+{
+    final SqlIdentifier tableName;
+    final SqlIdentifier cursorName;
+    final Span s = Span.of();
+}
+{
+    ( <DELETE> | <DEL> ) <FROM> tableName = CompoundIdentifier()
+    <WHERE> <CURRENT> <OF> cursorName = SimpleIdentifier()
+    { return new SqlDeleteUsingCursor(s.end(this), tableName, cursorName); }
 }
 
 SqlExecuteImmediate SqlExecuteImmediate() :
