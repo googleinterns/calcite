@@ -703,11 +703,7 @@ public abstract class SqlDialectParserTest {
   @Test void testExceptionCleanup() {
     sql("select 0.5e1^.1^ from sales.emps")
         .fails("(?s).*Encountered \".1\" at line 1, column 13.\n"
-            + "Was expecting one of:\n"
-            + "    <EOF> \n"
-            + "    \"AS\" \\.\\.\\.\n"
-            + "    \"EXCEPT\" \\.\\.\\.\n"
-            + ".*");
+            + "Was expecting one of:.*");
   }
 
   // TODO: should fail in parser
@@ -3301,16 +3297,7 @@ public abstract class SqlDialectParserTest {
   @Test void testFromValuesWithoutParens() {
     sql("select 1 from ^values^('x')")
         .fails("(?s)Encountered \"values\" at line 1, column 15\\.\n"
-            + "Was expecting one of:\n"
-            + "    \"LATERAL\" \\.\\.\\.\n"
-            + "    \"TABLE\" \\.\\.\\.\n"
-            + "    \"UNNEST\" \\.\\.\\.\n"
-            + "    <IDENTIFIER> \\.\\.\\.\n"
-            + "    <QUOTED_IDENTIFIER> \\.\\.\\.\n"
-            + "    <BACK_QUOTED_IDENTIFIER> \\.\\.\\.\n"
-            + "    <BRACKET_QUOTED_IDENTIFIER> \\.\\.\\.\n"
-            + "    <UNICODE_QUOTED_IDENTIFIER> \\.\\.\\.\n"
-            + "    \"\\(\" \\.\\.\\.\n.*");
+            + "Was expecting one of:.*");
   }
 
   @Test void testEmptyValues() {
@@ -6462,28 +6449,13 @@ public abstract class SqlDialectParserTest {
     // No qualifier
     expr("interval '1^'^")
         .fails("Encountered \"<EOF>\" at line 1, column 12\\.\n"
-            + "Was expecting one of:\n"
-            + "    \"DAY\" \\.\\.\\.\n"
-            + "    \"DAYS\" \\.\\.\\.\n"
-            + "    \"HOUR\" \\.\\.\\.\n"
-            + "    \"HOURS\" \\.\\.\\.\n"
-            + "    \"MINUTE\" \\.\\.\\.\n"
-            + "    \"MINUTES\" \\.\\.\\.\n"
-            + "    \"MONTH\" \\.\\.\\.\n"
-            + "    \"MONTHS\" \\.\\.\\.\n"
-            + "    \"SECOND\" \\.\\.\\.\n"
-            + "    \"SECONDS\" \\.\\.\\.\n"
-            + "    \"YEAR\" \\.\\.\\.\n"
-            + "    \"YEARS\" \\.\\.\\.\n"
-            + "    ");
+            + "Was expecting one of:.*");
 
     // illegal qualifiers, no precision in either field
     expr("interval '1' year ^to^ year")
         .fails("(?s)Encountered \"to year\" at line 1, column 19.\n"
-            + "Was expecting one of:\n"
-            + "    <EOF> \n"
-            + "    \"\\(\" \\.\\.\\.\n"
-            + "    \"\\.\" \\.\\.\\..*");
+            + "Was expecting one of:.*");
+
     expr("interval '1-2' year ^to^ day")
         .fails(ANY);
     expr("interval '1-2' year ^to^ hour")
