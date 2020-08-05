@@ -5071,7 +5071,7 @@ SqlCloseCursor SqlCloseCursor() :
 
 SqlIterationStmt IterationStmt() :
 {
-    SqlIterationStmt e;
+    final SqlIterationStmt e;
 }
 {
     (

@@ -34,8 +34,8 @@ public class SqlWhileStmt extends SqlIterationStmt {
    * @param beginLabel  Optional begin label, must match end label if not null.
    * @param endLabel    Optional end label, must match begin label if not null.
    */
-  public SqlWhileStmt(final SqlParserPos pos,
-      final SqlNode condition, final SqlStatementList statements, final SqlIdentifier beginLabel,
+  public SqlWhileStmt(final SqlParserPos pos, final SqlNode condition,
+      final SqlStatementList statements, final SqlIdentifier beginLabel,
       final SqlIdentifier endLabel) {
     super(pos, condition, statements, beginLabel, endLabel);
   }
