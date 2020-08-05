@@ -4758,14 +4758,23 @@ SqlBeginEndCall SqlBeginEndCall() :
 {
     [ beginLabel = SimpleIdentifier() <COLON> ]
     <BEGIN>
-    ( e = LocalDeclaration() { statements.add(e); } )*
     (
+        // LOOKAHEAD ensures statement should not be parsed by
+        // SqlDeclareCursor() instead.
+        LOOKAHEAD(LocalDeclaration())
+        e = LocalDeclaration() { statements.add(e); }
+    )*
+    ( e = SqlDeclareCursor() { statements.add(e); } )*
+    [
         LOOKAHEAD({ getToken(1).kind != END })
         CreateProcedureStmtList(statements)
-    )*
+    ]
     <END>
     [ endLabel = SimpleIdentifier() ]
-    { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
+    {
+        return new SqlBeginEndCall(s.end(this), beginLabel, endLabel,
+            statements);
+    }
 }
 
 SqlCall LocalDeclaration() :
@@ -4915,7 +4924,11 @@ SqlNode ConditionalStmt() :
     final SqlNode e;
 }
 {
-    e = IfStmt()
+    (
+        e = CaseStmt()
+    |
+        e = IfStmt()
+    )
     { return e; }
 }
 
@@ -4940,6 +4953,36 @@ SqlIfStmt IfStmt() :
     {
         return new SqlIfStmt(getPos(), conditionMultiStmtList,
             elseMultiStmtList);
+    }
+}
+
+SqlCaseStmt CaseStmt() :
+{
+    SqlNode firstOperand = null;
+    SqlNode e = null;
+    final SqlNodeList conditionMultiStmtList = new SqlNodeList(getPos());
+    final SqlStatementList elseMultiStmtList = new SqlStatementList(getPos());
+}
+{
+    <CASE>
+    [ firstOperand = Expression(ExprContext.ACCEPT_NON_QUERY) ]
+    (
+        <WHEN> e = ConditionMultiStmtPair()
+        { conditionMultiStmtList.add(e); }
+    )+
+    [
+        <ELSE>
+        CreateProcedureStmtList(elseMultiStmtList)
+    ]
+    <END> <CASE>
+    {
+        if (firstOperand == null) {
+            return new SqlCaseStmtWithConditionalExpression(getPos(),
+                conditionMultiStmtList, elseMultiStmtList);
+        } else {
+            return new SqlCaseStmtWithOperand(getPos(), firstOperand,
+                conditionMultiStmtList, elseMultiStmtList);
+        }
     }
 }
 
@@ -5057,6 +5100,77 @@ SqlCloseCursor SqlCloseCursor() :
 {
     <CLOSE> cursorName = SimpleIdentifier()
     { return new SqlCloseCursor(s.end(this), cursorName); }
+}
+
+SqlDeclareCursor SqlDeclareCursor() :
+{
+    final SqlIdentifier cursorName;
+    CursorScrollType scrollType = CursorScrollType.UNSPECIFIED;
+    CursorReturnType returnType = CursorReturnType.UNSPECIFIED;
+    CursorReturnToType returnToType = CursorReturnToType.UNSPECIFIED;
+    CursorUpdateType updateType = CursorUpdateType.UNSPECIFIED;
+    boolean only = false;
+    SqlNode cursorSpecification = null;
+    SqlIdentifier statementName = null;
+    SqlIdentifier preparedStatementName = null;
+    SqlNode prepareFrom = null;
+    final Span s = Span.of();
+}
+{
+    <DECLARE> cursorName = SimpleIdentifier()
+    [
+        (
+            <SCROLL> { scrollType = CursorScrollType.SCROLL; }
+        |
+            <NO> <SCROLL> { scrollType = CursorScrollType.NO_SCROLL; }
+        )
+    ]
+    <CURSOR>
+    [
+        (
+            <WITHOUT> <RETURN> { returnType = CursorReturnType.WITHOUT_RETURN; }
+        |
+            <WITH> <RETURN> { returnType = CursorReturnType.WITH_RETURN; }
+            [ <ONLY> { only = true; } ]
+            [
+                (
+                    <TO> <CALLER> { returnToType = CursorReturnToType.CALLER; }
+                |
+                    <TO> <CLIENT> { returnToType = CursorReturnToType.CLIENT; }
+                )
+            ]
+        )
+    ]
+    <FOR>
+    (
+        statementName = SimpleIdentifier()
+    |
+        LOOKAHEAD(OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY))
+        cursorSpecification = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+        [
+            <FOR>
+            (
+                <READ> <ONLY> { updateType = CursorUpdateType.READ_ONLY; }
+            |
+                <UPDATE> { updateType = CursorUpdateType.UPDATE; }
+            )
+        ]
+    )
+    [
+        <PREPARE> preparedStatementName = SimpleIdentifier()
+        <FROM>
+        (
+            prepareFrom = SimpleIdentifier()
+        |
+            prepareFrom = StringLiteral()
+        )
+    ]
+    <SEMICOLON>
+    {
+        return new SqlDeclareCursor(s.end(this), cursorName, scrollType,
+            returnType, returnToType, only, updateType, cursorSpecification,
+            statementName, preparedStatementName, prepareFrom);
+    }
 }
 
 // This form of SELECT AND CONSUME is only valid inside a CREATE PROCEDURE

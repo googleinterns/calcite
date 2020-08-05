@@ -21,30 +21,30 @@ import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 import java.util.Objects;
-
 /**
- * Parse tree representing a conditional expression or an operand
- * pairing with a list of statements.
+ * Parse tree for a {@code SqlCaseStmt}.
  */
-public class SqlConditionalStmtListPair extends SqlCall {
+public class SqlCaseStmt extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("CONDITION_STATEMENT_LIST_PAIR", SqlKind.OTHER);
+      new SqlSpecialOperator("CASE", SqlKind.CASE_STATEMENT);
 
-  public final SqlNode condition;
-  public final SqlStatementList stmtList;
-
+  public final SqlNodeList conditionalStmtListPairs;
+  public final SqlNodeList elseStmtList;
   /**
-   * Creates a {@code SqlConditionalStmtListPair}.
-   * @param pos         Parser position, must not be null.
-   * @param condition   Condition expression or operand, must not be null.
-   * @param stmtList    A List of statements, must not be null.
+   * Creates a {@code SqlCaseStmt}.
+   * @param pos                       Parser position, must not be null.
+   * @param conditionalStmtListPairs  List of SqlNode pairs
+   *                                  with StatementList, must not be null.
+   * @param elseStmtList              List of statements in the else clause,
+   *                                  must not be null.
    */
-  public SqlConditionalStmtListPair(final SqlParserPos pos,
-      final SqlNode condition,
-      final SqlStatementList stmtList) {
+  public SqlCaseStmt(final SqlParserPos pos,
+      final SqlNodeList conditionalStmtListPairs,
+      final SqlNodeList elseStmtList) {
     super(pos);
-    this.condition = Objects.requireNonNull(condition);
-    this.stmtList = Objects.requireNonNull(stmtList);
+    this.conditionalStmtListPairs =
+        Objects.requireNonNull(conditionalStmtListPairs);
+    this.elseStmtList = Objects.requireNonNull(elseStmtList);
   }
 
   @Override public SqlOperator getOperator() {
@@ -52,13 +52,19 @@ public class SqlConditionalStmtListPair extends SqlCall {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(condition, stmtList);
+    return ImmutableNullableList.of(conditionalStmtListPairs, elseStmtList);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
-    condition.unparse(writer, leftPrec, rightPrec);
-    writer.keyword("THEN");
-    stmtList.unparse(writer, leftPrec, rightPrec);
+    for (SqlNode pair : conditionalStmtListPairs) {
+      writer.keyword("WHEN");
+      pair.unparse(writer, leftPrec, rightPrec);
+    }
+    if (!SqlNodeList.isEmptyList(elseStmtList)) {
+      writer.keyword("ELSE");
+      elseStmtList.unparse(writer, leftPrec, rightPrec);
+    }
+    writer.keyword("END CASE");
   }
 }
