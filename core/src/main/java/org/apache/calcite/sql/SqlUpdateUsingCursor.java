@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Parse tree for {@code SqlUpdateCursor} call.
+ * Parse tree for {@code SqlUpdateUsingCursor} call.
  */
 public class SqlUpdateUsingCursor extends SqlCall {
   private static final SqlSpecialOperator OPERATOR =

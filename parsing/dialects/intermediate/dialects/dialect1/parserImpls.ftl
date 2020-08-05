@@ -4640,7 +4640,7 @@ SqlNode CreateProcedureStmt() :
     (
         e = ConditionalStmt()
     |
-        // LOOKAHEAD ensure statements such as UPDATE table and EXECUTE macro
+        // LOOKAHEAD ensures statements such as UPDATE table and EXECUTE macro
         // do not get parsed by CursorStmt() when they should be parsed by
         // SqlStmt().
         LOOKAHEAD(CursorStmt() <SEMICOLON>)
