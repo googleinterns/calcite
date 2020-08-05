@@ -4640,15 +4640,14 @@ SqlNode CreateProcedureStmt() :
     (
         e = ConditionalStmt()
     |
+        LOOKAHEAD(CursorStmt() <SEMICOLON>)
+        e = CursorStmt()
+    |
         e = SqlBeginEndCall()
     |
         e = SqlBeginRequestCall()
     |
-        LOOKAHEAD(SqlStmt())
         e = SqlStmt()
-    |
-        LOOKAHEAD(CursorStmt())
-        e = CursorStmt()
     )
     { return e; }
 }
@@ -4760,7 +4759,10 @@ SqlBeginEndCall SqlBeginEndCall() :
     [ beginLabel = SimpleIdentifier() <COLON> ]
     <BEGIN>
     ( e = LocalDeclaration() { statements.add(e); } )*
-    CreateProcedureStmtList(statements)
+    (
+        LOOKAHEAD({ getToken(1).kind != END })
+        CreateProcedureStmtList(statements)
+    )*
     <END>
     [ endLabel = SimpleIdentifier() ]
     { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
@@ -4974,7 +4976,6 @@ SqlNode CursorStmt() :
     |
         e = SqlSelectAndConsume()
     |
-        LOOKAHEAD(SqlSelectInto())
         e = SqlSelectInto()
     )
     { return e; }
@@ -5104,10 +5105,10 @@ SqlSelectInto SqlSelectInto() :
 }
 {
     (
-        <WITH> { withModifier = SelectIntoWithModifier.WITH; }
+        <WITH> <RECURSIVE> { withModifier = SelectIntoWithModifier.WITH_RECURSIVE; }
     |
-        <WITH> <RECURSIVE> {
-            withModifier = SelectIntoWithModifier.WITH_RECURSIVE;
+        <WITH> {
+            withModifier = SelectIntoWithModifier.WITH;
         }
     |
         { withModifier = SelectIntoWithModifier.UNSPECIFIED; }
