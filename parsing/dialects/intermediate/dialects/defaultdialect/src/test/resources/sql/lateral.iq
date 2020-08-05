@@ -21,21 +21,11 @@
 # Bad: LATERAL tableName
 select * from "scott".emp join lateral "scott".dept using (deptno);
 parse failed: Encountered "join lateral \"scott\"" at line 1, column 27.
-Was expecting one of:
-    "AS" ...
-    "CROSS" ...
-    "EXTEND" ...
-    "FOR" ...
-    "MATCH_RECOGNIZE" ...
-    "OUTER" ...
-    "TABLESAMPLE" ...
 !error
 
 # Bad: LATERAL TABLE
 select * from "scott".emp join lateral table "scott".dept using (deptno);
 parse failed: Encountered "\"scott\"" at line 1, column 46.
-Was expecting:
-    "(" ...
 !error
 
 # Good: LATERAL (subQuery)
@@ -80,8 +70,6 @@ select * from (table "scott".emp) where deptno = 10;
 # Bad: Explicit TABLE
 select * from table "scott".emp;
 parse failed: Encountered "\"scott\"" at line 1, column 21.
-Was expecting:
-    "(" ...
 !error
 
 select * from lateral (select * from "scott".emp) as e
