@@ -4309,7 +4309,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     return typeFactory.createStructType(fieldList);
   }
 
-  private boolean containsDynamicStar(List<Map.Entry<String, RelDataType>> fieldList) {
+  private boolean containsDynamicStar(
+      List<Map.Entry<String, RelDataType>> fieldList) {
     for (Map.Entry<String, RelDataType> item : fieldList) {
       if (item.getValue().getSqlTypeName().getName().equals("DYNAMIC_STAR")) {
         return true;
