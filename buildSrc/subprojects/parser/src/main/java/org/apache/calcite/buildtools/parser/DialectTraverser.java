@@ -23,10 +23,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -85,7 +87,6 @@ public class DialectTraverser {
     } catch (IllegalStateException e) {
       e.printStackTrace();
     }
-    dialectGenerate.unparseReservedKeywords(extractedData);
     dialectGenerate.unparseNonReservedKeywords(extractedData);
     return extractedData;
   }
@@ -116,10 +117,24 @@ public class DialectTraverser {
   public void generateParserImpls(ExtractedData extractedData,
       String licenseText) {
     Path outputFilePath = dialectDirectory.toPath().resolve(outputPath);
+    List<String> specialTokenAssignments = new ArrayList<>();
+    specialTokenAssignments.add(dialectGenerate
+        .unparseTokenAssignment(extractedData.keywords));
+    specialTokenAssignments.add(dialectGenerate
+        .unparseTokenAssignment(extractedData.operators));
+    specialTokenAssignments.add(dialectGenerate
+        .unparseTokenAssignment(extractedData.separators));
+    specialTokenAssignments.add(dialectGenerate
+        .unparseTokenAssignment(extractedData.identifiers));
     StringBuilder content = new StringBuilder();
     content.append(licenseText);
     for (String tokenAssignment : extractedData.tokenAssignments) {
       content.append("\n").append(tokenAssignment).append("\n");
+    }
+    for (String specialTokenAssignment : specialTokenAssignments) {
+      if (!specialTokenAssignment.isEmpty()) {
+        content.append("\n").append(specialTokenAssignment).append("\n");
+      }
     }
     for (String function : extractedData.functions.values()) {
       content.append("\n").append(function).append("\n");

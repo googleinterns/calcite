@@ -81,8 +81,8 @@ public class DialectGenerate {
   }
 
   /**
-   * Adds extractedData.keywords (if nonempty) to extractedData.tokenAssignments
-   * with the form:
+   * If the map is nonempty, this function returns a formatted string of the
+   * form:
    *
    * // Auto generated.
    * <DEFAULT, DQID, BTID> TOKEN :
@@ -91,22 +91,26 @@ public class DialectGenerate {
    *   |< TOKEN_2: TOKEN_2_VALUE >
    *   ...
    * }
+   *
+   * Otherwise an empty string is returned.
+   *
    * File annotations are added as single-line comments following each token
    * if the filePath is specified.
    *
-   * @param extractedData The object which keeps state of all of the extracted
-   *                      data
+   * @param map The map containing the keywords and associated values
+   *
+   * @return The formatted string
    */
-  public void unparseReservedKeywords(ExtractedData extractedData) {
-    if (extractedData.keywords.isEmpty()) {
-      return;
+  public String unparseTokenAssignment(Map<Keyword, String> map) {
+    if (map.isEmpty()) {
+      return "";
     }
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append("// Auto generated.\n");
     stringBuilder.append("<DEFAULT, DQID, BTID> TOKEN :\n{\n");
     String tokenTemplate = "< %s: %s >";
     List<String> tokens = new ArrayList<>();
-    for (Map.Entry<Keyword, String> entry : extractedData.keywords.entrySet()) {
+    for (Map.Entry<Keyword, String> entry : map.entrySet()) {
       StringBuilder tokenBuilder = new StringBuilder();
       Keyword keyword = entry.getKey();
       tokenBuilder.append(String.format(tokenTemplate, keyword.keyword,
@@ -121,7 +125,7 @@ public class DialectGenerate {
     }
     stringBuilder.append(String.join("| ", tokens));
     stringBuilder.append("}");
-    extractedData.tokenAssignments.add(stringBuilder.toString());
+    return stringBuilder.toString();
   }
 
   /**

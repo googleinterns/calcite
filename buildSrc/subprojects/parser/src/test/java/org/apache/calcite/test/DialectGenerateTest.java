@@ -297,38 +297,33 @@ public class DialectGenerateTest {
     assertNonReservedKeywordsInvalid(extractedData);
   }
 
-  @Test public void testUnparseReservedKeywordsEmpty() {
-    ExtractedData extractedData = new ExtractedData();
+  @Test public void testUnparseTokenAssignmentEmpty() {
+    Map<Keyword, String> keywords = new LinkedHashMap<>();
     DialectGenerate dialectGenerate = new DialectGenerate();
-    dialectGenerate.unparseReservedKeywords(extractedData);
-    assertEquals(0, extractedData.tokenAssignments.size());
+    String actual = dialectGenerate.unparseTokenAssignment(keywords);
+    assertEquals("", actual);
   }
 
-  @Test public void testUnparseReservedKeywordsSingle() {
-    ExtractedData extractedData = new ExtractedData();
+  @Test public void testUnparseTokenAssignmentSingle() {
+    Map<Keyword, String> keywords = new LinkedHashMap<>();
     DialectGenerate dialectGenerate = new DialectGenerate();
-    extractedData.keywords.put(new Keyword("foo", "path/file"), "\"FOO\"");
-    dialectGenerate.unparseReservedKeywords(extractedData);
-
-    String actual = extractedData.tokenAssignments.get(0);
+    keywords.put(new Keyword("foo", "path/file"), "\"FOO\"");
+    String actual = dialectGenerate.unparseTokenAssignment(keywords);
     String expected = "// Auto generated.\n"
          + "<DEFAULT, DQID, BTID> TOKEN :\n"
          + "{\n"
          + "< FOO: \"FOO\" > // From: path/file\n"
          + "}";
-    assertEquals(1, extractedData.tokenAssignments.size());
     assertEquals(expected, actual);
   }
 
-  @Test public void testUnparseReservedKeywordsMultiple() {
-    ExtractedData extractedData = new ExtractedData();
+  @Test public void testUnparseTokenAssignmentMultiple() {
+    Map<Keyword, String> keywords = new LinkedHashMap<>();
     DialectGenerate dialectGenerate = new DialectGenerate();
-    extractedData.keywords.put(new Keyword("foo", "path/file"), "\"FOO\"");
-    extractedData.keywords.put(new Keyword("bar", /*filePath=*/ null), "\"BAR\"");
-    extractedData.keywords.put(new Keyword("baz", "path/file"), "\"BAZ\"");
-    dialectGenerate.unparseReservedKeywords(extractedData);
-
-    String actual = extractedData.tokenAssignments.get(0);
+    keywords.put(new Keyword("foo", "path/file"), "\"FOO\"");
+    keywords.put(new Keyword("bar", /*filePath=*/ null), "\"BAR\"");
+    keywords.put(new Keyword("baz", "path/file"), "\"BAZ\"");
+    String actual = dialectGenerate.unparseTokenAssignment(keywords);
     String expected = "// Auto generated.\n"
          + "<DEFAULT, DQID, BTID> TOKEN :\n"
          + "{\n"
@@ -336,7 +331,6 @@ public class DialectGenerateTest {
          + "| < BAR: \"BAR\" > // No file specified.\n"
          + "| < BAZ: \"BAZ\" > // From: path/file\n"
          + "}";
-    assertEquals(1, extractedData.tokenAssignments.size());
     assertEquals(expected, actual);
   }
 
