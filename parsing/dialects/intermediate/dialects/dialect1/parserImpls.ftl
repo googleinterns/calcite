@@ -4642,6 +4642,10 @@ SqlNode CreateProcedureStmt() :
     |
         e = CursorStmt()
     |
+        e = IterateStmt()
+    |
+        e = LeaveStmt()
+    |
         e = SqlBeginEndCall()
     |
         e = SqlBeginRequestCall()
@@ -5062,4 +5066,22 @@ SqlCloseCursor SqlCloseCursor() :
 {
     <CLOSE> cursorName = SimpleIdentifier()
     { return new SqlCloseCursor(s.end(this), cursorName); }
+}
+
+SqlLeaveStmt LeaveStmt() :
+{
+    final SqlIdentifier label;
+}
+{
+    <LEAVE> label = SimpleIdentifier()
+    { return new SqlLeaveStmt(getPos(), label); }
+}
+
+SqlIterateStmt IterateStmt() :
+{
+    final SqlIdentifier label;
+}
+{
+    <ITERATE> label = SimpleIdentifier()
+    { return new SqlIterateStmt(getPos(), label); }
 }
