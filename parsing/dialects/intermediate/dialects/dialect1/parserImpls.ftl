@@ -5054,7 +5054,6 @@ SqlCloseCursor SqlCloseCursor() :
 
 SqlSelectAndConsume SqlSelectAndConsume() :
 {
-    boolean set = false;
     final List<SqlNode> selectList;
     final SqlNodeList parameters = new SqlNodeList(getPos());
     final SqlIdentifier fromTable;
@@ -5063,8 +5062,7 @@ SqlSelectAndConsume SqlSelectAndConsume() :
     SqlNode e;
 }
 {
-    <SELECT>
-    [ <SET> { set = true; } ]
+    ( <SELECT> | <SEL> )
     <AND> <CONSUME> <TOP> topNum = IntLiteral() {
         if (topNum != 1) {
             throw SqlUtil.newContextException(getPos(),
@@ -5089,9 +5087,9 @@ SqlSelectAndConsume SqlSelectAndConsume() :
         { parameters.add(e); }
     )*
     <FROM>
-    fromTable = SimpleIdentifier()
+    fromTable = CompoundIdentifier()
     {
-        return new SqlSelectAndConsume(s.end(this), set,
+        return new SqlSelectAndConsume(s.end(this),
             new SqlNodeList(selectList, Span.of(selectList).pos()), parameters,
             fromTable);
     }
