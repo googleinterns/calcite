@@ -4984,6 +4984,8 @@ SqlNode CursorStmt() :
         e = SqlExecuteImmediate()
     |
         e = SqlExecuteStatement()
+    |
+        e = SqlUpdateUsingCursor()
     )
     { return e; }
 }
@@ -5062,4 +5064,30 @@ SqlCloseCursor SqlCloseCursor() :
 {
     <CLOSE> cursorName = SimpleIdentifier()
     { return new SqlCloseCursor(s.end(this), cursorName); }
+}
+
+SqlUpdateUsingCursor SqlUpdateUsingCursor() :
+{
+    final SqlIdentifier tableName;
+    SqlIdentifier aliasName = null;
+    final SqlNodeList assignments = new SqlNodeList(getPos());
+    final SqlIdentifier cursorName;
+    SqlNode e;
+    final Span s = Span.of();
+}
+{
+    ( <UPDATE> | <UPD> ) tableName = CompoundIdentifier()
+    [ aliasName = SimpleIdentifier() ]
+    <SET>
+    e = Expression(ExprContext.ACCEPT_NON_QUERY) { assignments.add(e); }
+    (
+        <COMMA> e = Expression(ExprContext.ACCEPT_NON_QUERY) {
+            assignments.add(e);
+        }
+    )*
+    <WHERE> <CURRENT> <OF> cursorName = SimpleIdentifier()
+    {
+        return new SqlUpdateUsingCursor(s.end(this), tableName, aliasName,
+            assignments, cursorName);
+    }
 }
