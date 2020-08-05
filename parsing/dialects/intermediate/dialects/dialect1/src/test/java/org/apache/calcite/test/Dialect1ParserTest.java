@@ -4941,4 +4941,29 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "END";
     sql(sql).ok(expected);
   }
+
+  @Test public void testCreateProcedureUpdateTable() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "update foo from bar set foo.x = bar.y, foo.z = bar.k;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "UPDATE `FOO` FROM `BAR` SET `FOO`.`X` = `BAR`.`Y`, `FOO`.`Z` = "
+        + "`BAR`.`K`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureExecuteMacro() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "execute foo (1);\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "EXECUTE `FOO` (1);\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
 }
