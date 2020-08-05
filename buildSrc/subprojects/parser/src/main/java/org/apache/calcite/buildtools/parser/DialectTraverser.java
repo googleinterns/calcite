@@ -231,8 +231,8 @@ public class DialectTraverser {
   /**
    * Adds all of the elements in {@code otherMap} to {@code mainMap}. If a key
    * is already present in {@code mainMap} it is removed before being updated.
-   * This is done to ensure that the filePath gets updated if a given keyword
-   * has been overriden.
+   * This is done to ensure that the {@code filePath} gets updated if a given keyword
+   * has been overridden.
    *
    * @param mainMap The map that is getting entries added to it
    * @param otherMap The map whose entries are being added from
