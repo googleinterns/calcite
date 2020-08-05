@@ -47,7 +47,7 @@ final class DefaultDialectParserTest extends SqlDialectParserTest {
     sql(sql).fails("(?s).*Encountered \"group\" at .*");
   }
 
- @Test void testInvalidToken() {
+  @Test void testInvalidToken() {
     // Causes problems to the test infrastructure because the token mgr
     // throws a java.lang.Error. The usual case is that the parser throws
     // an exception.
