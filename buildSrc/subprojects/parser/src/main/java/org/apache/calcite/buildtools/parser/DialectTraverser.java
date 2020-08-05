@@ -258,7 +258,7 @@ public class DialectTraverser {
    *
    * @return The parsed lines as a {@code Set<Keyword>}
    */
-  private Set<Keyword> processNonReservedKeywords(String[] lines,
+  private static Set<Keyword> processNonReservedKeywords(String[] lines,
       String filePath) {
     Set<Keyword> nonReservedKeywords = new LinkedHashSet<>();
     for (String line : lines) {
@@ -276,11 +276,11 @@ public class DialectTraverser {
    * Empty lines are skipped.
    *
    * @param lines The lines to parse
-   * @param filepath The file these lines came from
+   * @param filePath The file these lines came from
    *
    * @return The {@code Map<Keyword, String>} containing the parsed lines
    */
-  private Map<Keyword, String> processKeyValuePairs(String[] lines,
+  private static Map<Keyword, String> processKeyValuePairs(String[] lines,
       String filePath) {
     Map<Keyword, String> map = new LinkedHashMap<>();
     for (String line : lines) {
