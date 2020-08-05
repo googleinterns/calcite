@@ -237,8 +237,8 @@ public class DialectTraverser {
    * @param mainMap The map that is getting entries added to it
    * @param otherMap The map whose entries are being added from
    */
-  private void addOrReplaceEntries(Map<Keyword, String> mainMap,
-      Map<Keyword, String> otherMap) {
+  private static void addOrReplaceEntries(Map<Keyword, String> mainMap,
+      final Map<Keyword, String> otherMap) {
     for (Map.Entry<Keyword, String> entry : otherMap.entrySet()) {
       Keyword key = entry.getKey();
       String value = entry.getValue();
