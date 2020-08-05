@@ -38,6 +38,7 @@ public class SqlIterationStmt extends SqlCall {
 
   /**
    * Creates a {@code SqlIterationStmt}.
+   *
    * @param pos         Parser position, must not be null.
    * @param condition   Conditional expression, must not be null.
    * @param statements  List of statements to iterate, must not be null.
@@ -63,7 +64,7 @@ public class SqlIterationStmt extends SqlCall {
   }
 
   @Override public SqlOperator getOperator() {
-    return null;
+    return OPERATOR;
   }
 
   @Override public List<SqlNode> getOperandList() {

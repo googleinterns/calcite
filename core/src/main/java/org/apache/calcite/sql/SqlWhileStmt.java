@@ -27,6 +27,7 @@ public class SqlWhileStmt extends SqlIterationStmt {
 
   /**
    * Creates a {@code SqlWhileStmt}.
+   *
    * @param pos         Parser position, must not be null.
    * @param condition   Conditional expression, must not be null.
    * @param statements  List of statements to iterate, must not be null.

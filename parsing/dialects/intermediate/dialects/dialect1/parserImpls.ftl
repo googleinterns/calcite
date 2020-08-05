@@ -4642,7 +4642,7 @@ SqlNode CreateProcedureStmt() :
     |
         e = CursorStmt()
     |
-        // This lookahead ensures parser choose
+        // This lookahead ensures parser chooses
         // the right path when facing begin label.
         LOOKAHEAD(3)
         e = IterationStmt()
