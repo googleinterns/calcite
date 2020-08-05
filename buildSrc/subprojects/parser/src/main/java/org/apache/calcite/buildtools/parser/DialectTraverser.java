@@ -229,17 +229,17 @@ public class DialectTraverser {
   }
 
   /**
-   * Adds all of the elements in {@code otherMap} to {@code mainMap}. If a key
+   * Adds all of the elements in {@code sourceMap} to {@code mainMap}. If a key
    * is already present in {@code mainMap} it is removed before being updated.
    * This is done to ensure that the {@code filePath} gets updated if a given
    * keyword has been overridden.
    *
    * @param mainMap The map that is getting entries added to it
-   * @param otherMap The map whose entries are being added from
+   * @param sourceMap The map whose entries are being added from
    */
   private static void addOrReplaceEntries(Map<Keyword, String> mainMap,
-      final Map<Keyword, String> otherMap) {
-    for (Map.Entry<Keyword, String> entry : otherMap.entrySet()) {
+      final Map<Keyword, String> sourceMap) {
+    for (Map.Entry<Keyword, String> entry : sourceMap.entrySet()) {
       Keyword key = entry.getKey();
       String value = entry.getValue();
       if (mainMap.containsKey(key)) {
