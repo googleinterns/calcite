@@ -242,6 +242,8 @@ public class DialectTraverser {
    *
    * @param lines The lines to parse
    * @param filepath The file these lines came from
+   *
+   * @return The {@code Map<Keyword, String>} containing the parsed lines
    */
   private Map<Keyword, String> processKeyValuePairs(String[] lines,
       String filePath) {
