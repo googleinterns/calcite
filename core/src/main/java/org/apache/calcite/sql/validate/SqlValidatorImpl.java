@@ -625,7 +625,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
           // wait until execution time to expand this star.
           final SqlNode exp =
               new SqlIdentifier(
-                  ImmutableList.of(child.name, DynamicRecordType.DYNAMIC_STAR_PREFIX),
+                  ImmutableList.of(child.name,
+                      DynamicRecordType.DYNAMIC_STAR_PREFIX),
                   startPosition);
           addToSelectList(
                selectItems,
