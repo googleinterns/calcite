@@ -215,17 +215,17 @@ public class DialectTraverser {
             extractedData.nonReservedKeywords
               .addAll(processNonReservedKeywords(lines, filePath));
           } else if (fileName.equals("keywords.txt")) {
-            extractedData.keywords
-              .putAll(processKeyValuePairs(lines, filePath));
+            addOrReplaceEntries(extractedData.keywords,
+                processKeyValuePairs(lines, filePath));
           } else if (fileName.equals("operators.txt")) {
-            extractedData.operators
-              .putAll(processKeyValuePairs(lines, filePath));
+            addOrReplaceEntries(extractedData.operators,
+                processKeyValuePairs(lines, filePath));
           } else if (fileName.equals("separators.txt")) {
-            extractedData.separators
-              .putAll(processKeyValuePairs(lines, filePath));
+            addOrReplaceEntries(extractedData.separators,
+                processKeyValuePairs(lines, filePath));
           } else if (fileName.equals("identifiers.txt")) {
-            extractedData.identifiers
-              .putAll(processKeyValuePairs(lines, filePath));
+            addOrReplaceEntries(extractedData.identifiers,
+                processKeyValuePairs(lines, filePath));
           }
 
         }
@@ -236,6 +236,27 @@ public class DialectTraverser {
         directories.poll();
         traverse(directories, f, extractedData, licenseText);
       }
+    }
+  }
+
+  /**
+   * Adds all of the elements in {@code otherMap} to {@code mainMap}. If a key
+   * is already present in {@code mainMap} it is removed before being updated.
+   * This is done to ensure that the filePath gets updated if a given keyword
+   * has been overriden.
+   *
+   * @param mainMap The map that is getting entries added to it
+   * @param otherMap The map whose entries are being added from
+   */
+  private void addOrReplaceEntries(Map<Keyword, String> mainMap,
+      Map<Keyword, String> otherMap) {
+    for (Map.Entry<Keyword, String> entry : otherMap.entrySet()) {
+      Keyword key = entry.getKey();
+      String value = entry.getValue();
+      if (mainMap.containsKey(key)) {
+        mainMap.remove(key);
+      }
+      mainMap.put(key, value);
     }
   }
 
