@@ -36,6 +36,7 @@
         { "CT": "CT" },
         { "DATABLOCKSIZE": "DATABLOCKSIZE" },
         { "DEL": "DEL" },
+        { "DO": "DO"},
         { "DUAL": "DUAL" },
         { "FALLBACK": "FALLBACK" },
         { "FREESPACE": "FREESPACE" },
@@ -85,7 +86,8 @@
         { "UPPERCASE": "UPPERCASE" },
         { "VARBYTE": "VARBYTE" },
         { "VOLATILE": "VOLATILE" },
-        {"WARNING": "WARNING"}
+        {"WARNING": "WARNING"},
+        { "WHILE": "WHILE" }
     ],
     "nonReservedKeywords":[
         "ABS",
