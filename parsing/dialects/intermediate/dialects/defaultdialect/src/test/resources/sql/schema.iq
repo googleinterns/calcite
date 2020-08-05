@@ -92,10 +92,6 @@ Encountered "library" at line 1, column 18.
 
 create foreign schema fs;
 parse failed: Encountered "<EOF>" at line 1, column 24.
-Was expecting one of:
-    "LIBRARY" ...
-    "TYPE" ...
-    "." ...
 !error
 
 # JDBC schema
