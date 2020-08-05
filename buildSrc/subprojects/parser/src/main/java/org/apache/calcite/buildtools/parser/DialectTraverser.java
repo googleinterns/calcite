@@ -121,10 +121,6 @@ public class DialectTraverser {
     specialTokenAssignments.add(dialectGenerate
         .unparseTokenAssignment(extractedData.keywords));
     specialTokenAssignments.add(dialectGenerate
-        .unparseTokenAssignment(extractedData.operators));
-    specialTokenAssignments.add(dialectGenerate
-        .unparseTokenAssignment(extractedData.separators));
-    specialTokenAssignments.add(dialectGenerate
         .unparseTokenAssignment(extractedData.identifiers));
     StringBuilder content = new StringBuilder();
     content.append(licenseText);
@@ -216,12 +212,6 @@ public class DialectTraverser {
               .addAll(processNonReservedKeywords(lines, filePath));
           } else if (fileName.equals("keywords.txt")) {
             addOrReplaceEntries(extractedData.keywords,
-                processKeyValuePairs(lines, filePath));
-          } else if (fileName.equals("operators.txt")) {
-            addOrReplaceEntries(extractedData.operators,
-                processKeyValuePairs(lines, filePath));
-          } else if (fileName.equals("separators.txt")) {
-            addOrReplaceEntries(extractedData.separators,
                 processKeyValuePairs(lines, filePath));
           } else if (fileName.equals("identifiers.txt")) {
             addOrReplaceEntries(extractedData.identifiers,

@@ -29,8 +29,6 @@ import java.util.Set;
 public class ExtractedData {
   public final Map<Keyword, String> keywords;
   public final Set<Keyword> nonReservedKeywords;
-  public final Map<Keyword, String> operators;
-  public final Map<Keyword, String> separators;
   public final Map<Keyword, String> identifiers;
   public final Map<String, String> functions;
   public final List<String> tokenAssignments;
@@ -38,8 +36,6 @@ public class ExtractedData {
   public ExtractedData() {
     keywords = new LinkedHashMap<>();
     nonReservedKeywords = new LinkedHashSet<>();
-    operators = new LinkedHashMap<>();
-    separators = new LinkedHashMap<>();
     identifiers = new LinkedHashMap<>();
     functions = new LinkedHashMap<>();
     tokenAssignments = new ArrayList<>();
