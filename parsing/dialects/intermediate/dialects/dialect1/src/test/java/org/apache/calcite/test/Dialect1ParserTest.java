@@ -4942,4 +4942,13 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "END";
     sql(sql).ok(expected);
   }
+
+  @Test public void testSelectAndConsumeTopOutOfRangeFails() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select and consume top ^2^ a, b, c into :d, :e, :f from bar.qux;\n"
+        + "end";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
 }

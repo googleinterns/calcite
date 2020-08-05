@@ -5066,6 +5066,8 @@ SqlCloseCursor SqlCloseCursor() :
     { return new SqlCloseCursor(s.end(this), cursorName); }
 }
 
+// This form of SELECT AND CONSUME is only valid inside a CREATE PROCEDURE
+// statement.
 SqlSelectAndConsume SqlSelectAndConsume() :
 {
     final List<SqlNode> selectList;
