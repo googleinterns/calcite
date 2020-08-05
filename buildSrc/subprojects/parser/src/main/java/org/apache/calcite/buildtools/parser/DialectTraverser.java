@@ -217,7 +217,17 @@ public class DialectTraverser {
           } else if (fileName.equals("keywords.txt")) {
             extractedData.keywords
               .putAll(processKeyValuePairs(lines, filePath));
+          } else if (fileName.equals("operators.txt")) {
+            extractedData.operators
+              .putAll(processKeyValuePairs(lines, filePath));
+          } else if (fileName.equals("separators.txt")) {
+            extractedData.separators
+              .putAll(processKeyValuePairs(lines, filePath));
+          } else if (fileName.equals("identifiers.txt")) {
+            extractedData.identifiers
+              .putAll(processKeyValuePairs(lines, filePath));
           }
+
         }
       } else if (!directories.isEmpty() && fileName.equals(nextDirectory)) {
         // Remove the front element in the queue, the value is referenced above

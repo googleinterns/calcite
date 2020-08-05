@@ -44,6 +44,33 @@ MORE : {}
 | < QUUX: "quux1" > // From: parserTest/intermediate/dialects/testDialect/keywords.txt
 }
 
+// Auto generated.
+<DEFAULT, DQID, BTID> TOKEN :
+{
+< EQ: "=" > // From: parserTest/operators.txt
+| < GT: ">" > // From: parserTest/operators.txt
+| < LT: "<" > // From: parserTest/intermediate/operators.txt
+| < COLON: ":" > // From: parserTest/intermediate/operators.txt
+| < HOOK: "?" > // From: parserTest/intermediate/operators.txt
+| < DOLLAR: "$" > // From: parserTest/intermediate/dialects/testDialect/operators.txt
+}
+
+// Auto generated.
+<DEFAULT, DQID, BTID> TOKEN :
+{
+< LPAREN: "(" > // From: parserTest/separators.txt
+| < RPAREN: ")" > // From: parserTest/separators.txt
+| < LBRACE: "{" > // From: parserTest/intermediate/separators.txt
+| < RBRACE: "}" > // From: parserTest/intermediate/separators.txt
+}
+
+// Auto generated.
+<DEFAULT, DQID, BTID> TOKEN :
+{
+< IDENTIFIER: (<LETTER>|<DOLLAR>) (<LETTER>|<DOLLAR>|<DIGIT>)* > // From: parserTest/identifiers.txt
+| < UNICODE_QUOTED_IDENTIFIER: "U" "&" <QUOTED_IDENTIFIER> > // From: parserTest/identifiers.txt
+}
+
 // Extracted from: parserTest/intermediate/dialects/testDialect/parserImpls.ftl
 void foo() :
 {
