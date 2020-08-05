@@ -4640,13 +4640,15 @@ SqlNode CreateProcedureStmt() :
     (
         e = ConditionalStmt()
     |
-        e = CursorStmt()
-    |
         e = SqlBeginEndCall()
     |
         e = SqlBeginRequestCall()
     |
+        LOOKAHEAD(SqlStmt())
         e = SqlStmt()
+    |
+        LOOKAHEAD(CursorStmt())
+        e = CursorStmt()
     )
     { return e; }
 }
@@ -4954,19 +4956,6 @@ SqlNode ConditionMultiStmtPair() :
     }
 }
 
-void CreateProcedureStmtList(SqlStatementList statements) :
-{
-    SqlNode e;
-}
-{
-    (
-        LOOKAHEAD(CreateProcedureStmt())
-        e = CreateProcedureStmt() <SEMICOLON> {
-            statements.add(e);
-        }
-    )+
-}
-
 SqlNode CursorStmt() :
 {
     final SqlNode e;
@@ -4984,6 +4973,9 @@ SqlNode CursorStmt() :
         e = SqlExecuteStatement()
     |
         e = SqlSelectAndConsume()
+    |
+        LOOKAHEAD(SqlSelectInto())
+        e = SqlSelectInto()
     )
     { return e; }
 }
@@ -5094,5 +5086,50 @@ SqlSelectAndConsume SqlSelectAndConsume() :
         return new SqlSelectAndConsume(s.end(this), set,
             new SqlNodeList(selectList, Span.of(selectList).pos()), parameters,
             fromTable);
+    }
+}
+
+
+SqlSelectInto SqlSelectInto() :
+{
+    final SelectIntoWithModifier withModifier;
+    boolean set = false;
+    SqlSelectKeyword selectKeyword = null;
+    final List<SqlNode> selectList;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    SqlNode fromClause = null;
+    SqlNode whereClause = null;
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    (
+        <WITH> { withModifier = SelectIntoWithModifier.WITH; }
+    |
+        <WITH> <RECURSIVE> {
+            withModifier = SelectIntoWithModifier.WITH_RECURSIVE;
+        }
+    |
+        { withModifier = SelectIntoWithModifier.UNSPECIFIED; }
+    )
+    <SELECT>
+    [ <SET> { set = true; } ]
+    [
+        (
+            <ALL> { selectKeyword = SqlSelectKeyword.ALL; }
+        |
+            <DISTINCT> { selectKeyword = SqlSelectKeyword.DISTINCT; }
+        )
+    ]
+    selectList = SelectList()
+    <INTO>
+    e = SimpleIdentifier() { parameters.add(e); }
+    ( <COMMA> e = SimpleIdentifier() { parameters.add(e); } )*
+    [ fromClause = FromClause() ]
+    whereClause = WhereOpt()
+    {
+        return new SqlSelectInto(s.end(this), withModifier, set, selectKeyword,
+            new SqlNodeList(selectList, Span.of(selectList).pos()), parameters,
+            fromClause, whereClause);
     }
 }

@@ -4445,6 +4445,20 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void test() {
+    final String sql = "insert baz (:a)";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "`LABEL1`: BEGIN\n"
+        + "SELECT `BAR`;\n"
+        + "INSERT INTO `BAZ`\n"
+        + "VALUES (ROW(:A));\n"
+        + "SELECT `QUX`\n"
+        + "FROM `QUXX`\n"
+        + "WHERE (`QUX` = 3);\n"
+        + "END `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testBeginEndNested() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -4890,6 +4904,42 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
         + "SELECT AND CONSUME TOP 1 `A`, `B`, `C` INTO :D, :E, :F FROM `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectInto() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select bar into baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT `BAR` INTO `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectIntoWithModifier() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "with select bar into baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "WITH SELECT `BAR` INTO `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectIntoWithRecursiveModifier() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "with recursive select bar into baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "WITH RECURSIVE SELECT `BAR` INTO `BAZ`;\n"
         + "END";
     sql(sql).ok(expected);
   }

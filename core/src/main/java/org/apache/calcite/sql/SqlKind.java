@@ -630,6 +630,11 @@ public enum SqlKind {
   SELECT_AND_CONSUME,
 
   /**
+   * SELECT INTO statement in a BEGIN...END statement.
+   */
+  SELECT_INTO,
+
+  /**
    * Special functions in MATCH_RECOGNIZE.
    */
   FINAL,
