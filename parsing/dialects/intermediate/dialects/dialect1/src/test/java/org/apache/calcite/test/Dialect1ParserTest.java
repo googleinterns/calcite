@@ -116,32 +116,32 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testDeleteWithTable() {
     final String sql = "delete foo from bar";
-    final String expected = "DELETE `FOO` FROM `BAR`";
+    final String expected = "DELETE FROM `FOO`";
     sql(sql).ok(expected);
   }
 
   @Test public void testDeleteWithTableCompoundIdentifier() {
     final String sql = "delete foo.bar from baz";
-    final String expected = "DELETE `FOO`.`BAR` FROM `BAZ`";
+    final String expected = "DELETE FROM `FOO`.`BAR`";
     sql(sql).ok(expected);
   }
 
   @Test public void testDeleteWithTableWithAlias() {
     final String sql = "delete foo from bar as b";
-    final String expected = "DELETE `FOO` FROM `BAR` AS `B`";
+    final String expected = "DELETE FROM `FOO` AS `B`";
     sql(sql).ok(expected);
   }
 
   @Test public void testDeleteWithTableWithWhere() {
     final String sql = "delete foo from bar where bar.x = 0";
-    final String expected = "DELETE `FOO` FROM `BAR`\n"
+    final String expected = "DELETE FROM `FOO`\n"
         + "WHERE (`BAR`.`X` = 0)";
     sql(sql).ok(expected);
   }
 
   @Test public void testDeleteWithTableWithoutFrom() {
     final String sql = "delete foo bar";
-    final String expected = "DELETE `FOO` FROM `BAR`";
+    final String expected = "DELETE FROM `FOO`";
     sql(sql).ok(expected);
   }
 
@@ -4755,6 +4755,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).fails(expected);
   }
 
+  @Test public void testDeleteUsingCursor() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "delete from bar where current of baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DELETE FROM `BAR` WHERE CURRENT OF `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testExecuteImmediateIdentifier() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -4767,6 +4779,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testDeleteUsingCursorDelKeyword() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "del from bar.qux where current of baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DELETE FROM `BAR`.`QUX` WHERE CURRENT OF `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testExecuteStatement() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -4775,6 +4799,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
         + "EXECUTE `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteUsingCursorCompoundIdentifier() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "delete from bar.qux where current of baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DELETE FROM `BAR`.`QUX` WHERE CURRENT OF `BAZ`;\n"
         + "END";
     sql(sql).ok(expected);
   }
@@ -4942,6 +4978,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "DECLARE `G` INTEGER DEFAULT NULL;\n"
         + "SELECT `BAR`;\n"
         + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCastWithAttributeNoDataType() {
+    final String sql = "select cast(a as format '999')";
+    final String expected = "SELECT CAST(`A` AS FORMAT '999')";
     sql(sql).ok(expected);
   }
 }
