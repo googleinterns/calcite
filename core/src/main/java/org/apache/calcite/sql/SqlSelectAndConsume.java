@@ -30,7 +30,6 @@ public class SqlSelectAndConsume extends SqlCall {
       new SqlSpecialOperator("SELECT AND CONSUME",
           SqlKind.SELECT_AND_CONSUME);
 
-  public final boolean set;
   public final SqlNodeList selectList;
   public final SqlNodeList parameters;
   public final SqlIdentifier fromTable;
@@ -38,18 +37,15 @@ public class SqlSelectAndConsume extends SqlCall {
   /**
    * Creates a {@code SqlSelectAndConsume}.
    *
-   * @param pos  Parser position, must not be null
-   * @param set  True if the SET keyword was specified
-   * @param selectList  An asterisk or a list of SQL expressions, must not be
+   * @param pos Parser position, must not be null
+   * @param selectList An asterisk or a list of SQL expressions, must not be
    *                    null
    * @param parameters A list of parameter names
    * @param fromTable Name of the queue table
    */
-  public SqlSelectAndConsume(SqlParserPos pos, boolean set,
-      SqlNodeList selectList, SqlNodeList parameters,
-      SqlIdentifier fromTable) {
+  public SqlSelectAndConsume(SqlParserPos pos, SqlNodeList selectList,
+      SqlNodeList parameters, SqlIdentifier fromTable) {
     super(pos);
-    this.set = set;
     this.selectList = Objects.requireNonNull(selectList);
     this.parameters = Objects.requireNonNull(parameters);
     this.fromTable = Objects.requireNonNull(fromTable);
@@ -65,9 +61,8 @@ public class SqlSelectAndConsume extends SqlCall {
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("SELECT");
-    if (set) {
-      writer.keyword("SET");
-    }
+    // This statement only allows TOP 1 and an error would have been thrown if
+    // a different number was parsed.
     writer.keyword("AND CONSUME TOP 1");
     selectList.unparse(writer, 0, 0);
     writer.setNeedWhitespace(true);
