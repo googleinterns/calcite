@@ -17,40 +17,27 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
-
-import java.util.Collection;
-import java.util.Objects;
-
 /**
- * A <code>SqlStatementList</code> is a list of {@link SqlNode}s that are SQL
- * statements with a terminating semicolon. It is also a {@link SqlNode}, so
- * it may appear in a parse tree.
+ * Parse tree for a {@code SqlCaseStmtWithConditionalExpression}.
  */
-public class SqlStatementList extends SqlNodeList {
-
-  public SqlStatementList(SqlParserPos pos) {
-    super(pos);
-  }
-
-  public SqlStatementList(Collection<? extends SqlNode> collection,
-      SqlParserPos pos) {
-    super(collection, pos);
-  }
-
-  @Override public void add(final SqlNode node) {
-    super.add(Objects.requireNonNull(node));
+public class SqlCaseStmtWithConditionalExpression extends SqlCaseStmt {
+  /**
+   * Creates a {@code SqlCaseStmtWithConditionalExpression}.
+   * @param pos                       Parser position, must not be null.
+   * @param conditionalStmtListPairs  List of SqlNode pairs
+   *                                  with StatementList, must not be null.
+   * @param elseStmtList              List of statements in the else clause,
+   *                                  must not be null.
+   */
+  public SqlCaseStmtWithConditionalExpression(final SqlParserPos pos,
+      final SqlNodeList conditionalStmtListPairs,
+      final SqlNodeList elseStmtList) {
+    super(pos, conditionalStmtListPairs, elseStmtList);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
-    SqlWriter.Frame frame = writer.startList(
-        SqlWriter.FrameTypeEnum.STATEMENT_LIST, "", "");
-    for (SqlNode e : getList()) {
-      e.unparse(writer, 0, 0);
-      writer.setNeedWhitespace(false);
-      writer.sep(";");
-      writer.newlineAndIndent();
-    }
-    writer.endList(frame);
+    writer.keyword("CASE");
+    super.unparse(writer, leftPrec, rightPrec);
   }
 }

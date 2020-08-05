@@ -116,32 +116,32 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testDeleteWithTable() {
     final String sql = "delete foo from bar";
-    final String expected = "DELETE `FOO` FROM `BAR`";
+    final String expected = "DELETE FROM `FOO`";
     sql(sql).ok(expected);
   }
 
   @Test public void testDeleteWithTableCompoundIdentifier() {
     final String sql = "delete foo.bar from baz";
-    final String expected = "DELETE `FOO`.`BAR` FROM `BAZ`";
+    final String expected = "DELETE FROM `FOO`.`BAR`";
     sql(sql).ok(expected);
   }
 
   @Test public void testDeleteWithTableWithAlias() {
     final String sql = "delete foo from bar as b";
-    final String expected = "DELETE `FOO` FROM `BAR` AS `B`";
+    final String expected = "DELETE FROM `FOO` AS `B`";
     sql(sql).ok(expected);
   }
 
   @Test public void testDeleteWithTableWithWhere() {
     final String sql = "delete foo from bar where bar.x = 0";
-    final String expected = "DELETE `FOO` FROM `BAR`\n"
+    final String expected = "DELETE FROM `FOO`\n"
         + "WHERE (`BAR`.`X` = 0)";
     sql(sql).ok(expected);
   }
 
   @Test public void testDeleteWithTableWithoutFrom() {
     final String sql = "delete foo bar";
-    final String expected = "DELETE `FOO` FROM `BAR`";
+    final String expected = "DELETE FROM `FOO`";
     sql(sql).ok(expected);
   }
 
@@ -325,6 +325,13 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testCreateVolatileTable() {
     final String sql = "create volatile table foo (bar int not null, baz varchar(30))";
     final String expected = "CREATE VOLATILE TABLE `FOO` "
+        + "(`BAR` INTEGER NOT NULL, `BAZ` VARCHAR(30))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateGlobalTemporaryTable() {
+    final String sql = "create global temporary table foo (bar int not null, baz varchar(30))";
+    final String expected = "CREATE TEMP TABLE `FOO` "
         + "(`BAR` INTEGER NOT NULL, `BAZ` VARCHAR(30))";
     sql(sql).ok(expected);
   }
@@ -959,6 +966,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   }
 
   @Test public void testCreateTableDefaultDateColumnLevelAttribute() {
+    final String sql = "create table foo (bar date default date)";
+    final String expected = "CREATE TABLE `FOO` (`BAR` DATE DEFAULT DATE)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateTableDefaultDateColumnLevelAttributeWithLiteral() {
     final String sql = "create table foo (bar date default date '2000-07-04')";
     final String expected = "CREATE TABLE `FOO` (`BAR` DATE DEFAULT DATE '2000-07-04')";
     sql(sql).ok(expected);
@@ -3564,6 +3577,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     expr(sql).ok(expected);
   }
 
+  @Test public void testRangeNExpression() {
+    final String sql = "range_n (cast(a as integer) between 3 and 10)";
+    final String expected = "RANGE_N(CAST(`A` AS INTEGER) BETWEEN 3 AND 10)";
+    expr(sql).ok(expected);
+  }
+
   @Test public void testRangeNBaseEach() {
     final String sql = "range_n (foo between 3 and 10 each 2)";
     final String expected = "RANGE_N(`FOO` BETWEEN 3 AND 10 EACH 2)";
@@ -3755,6 +3774,14 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test void testSqlTablePartitionExpression() {
+    String sql =
+        "create table foo (bar integer) partition by cast(a as int)";
+    String expected =
+        "CREATE TABLE `FOO` (`BAR` INTEGER) PARTITION BY(CAST(`A` AS INTEGER))";
+    sql(sql).ok(expected);
+  }
+
   @Test void testSqlTablePartitionColumn() {
     String sql =
         "create table foo (bar integer) partition by column";
@@ -3783,7 +3810,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testSqlTablePartitionMultiplePartitionExpressions() {
+  @Test void testSqlTablePartitionMultiplePartitions() {
     String sql =
         "create table foo (bar integer, sales_date date format "
             + "'yyyy-mm-dd' not null, baz integer not null) "
@@ -3949,6 +3976,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  // TODO: Add failing test cases for queries with NOT and "^" together
   @Test public void testCaretNegation() {
     String sql = "select * from foo where ^a = 1";
     String expected = "SELECT *\n"
@@ -3986,6 +4014,118 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     String expected = "SELECT *\n"
         + "FROM `FOO`\n"
         + "WHERE ((^(`A` LIKE 1)) AND (^(`B` NOT LIKE 2)))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationEquals() {
+    String sql = "select * from foo where a ^= 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` <> 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationNotEquals() {
+    String sql = "select * from foo where a ^<> 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` = 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationLessThan() {
+    String sql = "select * from foo where a ^< 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` >= 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationGreaterThan() {
+    String sql = "select * from foo where a ^> 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` <= 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationLessThanOrEqualTo() {
+    String sql = "select * from foo where a ^<= 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` > 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationGreaterThanOrEqualTo() {
+    String sql = "select * from foo where a ^>= 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` < 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationIn() {
+    String sql = "select * from emp where deptno ^ in (10, 20)";
+    String expected = "SELECT *\n"
+        + "FROM `EMP`\n"
+        + "WHERE (`DEPTNO` NOT IN (10, 20))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaretNegationLike() {
+    String sql = "select * from emp where deptno ^ LIKE 10";
+    String expected = "SELECT *\n"
+        + "FROM `EMP`\n"
+        + "WHERE (`DEPTNO` NOT LIKE 10)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotEquals() {
+    String sql = "select * from foo where a not = 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` <> 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotWithNotEquals() {
+    String sql = "select * from foo where a not <> 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` = 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotLessThan() {
+    String sql = "select * from foo where a not < 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` >= 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotGreaterThan() {
+    String sql = "select * from foo where a not > 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` <= 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotLessThanOrEqualTo() {
+    String sql = "select * from foo where a not <= 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` > 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testNotGreaterThanOrEqualTo() {
+    String sql = "select * from foo where a not >= 1";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` < 1)";
     sql(sql).ok(expected);
   }
 
@@ -4372,6 +4512,633 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testRenameProcedureWithCompoundIdentifiers() {
     final String sql = "rename procedure foo.bar as baz.qux";
     final String expected = "RENAME PROCEDURE `FOO`.`BAR` AS `BAZ`.`QUX`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testBeginRequest() {
+    final String sql = "create procedure foo ()\n"
+        + "begin request\n"
+        + "select bar;\n"
+        + "end request";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN REQUEST\n"
+        + "SELECT `BAR`;\n"
+        + "END REQUEST";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testBeginRequestMultipleStatements() {
+    final String sql = "create procedure foo ()\n"
+        + "begin request\n"
+        + "select bar;\n"
+        + "select bar;\n"
+        + "select bar;\n"
+        + "end request";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN REQUEST\n"
+        + "SELECT `BAR`;\n"
+        + "SELECT `BAR`;\n"
+        + "SELECT `BAR`;\n"
+        + "END REQUEST";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testBeginRequestNoTerminatingSemicolon() {
+    final String sql = "create procedure foo ()\n"
+        + "begin request\n"
+        + "select bar;\n"
+        + "select bar;\n"
+        + "select bar\n"
+        + "end request";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN REQUEST\n"
+        + "SELECT `BAR`;\n"
+        + "SELECT `BAR`;\n"
+        + "SELECT `BAR`;\n"
+        + "END REQUEST";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testAllocateCursor() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "allocate bar cursor for procedure baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "ALLOCATE `BAR` CURSOR FOR PROCEDURE `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtBase() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee = 2 then select bar; end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtMultipleStatements() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee = 2 then select bar; select baz; end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "SELECT `BAZ`;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtWithElseIf() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee = 2 then select bar; "
+        + "else if bee = 3 then select baz; "
+        + "end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "ELSE IF (`BEE` = 3) THEN SELECT `BAZ`;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtWithElseIfWithElse() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee = 2 then select bar; "
+        + "else if bee = 3 then select baz; "
+        + "else select xyz;"
+        + "end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "ELSE IF (`BEE` = 3) THEN SELECT `BAZ`;\n"
+            + "ELSE SELECT `XYZ`;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtNestedIf() {
+    final String sql = "create procedure foo (bee integer, abc integer) "
+        + "if bee = 2 then "
+        + "select bar; "
+        + "if abc = 3 then select baz; end if;"
+        + "end if";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER, IN `ABC` INTEGER)\n"
+            + "IF (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "IF (`ABC` = 3) THEN SELECT `BAZ`;\n"
+            + "END IF;\n"
+            + "END IF";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIfStmtWithEmptyThenClauseFails() {
+    final String sql = "create procedure foo (bee integer) "
+        + "if bee > 2 then ^end^ if";
+    final String expected = "(?s)Encountered \"end\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testIfStmtStartWithElseIfFails() {
+    final String sql = "create procedure foo (bee integer) "
+        + "^else^ if bee > 2 then end if";
+    final String expected = "(?s)Encountered \"else\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testCaseStmtWithOperandBase() {
+    final String sql = "create procedure foo (bee integer) "
+        + "case bee "
+        + "when 2 then "
+        + "select bar; "
+        + "when 3 then "
+        + "select abc; "
+        + "end case";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "CASE `BEE` WHEN 2 THEN SELECT `BAR`;\n"
+            + "WHEN 3 THEN SELECT `ABC`;\n"
+            + "END CASE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaseStmtWithOperandWithElse() {
+    final String sql = "create procedure foo (bee integer) "
+        + "case bee "
+        + "when 2 then "
+        + "select bar; "
+        + "when 3 then "
+        + "select abc; "
+        + "else "
+        + "select cde;"
+        + "end case";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "CASE `BEE` WHEN 2 THEN SELECT `BAR`;\n"
+            + "WHEN 3 THEN SELECT `ABC`;\n"
+            + "ELSE SELECT `CDE`;\n"
+            + "END CASE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaseStmtWithConditionalExpressionBase() {
+    final String sql = "create procedure foo (bee integer) "
+        + "case "
+        + "when bee = 2 then "
+        + "select bar; "
+        + "when bee = 3 then "
+        + "select abc; "
+        + "end case";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "CASE WHEN (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "WHEN (`BEE` = 3) THEN SELECT `ABC`;\n"
+            + "END CASE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaseStmtNested() {
+    final String sql = "create procedure foo (bee integer) "
+        + "case "
+        + "when bee = 2 then "
+        + "select bar; "
+        + "case "
+        + "when bee = 2 then "
+        + "select bar; "
+        + "when bee = 3 then "
+        + "select abc; "
+        + "end case; "
+        + "when bee = 3 then "
+        + "select abc; "
+        + "end case";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "CASE WHEN (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "CASE WHEN (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "WHEN (`BEE` = 3) THEN SELECT `ABC`;\n"
+            + "END CASE;\n"
+            + "WHEN (`BEE` = 3) THEN SELECT `ABC`;\n"
+            + "END CASE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaseStmtWithConditionalExpressionWithElse() {
+    final String sql = "create procedure foo (bee integer) "
+        + "case "
+        + "when bee = 2 then "
+        + "select bar; "
+        + "when bee = 3 then "
+        + "select abc; "
+        + "else "
+        + "select cde;"
+        + "end case";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BEE` INTEGER)\n"
+            + "CASE WHEN (`BEE` = 2) THEN SELECT `BAR`;\n"
+            + "WHEN (`BEE` = 3) THEN SELECT `ABC`;\n"
+            + "ELSE SELECT `CDE`;\n"
+            + "END CASE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCaseStmtWithConditionalExpressionStartWithElseFails() {
+    final String sql = "create procedure foo (bee integer) "
+        + "^case^ "
+        + "else "
+        + "select cde;"
+        + "end case";
+    final String expected =
+        "(?s)Encountered \"case else\" at .*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testDeleteUsingCursor() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "delete from bar where current of baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DELETE FROM `BAR` WHERE CURRENT OF `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testExecuteImmediateIdentifier() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "execute immediate bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "EXECUTE IMMEDIATE `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteUsingCursorDelKeyword() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "del from bar.qux where current of baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DELETE FROM `BAR`.`QUX` WHERE CURRENT OF `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testExecuteStatement() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "execute bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "EXECUTE `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteUsingCursorCompoundIdentifier() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "delete from bar.qux where current of baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DELETE FROM `BAR`.`QUX` WHERE CURRENT OF `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeallocatePrepare() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "deallocate prepare bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DEALLOCATE PREPARE `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testExecuteStatementUsingVariable() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "execute bar using baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "EXECUTE `BAR` USING `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCloseCursor() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "close bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "CLOSE `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testExecuteStatementUsingVariableList() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "execute bar using a, b, c;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "EXECUTE `BAR` USING `A`, `B`, `C`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareVariable() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a integer;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A` INTEGER;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareVariableList() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a, b, c integer;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A`, `B`, `C` INTEGER;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareVariableDefaultLiteral() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a integer default 15;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A` INTEGER DEFAULT 15;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareVariableDefaultNull() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a integer default null;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A` INTEGER DEFAULT NULL;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareCondition() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a condition;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A` CONDITION;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareConditionForStateCode() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a condition for '10001';\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A` CONDITION FOR '10001';\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testExecuteImmediateLiteral() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "execute immediate 'select bar from baz';\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "EXECUTE IMMEDIATE 'select bar from baz';\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareVariableMultipleStatements() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a, b, c integer;\n"
+        + "declare d condition;\n"
+        + "declare e integer default 15;\n"
+        + "declare f condition for '10001';\n"
+        + "declare g integer default null;\n"
+        + "select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A`, `B`, `C` INTEGER;\n"
+        + "DECLARE `D` CONDITION;\n"
+        + "DECLARE `E` INTEGER DEFAULT 15;\n"
+        + "DECLARE `F` CONDITION FOR '10001';\n"
+        + "DECLARE `G` INTEGER DEFAULT NULL;\n"
+        + "SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCastWithAttributeNoDataType() {
+    final String sql = "select cast(a as format '999')";
+    final String expected = "SELECT CAST(`A` AS FORMAT '999')";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareCursor() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare bar cursor for select baz from qux where baz = 3 order by "
+        + "baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `BAR` CURSOR FOR SELECT `BAZ`\n"
+        + "FROM `QUX`\n"
+        + "WHERE (`BAZ` = 3)\n"
+        + "ORDER BY `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareCursorStatementName() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare bar cursor for baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `BAR` CURSOR FOR `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareCursorNoScrollWithoutReturnReadOnly() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare bar no scroll cursor without return for select baz from qux "
+        + "for read only;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `BAR` NO SCROLL CURSOR WITHOUT RETURN FOR SELECT `BAZ`\n"
+        + "FROM `QUX` FOR READ ONLY;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareCursorScrollWithReturnUpdate() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare bar scroll cursor with return for select baz from qux for "
+        + "update;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `BAR` SCROLL CURSOR WITH RETURN FOR SELECT `BAZ`\n"
+        + "FROM `QUX` FOR UPDATE;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareCursorWithReturnOnly() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare bar cursor with return only for select baz from qux;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `BAR` CURSOR WITH RETURN ONLY FOR SELECT `BAZ`\n"
+        + "FROM `QUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareCursorWithReturnToCaller() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare bar cursor with return only to caller for select baz from "
+        + "qux;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `BAR` CURSOR WITH RETURN ONLY TO CALLER FOR SELECT `BAZ`\n"
+        + "FROM `QUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareCursorWithReturnToClient() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare bar cursor with return to client for select baz from qux;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `BAR` CURSOR WITH RETURN TO CLIENT FOR SELECT `BAZ`\n"
+        + "FROM `QUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareCursorPrepareString() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare bar cursor for select baz from qux prepare a from 'select b "
+        + "from c';\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `BAR` CURSOR FOR SELECT `BAZ`\n"
+        + "FROM `QUX` PREPARE `A` FROM 'select b from c';\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareCursorPrepareVariable() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare bar cursor for select baz from qux prepare a from b;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `BAR` CURSOR FOR SELECT `BAZ`\n"
+        + "FROM `QUX` PREPARE `A` FROM `B`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareCursorMismatchStatementNamesFail() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare bar cursor for baz prepare ^qux^ from a;\n"
+        + "end";
+    final String expected = "FOR statement name must match PREPARE statement "
+        + "name";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testDeclareCursorWithOtherStatements() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a, b, c integer;\n"
+        + "declare d condition;\n"
+        + "declare bar cursor for select baz from qux;\n"
+        + "declare bar2 cursor for select baz2;\n"
+        + "select e from f;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A`, `B`, `C` INTEGER;\n"
+        + "DECLARE `D` CONDITION;\n"
+        + "DECLARE `BAR` CURSOR FOR SELECT `BAZ`\n"
+        + "FROM `QUX`;\n"
+        + "DECLARE `BAR2` CURSOR FOR SELECT `BAZ2`;\n"
+        + "SELECT `E`\n"
+        + "FROM `F`;\n"
+        + "END";
     sql(sql).ok(expected);
   }
 }

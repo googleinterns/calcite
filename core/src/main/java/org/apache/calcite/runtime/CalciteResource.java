@@ -80,6 +80,12 @@ public interface CalciteResource {
   @BaseMessage("CURSOR expression encountered in illegal context")
   ExInst<CalciteException> illegalCursorExpression();
 
+  @BaseMessage("Set type unexpected")
+  ExInst<CalciteException> illegalSetType();
+
+  @BaseMessage("Volatility type unexpected")
+  ExInst<CalciteException> illegalVolatility();
+
   @BaseMessage("FROM unexpected")
   ExInst<CalciteException> illegalFrom();
 
@@ -942,4 +948,7 @@ public interface CalciteResource {
 
   @BaseMessage("BEGIN label and END label must match")
   ExInst<SqlValidatorException> beginEndLabelMismatch();
+
+  @BaseMessage("FOR statement name must match PREPARE statement name")
+  ExInst<SqlValidatorException> declareCursorStatementNameMismatch();
 }

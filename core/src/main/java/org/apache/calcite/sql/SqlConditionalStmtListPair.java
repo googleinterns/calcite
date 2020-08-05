@@ -16,30 +16,35 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
- * Parse tree for {@code SqlExcept} statement.
+ * Parse tree representing a conditional expression or an operand
+ * pairing with a list of statements.
  */
-public class SqlExcept extends SqlCall implements SqlExecutableStatement {
+public class SqlConditionalStmtListPair extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("EXCEPT", SqlKind.EXCEPT);
+      new SqlSpecialOperator("CONDITION_STATEMENT_LIST_PAIR", SqlKind.OTHER);
 
-  public final SqlNodeList exceptList;
+  public final SqlNode condition;
+  public final SqlStatementList stmtList;
 
   /**
-   * Create an {@code SqlExcept}.
-   *
-   * @param pos  Parser position, must not be null
-   * @param exceptList  List of columns to not select
+   * Creates a {@code SqlConditionalStmtListPair}.
+   * @param pos         Parser position, must not be null.
+   * @param condition   Condition expression or operand, must not be null.
+   * @param stmtList    A List of statements, must not be null.
    */
-  public SqlExcept(SqlParserPos pos, SqlNodeList exceptList) {
+  public SqlConditionalStmtListPair(final SqlParserPos pos,
+      final SqlNode condition,
+      final SqlStatementList stmtList) {
     super(pos);
-    this.exceptList = exceptList;
+    this.condition = Objects.requireNonNull(condition);
+    this.stmtList = Objects.requireNonNull(stmtList);
   }
 
   @Override public SqlOperator getOperator() {
@@ -47,20 +52,13 @@ public class SqlExcept extends SqlCall implements SqlExecutableStatement {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(exceptList);
+    return ImmutableNullableList.of(condition, stmtList);
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    // This query is only ever valid when preceded by an asterisk.
-    writer.keyword("* EXCEPT");
-    SqlWriter.Frame frame = writer.startList("(", ")");
-    for (SqlNode e : exceptList) {
-      writer.sep(",", false);
-      e.unparse(writer, 0, 0);
-    }
-    writer.endList(frame);
+  @Override public void unparse(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
+    condition.unparse(writer, leftPrec, rightPrec);
+    writer.keyword("THEN");
+    stmtList.unparse(writer, leftPrec, rightPrec);
   }
-
-  // Intentionally left empty.
-  @Override public void execute(CalcitePrepare.Context context) {}
 }
