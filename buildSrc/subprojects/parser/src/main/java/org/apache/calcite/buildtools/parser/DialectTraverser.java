@@ -227,7 +227,6 @@ public class DialectTraverser {
             addOrReplaceEntries(extractedData.identifiers,
                 processKeyValuePairs(lines, filePath));
           }
-
         }
       } else if (!directories.isEmpty() && fileName.equals(nextDirectory)) {
         // Remove the front element in the queue, the value is referenced above
