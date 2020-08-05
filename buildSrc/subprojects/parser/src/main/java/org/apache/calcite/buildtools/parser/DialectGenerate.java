@@ -64,27 +64,20 @@ public class DialectGenerate {
   }
 
   /**
-   * Adds specified keywords and nonReservedKeywords to extractedData. Also ensures that
-   * nonReservedKeywords is a subset of the union of keywords and extractedData.keywords.
+   * Checks that each element of {@code extractedData.nonReservedKeyword} is
+   * also present as a key in {@code extractedData.keywords}. If an invalid
+   * element is found, a {@code IllegalStateException} is thrown.
    *
-   * @param keywords The keywords to add
-   * @param nonReservedKeywords The non reserved keywords to add
-   * @param extractedData The object to which the keywords will be added to
-   * @throws IllegalStateException When an an element in nonReservedKeywords is not in keywords or
-   *     extractedData.keywords
+   * @param extractedData The extracted data
+   *
+   * @throws IllegalStateException If a nonReservedKeyword is not also a keyword
    */
-  public void processKeywords(
-      Map<Keyword, String> keywords,
-      Set<Keyword> nonReservedKeywords,
-      ExtractedData extractedData) {
-    for (Keyword keyword : nonReservedKeywords) {
-      if (!keywords.containsKey(keyword)
-            && !extractedData.keywords.containsKey(keyword)) {
+  public void validateNonReservedKeywords(final ExtractedData extractedData) {
+    for (Keyword keyword : extractedData.nonReservedKeywords) {
+      if (!extractedData.keywords.containsKey(keyword)) {
         throw new IllegalStateException(keyword.keyword + " is not a keyword.");
       }
     }
-    extractedData.keywords.putAll(keywords);
-    extractedData.nonReservedKeywords.addAll(nonReservedKeywords);
   }
 
   /**
@@ -94,8 +87,8 @@ public class DialectGenerate {
    * // Auto generated.
    * <DEFAULT, DQID, BTID> TOKEN :
    * {
-   *    < TOKEN_1: "TOKEN_1_VALUE" >
-   *   |< TOKEN_2: "TOKEN_2_VALUE" >
+   *    < TOKEN_1: TOKEN_1_VALUE >
+   *   |< TOKEN_2: TOKEN_2_VALUE >
    *   ...
    * }
    * File annotations are added as single-line comments following each token
@@ -111,7 +104,7 @@ public class DialectGenerate {
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append("// Auto generated.\n");
     stringBuilder.append("<DEFAULT, DQID, BTID> TOKEN :\n{\n");
-    String tokenTemplate = "< %s: \"%s\" >";
+    String tokenTemplate = "< %s: %s >";
     List<String> tokens = new ArrayList<>();
     for (Map.Entry<Keyword, String> entry : extractedData.keywords.entrySet()) {
       StringBuilder tokenBuilder = new StringBuilder();
