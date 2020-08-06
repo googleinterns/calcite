@@ -18,8 +18,13 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
-
+/**
+ * Parse tree for a {@code SqlRepeatStmt}.
+ */
 public class SqlRepeatStmt extends SqlIterationStmt{
+  public static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("REPEAT", SqlKind.REPEAT_STATEMENT);
+
   /**
    * Creates a {@code SqlRepeatStmt}.
    *
@@ -33,6 +38,10 @@ public class SqlRepeatStmt extends SqlIterationStmt{
       final SqlNode condition, final SqlStatementList statements, final SqlIdentifier beginLabel,
       final SqlIdentifier endLabel) {
     super(pos, condition, statements, beginLabel, endLabel);
+  }
+
+  @Override public SqlOperator getOperator() {
+    return OPERATOR;
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,

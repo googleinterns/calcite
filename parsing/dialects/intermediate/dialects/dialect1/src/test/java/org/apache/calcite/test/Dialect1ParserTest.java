@@ -4968,4 +4968,51 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         "(?s)Encountered \"end\" at .*";
     sql(sql).fails(expected);
   }
+
+  @Test public void testRepeatStmtBaseCase() {
+    final String sql = "create procedure foo (bar integer) "
+        + "repeat "
+        + "select bee; "
+        + "until bar = 1 "
+        + "end repeat";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "REPEAT SELECT `BEE`;\n"
+            + "UNTIL (`BAR` = 1) END REPEAT";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRepeatStmtWithLabel() {
+    final String sql = "create procedure foo (bar integer) "
+        + "label1: "
+        + "repeat "
+        + "select bee; "
+        + "until bar = 1 "
+        + "end repeat "
+        + "label1";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "`LABEL1` : REPEAT SELECT `BEE`;\n"
+            + "UNTIL (`BAR` = 1) END REPEAT `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRepeatStmtNested() {
+    final String sql = "create procedure foo (bar integer) "
+        + "repeat "
+        + "select bee; "
+        + "repeat "
+        + "select bee; "
+        + "until cde > 3 "
+        + "end repeat; "
+        + "until bar = 1 "
+        + "end repeat";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "REPEAT SELECT `BEE`;\n"
+            + "REPEAT SELECT `BEE`;\n"
+            + "UNTIL (`CDE` > 3) END REPEAT;\n"
+            + "UNTIL (`BAR` = 1) END REPEAT";
+    sql(sql).ok(expected);
+  }
 }

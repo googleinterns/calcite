@@ -5075,6 +5075,7 @@ SqlIterationStmt IterationStmt() :
 }
 {
     (
+        LOOKAHEAD(3)
         e = RepeatStmt()
     |
         e = WhileStmt()
