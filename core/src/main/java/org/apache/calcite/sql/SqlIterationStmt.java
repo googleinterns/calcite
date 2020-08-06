@@ -45,7 +45,7 @@ public abstract class SqlIterationStmt extends SqlCall {
    * @param beginLabel  Optional begin label, must match end label if not null.
    * @param endLabel    Optional end label, must match begin label if not null.
    */
-  public SqlIterationStmt(final SqlParserPos pos, final SqlNode condition,
+  protected SqlIterationStmt(final SqlParserPos pos, final SqlNode condition,
       final SqlStatementList statements, final SqlIdentifier beginLabel,
       final SqlIdentifier endLabel) {
     super(pos);
