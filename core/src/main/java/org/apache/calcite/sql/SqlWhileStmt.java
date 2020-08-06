@@ -40,6 +40,10 @@ public class SqlWhileStmt extends SqlIterationStmt {
     super(pos, condition, statements, beginLabel, endLabel);
   }
 
+  @Override public SqlOperator getOperator() {
+    return OPERATOR;
+  }
+
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
     if (label != null) {
