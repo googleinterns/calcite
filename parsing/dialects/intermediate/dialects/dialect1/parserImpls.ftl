@@ -5172,7 +5172,6 @@ SqlLiteral IntervalLiteral() :
 {
     final String p;
     final int i;
-    final SqlLiteral literal;
     final SqlIntervalQualifier intervalQualifier;
     int sign = 1;
     final Span s;
@@ -5187,8 +5186,10 @@ SqlLiteral IntervalLiteral() :
     (
         <QUOTED_STRING> { p = token.image; }
     |
-        literal = NumericLiteral()
-        { p = String.valueOf(literal.getValueAs(Integer.class)); }
+        i = IntLiteral()
+        // The single quotes are required as otherwise an exception gets
+        // thrown during unparsing.
+        { p = "'" + i + "'"; }
     )
     intervalQualifier = IntervalQualifier() {
         return SqlParserUtil.parseIntervalLiteral(s.end(intervalQualifier),
