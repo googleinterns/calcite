@@ -73,9 +73,9 @@ public class DialectGenerate {
    * @throws IllegalStateException If a nonReservedKeyword is not also a keyword
    */
   public void validateNonReservedKeywords(final ExtractedData extractedData) {
-    for (Keyword keyword : extractedData.nonReservedKeywords) {
+    for (String keyword : extractedData.nonReservedKeywords.keySet()) {
       if (!extractedData.keywords.containsKey(keyword)) {
-        throw new IllegalStateException(keyword.keyword + " is not a keyword.");
+        throw new IllegalStateException(keyword + " is not a keyword.");
       }
     }
   }
@@ -101,7 +101,7 @@ public class DialectGenerate {
    *
    * @return The formatted string
    */
-  public String unparseTokenAssignment(Map<Keyword, String> map) {
+  public String unparseTokenAssignment(Map<String, Keyword> map) {
     if (map.isEmpty()) {
       return "";
     }
@@ -110,11 +110,10 @@ public class DialectGenerate {
     stringBuilder.append("<DEFAULT, DQID, BTID> TOKEN :\n{\n");
     String tokenTemplate = "< %s: %s >";
     List<String> tokens = new ArrayList<>();
-    for (Map.Entry<Keyword, String> entry : map.entrySet()) {
+    for (Keyword keyword : map.values()) {
       StringBuilder tokenBuilder = new StringBuilder();
-      Keyword keyword = entry.getKey();
       tokenBuilder.append(String.format(tokenTemplate, keyword.keyword,
-          entry.getValue()));
+            keyword.value));
       if (keyword.filePath == null) {
         tokenBuilder.append(" // No file specified.");
       } else {
@@ -158,7 +157,9 @@ public class DialectGenerate {
    *                      data
    */
   public void unparseNonReservedKeywords(ExtractedData extractedData) {
-    final ArrayList<Set<Keyword>> partitions = getPartitions(extractedData.nonReservedKeywords);
+    final ArrayList<Set<Keyword>> partitions =
+      getPartitions(
+          new LinkedHashSet<>(extractedData.nonReservedKeywords.values()));
     final int numPartitions = partitions.size();
     final String functionNameTemplate = "NonReservedKeyword%dof" + numPartitions;
     final StringBuilder bodyBuilder = new StringBuilder();

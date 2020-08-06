@@ -27,11 +27,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 
 
 /**
@@ -209,13 +207,13 @@ public class DialectTraverser {
           String[] lines = fileText.split("\n");
           if (fileName.equals("nonReservedKeywords.txt")) {
             extractedData.nonReservedKeywords
-              .addAll(processNonReservedKeywords(lines, filePath));
+              .putAll(processNonReservedKeywords(lines, filePath));
           } else if (fileName.equals("keywords.txt")) {
-            addOrReplaceEntries(extractedData.keywords,
-                processKeyValuePairs(lines, filePath));
+            extractedData.keywords
+              .putAll(processKeyValuePairs(lines, filePath));
           } else if (fileName.equals("identifiers.txt")) {
-            addOrReplaceEntries(extractedData.identifiers,
-                processKeyValuePairs(lines, filePath));
+            extractedData.identifiers
+              .putAll(processKeyValuePairs(lines, filePath));
           }
         }
       } else if (!directories.isEmpty() && fileName.equals(nextDirectory)) {
@@ -229,42 +227,21 @@ public class DialectTraverser {
   }
 
   /**
-   * Adds all of the elements in {@code sourceMap} to {@code mainMap}. If a key
-   * is already present in {@code mainMap} it is removed before being updated.
-   * This is done to ensure that the {@code filePath} gets updated if a given
-   * keyword has been overridden.
-   *
-   * @param mainMap The map that is getting entries added to it
-   * @param sourceMap The map whose entries are being added from
-   */
-  private static void addOrReplaceEntries(Map<Keyword, String> mainMap,
-      final Map<Keyword, String> sourceMap) {
-    for (Map.Entry<Keyword, String> entry : sourceMap.entrySet()) {
-      Keyword key = entry.getKey();
-      String value = entry.getValue();
-      if (mainMap.containsKey(key)) {
-        mainMap.remove(key);
-      }
-      mainMap.put(key, value);
-    }
-  }
-
-  /**
-   * Parses the {@code lines} array into a {@code Set<Keyword>}. Empty lines
-   * are skipped.
+   * Parses the {@code lines} array into a {@code Map<String, Keyword>}.
+   * Empty lines are skipped.
    *
    * @param lines The lines to parse
    * @param filePath The file these lines are from
    *
-   * @return The parsed lines as a {@code Set<Keyword>}
+   * @return The parsed lines as a {@code Map<String, Keyword>}
    */
-  private static Set<Keyword> processNonReservedKeywords(String[] lines,
+  private static Map<String, Keyword> processNonReservedKeywords(String[] lines,
       String filePath) {
-    Set<Keyword> nonReservedKeywords = new LinkedHashSet<>();
+    Map<String, Keyword> nonReservedKeywords = new LinkedHashMap<>();
     for (String line : lines) {
       line = line.trim();
       if (!line.isEmpty()) {
-        nonReservedKeywords.add(new Keyword(line, filePath));
+        nonReservedKeywords.put(line, new Keyword(line, line, filePath));
       }
     }
     return nonReservedKeywords;
@@ -280,18 +257,18 @@ public class DialectTraverser {
    *
    * @return The {@code Map<Keyword, String>} containing the parsed lines
    */
-  private static Map<Keyword, String> processKeyValuePairs(String[] lines,
+  private static Map<String, Keyword> processKeyValuePairs(String[] lines,
       String filePath) {
-    Map<Keyword, String> map = new LinkedHashMap<>();
+    Map<String, Keyword> map = new LinkedHashMap<>();
     for (String line : lines) {
       line = line.trim();
       if (line.isEmpty()) {
         continue;
       }
       int colonIndex = line.indexOf(":");
-      String key = line.substring(0, colonIndex);
-      String value = line.substring(colonIndex + 1);
-      map.put(new Keyword(key.trim(), filePath), value.trim());
+      String keyword = line.substring(0, colonIndex).trim();
+      String value = line.substring(colonIndex + 1).trim();
+      map.put(keyword, new Keyword(keyword, value, filePath));
     }
     return map;
   }
