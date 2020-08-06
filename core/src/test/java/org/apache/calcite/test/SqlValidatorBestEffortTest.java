@@ -190,4 +190,43 @@ public class SqlValidatorBestEffortTest extends SqlValidatorTestCase {
     String expected = "Column 'DEPTNO' is ambiguous";
     sql(sql).fails(expected);
   }
+
+  @Test public void testStarExpansionFromUnknownTable() {
+    String sql = "SELECT * FROM foo";
+    String expected = "SELECT *\n"
+        + "FROM `FOO` AS `FOO`";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
+
+  @Test public void testStarExpansionFromUnknownTables() {
+    String sql = "SELECT * FROM foo INNER JOIN bar ON foo.x = bar.x";
+    String expected = "SELECT *\n"
+        + "FROM `FOO` AS `FOO`\n"
+        + "INNER JOIN `BAR` AS `BAR` ON `FOO`.`X` = `BAR`.`X`";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
+
+  @Test public void testStarExpansionFromKnownTable() {
+    String sql = "SELECT * FROM dept";
+    String expected = "SELECT `DEPT`.`DEPTNO`, `DEPT`.`NAME`\n"
+        + "FROM `CATALOG`.`SALES`.`DEPT` AS `DEPT`";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
+
+  @Test public void testStarExpansionFromKnownAndUnknownTable() {
+    String sql = "SELECT * FROM foo INNER JOIN dept ON dept.deptno = foo.x";
+    String expected = "SELECT *\n"
+        + "FROM `FOO` AS `FOO`\n"
+        + "INNER JOIN `CATALOG`.`SALES`.`DEPT` AS `DEPT`"
+        + " ON `DEPT`.`DEPTNO` = `FOO`.`X`";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
 }
