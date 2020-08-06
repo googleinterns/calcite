@@ -103,45 +103,59 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   }
 
   @Test void testDel() {
-    final String sql = "del from t";
-    final String expected = "DELETE FROM `T`";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testDeleteWithoutFrom() {
-    final String sql = "delete t";
-    final String expected = "DELETE FROM `T`";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testDeleteWithTable() {
-    final String sql = "delete foo from bar";
+    final String sql = "del from foo";
     final String expected = "DELETE FROM `FOO`";
     sql(sql).ok(expected);
   }
 
-  @Test public void testDeleteWithTableCompoundIdentifier() {
+  @Test void testDeleteWithoutFrom() {
+    final String sql = "delete foo";
+    final String expected = "DELETE FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithDeleteTableName() {
+    final String sql = "delete foo from bar";
+    final String expected = "DELETE `FOO` FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithCompoundDeleteTableName() {
     final String sql = "delete foo.bar from baz";
-    final String expected = "DELETE FROM `FOO`.`BAR`";
+    final String expected = "DELETE `FOO`.`BAR` FROM `BAZ`";
     sql(sql).ok(expected);
   }
 
-  @Test public void testDeleteWithTableWithAlias() {
+  @Test public void testDeleteWithDeleteTableNameAndAlias() {
     final String sql = "delete foo from bar as b";
-    final String expected = "DELETE FROM `FOO` AS `B`";
+    final String expected = "DELETE `FOO` FROM `BAR` AS `B`";
     sql(sql).ok(expected);
   }
 
-  @Test public void testDeleteWithTableWithWhere() {
+  @Test public void testDeleteWithDeleteTableNameAndWhere() {
     final String sql = "delete foo from bar where bar.x = 0";
-    final String expected = "DELETE FROM `FOO`\n"
+    final String expected = "DELETE `FOO` FROM `BAR`\n"
         + "WHERE (`BAR`.`X` = 0)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithDeleteTableNameAndJoinAndWhere() {
+    final String sql = "delete foo from bar, baz where bar.x = baz.x";
+    final String expected = "DELETE `FOO` FROM `BAR`, `BAZ`\n"
+        + "WHERE (`BAR`.`X` = `BAZ`.`X`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithDeleteTableNameAndJoinAndAliasesAndWhere() {
+    final String sql = "delete foo from bar a, baz b where a.x = b.x";
+    final String expected = "DELETE `FOO` FROM `BAR` AS `A`, `BAZ` AS `B`\n"
+        + "WHERE (`A`.`X` = `B`.`X`)";
     sql(sql).ok(expected);
   }
 
   @Test public void testDeleteWithTableWithoutFrom() {
     final String sql = "delete foo bar";
-    final String expected = "DELETE FROM `FOO`";
+    final String expected = "DELETE `FOO` FROM `BAR`";
     sql(sql).ok(expected);
   }
 
