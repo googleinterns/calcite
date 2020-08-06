@@ -24,10 +24,15 @@ import java.util.Objects;
  */
 public class Keyword {
   public final String keyword;
+  public final String value;
   public final String filePath;
 
   public Keyword(String keyword) {
-    this(keyword, /*filePath=*/ null);
+    this(keyword, keyword, /*filePath=*/ null);
+  }
+
+  public Keyword(String keyword, String value) {
+    this(keyword, value, /*filePath=*/ null);
   }
 
   /**
@@ -36,8 +41,9 @@ public class Keyword {
    * @param keyword The keyword string
    * @param filePath The file where this keyword was taken from
    */
-  public Keyword(String keyword, String filePath) {
+  public Keyword(String keyword, String value, String filePath) {
     this.keyword = Objects.requireNonNull(keyword.toUpperCase());
+    this.value = Objects.requireNonNull(value);
     this.filePath = filePath;
   }
 

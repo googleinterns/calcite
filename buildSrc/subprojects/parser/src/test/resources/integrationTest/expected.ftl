@@ -47,8 +47,8 @@ MORE : {}
 // Auto generated.
 <DEFAULT, DQID, BTID> TOKEN :
 {
-< UNICODE_QUOTED_IDENTIFIER: "U" "&" <QUOTED_IDENTIFIER> > // From: parserTest/identifiers.txt
-| < IDENTIFIER: (<LETTER>|<DOLLAR>) (<LETTER>|<DOLLAR>|<DIGIT>)* > // From: parserTest/intermediate/dialects/testDialect/identifiers.txt
+< IDENTIFIER: (<LETTER>|<DOLLAR>) (<LETTER>|<DOLLAR>|<DIGIT>)* > // From: parserTest/intermediate/dialects/testDialect/identifiers.txt
+| < UNICODE_QUOTED_IDENTIFIER: "U" "&" <QUOTED_IDENTIFIER> > // From: parserTest/identifiers.txt
 }
 
 // Extracted from: parserTest/intermediate/dialects/testDialect/parserImpls.ftl
