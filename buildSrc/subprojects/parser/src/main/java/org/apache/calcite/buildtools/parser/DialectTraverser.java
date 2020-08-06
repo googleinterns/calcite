@@ -168,7 +168,7 @@ public class DialectTraverser {
    *
    * @param directories The directories to traverse in topdown order
    * @param currentDirectory The current directory the function is processing
-   * @param functionMap The map to which the parsing functions will be added to
+   * @param extractedData The map to which the parsing functions will be added
    * @param licenseText The apache license text
    */
   private void traverse(
@@ -205,15 +205,21 @@ public class DialectTraverser {
         } else if (fileName.endsWith(".txt")) {
           fileText = fileText.substring(licenseText.length());
           String[] lines = fileText.split("\n");
-          if (fileName.equals("nonReservedKeywords.txt")) {
-            extractedData.nonReservedKeywords
-              .putAll(processNonReservedKeywords(lines, filePath));
-          } else if (fileName.equals("keywords.txt")) {
-            extractedData.keywords
-              .putAll(processKeyValuePairs(lines, filePath));
-          } else if (fileName.equals("identifiers.txt")) {
-            extractedData.identifiers
-              .putAll(processKeyValuePairs(lines, filePath));
+          switch (fileName) {
+            case "nonReservedKeywords.txt":
+              extractedData.nonReservedKeywords.putAll(
+                  processNonReservedKeywords(lines, filePath));
+              break;
+            case "keywords.txt":
+              extractedData.keywords.putAll(
+                  processKeyValuePairs(lines, filePath));
+              break;
+            case "identifiers.txt":
+              extractedData.identifiers.putAll(
+                  processKeyValuePairs(lines, filePath));
+              break;
+            default:
+              // fall through
           }
         }
       } else if (!directories.isEmpty() && fileName.equals(nextDirectory)) {
