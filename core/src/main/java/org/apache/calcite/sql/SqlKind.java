@@ -635,6 +635,11 @@ public enum SqlKind {
   DECLARE_CURSOR,
 
   /**
+   * SELECT AND CONSUME statement in a BEGIN...END statement.
+   */
+  SELECT_AND_CONSUME,
+
+  /**
    * Special functions in MATCH_RECOGNIZE.
    */
   FINAL,

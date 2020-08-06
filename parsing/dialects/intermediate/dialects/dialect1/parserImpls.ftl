@@ -5022,6 +5022,8 @@ SqlNode CursorStmt() :
         e = SqlExecuteImmediate()
     |
         e = SqlExecuteStatement()
+    |
+        e = SqlSelectAndConsume()
     )
     { return e; }
 }
@@ -5170,6 +5172,51 @@ SqlDeclareCursor SqlDeclareCursor() :
         return new SqlDeclareCursor(s.end(this), cursorName, scrollType,
             returnType, returnToType, only, updateType, cursorSpecification,
             statementName, preparedStatementName, prepareFrom);
+    }
+}
+
+// This form of SELECT AND CONSUME is only valid inside a CREATE PROCEDURE
+// statement.
+SqlSelectAndConsume SqlSelectAndConsume() :
+{
+    final List<SqlNode> selectList;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    final SqlIdentifier fromTable;
+    final int topNum;
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    ( <SELECT> | <SEL> )
+    <AND> <CONSUME> <TOP> topNum = IntLiteral() {
+        if (topNum != 1) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.numberLiteralOutOfRange(String.valueOf(topNum)));
+        }
+    }
+    selectList = SelectList()
+    <INTO>
+    (
+        e = SimpleIdentifier()
+    |
+        e = SqlHostVariable()
+    )
+    { parameters.add(e); }
+    (
+        <COMMA>
+        (
+            e = SimpleIdentifier()
+        |
+            e = SqlHostVariable()
+        )
+        { parameters.add(e); }
+    )*
+    <FROM>
+    fromTable = CompoundIdentifier()
+    {
+        return new SqlSelectAndConsume(s.end(this),
+            new SqlNodeList(selectList, Span.of(selectList).pos()), parameters,
+            fromTable);
     }
 }
 
