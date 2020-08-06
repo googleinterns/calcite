@@ -18,29 +18,23 @@ package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-import java.util.Objects;
-
 /**
- * Parse tree for a {@code SqlRepeatStmt}.
+ * Parse tree for a {@code SqlLoopStmt}.
  */
-public class SqlRepeatStmt extends SqlIterationStmt {
+public class SqlLoopStmt extends SqlIterationStmt {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("REPEAT", SqlKind.REPEAT_STATEMENT);
+      new SqlSpecialOperator("LOOP", SqlKind.LOOP_STATEMENT);
 
   /**
-   * Creates a {@code SqlRepeatStmt}.
-   *
+   * Creates a {@code SqlLoopStmt}.
    * @param pos         Parser position, must not be null.
-   * @param condition   Conditional expression, must not be null.
    * @param statements  List of statements to iterate, must not be null.
    * @param beginLabel  Optional begin label, must match end label if not null.
    * @param endLabel    Optional end label, must match begin label if not null.
    */
-  public SqlRepeatStmt(final SqlParserPos pos, final SqlNode condition,
-      final SqlStatementList statements, final SqlIdentifier beginLabel,
-      final SqlIdentifier endLabel) {
-    super(pos, Objects.requireNonNull(condition), statements, beginLabel,
-        endLabel);
+  public SqlLoopStmt(final SqlParserPos pos, final SqlStatementList statements,
+      final SqlIdentifier beginLabel, final SqlIdentifier endLabel) {
+    super(pos, /*condition = */null, statements, beginLabel, endLabel);
   }
 
   @Override public SqlOperator getOperator() {
@@ -53,11 +47,9 @@ public class SqlRepeatStmt extends SqlIterationStmt {
       label.unparse(writer, leftPrec, rightPrec);
       writer.print(": ");
     }
-    writer.keyword("REPEAT");
+    writer.keyword("LOOP");
     statements.unparse(writer, leftPrec, rightPrec);
-    writer.keyword("UNTIL");
-    condition.unparse(writer, leftPrec, rightPrec);
-    writer.keyword("END REPEAT");
+    writer.keyword("END LOOP");
     if (label != null) {
       label.unparse(writer, leftPrec, rightPrec);
     }

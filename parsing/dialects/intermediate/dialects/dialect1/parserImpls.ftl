@@ -5076,6 +5076,9 @@ SqlIterationStmt IterationStmt() :
 {
     (
         LOOKAHEAD(3)
+        e = LoopStmt()
+    |
+        LOOKAHEAD(3)
         e = RepeatStmt()
     |
         e = WhileStmt()
@@ -5140,5 +5143,31 @@ SqlRepeatStmt RepeatStmt() :
     {
         return new SqlRepeatStmt(s.end(this), condition, statements,
             beginLabel, endLabel);
+    }
+}
+
+SqlLoopStmt LoopStmt() :
+{
+    final SqlIdentifier beginLabel;
+    final SqlIdentifier endLabel;
+    final SqlStatementList statements = new SqlStatementList(getPos());
+    final Span s = Span.of();
+}
+{
+    (
+        beginLabel = SimpleIdentifier() <COLON>
+    |
+        { beginLabel = null; }
+    )
+    <LOOP>
+    CreateProcedureStmtList(statements)
+    <END> <LOOP>
+    (
+        endLabel = SimpleIdentifier()
+    |
+        { endLabel = null; }
+    )
+    {
+        return new SqlLoopStmt(s.end(this), statements, beginLabel, endLabel);
     }
 }

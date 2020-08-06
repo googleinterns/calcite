@@ -58,7 +58,7 @@ public abstract class SqlIterationStmt extends SqlCall {
       throw SqlUtil.newContextException(beginLabel.getParserPosition(),
           RESOURCE.beginEndLabelMismatch());
     }
-    this.condition = Objects.requireNonNull(condition);
+    this.condition = condition;
     this.statements = Objects.requireNonNull(statements);
     this.label = beginLabel;
   }

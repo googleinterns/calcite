@@ -104,6 +104,7 @@ data: {
       "org.apache.calcite.sql.SqlJsonTypeNameSpec.StorageFormat",
       "org.apache.calcite.sql.SqlKind"
       "org.apache.calcite.sql.SqlLobUnitSize",
+      "org.apache.calcite.sql.SqlLoopStmt",
       "org.apache.calcite.sql.SqlNumberTypeNameSpec",
       "org.apache.calcite.sql.SqlPartitionByNoneUnknown",
       "org.apache.calcite.sql.SqlPeriodTypeNameSpec",

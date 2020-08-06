@@ -5015,4 +5015,47 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
             + "UNTIL (`BAR` = 1) END REPEAT";
     sql(sql).ok(expected);
   }
+
+  @Test public void testLoopStmtBaseCase() {
+    final String sql = "create procedure foo (bar integer) "
+        + "loop "
+        + "select bee; "
+        + "end loop";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "LOOP SELECT `BEE`;\n"
+            + "END LOOP";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLoopStmtBaseCaseWithLabel() {
+    final String sql = "create procedure foo (bar integer) "
+        + "label1: "
+        + "loop "
+        + "select bee; "
+        + "end loop "
+        + "label1";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "`LABEL1` : LOOP SELECT `BEE`;\n"
+            + "END LOOP `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLoopStmtNested() {
+    final String sql = "create procedure foo (bar integer) "
+        + "loop "
+        + "select bee; "
+        + "loop "
+        + "select abc; "
+        + "end loop;"
+        + "end loop";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "LOOP SELECT `BEE`;\n"
+            + "LOOP SELECT `ABC`;\n"
+            + "END LOOP;\n"
+            + "END LOOP";
+    sql(sql).ok(expected);
+  }
 }

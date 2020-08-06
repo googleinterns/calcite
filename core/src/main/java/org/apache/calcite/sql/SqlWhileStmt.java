@@ -18,6 +18,8 @@ package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
 
+import java.util.Objects;
+
 /**
  * Parse tree for a {@code SqlWhileStmt}.
  */
@@ -37,7 +39,8 @@ public class SqlWhileStmt extends SqlIterationStmt {
   public SqlWhileStmt(final SqlParserPos pos, final SqlNode condition,
       final SqlStatementList statements, final SqlIdentifier beginLabel,
       final SqlIdentifier endLabel) {
-    super(pos, condition, statements, beginLabel, endLabel);
+    super(pos, Objects.requireNonNull(condition), statements, beginLabel,
+        endLabel);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
