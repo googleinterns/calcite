@@ -263,6 +263,11 @@ public class DialectGenerateTest {
     assertFunctionNameExtracted(declaration, "foo");
   }
 
+  @Test public void getFunctionNameSingleAngleBracketsNestedSquareBrackets() {
+    String declaration = "Map<int[]> foo () :";
+    assertFunctionNameExtracted(declaration, "foo");
+  }
+
   @Test public void getFunctionNameWithArguments() {
     String declaration = "Map<String, String> foo(String x, int y) :";
     assertFunctionNameExtracted(declaration, "foo");
@@ -275,6 +280,11 @@ public class DialectGenerateTest {
 
   @Test public void getFunctionNameWithFinal() {
     String declaration = "final void foo() :";
+    assertFunctionNameExtracted(declaration, "foo");
+  }
+
+  @Test public void getFunctionNameWithSquareBrackets() {
+    String declaration = "int[][] foo() :";
     assertFunctionNameExtracted(declaration, "foo");
   }
 
