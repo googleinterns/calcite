@@ -4640,6 +4640,10 @@ SqlNode CreateProcedureStmt() :
     (
         e = ConditionalStmt()
     |
+        // LOOKAHEAD ensures statements such as UPDATE table and EXECUTE macro
+        // do not get parsed by CursorStmt() when they should be parsed by
+        // SqlStmt().
+        LOOKAHEAD(CursorStmt() <SEMICOLON>)
         e = CursorStmt()
     |
         // This lookahead ensures parser chooses the right path when facing
@@ -5024,6 +5028,8 @@ SqlNode CursorStmt() :
         e = SqlExecuteStatement()
     |
         e = SqlSelectAndConsume()
+    |
+        e = SqlUpdateUsingCursor()
     )
     { return e; }
 }
@@ -5172,6 +5178,32 @@ SqlDeclareCursor SqlDeclareCursor() :
         return new SqlDeclareCursor(s.end(this), cursorName, scrollType,
             returnType, returnToType, only, updateType, cursorSpecification,
             statementName, preparedStatementName, prepareFrom);
+    }
+}
+
+SqlUpdateUsingCursor SqlUpdateUsingCursor() :
+{
+    final SqlIdentifier tableName;
+    SqlIdentifier aliasName = null;
+    final SqlNodeList assignments = new SqlNodeList(getPos());
+    final SqlIdentifier cursorName;
+    SqlNode e;
+    final Span s = Span.of();
+}
+{
+    ( <UPDATE> | <UPD> ) tableName = CompoundIdentifier()
+    [ aliasName = SimpleIdentifier() ]
+    <SET>
+    e = Expression(ExprContext.ACCEPT_NON_QUERY) { assignments.add(e); }
+    (
+        <COMMA> e = Expression(ExprContext.ACCEPT_NON_QUERY) {
+            assignments.add(e);
+        }
+    )*
+    <WHERE> <CURRENT> <OF> cursorName = SimpleIdentifier()
+    {
+        return new SqlUpdateUsingCursor(s.end(this), tableName, aliasName,
+            assignments, cursorName);
     }
 }
 

@@ -5142,6 +5142,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testUpdateUsingCursor() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "update bar set baz=2 where current of qux;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "UPDATE `BAR` SET (`BAZ` = 2) WHERE CURRENT OF `QUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testSelectAndConsume() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -5154,6 +5166,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testUpdateUsingCursorUpdKeyword() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "upd bar set baz=2 where current of qux;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "UPDATE `BAR` SET (`BAZ` = 2) WHERE CURRENT OF `QUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testSelectAndConsumeWithSelKeyword() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -5162,6 +5186,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
         + "SELECT AND CONSUME TOP 1 `BAR` INTO `BAZ` FROM `QUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testUpdateUsingCursorAlias() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "upd bar a set baz=2 where current of qux;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "UPDATE `BAR` `A` SET (`BAZ` = 2) WHERE CURRENT OF `QUX`;\n"
         + "END";
     sql(sql).ok(expected);
   }
@@ -5179,6 +5215,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testUpdateUsingCursorCompoundIdentifier() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "upd bar.baz a set b=2 where current of qux;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "UPDATE `BAR`.`BAZ` `A` SET (`B` = 2) WHERE CURRENT OF `QUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testSelectAndConsumeWithHostVariables() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -5187,6 +5235,19 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
         + "SELECT AND CONSUME TOP 1 `A`, `B`, `C` INTO :D, :E, :F FROM `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testUpdateUsingCursorSetList() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "update bar set a=2, b='hello', c=15 where current of qux;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "UPDATE `BAR` SET (`A` = 2), (`B` = 'hello'), (`C` = 15) WHERE "
+        + "CURRENT OF `QUX`;\n"
         + "END";
     sql(sql).ok(expected);
   }
@@ -5200,6 +5261,31 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "BEGIN\n"
         + "SELECT AND CONSUME TOP 1 `A`, `B`, `C` INTO :D, :E, :F FROM "
         + "`BAR`.`QUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureUpdateTable() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "update foo from bar set foo.x = bar.y, foo.z = bar.k;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "UPDATE `FOO` FROM `BAR` SET `FOO`.`X` = `BAR`.`Y`, `FOO`.`Z` = "
+        + "`BAR`.`K`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testCreateProcedureExecuteMacro() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "execute foo (1);\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "EXECUTE `FOO` (1);\n"
         + "END";
     sql(sql).ok(expected);
   }

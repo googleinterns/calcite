@@ -635,6 +635,11 @@ public enum SqlKind {
   DECLARE_CURSOR,
 
   /**
+   * Update using cursor call in BEGIN...END statement.
+   */
+  UPDATE_USING_CURSOR,
+
+  /**
    * SELECT AND CONSUME statement in a BEGIN...END statement.
    */
   SELECT_AND_CONSUME,
