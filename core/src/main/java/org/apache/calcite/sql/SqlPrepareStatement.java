@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Parse tree for {@code SqlPrepareCursor} call.
+ * Parse tree for {@code SqlPrepareStatement} call.
  */
 public class SqlPrepareStatement extends SqlCall {
   private static final SqlSpecialOperator OPERATOR =
@@ -34,7 +34,7 @@ public class SqlPrepareStatement extends SqlCall {
   public final SqlNode statement;
 
   /**
-   * Creates a {@code SqlPrepareCursor}.
+   * Creates a {@code SqlPrepareStatement}.
    *
    * @param pos  Parser position, must not be null
    * @param statementName  Name of the statement used in DECLARE CURSOR
