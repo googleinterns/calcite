@@ -5154,14 +5154,14 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testOpenCursorWithParameteER() {
+  @Test public void testOpenCursorWithParameter() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
-        + "open bar using a, b, c;\n"
+        + "open bar using a;\n"
         + "end";
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
-        + "OPEN `BAR` USING `A`, `B`, `C`;\n"
+        + "OPEN `BAR` USING `A`;\n"
         + "END";
     sql(sql).ok(expected);
   }
