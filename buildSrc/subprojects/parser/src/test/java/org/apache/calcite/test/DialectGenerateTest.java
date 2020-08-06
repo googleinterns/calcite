@@ -321,7 +321,7 @@ public class DialectGenerateTest {
     Map<String, Keyword> keywords = new LinkedHashMap<>();
     DialectGenerate dialectGenerate = new DialectGenerate();
     keywords.put("foo", new Keyword("foo", "\"FOO\"", "path/file"));
-    keywords.put("bar", new Keyword("bar",  "\"BAR\""));
+    keywords.put("bar", new Keyword("bar", "\"BAR\""));
     keywords.put("baz", new Keyword("baz", "\"BAZ\"", "path/file"));
     String actual = dialectGenerate.unparseTokenAssignment(keywords);
     String expected = "// Auto generated.\n"
@@ -335,7 +335,7 @@ public class DialectGenerateTest {
   }
 
   @Test public void testPartitionFunctionSingle() {
-    Map<String, Keyword> keywords = new LinkedHashMap<String, Keyword>();
+    Map<String, Keyword> keywords = new LinkedHashMap<>();
     DialectGenerate dialectGenerate = new DialectGenerate();
     keywords.put("foo", new Keyword("foo", "foo", "path/file"));
     String actual = dialectGenerate.getPartitionFunction("void func():",
@@ -349,7 +349,7 @@ public class DialectGenerateTest {
   }
 
   @Test public void testPartitionFunctionMultiple() {
-    Map<String, Keyword> keywords = new LinkedHashMap<String, Keyword>();
+    Map<String, Keyword> keywords = new LinkedHashMap<>();
     DialectGenerate dialectGenerate = new DialectGenerate();
     keywords.put("foo", new Keyword("foo", "foo", "path/file"));
     keywords.put("bar", new Keyword("bar", "bar"));

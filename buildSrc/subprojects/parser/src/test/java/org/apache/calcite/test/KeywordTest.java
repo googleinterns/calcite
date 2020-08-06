@@ -38,7 +38,7 @@ public class KeywordTest {
     Keyword a = new Keyword("foo");
     Keyword b = new Keyword("bar");
     assertNotEquals(a.hashCode(), b.hashCode());
-    Keyword c = new Keyword("foo", "foo", null);
+    Keyword c = new Keyword("foo", "foo", /*filePath=*/ null);
     Keyword d = new Keyword("foo", "foo", "path");
     assertNotEquals(c.hashCode(), d.hashCode());
   }
@@ -51,8 +51,8 @@ public class KeywordTest {
     Keyword c = new Keyword("foo", "foo", "path");
     Keyword d = new Keyword("foo", "foo", "path");
     assertEquals(c, d);
-    Keyword e = new Keyword("foo", "foo", null);
-    Keyword f = new Keyword("foo", "foo", null);
+    Keyword e = new Keyword("foo", "foo", /*filePath=*/ null);
+    Keyword f = new Keyword("foo", "foo", /*filePath=*/ null);
     assertEquals(e, f);
   }
 
@@ -61,7 +61,7 @@ public class KeywordTest {
     Keyword b = new Keyword("bar");
     assertNotEquals(a, b);
     assertNotEquals(a, null);
-    Keyword c = new Keyword("foo", "foo", null);
+    Keyword c = new Keyword("foo", "foo", /*filePath=*/ null);
     Keyword d = new Keyword("foo", "foo", "path");
     assertNotEquals(c, d);
   }
