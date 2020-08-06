@@ -5167,3 +5167,31 @@ SqlDeclareCursor SqlDeclareCursor() :
             statementName, preparedStatementName, prepareFrom);
     }
 }
+
+SqlLiteral IntervalLiteral() :
+{
+    final String p;
+    final int i;
+    final SqlLiteral literal;
+    final SqlIntervalQualifier intervalQualifier;
+    int sign = 1;
+    final Span s;
+}
+{
+    <INTERVAL> { s = span(); }
+    [
+        <MINUS> { sign = -1; }
+    |
+        <PLUS> { sign = 1; }
+    ]
+    (
+        <QUOTED_STRING> { p = token.image; }
+    |
+        literal = NumericLiteral()
+        { p = String.valueOf(literal.getValueAs(Integer.class)); }
+    )
+    intervalQualifier = IntervalQualifier() {
+        return SqlParserUtil.parseIntervalLiteral(s.end(intervalQualifier),
+            sign, p, intervalQualifier);
+    }
+}
