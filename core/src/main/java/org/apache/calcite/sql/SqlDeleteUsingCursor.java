@@ -23,28 +23,29 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Parse tree representing a conditional expression or an operand
- * pairing with a list of statements.
+ * Parse tree for {@code SqlDeleteUsingCursor} call.
  */
-public class SqlConditionalStmtListPair extends SqlCall {
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("CONDITION_STATEMENT_LIST_PAIR", SqlKind.OTHER);
+public class SqlDeleteUsingCursor extends SqlCall {
+  private static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("DELETE_USING_CURSOR",
+          SqlKind.DELETE_USING_CURSOR);
 
-  public final SqlNode condition;
-  public final SqlStatementList stmtList;
+  public final SqlIdentifier tableName;
+  public final SqlIdentifier cursorName;
 
   /**
-   * Creates a {@code SqlConditionalStmtListPair}.
-   * @param pos         Parser position, must not be null.
-   * @param condition   Condition expression or operand, must not be null.
-   * @param stmtList    A List of statements, must not be null.
+   * Creates a {@code SqlDeleteUsingCursor}.
+   *
+   * @param pos  Parser position, must not be null
+   * @param tableName  Name of table to delete from, must not be null
+   * @param cursorName  Name of cursor to position row to be deleted,
+   *                    must not be null
    */
-  public SqlConditionalStmtListPair(final SqlParserPos pos,
-      final SqlNode condition,
-      final SqlStatementList stmtList) {
+  public SqlDeleteUsingCursor(SqlParserPos pos, SqlIdentifier tableName,
+      SqlIdentifier cursorName) {
     super(pos);
-    this.condition = Objects.requireNonNull(condition);
-    this.stmtList = Objects.requireNonNull(stmtList);
+    this.tableName = Objects.requireNonNull(tableName);
+    this.cursorName = Objects.requireNonNull(cursorName);
   }
 
   @Override public SqlOperator getOperator() {
@@ -52,13 +53,13 @@ public class SqlConditionalStmtListPair extends SqlCall {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(condition, stmtList);
+    return ImmutableNullableList.of(tableName, cursorName);
   }
 
-  @Override public void unparse(final SqlWriter writer, final int leftPrec,
-      final int rightPrec) {
-    condition.unparse(writer, leftPrec, rightPrec);
-    writer.keyword("THEN");
-    stmtList.unparse(writer, leftPrec, rightPrec);
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    writer.keyword("DELETE FROM");
+    tableName.unparse(writer, 0, 0);
+    writer.keyword("WHERE CURRENT OF");
+    cursorName.unparse(writer, 0, 0);
   }
 }
