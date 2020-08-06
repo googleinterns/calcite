@@ -160,7 +160,8 @@ public class DialectGenerate {
    */
   public void unparseNonReservedKeywords(ExtractedData extractedData) {
     final ArrayList<Set<Keyword>> partitions =
-      getPartitions(new LinkedHashSet<Keyword>(extractedData.nonReservedKeywords.values()));
+      getPartitions(
+          new LinkedHashSet<>(extractedData.nonReservedKeywords.values()));
     final int numPartitions = partitions.size();
     final String functionNameTemplate = "NonReservedKeyword%dof" + numPartitions;
     final StringBuilder bodyBuilder = new StringBuilder();

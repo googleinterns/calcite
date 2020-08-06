@@ -38,7 +38,8 @@ public class Keyword {
   /**
    * Creates a {@code Keyword}.
    *
-   * @param keyword The keyword string
+   * @param keyword The name of the keyword
+   * @param value The value of the keyword
    * @param filePath The file where this keyword was taken from
    */
   public Keyword(String keyword, String value, String filePath) {
@@ -48,8 +49,11 @@ public class Keyword {
   }
 
   @Override public int hashCode() {
-    // The filePath should not be considered when calculating hashCode.
-    return keyword.hashCode();
+    int hashCode = keyword.hashCode() * value.hashCode();
+    if (filePath != null) {
+      hashCode *= filePath.hashCode();
+    }
+    return hashCode;
   }
 
   @Override public boolean equals(Object obj) {
@@ -57,7 +61,13 @@ public class Keyword {
       return false;
     }
     Keyword other = (Keyword) obj;
-    // The filePath should not be considered when checking for equality.
-    return this.keyword.equals(other.keyword);
+    if (!this.keyword.equals(other.keyword) && !this.value.equals(other.value)) {
+      return false;
+    }
+    if (this.filePath == null && other.filePath == null) {
+      return true;
+    }
+    return this.filePath != null && other.filePath != null
+        && this.filePath.equals(other.filePath);
   }
 }

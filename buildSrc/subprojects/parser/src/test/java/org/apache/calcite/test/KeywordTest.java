@@ -26,24 +26,34 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class KeywordTest {
 
   @Test public void testHashCodeEquality() {
-    Keyword a = new Keyword("foo");
-    Keyword b = new Keyword("foo", "path/file");
+    Keyword a = new Keyword("foo", "foo", /*filePath=*/ null);
+    Keyword b = new Keyword("foo", "foo", /*filePath=*/ null);
     assertEquals(a.hashCode(), b.hashCode());
+    Keyword c = new Keyword("foo", "foo", "path");
+    Keyword d = new Keyword("foo", "foo", "path");
+    assertEquals(c.hashCode(), d.hashCode());
   }
 
   @Test public void testHashCodeInequality() {
     Keyword a = new Keyword("foo");
     Keyword b = new Keyword("bar");
     assertNotEquals(a.hashCode(), b.hashCode());
+    Keyword c = new Keyword("foo", "foo", null);
+    Keyword d = new Keyword("foo", "foo", "path");
+    assertNotEquals(c.hashCode(), d.hashCode());
   }
 
   @Test public void testEquality() {
     Keyword a = new Keyword("foo");
-    Keyword b = new Keyword("foo", "path/file");
-    Keyword c = new Keyword("FOO");
+    Keyword b = new Keyword("FOO");
     assertEquals(a, a);
     assertEquals(a, b);
-    assertEquals(a, c);
+    Keyword c = new Keyword("foo", "foo", "path");
+    Keyword d = new Keyword("foo", "foo", "path");
+    assertEquals(c, d);
+    Keyword e = new Keyword("foo", "foo", null);
+    Keyword f = new Keyword("foo", "foo", null);
+    assertEquals(e, f);
   }
 
   @Test public void testInequality() {
@@ -51,6 +61,9 @@ public class KeywordTest {
     Keyword b = new Keyword("bar");
     assertNotEquals(a, b);
     assertNotEquals(a, null);
+    Keyword c = new Keyword("foo", "foo", null);
+    Keyword d = new Keyword("foo", "foo", "path");
+    assertNotEquals(c, d);
   }
 
   @Test public void testKeywordGetsCapitalized() {

@@ -27,11 +27,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 
 
 /**
@@ -229,13 +227,13 @@ public class DialectTraverser {
   }
 
   /**
-   * Parses the {@code lines} array into a {@code Set<Keyword>}. Empty lines
-   * are skipped.
+   * Parses the {@code lines} array into a {@code Map<String, Keyword>}.
+   * Empty lines are skipped.
    *
    * @param lines The lines to parse
    * @param filePath The file these lines are from
    *
-   * @return The parsed lines as a {@code Set<Keyword>}
+   * @return The parsed lines as a {@code Map<String, Keyword>}
    */
   private static Map<String, Keyword> processNonReservedKeywords(String[] lines,
       String filePath) {
