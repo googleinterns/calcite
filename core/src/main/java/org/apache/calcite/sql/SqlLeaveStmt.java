@@ -36,4 +36,10 @@ public class SqlLeaveStmt extends SqlCall{
   @Override public List<SqlNode> getOperandList() {
     return null;
   }
+
+  @Override public void unparse(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
+    writer.keyword("LEAVE");
+    label.unparse(writer, leftPrec, rightPrec);
+  }
 }

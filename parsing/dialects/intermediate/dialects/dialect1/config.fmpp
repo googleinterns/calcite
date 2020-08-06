@@ -99,9 +99,11 @@ data: {
       "org.apache.calcite.sql.SqlHostVariable",
       "org.apache.calcite.sql.SqlIfStmt",
       "org.apache.calcite.sql.SqlIndex",
+      "org.apache.calcite.sql.SqlIterateStmt",
       "org.apache.calcite.sql.SqlJsonTypeNameSpec",
       "org.apache.calcite.sql.SqlJsonTypeNameSpec.StorageFormat",
-      "org.apache.calcite.sql.SqlKind"
+      "org.apache.calcite.sql.SqlKind",
+      "org.apache.calcite.sql.SqlLeaveStmt",
       "org.apache.calcite.sql.SqlLobUnitSize",
       "org.apache.calcite.sql.SqlNumberTypeNameSpec",
       "org.apache.calcite.sql.SqlPartitionByNoneUnknown",

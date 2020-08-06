@@ -4880,4 +4880,16 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "SELECT CAST(`A` AS FORMAT '999')";
     sql(sql).ok(expected);
   }
+
+  @Test public void testLeaveStmtInBeginEndClause() {
+    final String sql = "create procedure foo ()\n"
+        + "label1: begin\n"
+        + "leave label1;\n"
+        + "end label1";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "`LABEL1`: BEGIN\n"
+        + "LEAVE `LABEL1`;\n"
+        + "END `LABEL1`";
+    sql(sql).ok(expected);
+  }
 }
