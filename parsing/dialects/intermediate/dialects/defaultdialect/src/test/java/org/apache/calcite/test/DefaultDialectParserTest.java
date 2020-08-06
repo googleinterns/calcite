@@ -46,4 +46,12 @@ final class DefaultDialectParserTest extends SqlDialectParserTest {
         + "having count(*) > 5 and deptno < 4 ^group^ by deptno, emp";
     sql(sql).fails("(?s).*Encountered \"group\" at .*");
   }
+
+  @Test void testInvalidToken() {
+    // Causes problems to the test infrastructure because the token mgr
+    // throws a java.lang.Error. The usual case is that the parser throws
+    // an exception.
+    sql("values (a^#^b)")
+        .fails("Lexical error at line 1, column 10\\.  Encountered: \"#\" \\(35\\), after : \"\"");
+  }
 }

@@ -5154,6 +5154,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testSelectAndConsume() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select and consume top 1 bar into baz from qux;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT AND CONSUME TOP 1 `BAR` INTO `BAZ` FROM `QUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testUpdateUsingCursorUpdKeyword() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -5162,6 +5174,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
         + "UPDATE `BAR` SET (`BAZ` = 2) WHERE CURRENT OF `QUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectAndConsumeWithSelKeyword() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "sel and consume top 1 bar into baz from qux;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT AND CONSUME TOP 1 `BAR` INTO `BAZ` FROM `QUX`;\n"
         + "END";
     sql(sql).ok(expected);
   }
@@ -5178,6 +5202,19 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testSelectAndConsumeAsterisk() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select and consume top 1 * into d, e, f from bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT AND CONSUME TOP 1 * INTO `D`, `E`, `F` FROM "
+        + "`BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testUpdateUsingCursorCompoundIdentifier() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -5186,6 +5223,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
         + "UPDATE `BAR`.`BAZ` `A` SET (`B` = 2) WHERE CURRENT OF `QUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectAndConsumeWithHostVariables() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select and consume top 1 a, b, c into :d, :e, :f from bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT AND CONSUME TOP 1 `A`, `B`, `C` INTO :D, :E, :F FROM `BAR`;\n"
         + "END";
     sql(sql).ok(expected);
   }
@@ -5199,6 +5248,19 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "BEGIN\n"
         + "UPDATE `BAR` SET (`A` = 2), (`B` = 'hello'), (`C` = 15) WHERE "
         + "CURRENT OF `QUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectAndConsumeFromTableCompoundIdentifier() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select and consume top 1 a, b, c into :d, :e, :f from bar.qux;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT AND CONSUME TOP 1 `A`, `B`, `C` INTO :D, :E, :F FROM "
+        + "`BAR`.`QUX`;\n"
         + "END";
     sql(sql).ok(expected);
   }
@@ -5226,5 +5288,102 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "EXECUTE `FOO` (1);\n"
         + "END";
     sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectAndConsumeTopOutOfRangeFails() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select and consume top ^2^ a, b, c into :d, :e, :f from bar.qux;\n"
+        + "end";
+    final String expected = "(?s).*Numeric literal.*out of range.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testWhileStmtBaseCase() {
+    final String sql = "create procedure foo (bar integer) "
+        + "while bar = 1 do "
+        + "select bee; "
+        + "end while";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "WHILE (`BAR` = 1) DO SELECT `BEE`;\n"
+            + "END WHILE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testWhileStmtWithLabel() {
+    final String sql = "create procedure foo (bar integer) "
+        + "label1: "
+        + "while bar = 1 do "
+        + "select bee; "
+        + "end while "
+        + "label1";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "`LABEL1` : WHILE (`BAR` = 1) DO SELECT `BEE`;\n"
+            + "END WHILE `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testWhileStmtWithMultipleStmt() {
+    final String sql = "create procedure foo (bar integer) "
+        + "while bar = 1 do "
+        + "select abc; "
+        + "select bee; "
+        + "end while";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "WHILE (`BAR` = 1) DO SELECT `ABC`;\n"
+            + "SELECT `BEE`;\n"
+            + "END WHILE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testWhileStmtNested() {
+    final String sql = "create procedure foo (bar integer) "
+        + "while bar = 1 do "
+        + "select bee; "
+        + "while abc = 2 do "
+        + "select cde; "
+        + "end while; "
+        + "end while";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "WHILE (`BAR` = 1) DO SELECT `BEE`;\n"
+            + "WHILE (`ABC` = 2) DO SELECT `CDE`;\n"
+            + "END WHILE;\n"
+            + "END WHILE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIterationStmtFailsWithMissingEndLabel() {
+    final String sql = "create procedure foo (bar integer) "
+        + "^label1^: "
+        + "while bar = 1 do "
+        + "select bee; "
+        + "end while";
+    final String expected =
+        "BEGIN label and END label must match";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testIterationStmtFailsWithMissingBeginLabel() {
+    final String sql = "create procedure foo (bar integer) "
+        + "while bar = 1 do "
+        + "select bee; "
+        + "end while "
+        + "^label1^";
+    final String expected =
+        "BEGIN label and END label must match";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testIterationStmtFailsWithEmptyStatementList() {
+    final String sql = "create procedure foo (bar integer) "
+        + "while bar = 1 do "
+        + "^end^ while";
+    final String expected =
+        "(?s)Encountered \"end\" at .*";
+    sql(sql).fails(expected);
   }
 }
