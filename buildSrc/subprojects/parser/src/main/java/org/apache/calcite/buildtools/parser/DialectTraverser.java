@@ -114,7 +114,7 @@ public class DialectTraverser {
    */
   public void generateParserImpls(ExtractedData extractedData,
       String licenseText) {
-    Path outputFilePath = dialectDirectory.toPath().resolve(outputPath);;
+    Path outputFilePath = dialectDirectory.toPath().resolve(outputPath);
     List<String> specialTokenAssignments = new ArrayList<>();
     specialTokenAssignments.add(dialectGenerate
         .unparseTokenAssignment(extractedData.keywords));
