@@ -19,7 +19,6 @@ package org.apache.calcite.buildtools.parser;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -111,9 +110,8 @@ public class DialectGenerate {
     stringBuilder.append("<DEFAULT, DQID, BTID> TOKEN :\n{\n");
     String tokenTemplate = "< %s: %s >";
     List<String> tokens = new ArrayList<>();
-    for (Map.Entry<String, Keyword> entry : map.entrySet()) {
+    for (Keyword keyword : map.values()) {
       StringBuilder tokenBuilder = new StringBuilder();
-      Keyword keyword = entry.getValue();
       tokenBuilder.append(String.format(tokenTemplate, keyword.keyword,
             keyword.value));
       if (keyword.filePath == null) {
