@@ -595,6 +595,21 @@ public enum SqlKind {
   ALLOCATE_CURSOR,
 
   /**
+   * DELETE using cursor statement in CREATE PROCEDURE call.
+   */
+  DELETE_USING_CURSOR,
+
+  /**
+   * EXECUTE IMMEDIATE call in a CREATE PROCEDURE statement.
+   */
+  EXECUTE_IMMEDIATE,
+
+  /**
+   * EXECUTE statement call in CREATE PROCEDURE statement.
+   */
+  EXECUTE_STATEMENT,
+
+  /**
    * DEALLOCATE PREPARE statement in a CREATE PROCEDURE call.
    */
   DEALLOCATE_PREPARE,
@@ -613,6 +628,11 @@ public enum SqlKind {
    * DECLARE CONDITION call in BEGIN...END statement.
    */
   DECLARE_CONDITION,
+
+  /**
+   * DECLARE CURSOR call in a BEGIN...END statement.
+   */
+  DECLARE_CURSOR,
 
   /**
    * OPEN cursor call in BEGIN...END statement.
@@ -1225,8 +1245,11 @@ public enum SqlKind {
   /** {@code RENAME PROCEDURE} DDL statement. */
   RENAME_PROCEDURE,
 
-  /** {@code CONDITIONAL STATEMENT} PL statement */
-  CONDITIONAL_STATEMENT,
+  /** {@code CASE STATEMENT} PL statement */
+  CASE_STATEMENT,
+
+  /** {@code IF STATEMENT} PL statement */
+  IF_STATEMENT,
 
   /** DDL statement not handled above.
    *

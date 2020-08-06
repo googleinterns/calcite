@@ -23,28 +23,25 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Parse tree representing a conditional expression or an operand
- * pairing with a list of statements.
+ * Parse tree for {@code SqlExecuteImmediate} call.
  */
-public class SqlConditionalStmtListPair extends SqlCall {
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("CONDITION_STATEMENT_LIST_PAIR", SqlKind.OTHER);
+public class SqlExecuteImmediate extends SqlCall {
+  private static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("EXECUTE IMMEDIATE",
+          SqlKind.EXECUTE_IMMEDIATE);
 
-  public final SqlNode condition;
-  public final SqlStatementList stmtList;
+  public final SqlNode statementName;
 
   /**
-   * Creates a {@code SqlConditionalStmtListPair}.
-   * @param pos         Parser position, must not be null.
-   * @param condition   Condition expression or operand, must not be null.
-   * @param stmtList    A List of statements, must not be null.
+   * Creates a {@code SqlExecuteImmediate}.
+   *
+   * @param pos  Parser position, must not be null
+   * @param statementName  Name of prepared statement to execute, must not be
+   *                       null
    */
-  public SqlConditionalStmtListPair(final SqlParserPos pos,
-      final SqlNode condition,
-      final SqlStatementList stmtList) {
+  public SqlExecuteImmediate(SqlParserPos pos, SqlNode statementName) {
     super(pos);
-    this.condition = Objects.requireNonNull(condition);
-    this.stmtList = Objects.requireNonNull(stmtList);
+    this.statementName = Objects.requireNonNull(statementName);
   }
 
   @Override public SqlOperator getOperator() {
@@ -52,13 +49,11 @@ public class SqlConditionalStmtListPair extends SqlCall {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(condition, stmtList);
+    return ImmutableNullableList.of(statementName);
   }
 
-  @Override public void unparse(final SqlWriter writer, final int leftPrec,
-      final int rightPrec) {
-    condition.unparse(writer, leftPrec, rightPrec);
-    writer.keyword("THEN");
-    stmtList.unparse(writer, leftPrec, rightPrec);
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    writer.keyword("EXECUTE IMMEDIATE");
+    statementName.unparse(writer, 0, 0);
   }
 }
