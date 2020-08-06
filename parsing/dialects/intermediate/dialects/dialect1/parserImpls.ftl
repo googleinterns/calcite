@@ -2805,9 +2805,9 @@ SqlSelect SqlSelect() :
                     RESOURCE.selectMissingFrom());
         }
         return new SqlSelect(s.end(this), keywordList, topN,
-            new SqlNodeList(selectList, Span.of(selectList).pos()),
-            /*exceptExpression=*/ null, from, where, groupBy, having, qualify,
-            window, /*orderBy=*/ null, /*offset=*/ null, /*fetch=*/ null,
+            new SqlNodeList(selectList, Span.of(selectList).pos()), from, where,
+            groupBy, having, qualify, window, /*orderBy=*/ null,
+            /*offset=*/ null, /*fetch=*/ null,
             new SqlNodeList(hints, getPos()));
     }
 }
@@ -3739,14 +3739,14 @@ SqlNode BuiltinFunctionCall() :
         <LPAREN> e = Expression(ExprContext.ACCEPT_SUB_QUERY) { args = startList(e); }
         <AS>
         (
+            ( e = AlternativeTypeConversionAttribute() { args.add(e); } )+
+        |
             (
                 dt = DataType() { args.add(dt); }
             |
                 <INTERVAL> e = IntervalQualifier() { args.add(e); }
             )
             ( e = AlternativeTypeConversionAttribute() { args.add(e); } )*
-        |
-            ( e = AlternativeTypeConversionAttribute() { args.add(e); } )+
         )
         <RPAREN> {
             return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
@@ -4638,11 +4638,13 @@ SqlNode CreateProcedureStmt() :
 }
 {
     (
+        e = ConditionalStmt()
+    |
         e = CursorStmt()
     |
         e = SqlBeginEndCall()
     |
-        e = ConditionalStmt()
+        e = SqlBeginRequestCall()
     |
         e = SqlStmt()
     )
@@ -4750,14 +4752,94 @@ SqlBeginEndCall SqlBeginEndCall() :
     SqlIdentifier endLabel = null;
     final SqlStatementList statements = new SqlStatementList(getPos());
     final Span s = Span.of();
+    SqlNode e;
 }
 {
     [ beginLabel = SimpleIdentifier() <COLON> ]
     <BEGIN>
-    CreateProcedureStmtList(statements)
+    (
+        // LOOKAHEAD ensures statement should not be parsed by
+        // SqlDeclareCursor() instead.
+        LOOKAHEAD(LocalDeclaration())
+        e = LocalDeclaration() { statements.add(e); }
+    )*
+    ( e = SqlDeclareCursor() { statements.add(e); } )*
+    [
+        LOOKAHEAD({ getToken(1).kind != END })
+        CreateProcedureStmtList(statements)
+    ]
     <END>
     [ endLabel = SimpleIdentifier() ]
-    { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
+    {
+        return new SqlBeginEndCall(s.end(this), beginLabel, endLabel,
+            statements);
+    }
+}
+
+SqlCall LocalDeclaration() :
+{
+    final SqlCall e;
+}
+{
+    (
+        LOOKAHEAD(3)
+        e = SqlDeclareCondition()
+    |
+        e = SqlDeclareVariable()
+    )
+    <SEMICOLON>
+    { return e; }
+}
+
+SqlDeclareVariable SqlDeclareVariable() :
+{
+    final SqlNodeList variableNames = new SqlNodeList(getPos());
+    final SqlDataTypeSpec dataType;
+    final SqlNode defaultValue;
+    final Span s = Span.of();
+    SqlIdentifier variableName;
+}
+{
+    <DECLARE>
+    variableName = SimpleIdentifier() { variableNames.add(variableName); }
+    (
+        <COMMA> variableName = SimpleIdentifier() {
+            variableNames.add(variableName);
+        }
+    )*
+    dataType = DataType()
+    (
+        <DEFAULT_>
+        (
+            defaultValue = Literal()
+        |
+            <NULL> { defaultValue = SqlLiteral.createNull(getPos()); }
+        )
+    |
+        { defaultValue = null; }
+    )
+    {
+        return new SqlDeclareVariable(s.end(this), variableNames, dataType,
+            defaultValue);
+    }
+}
+
+SqlDeclareCondition SqlDeclareCondition() :
+{
+    final SqlIdentifier conditionName;
+    final SqlNode stateCode;
+    final Span s = Span.of();
+}
+{
+    <DECLARE>
+    conditionName = SimpleIdentifier()
+    <CONDITION>
+    (
+        <FOR> stateCode = StringLiteral()
+    |
+        { stateCode = null; }
+    )
+    { return new SqlDeclareCondition(s.end(this), conditionName, stateCode); }
 }
 
 SqlDrop SqlDropProcedure(Span s) :
@@ -4820,12 +4902,32 @@ SqlRenameProcedure SqlRenameProcedure() :
     }
 }
 
+// Semicolon is optional after the last statement.
+SqlBeginRequestCall SqlBeginRequestCall() :
+{
+    final SqlStatementList statements = new SqlStatementList(getPos());
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <BEGIN> <REQUEST>
+    e = SqlStmt() { statements.add(e); }
+    ( <SEMICOLON> e = SqlStmt() { statements.add(e); } )*
+    [ <SEMICOLON> ]
+    <END> <REQUEST>
+    { return new SqlBeginRequestCall(s.end(this), statements); }
+}
+
 SqlNode ConditionalStmt() :
 {
     final SqlNode e;
 }
 {
-    e = IfStmt()
+    (
+        e = CaseStmt()
+    |
+        e = IfStmt()
+    )
     { return e; }
 }
 
@@ -4853,6 +4955,36 @@ SqlIfStmt IfStmt() :
     }
 }
 
+SqlCaseStmt CaseStmt() :
+{
+    SqlNode firstOperand = null;
+    SqlNode e = null;
+    final SqlNodeList conditionMultiStmtList = new SqlNodeList(getPos());
+    final SqlStatementList elseMultiStmtList = new SqlStatementList(getPos());
+}
+{
+    <CASE>
+    [ firstOperand = Expression(ExprContext.ACCEPT_NON_QUERY) ]
+    (
+        <WHEN> e = ConditionMultiStmtPair()
+        { conditionMultiStmtList.add(e); }
+    )+
+    [
+        <ELSE>
+        CreateProcedureStmtList(elseMultiStmtList)
+    ]
+    <END> <CASE>
+    {
+        if (firstOperand == null) {
+            return new SqlCaseStmtWithConditionalExpression(getPos(),
+                conditionMultiStmtList, elseMultiStmtList);
+        } else {
+            return new SqlCaseStmtWithOperand(getPos(), firstOperand,
+                conditionMultiStmtList, elseMultiStmtList);
+        }
+    }
+}
+
 SqlNode ConditionMultiStmtPair() :
 {
     final SqlNode condition;
@@ -4868,19 +5000,6 @@ SqlNode ConditionMultiStmtPair() :
     }
 }
 
-void CreateProcedureStmtList(SqlStatementList statements) :
-{
-    SqlNode e;
-}
-{
-    (
-        LOOKAHEAD(CreateProcedureStmt())
-        e = CreateProcedureStmt() <SEMICOLON> {
-            statements.add(e);
-        }
-    )+
-}
-
 SqlNode CursorStmt() :
 {
     final SqlNode e;
@@ -4888,6 +5007,16 @@ SqlNode CursorStmt() :
 {
     (
         e = SqlAllocateCursor()
+    |
+        e = SqlCloseCursor()
+    |
+        e = SqlDeallocatePrepare()
+    |
+        e = SqlDeleteUsingCursor()
+    |
+        e = SqlExecuteImmediate()
+    |
+        e = SqlExecuteStatement()
     |
         e = SqlFetchCursor()
     )
@@ -4904,6 +5033,141 @@ SqlAllocateCursor SqlAllocateCursor() :
     <ALLOCATE> cursorName = SimpleIdentifier()
     <CURSOR> <FOR> <PROCEDURE> procedureName = SimpleIdentifier()
     { return new SqlAllocateCursor(s.end(this), cursorName, procedureName); }
+}
+
+SqlDeleteUsingCursor SqlDeleteUsingCursor() :
+{
+    final SqlIdentifier tableName;
+    final SqlIdentifier cursorName;
+    final Span s = Span.of();
+}
+{
+    ( <DELETE> | <DEL> ) <FROM> tableName = CompoundIdentifier()
+    <WHERE> <CURRENT> <OF> cursorName = SimpleIdentifier()
+    { return new SqlDeleteUsingCursor(s.end(this), tableName, cursorName); }
+}
+
+SqlExecuteImmediate SqlExecuteImmediate() :
+{
+    final SqlNode statementName;
+    final Span s = Span.of();
+}
+{
+    <EXECUTE> <IMMEDIATE>
+    (
+        statementName = SimpleIdentifier()
+    |
+        statementName = StringLiteral()
+    )
+    { return new SqlExecuteImmediate(s.end(this), statementName); }
+}
+
+SqlExecuteStatement SqlExecuteStatement() :
+{
+    final SqlIdentifier statementName;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <EXECUTE> statementName = SimpleIdentifier()
+    [
+        <USING>
+        e = SimpleIdentifier() { parameters.add(e); }
+        ( <COMMA> e = SimpleIdentifier() { parameters.add(e); } )*
+    ]
+    { return new SqlExecuteStatement(s.end(this), statementName, parameters); }
+}
+
+SqlDeallocatePrepare SqlDeallocatePrepare() :
+{
+    final SqlIdentifier statementName;
+    final Span s = Span.of();
+}
+{
+    <DEALLOCATE> <PREPARE> statementName = SimpleIdentifier()
+    { return new SqlDeallocatePrepare(s.end(this), statementName); }
+}
+
+SqlCloseCursor SqlCloseCursor() :
+{
+    final SqlIdentifier cursorName;
+    final Span s = Span.of();
+}
+{
+    <CLOSE> cursorName = SimpleIdentifier()
+    { return new SqlCloseCursor(s.end(this), cursorName); }
+}
+
+SqlDeclareCursor SqlDeclareCursor() :
+{
+    final SqlIdentifier cursorName;
+    CursorScrollType scrollType = CursorScrollType.UNSPECIFIED;
+    CursorReturnType returnType = CursorReturnType.UNSPECIFIED;
+    CursorReturnToType returnToType = CursorReturnToType.UNSPECIFIED;
+    CursorUpdateType updateType = CursorUpdateType.UNSPECIFIED;
+    boolean only = false;
+    SqlNode cursorSpecification = null;
+    SqlIdentifier statementName = null;
+    SqlIdentifier preparedStatementName = null;
+    SqlNode prepareFrom = null;
+    final Span s = Span.of();
+}
+{
+    <DECLARE> cursorName = SimpleIdentifier()
+    [
+        (
+            <SCROLL> { scrollType = CursorScrollType.SCROLL; }
+        |
+            <NO> <SCROLL> { scrollType = CursorScrollType.NO_SCROLL; }
+        )
+    ]
+    <CURSOR>
+    [
+        (
+            <WITHOUT> <RETURN> { returnType = CursorReturnType.WITHOUT_RETURN; }
+        |
+            <WITH> <RETURN> { returnType = CursorReturnType.WITH_RETURN; }
+            [ <ONLY> { only = true; } ]
+            [
+                (
+                    <TO> <CALLER> { returnToType = CursorReturnToType.CALLER; }
+                |
+                    <TO> <CLIENT> { returnToType = CursorReturnToType.CLIENT; }
+                )
+            ]
+        )
+    ]
+    <FOR>
+    (
+        statementName = SimpleIdentifier()
+    |
+        LOOKAHEAD(OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY))
+        cursorSpecification = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+        [
+            <FOR>
+            (
+                <READ> <ONLY> { updateType = CursorUpdateType.READ_ONLY; }
+            |
+                <UPDATE> { updateType = CursorUpdateType.UPDATE; }
+            )
+        ]
+    )
+    [
+        <PREPARE> preparedStatementName = SimpleIdentifier()
+        <FROM>
+        (
+            prepareFrom = SimpleIdentifier()
+        |
+            prepareFrom = StringLiteral()
+        )
+    ]
+    <SEMICOLON>
+    {
+        return new SqlDeclareCursor(s.end(this), cursorName, scrollType,
+            returnType, returnToType, only, updateType, cursorSpecification,
+            statementName, preparedStatementName, prepareFrom);
+    }
 }
 
 SqlFetchCursor SqlFetchCursor() :

@@ -218,15 +218,14 @@ public abstract class DelegatingScope implements SqlValidatorScope {
 
   /**
    * Filters out unknown tables (unless only unknown tables are present, in
-   * which case it leaves an arbitrary unknown table which is assumed to contain
-   * the column we are trying to resolve). This ensures that columns are not
-   * matched to unknown tables if they can instead be matched to tables with
+   * which case all unknown tables are returned). This ensures that columns are
+   * not matched to unknown tables if they can instead be matched to tables with
    * known schemas.
    *
    * @param map A map from table names to {@code ScopeChild} objects, which
    *            represents all possible tables which a particular column could
    *            come from.
-   * @return    A new table name map with unknown tables filtered out.
+   * @return    A filtered table map.
    */
   public Map<String, ScopeChild> filterTableNames(Map<String, ScopeChild> map) {
     Map<String, ScopeChild> filteredMap = new HashMap<String, ScopeChild>();
@@ -235,13 +234,10 @@ public abstract class DelegatingScope implements SqlValidatorScope {
         filteredMap.put(key, map.get(key));
       }
     }
-    // If original map consists only of unknown tables, arbitrarily assume the
-    // column corresponds to the first unknown table. We cannot do any better
-    // than this without prior schema information.
+    // If original map consists only of unknown tables, return all unknown
+    // tables.
     if (filteredMap.isEmpty() && !map.isEmpty()) {
-      String arbitraryKey = map.keySet().iterator().next();
-      filteredMap.put(arbitraryKey, map.get(arbitraryKey));
-      //TODO(dstekol): Figure out how to represent ambiguous columns
+      filteredMap = map;
     }
     return filteredMap;
   }
@@ -307,6 +303,13 @@ public abstract class DelegatingScope implements SqlValidatorScope {
         namespace = map.get(tableName).namespace;
         break;
       default:
+        if (validator.config().allowUnknownTables()) {
+          tableName = map.keySet().iterator().next();
+          namespace = map.get(tableName).namespace;
+          if (namespace.getType() instanceof UnknownRecordType) {
+            return SqlQualified.create(this, 1, null, identifier);
+          }
+        }
         throw validator.newValidationError(identifier,
             RESOURCE.columnAmbiguous(columnName));
       }
