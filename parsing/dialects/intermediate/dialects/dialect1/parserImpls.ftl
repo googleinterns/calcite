@@ -5075,6 +5075,8 @@ SqlIterationStmt IterationStmt() :
 }
 {
     (
+        e = RepeatStmt()
+    |
         e = WhileStmt()
     )
     { return e; }
@@ -5106,6 +5108,36 @@ SqlWhileStmt WhileStmt() :
     )
     {
         return new SqlWhileStmt(s.end(this), condition, statements,
+            beginLabel, endLabel);
+    }
+}
+
+SqlRepeatStmt RepeatStmt() :
+{
+    final SqlIdentifier beginLabel;
+    final SqlIdentifier endLabel;
+    final SqlNode condition;
+    final SqlStatementList statements = new SqlStatementList(getPos());
+    final Span s = Span.of();
+}
+{
+    (
+        beginLabel = SimpleIdentifier() <COLON>
+    |
+        { beginLabel = null; }
+    )
+    <REPEAT>
+    CreateProcedureStmtList(statements)
+    <UNTIL>
+    condition = Expression(ExprContext.ACCEPT_NON_QUERY)
+    <END> <REPEAT>
+    (
+        endLabel = SimpleIdentifier()
+    |
+        { endLabel = null; }
+    )
+    {
+        return new SqlRepeatStmt(s.end(this), condition, statements,
             beginLabel, endLabel);
     }
 }
