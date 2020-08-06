@@ -5212,4 +5212,92 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "(?s).*Numeric literal.*out of range.*";
     sql(sql).fails(expected);
   }
+
+  @Test public void testWhileStmtBaseCase() {
+    final String sql = "create procedure foo (bar integer) "
+        + "while bar = 1 do "
+        + "select bee; "
+        + "end while";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "WHILE (`BAR` = 1) DO SELECT `BEE`;\n"
+            + "END WHILE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testWhileStmtWithLabel() {
+    final String sql = "create procedure foo (bar integer) "
+        + "label1: "
+        + "while bar = 1 do "
+        + "select bee; "
+        + "end while "
+        + "label1";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "`LABEL1` : WHILE (`BAR` = 1) DO SELECT `BEE`;\n"
+            + "END WHILE `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testWhileStmtWithMultipleStmt() {
+    final String sql = "create procedure foo (bar integer) "
+        + "while bar = 1 do "
+        + "select abc; "
+        + "select bee; "
+        + "end while";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "WHILE (`BAR` = 1) DO SELECT `ABC`;\n"
+            + "SELECT `BEE`;\n"
+            + "END WHILE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testWhileStmtNested() {
+    final String sql = "create procedure foo (bar integer) "
+        + "while bar = 1 do "
+        + "select bee; "
+        + "while abc = 2 do "
+        + "select cde; "
+        + "end while; "
+        + "end while";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "WHILE (`BAR` = 1) DO SELECT `BEE`;\n"
+            + "WHILE (`ABC` = 2) DO SELECT `CDE`;\n"
+            + "END WHILE;\n"
+            + "END WHILE";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIterationStmtFailsWithMissingEndLabel() {
+    final String sql = "create procedure foo (bar integer) "
+        + "^label1^: "
+        + "while bar = 1 do "
+        + "select bee; "
+        + "end while";
+    final String expected =
+        "BEGIN label and END label must match";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testIterationStmtFailsWithMissingBeginLabel() {
+    final String sql = "create procedure foo (bar integer) "
+        + "while bar = 1 do "
+        + "select bee; "
+        + "end while "
+        + "^label1^";
+    final String expected =
+        "BEGIN label and END label must match";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testIterationStmtFailsWithEmptyStatementList() {
+    final String sql = "create procedure foo (bar integer) "
+        + "while bar = 1 do "
+        + "^end^ while";
+    final String expected =
+        "(?s)Encountered \"end\" at .*";
+    sql(sql).fails(expected);
+  }
 }

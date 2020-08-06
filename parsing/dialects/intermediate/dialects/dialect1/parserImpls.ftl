@@ -4642,6 +4642,11 @@ SqlNode CreateProcedureStmt() :
     |
         e = CursorStmt()
     |
+        // This lookahead ensures parser chooses the right path when facing
+        // begin label.
+        LOOKAHEAD(3)
+        e = IterationStmt()
+    |
         e = SqlBeginEndCall()
     |
         e = SqlBeginRequestCall()
@@ -5212,5 +5217,46 @@ SqlSelectAndConsume SqlSelectAndConsume() :
         return new SqlSelectAndConsume(s.end(this),
             new SqlNodeList(selectList, Span.of(selectList).pos()), parameters,
             fromTable);
+    }
+}
+
+SqlIterationStmt IterationStmt() :
+{
+    final SqlIterationStmt e;
+}
+{
+    (
+        e = WhileStmt()
+    )
+    { return e; }
+}
+
+SqlWhileStmt WhileStmt() :
+{
+    final SqlIdentifier beginLabel;
+    final SqlIdentifier endLabel;
+    final SqlNode condition;
+    final SqlStatementList statements = new SqlStatementList(getPos());
+    final Span s = Span.of();
+}
+{
+    (
+        beginLabel = SimpleIdentifier() <COLON>
+    |
+        { beginLabel = null; }
+    )
+    <WHILE>
+    condition = Expression(ExprContext.ACCEPT_NON_QUERY)
+    <DO>
+    CreateProcedureStmtList(statements)
+    <END> <WHILE>
+    (
+        endLabel = SimpleIdentifier()
+    |
+        { endLabel = null; }
+    )
+    {
+        return new SqlWhileStmt(s.end(this), condition, statements,
+            beginLabel, endLabel);
     }
 }

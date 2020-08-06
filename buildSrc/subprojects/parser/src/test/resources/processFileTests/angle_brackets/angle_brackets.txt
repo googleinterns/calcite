@@ -25,3 +25,5 @@ List   < Integer >  qux  () : {} {}
 void quux (List<String> x) : {} {}
 
 void corge (Map<String, Integer> x) : {} {}
+
+List<int[]> grault (): {} {}
