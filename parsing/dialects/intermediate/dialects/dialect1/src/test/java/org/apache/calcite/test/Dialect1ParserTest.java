@@ -5143,9 +5143,11 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   }
 
   @Test public void testCastIntervalPositiveInteger() {
-    final String sql = "select cast(current_date + 3 * interval 2 day as date) from abc";
-    final String expected = "SELECT CAST((CURRENT_DATE + (3 * INTERVAL '2' DAY)) AS DATE)\n"
-     + "FROM `ABC`";
+    final String sql = "select cast(current_date + 3 * interval 2 day as date)"
+        + " from abc";
+    final String expected = "SELECT CAST((CURRENT_DATE + (3 * INTERVAL '2' "
+        + "DAY)) AS DATE)\n"
+        + "FROM `ABC`";
     sql(sql).ok(expected);
   }
 
