@@ -102,6 +102,8 @@ data: {
       "org.apache.calcite.sql.SqlExecuteStatement",
       "org.apache.calcite.sql.SqlFetchCursor",
       "org.apache.calcite.sql.SqlFetchCursor.FetchType",
+      "org.apache.calcite.sql.SqlGetDiagnostics",
+      "org.apache.calcite.sql.SqlGetDiagnosticsParam",
       "org.apache.calcite.sql.SqlHelp",
       "org.apache.calcite.sql.SqlHelpProcedure",
       "org.apache.calcite.sql.SqlHexCharStringLiteral",

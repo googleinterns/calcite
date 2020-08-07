@@ -4658,6 +4658,8 @@ SqlNode CreateProcedureStmt() :
         LOOKAHEAD(CursorStmt() <SEMICOLON>)
         e = CursorStmt()
     |
+        e = DiagnosticStmt()
+    |
         // This lookahead ensures parser chooses the right path when facing
         // begin label.
         LOOKAHEAD(3)
@@ -5402,4 +5404,50 @@ SqlWhileStmt WhileStmt() :
         return new SqlWhileStmt(s.end(this), condition, statements,
             beginLabel, endLabel);
     }
+}
+
+SqlNode DiagnosticStmt() :
+{
+    final SqlNode e;
+}
+{
+    (
+        e = SqlGetDiagnostics()
+    )
+    { return e; }
+}
+
+SqlGetDiagnostics SqlGetDiagnostics() :
+{
+    SqlNode conditionNumber = null;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <GET> <DIAGNOSTICS>
+    [
+        <EXCEPTION>
+        (
+            conditionNumber = SimpleIdentifier()
+        |
+            conditionNumber = NumericLiteral()
+        )
+    ]
+    e = SqlGetDiagnosticsParam() { parameters.add(e); }
+    ( <COMMA> e = SqlGetDiagnosticsParam() { parameters.add(e); } )*
+    { return new SqlGetDiagnostics(s.end(this), conditionNumber, parameters); }
+}
+
+SqlGetDiagnosticsParam SqlGetDiagnosticsParam() :
+{
+    final SqlIdentifier name;
+    final SqlIdentifier value;
+    final Span s = Span.of();
+}
+{
+    name = SimpleIdentifier()
+    <EQ>
+    value = SimpleIdentifier()
+    { return new SqlGetDiagnosticsParam(s.end(this), name, value); }
 }

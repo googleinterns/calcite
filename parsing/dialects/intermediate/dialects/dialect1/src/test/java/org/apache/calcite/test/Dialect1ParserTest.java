@@ -5541,4 +5541,54 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         "(?s)Encountered \"end\" at .*";
     sql(sql).fails(expected);
   }
+
+  @Test public void testGetDiagnostics() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "get diagnostics bar = condition_identifier;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "GET DIAGNOSTICS `BAR` = `CONDITION_IDENTIFIER`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testGetDiagnosticsList() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "get diagnostics bar = condition_identifier, baz = message_length, "
+        + "qux = returned_sqlstate;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "GET DIAGNOSTICS `BAR` = `CONDITION_IDENTIFIER`, `BAZ` = "
+        + "`MESSAGE_LENGTH`, `QUX` = `RETURNED_SQLSTATE`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testGetDiagnosticsExceptionNumber() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "get diagnostics exception 15 bar = condition_identifier;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "GET DIAGNOSTICS EXCEPTION 15 `BAR` = `CONDITION_IDENTIFIER`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testGetDiagnosticsExceptionIdentifier() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "get diagnostics exception quux bar = condition_identifier;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "GET DIAGNOSTICS EXCEPTION `QUUX` `BAR` = `CONDITION_IDENTIFIER`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
 }
