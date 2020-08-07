@@ -109,6 +109,7 @@ data: {
       "org.apache.calcite.sql.SqlHostVariable",
       "org.apache.calcite.sql.SqlIfStmt",
       "org.apache.calcite.sql.SqlIndex",
+      "org.apache.calcite.sql.SqlIterationStmt",
       "org.apache.calcite.sql.SqlJsonTypeNameSpec",
       "org.apache.calcite.sql.SqlJsonTypeNameSpec.StorageFormat",
       "org.apache.calcite.sql.SqlKind"
@@ -125,6 +126,7 @@ data: {
       "org.apache.calcite.sql.SqlRenameProcedure",
       "org.apache.calcite.sql.SqlRenameTable",
       "org.apache.calcite.sql.SqlSecondaryIndex",
+      "org.apache.calcite.sql.SqlSelectAndConsume",
       "org.apache.calcite.sql.SqlSelectTopN",
       "org.apache.calcite.sql.SqlSetTimeZone",
       "org.apache.calcite.sql.SqlStatementList",
@@ -155,8 +157,10 @@ data: {
       "org.apache.calcite.sql.SqlTablePartitionRowFormat.CompressionOpt"
       "org.apache.calcite.sql.SqlTimeZoneOption",
       "org.apache.calcite.sql.SqlTranslateUsingCharacterSet",
+      "org.apache.calcite.sql.SqlUpdateUsingCursor",
       "org.apache.calcite.sql.SqlUpsert",
       "org.apache.calcite.sql.SqlUsingRequestModifier",
+      "org.apache.calcite.sql.SqlWhileStmt",
       "org.apache.calcite.sql.Volatility",
       "org.apache.calcite.sql.WithDataType",
     ]
