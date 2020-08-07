@@ -44,7 +44,8 @@ public class SqlSignal extends SqlCall {
    * @param infoItemValue The condition info item value in the SET clause
    */
   public SqlSignal(SqlParserPos pos, SignalType signalType,
-      SqlNode conditionOrSqlState, SqlIdentifier infoItem, SqlNode infoItemValue) {
+      SqlNode conditionOrSqlState, SqlIdentifier infoItem,
+      SqlNode infoItemValue) {
     super(pos);
     this.signalType = Objects.requireNonNull(signalType);
     this.conditionOrSqlState = conditionOrSqlState;
@@ -57,7 +58,8 @@ public class SqlSignal extends SqlCall {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(conditionOrSqlState, infoItem, infoItemValue);
+    return ImmutableNullableList.of(conditionOrSqlState, infoItem,
+        infoItemValue);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {

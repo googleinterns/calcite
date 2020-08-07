@@ -4658,6 +4658,8 @@ SqlNode CreateProcedureStmt() :
         LOOKAHEAD(CursorStmt() <SEMICOLON>)
         e = CursorStmt()
     |
+        e = DiagnosticStatement()
+    |
         // This lookahead ensures parser chooses the right path when facing
         // begin label.
         LOOKAHEAD(3)
@@ -5393,20 +5395,32 @@ SqlIdentifier DeclareHandlerCondition() :
     { return condition; }
 }
 
+SqlNode DiagnosticStatement() :
+{
+    final SqlNode e;
+}
+{
+    (
+        e = SqlSignal()
+    )
+    { return e; }
+}
+
 SqlSignal SqlSignal() :
 {
     final SignalType signalType;
     SqlNode conditionOrSqlState = null;
     SqlIdentifier infoItem = null;
     SqlNode infoItemValue = null;
+    final Span s = Span.of();
 }
 {
     (
         <SIGNAL> { signalType = SignalType.SIGNAL; }
-        conditionOrState = SignalConditionOrSqlState()
+        conditionOrSqlState = SignalConditionOrSqlState()
     |
         <RESIGNAL> { signalType = SignalType.RESIGNAL; }
-        [ conditionOrState = SignalConditionOrSqlState() ]
+        [ conditionOrSqlState = SignalConditionOrSqlState() ]
     )
     [
         <SET>
