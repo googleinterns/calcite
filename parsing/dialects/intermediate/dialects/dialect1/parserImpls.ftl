@@ -2717,7 +2717,6 @@ SqlSelect SqlSelect() :
         CommaSepatatedSqlHints(hints)
         <COMMENT_END>
     ]
-    SqlSelectKeywords(keywords)
     (
         <STREAM> {
             keywords.add(SqlSelectKeyword.STREAM.symbol(getPos()));
@@ -2844,8 +2843,8 @@ SqlNode SqlInsert() :
     |
         <UPSERT> { keywords.add(SqlInsertKeyword.UPSERT.symbol(getPos())); }
     )
-    { s = span(); }
-    SqlInsertKeywords(keywords) {
+    {
+        s = span();
         keywordList = new SqlNodeList(keywords, s.addAll(keywords).pos());
     }
     [ <INTO> ]
@@ -4680,7 +4679,6 @@ void CreateProcedureStmtList(SqlStatementList statements) :
 }
 {
     (
-        LOOKAHEAD(CreateProcedureStmt())
         e = CreateProcedureStmt() <SEMICOLON> {
             statements.add(e);
         }
@@ -4787,10 +4785,7 @@ SqlBeginEndCall SqlBeginEndCall() :
         e = LocalDeclaration() { statements.add(e); }
     )*
     ( e = SqlDeclareCursor() { statements.add(e); } )*
-    [
-        LOOKAHEAD({ getToken(1).kind != END })
-        CreateProcedureStmtList(statements)
-    ]
+    [ CreateProcedureStmtList(statements) ]
     <END>
     [ endLabel = SimpleIdentifier() ]
     {
