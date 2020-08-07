@@ -127,6 +127,8 @@ data: {
       "org.apache.calcite.sql.SqlSelectAndConsume",
       "org.apache.calcite.sql.SqlSelectTopN",
       "org.apache.calcite.sql.SqlSetTimeZone",
+      "org.apache.calcite.sql.SqlSignal",
+      "org.apache.calcite.sql.SqlSignal.SignalType",
       "org.apache.calcite.sql.SqlStatementList",
       "org.apache.calcite.sql.SqlTableAttribute",
       "org.apache.calcite.sql.SqlTableAttributeBlockCompression",

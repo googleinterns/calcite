@@ -5304,3 +5304,43 @@ SqlWhileStmt WhileStmt() :
             beginLabel, endLabel);
     }
 }
+
+SqlSignal SqlSignal() :
+{
+    final SignalType signalType;
+    SqlNode conditionOrSqlState = null;
+    SqlIdentifier infoItem = null;
+    SqlNode infoItemValue = null;
+}
+{
+    (
+        <SIGNAL> { signalType = SignalType.SIGNAL; }
+        conditionOrState = SignalConditionOrSqlState()
+    |
+        <RESIGNAL> { signalType = SignalType.RESIGNAL; }
+        [ conditionOrState = SignalConditionOrSqlState() ]
+    )
+    [
+        <SET>
+        infoItem = SimpleIdentifier()
+        <EQ>
+        infoItemValue = Literal()
+    ]
+    {
+        return new SqlSignal(s.end(this), signalType, conditionOrSqlState,
+            infoItem, infoItemValue);
+    }
+}
+
+SqlNode SignalConditionOrSqlState() :
+{
+    final SqlNode e;
+}
+{
+    (
+        e = SqlState()
+    |
+        e = SimpleIdentifier()
+    )
+    { return e; }
+}

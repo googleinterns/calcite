@@ -5400,4 +5400,16 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         "(?s)Encountered \"end\" at .*";
     sql(sql).fails(expected);
   }
+
+  @Test public void testSignalConditionName() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "signal bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SIGNAL `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
 }
