@@ -635,6 +635,21 @@ public enum SqlKind {
   DECLARE_CURSOR,
 
   /**
+   * OPEN cursor call in BEGIN...END statement.
+   */
+  OPEN_CURSOR,
+
+  /**
+   * PREPARE statement call in BEGIN...END statement.
+   */
+  PREPARE_STATEMENT,
+
+  /**
+   * FETCH cursor call in a CREATE PROCEDURE statement.
+   */
+  FETCH_CURSOR,
+
+  /**
    * Update using cursor call in BEGIN...END statement.
    */
   UPDATE_USING_CURSOR,
