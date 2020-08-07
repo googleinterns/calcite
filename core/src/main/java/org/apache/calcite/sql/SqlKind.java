@@ -640,6 +640,21 @@ public enum SqlKind {
   PREPARE_STATEMENT,
 
   /**
+   * FETCH cursor call in a CREATE PROCEDURE statement.
+   */
+  FETCH_CURSOR,
+
+  /**
+   * Update using cursor call in BEGIN...END statement.
+   */
+  UPDATE_USING_CURSOR,
+
+  /**
+   * SELECT AND CONSUME statement in a BEGIN...END statement.
+   */
+  SELECT_AND_CONSUME,
+
+  /**
    * Special functions in MATCH_RECOGNIZE.
    */
   FINAL,
@@ -1250,6 +1265,12 @@ public enum SqlKind {
 
   /** {@code IF STATEMENT} PL statement */
   IF_STATEMENT,
+
+  /** {@code ITERATION STATEMENT} PL statement */
+  ITERATION_STATEMENT,
+
+  /** {@code WHILE STATEMENT} PL statement */
+  WHILE_STATEMENT,
 
   /** DDL statement not handled above.
    *
