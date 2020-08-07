@@ -5531,6 +5531,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "declare bar cursor for baz;\n"
         + "declare continue handler for sqlwarning, sqlexception, not found, "
         + "qux select bar;\n"
+        + "declare exit handler;\n"
         + "insert into foo (SELECT * FROM bar);\n"
         + "end";
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
@@ -5539,6 +5540,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "DECLARE `BAR` CURSOR FOR `BAZ`;\n"
         + "DECLARE CONTINUE HANDLER FOR SQLWARNING, SQLEXCEPTION, NOT FOUND, "
         + "`QUX` SELECT `BAR`;\n"
+        + "DECLARE EXIT HANDLER;\n"
         + "INSERT INTO `FOO`\n"
         + "(SELECT *\nFROM `BAR`);\n"
         + "END";
