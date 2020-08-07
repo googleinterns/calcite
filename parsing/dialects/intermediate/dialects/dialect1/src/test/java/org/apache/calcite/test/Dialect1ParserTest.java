@@ -103,45 +103,59 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   }
 
   @Test void testDel() {
-    final String sql = "del from t";
-    final String expected = "DELETE FROM `T`";
-    sql(sql).ok(expected);
-  }
-
-  @Test void testDeleteWithoutFrom() {
-    final String sql = "delete t";
-    final String expected = "DELETE FROM `T`";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testDeleteWithTable() {
-    final String sql = "delete foo from bar";
+    final String sql = "del from foo";
     final String expected = "DELETE FROM `FOO`";
     sql(sql).ok(expected);
   }
 
-  @Test public void testDeleteWithTableCompoundIdentifier() {
+  @Test void testDeleteWithoutFrom() {
+    final String sql = "delete foo";
+    final String expected = "DELETE FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithDeleteTableName() {
+    final String sql = "delete foo from bar";
+    final String expected = "DELETE `FOO` FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithCompoundDeleteTableName() {
     final String sql = "delete foo.bar from baz";
-    final String expected = "DELETE FROM `FOO`.`BAR`";
+    final String expected = "DELETE `FOO`.`BAR` FROM `BAZ`";
     sql(sql).ok(expected);
   }
 
-  @Test public void testDeleteWithTableWithAlias() {
+  @Test public void testDeleteWithDeleteTableNameAndAlias() {
     final String sql = "delete foo from bar as b";
-    final String expected = "DELETE FROM `FOO` AS `B`";
+    final String expected = "DELETE `FOO` FROM `BAR` AS `B`";
     sql(sql).ok(expected);
   }
 
-  @Test public void testDeleteWithTableWithWhere() {
+  @Test public void testDeleteWithDeleteTableNameAndWhere() {
     final String sql = "delete foo from bar where bar.x = 0";
-    final String expected = "DELETE FROM `FOO`\n"
+    final String expected = "DELETE `FOO` FROM `BAR`\n"
         + "WHERE (`BAR`.`X` = 0)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithDeleteTableNameAndJoinAndWhere() {
+    final String sql = "delete foo from bar, baz where bar.x = baz.x";
+    final String expected = "DELETE `FOO` FROM `BAR`, `BAZ`\n"
+        + "WHERE (`BAR`.`X` = `BAZ`.`X`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeleteWithDeleteTableNameAndJoinAndAliasesAndWhere() {
+    final String sql = "delete foo from bar a, baz b where a.x = b.x";
+    final String expected = "DELETE `FOO` FROM `BAR` AS `A`, `BAZ` AS `B`\n"
+        + "WHERE (`A`.`X` = `B`.`X`)";
     sql(sql).ok(expected);
   }
 
   @Test public void testDeleteWithTableWithoutFrom() {
     final String sql = "delete foo bar";
-    final String expected = "DELETE FROM `FOO`";
+    final String expected = "DELETE `FOO` FROM `BAR`";
     sql(sql).ok(expected);
   }
 
@@ -5142,6 +5156,99 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCastIntervalPositiveInteger() {
+    final String sql = "select cast(current_date + 3 * interval 2 day as date)"
+        + " from abc";
+    final String expected = "SELECT CAST((CURRENT_DATE + (3 * INTERVAL '2' "
+        + "DAY)) AS DATE)\n"
+        + "FROM `ABC`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIntervalPositiveInteger() {
+    final String sql = "interval 2 day";
+    final String expected = "INTERVAL '2' DAY";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testIntervalNegativeInteger() {
+    final String sql = "interval -2 day";
+    final String expected = "INTERVAL -'2' DAY";
+    expr(sql).ok(expected);
+  }
+
+  @Test public void testOpenCursor() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "open bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "OPEN `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPrepareStatementIdentifier() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "prepare bar from baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "PREPARE `BAR` FROM `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testOpenCursorWithParameter() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "open bar using a;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "OPEN `BAR` USING `A`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testFetchCursor() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "fetch bar into baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "FETCH `BAR` INTO `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testOpenCursorWithParameterList() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "open bar using a, b, c;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "OPEN `BAR` USING `A`, `B`, `C`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testPrepareStatementString() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "prepare bar from 'select baz from qux';\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "PREPARE `BAR` FROM 'select baz from qux';\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testUpdateUsingCursor() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -5150,6 +5257,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
         + "UPDATE `BAR` SET (`BAZ` = 2) WHERE CURRENT OF `QUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testFetchCursorFrom() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "fetch FROM bar into baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "FETCH `BAR` INTO `BAZ`;\n"
         + "END";
     sql(sql).ok(expected);
   }
@@ -5166,6 +5285,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testFetchCursorNextFrom() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "fetch next from bar into baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "FETCH NEXT FROM `BAR` INTO `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testUpdateUsingCursorUpdKeyword() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -5178,6 +5309,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testFetchCursorFirstFrom() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "fetch first from bar into baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "FETCH FIRST FROM `BAR` INTO `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testSelectAndConsumeWithSelKeyword() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -5186,6 +5329,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
         + "SELECT AND CONSUME TOP 1 `BAR` INTO `BAZ` FROM `QUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testFetchCursorParameterList() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "fetch first from bar into a, b, c;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "FETCH FIRST FROM `BAR` INTO `A`, `B`, `C`;\n"
         + "END";
     sql(sql).ok(expected);
   }
@@ -5474,6 +5629,56 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
             + "LOOP SELECT `ABC`;\n"
             + "END LOOP;\n"
             + "END LOOP";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testGetDiagnostics() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "get diagnostics bar = condition_identifier;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "GET DIAGNOSTICS `BAR` = `CONDITION_IDENTIFIER`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testGetDiagnosticsList() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "get diagnostics bar = condition_identifier, baz = message_length, "
+        + "qux = returned_sqlstate;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "GET DIAGNOSTICS `BAR` = `CONDITION_IDENTIFIER`, `BAZ` = "
+        + "`MESSAGE_LENGTH`, `QUX` = `RETURNED_SQLSTATE`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testGetDiagnosticsExceptionNumber() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "get diagnostics exception 15 bar = condition_identifier;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "GET DIAGNOSTICS EXCEPTION 15 `BAR` = `CONDITION_IDENTIFIER`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testGetDiagnosticsExceptionIdentifier() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "get diagnostics exception quux bar = condition_identifier;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "GET DIAGNOSTICS EXCEPTION `QUUX` `BAR` = `CONDITION_IDENTIFIER`;\n"
+        + "END";
     sql(sql).ok(expected);
   }
 }

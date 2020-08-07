@@ -18,11 +18,13 @@ package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.validate.SqlValidator;
-import org.apache.calcite.sql.validate.SqlValidatorImpl;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A <code>SqlDelete</code> is a node of a parse tree which represents a DELETE
@@ -32,35 +34,39 @@ public class SqlDelete extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("DELETE", SqlKind.DELETE);
 
-  SqlNode targetTable;
-  SqlNode condition;
-  SqlSelect sourceSelect;
-  SqlIdentifier alias;
+  public final SqlIdentifier deleteTableName;
+  public final SqlNodeList tables;
+  public final SqlNodeList aliases;
+  public final SqlNode condition;
+  public SqlSelect sourceSelect;
 
   //~ Constructors -----------------------------------------------------------
 
   public SqlDelete(
       SqlParserPos pos,
-      SqlNode targetTable,
+      SqlIdentifier deleteTableName,
+      SqlNode table,
+      SqlIdentifier alias,
       SqlNode condition,
-      SqlSelect sourceSelect,
-      SqlIdentifier alias) {
-    this(pos, /*deleteTable=*/ null, targetTable, condition, sourceSelect,
-        alias);
+      SqlSelect sourceSelect) {
+    this(pos, deleteTableName, new SqlNodeList(ImmutableList.of(table), pos),
+        new SqlNodeList(ImmutableNullableList.of(alias), pos), condition,
+        sourceSelect);
   }
 
   public SqlDelete(
       SqlParserPos pos,
-      SqlIdentifier deleteTable,
-      SqlNode targetTable,
+      SqlIdentifier deleteTableName,
+      SqlNodeList tables,
+      SqlNodeList aliases,
       SqlNode condition,
-      SqlSelect sourceSelect,
-      SqlIdentifier alias) {
+      SqlSelect sourceSelect) {
     super(pos);
-    this.targetTable = (deleteTable != null) ? deleteTable : targetTable;
+    this.deleteTableName = deleteTableName;
+    this.tables = Objects.requireNonNull(tables);
+    this.aliases = Objects.requireNonNull(aliases);
     this.condition = condition;
     this.sourceSelect = sourceSelect;
-    this.alias = alias;
   }
 
   //~ Methods ----------------------------------------------------------------
@@ -74,86 +80,38 @@ public class SqlDelete extends SqlCall {
   }
 
   public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(targetTable, condition, alias);
-  }
-
-  @Override public void setOperand(int i, SqlNode operand) {
-    switch (i) {
-    case 0:
-      targetTable = operand;
-      break;
-    case 1:
-      condition = operand;
-      break;
-    case 2:
-      sourceSelect = (SqlSelect) operand;
-      break;
-    case 3:
-      alias = (SqlIdentifier) operand;
-      break;
-    default:
-      throw new AssertionError(i);
-    }
-  }
-
-  /**
-   * @return the identifier for the target table of the deletion
-   */
-  public SqlNode getTargetTable() {
-    return targetTable;
-  }
-
-  /**
-   * @return the alias for the target table of the deletion
-   */
-  public SqlIdentifier getAlias() {
-    return alias;
-  }
-
-  /**
-   * Gets the filter condition for rows to be deleted.
-   *
-   * @return the condition expression for the data to be deleted, or null for
-   * all rows in the table
-   */
-  public SqlNode getCondition() {
-    return condition;
-  }
-
-  /**
-   * Gets the source SELECT expression for the data to be deleted. This
-   * returns null before the condition has been expanded by
-   * {@link SqlValidatorImpl#performUnconditionalRewrites(SqlNode, boolean)}.
-   *
-   * @return the source SELECT for the data to be inserted
-   */
-  public SqlSelect getSourceSelect() {
-    return sourceSelect;
-  }
-
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.keyword("DELETE");
-    final SqlWriter.Frame frame =
-        writer.startList(SqlWriter.FrameTypeEnum.SELECT, "FROM", "");
-    final int opLeft = getOperator().getLeftPrec();
-    final int opRight = getOperator().getRightPrec();
-    targetTable.unparse(writer, opLeft, opRight);
-    if (alias != null) {
-      writer.keyword("AS");
-      alias.unparse(writer, opLeft, opRight);
-    }
-    if (condition != null) {
-      writer.sep("WHERE");
-      condition.unparse(writer, opLeft, opRight);
-    }
-    writer.endList(frame);
-  }
-
-  public void validate(SqlValidator validator, SqlValidatorScope scope) {
-    validator.validateDelete(this);
+    return ImmutableNullableList.of(deleteTableName, tables, aliases, condition,
+        sourceSelect);
   }
 
   public void setSourceSelect(SqlSelect sourceSelect) {
     this.sourceSelect = sourceSelect;
+  }
+
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    writer.keyword("DELETE");
+    if (deleteTableName != null) {
+      deleteTableName.unparse(writer, leftPrec, rightPrec);
+    }
+    writer.keyword("FROM");
+    final SqlWriter.Frame frame = writer.startList("", "");
+    for (int i = 0; i < tables.size(); ++i) {
+      writer.sep(",", /*printFirst=*/false);
+      tables.get(i).unparse(writer, leftPrec, rightPrec);
+      if (aliases != null && aliases.get(i) != null) {
+        writer.keyword("AS");
+        aliases.get(i).unparse(writer, leftPrec, rightPrec);
+      }
+    }
+    writer.endList(frame);
+    if (condition != null) {
+      writer.newlineAndIndent();
+      writer.keyword("WHERE");
+      condition.unparse(writer, leftPrec, rightPrec);
+    }
+  }
+
+  public void validate(SqlValidator validator, SqlValidatorScope scope) {
+    validator.validateDelete(this);
   }
 }
