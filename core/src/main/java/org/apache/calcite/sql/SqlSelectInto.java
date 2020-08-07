@@ -27,8 +27,7 @@ import java.util.Objects;
  */
 public class SqlSelectInto extends SqlCall {
   private static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("SELECT INTO",
-          SqlKind.SELECT_INTO);
+      new SqlSpecialOperator("SELECT INTO", SqlKind.SELECT_INTO);
 
   public final SqlSelectKeyword selectKeyword;
   public final SqlNodeList selectList;
