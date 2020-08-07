@@ -26,11 +26,11 @@ public class SqlState extends SqlIdentifier {
   /**
    * Creates an instance of {@code SqlState}.
    *
-   * @param code A SQLSTATE code, must not be null
+   * @param value A SQLSTATE value, must not be null
    * @param pos Parser position, must not be null
    */
-  public SqlState(String code, SqlParserPos pos) {
-    super(code, pos);
+  public SqlState(String value, SqlParserPos pos) {
+    super(value, pos);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {

@@ -5449,13 +5449,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testDeclareHandlerSqlStateWrongLengthFails() {
+  @Test public void testDeclareHandlerSqlStateList() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
-        + "declare continue handler for sqlstate ^'0000'^;\n"
+        + "declare continue handler for sqlstate '00000', sqlstate '00001', "
+        + "sqlstate '00002';\n"
         + "end";
-    final String expected = "(?s).*SQLSTATE.*must be exactly five characters.*";
-    sql(sql).fails(expected);
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE CONTINUE HANDLER FOR SQLSTATE '00000', SQLSTATE '00001', "
+        + "SQLSTATE '00002';\n"
+        + "END";
+    sql(sql).ok(expected);
   }
 
   @Test public void testDeclareHandlerSqlStateValueKeyword() {
@@ -5468,6 +5473,15 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "DECLARE CONTINUE HANDLER FOR SQLSTATE '00000';\n"
         + "END";
     sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareHandlerSqlStateWrongLengthFails() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare continue handler for sqlstate ^'0000'^;\n"
+        + "end";
+    final String expected = "(?s).*SQLSTATE.*must be exactly five characters.*";
+    sql(sql).fails(expected);
   }
 
   @Test public void testDeclareHandlerSqlStateHandlerStatement() {

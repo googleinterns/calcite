@@ -17,15 +17,13 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.util.ImmutableNullableList;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
  * Parse tree for {@code SqlDeclareHandlerCondition}. This class is used to
- * add the ExceptionType enum values to a list containing other SqlIdentifier
- * values.
+ * add the DeclareHandlerConditionType enum values to a list containing other
+ * SqlIdentifier values.
  */
 public class SqlDeclareHandlerCondition extends SqlIdentifier {
 
@@ -35,7 +33,8 @@ public class SqlDeclareHandlerCondition extends SqlIdentifier {
    * Creates an instance of {@code SqlDeclareHandlerCondition}.
    *
    * @param pos Parser position, must not be null
-   * @param conditionType A value from ExceptionType, must not be null
+   * @param conditionType A value from DeclareHandlerConditionType, must not be
+   *                      null
    */
   public SqlDeclareHandlerCondition(SqlParserPos pos,
       DeclareHandlerConditionType conditionType) {

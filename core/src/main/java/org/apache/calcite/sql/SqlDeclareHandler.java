@@ -37,7 +37,7 @@ public class SqlDeclareHandler extends SqlCall {
   /**
    * Creates a {@code SqlDeclareHandler}.
    *
-   * @param pos  Parser position, must not be null
+   * @param pos Parser position, must not be null
    * @param handlerType The type of handler being declared, must not be null
    * @param conditionName Name of condition before CONDITION keyword
    * @param parameters List of SQLSTATE values, or
@@ -98,8 +98,8 @@ public class SqlDeclareHandler extends SqlCall {
     EXIT,
 
     /**
-     * Specifies conditions for a handler to act on when condition name is used
-     * in SIGNAL or RESIGNAL statement.
+     * Specifies conditions for a handler to act on when the condition name is
+     * used in SIGNAL or RESIGNAL statement.
      */
     CONDITION,
   }
