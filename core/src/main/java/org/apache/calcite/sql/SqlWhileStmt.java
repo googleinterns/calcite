@@ -49,17 +49,12 @@ public class SqlWhileStmt extends SqlIterationStmt {
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
-    if (label != null) {
-      label.unparse(writer, leftPrec, rightPrec);
-      writer.print(": ");
-    }
+    unparseBeginLabel(writer, leftPrec, rightPrec);
     writer.keyword("WHILE");
     condition.unparse(writer, leftPrec, rightPrec);
     writer.keyword("DO");
     statements.unparse(writer, leftPrec, rightPrec);
     writer.keyword("END WHILE");
-    if (label != null) {
-      label.unparse(writer, leftPrec, rightPrec);
-    }
+    unparseEndLabel(writer, leftPrec, rightPrec);
   }
 }

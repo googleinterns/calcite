@@ -71,4 +71,19 @@ public abstract class SqlIterationStmt extends SqlCall {
   @Override public List<SqlNode> getOperandList() {
     return ImmutableNullableList.of(condition, statements, label);
   }
+
+  protected void unparseBeginLabel(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
+    if (label != null) {
+      label.unparse(writer, leftPrec, rightPrec);
+      writer.print(": ");
+    }
+  }
+
+  protected void unparseEndLabel(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
+    if (label != null) {
+      label.unparse(writer, leftPrec, rightPrec);
+    }
+  }
 }

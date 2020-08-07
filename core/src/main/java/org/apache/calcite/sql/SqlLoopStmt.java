@@ -43,15 +43,10 @@ public class SqlLoopStmt extends SqlIterationStmt {
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
-    if (label != null) {
-      label.unparse(writer, leftPrec, rightPrec);
-      writer.print(": ");
-    }
+    unparseBeginLabel(writer, leftPrec, rightPrec);
     writer.keyword("LOOP");
     statements.unparse(writer, leftPrec, rightPrec);
     writer.keyword("END LOOP");
-    if (label != null) {
-      label.unparse(writer, leftPrec, rightPrec);
-    }
+    unparseEndLabel(writer, leftPrec, rightPrec);
   }
 }
