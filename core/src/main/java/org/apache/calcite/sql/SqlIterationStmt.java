@@ -40,7 +40,7 @@ public abstract class SqlIterationStmt extends SqlCall {
    * Creates a {@code SqlIterationStmt}.
    *
    * @param pos         Parser position, must not be null.
-   * @param condition   Conditional expression, must not be null.
+   * @param condition   Conditional expression.
    * @param statements  List of statements to iterate, must not be null.
    * @param beginLabel  Optional begin label, must match end label if not null.
    * @param endLabel    Optional end label, must match begin label if not null.
@@ -58,7 +58,7 @@ public abstract class SqlIterationStmt extends SqlCall {
       throw SqlUtil.newContextException(beginLabel.getParserPosition(),
           RESOURCE.beginEndLabelMismatch());
     }
-    this.condition = Objects.requireNonNull(condition);
+    this.condition = condition;
     this.statements = Objects.requireNonNull(statements);
     this.label = beginLabel;
   }
@@ -69,5 +69,20 @@ public abstract class SqlIterationStmt extends SqlCall {
 
   @Override public List<SqlNode> getOperandList() {
     return ImmutableNullableList.of(condition, statements, label);
+  }
+
+  protected void unparseBeginLabel(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
+    if (label != null) {
+      label.unparse(writer, leftPrec, rightPrec);
+      writer.print(": ");
+    }
+  }
+
+  protected void unparseEndLabel(final SqlWriter writer, final int leftPrec,
+      final int rightPrec) {
+    if (label != null) {
+      label.unparse(writer, leftPrec, rightPrec);
+    }
   }
 }

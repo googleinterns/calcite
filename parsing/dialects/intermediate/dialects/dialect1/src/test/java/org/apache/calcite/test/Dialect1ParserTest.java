@@ -5542,6 +5542,96 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).fails(expected);
   }
 
+  @Test public void testRepeatStmtBaseCase() {
+    final String sql = "create procedure foo (bar integer) "
+        + "repeat "
+        + "select bee; "
+        + "until bar = 1 "
+        + "end repeat";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "REPEAT SELECT `BEE`;\n"
+            + "UNTIL (`BAR` = 1) END REPEAT";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRepeatStmtWithLabel() {
+    final String sql = "create procedure foo (bar integer) "
+        + "label1: "
+        + "repeat "
+        + "select bee; "
+        + "until bar = 1 "
+        + "end repeat "
+        + "label1";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "`LABEL1` : REPEAT SELECT `BEE`;\n"
+            + "UNTIL (`BAR` = 1) END REPEAT `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testRepeatStmtNested() {
+    final String sql = "create procedure foo (bar integer) "
+        + "repeat "
+        + "select bee; "
+        + "repeat "
+        + "select bee; "
+        + "until cde > 3 "
+        + "end repeat; "
+        + "until bar = 1 "
+        + "end repeat";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "REPEAT SELECT `BEE`;\n"
+            + "REPEAT SELECT `BEE`;\n"
+            + "UNTIL (`CDE` > 3) END REPEAT;\n"
+            + "UNTIL (`BAR` = 1) END REPEAT";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLoopStmtBaseCase() {
+    final String sql = "create procedure foo (bar integer) "
+        + "loop "
+        + "select bee; "
+        + "end loop";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "LOOP SELECT `BEE`;\n"
+            + "END LOOP";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLoopStmtBaseCaseWithLabel() {
+    final String sql = "create procedure foo (bar integer) "
+        + "label1: "
+        + "loop "
+        + "select bee; "
+        + "end loop "
+        + "label1";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "`LABEL1` : LOOP SELECT `BEE`;\n"
+            + "END LOOP `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLoopStmtNested() {
+    final String sql = "create procedure foo (bar integer) "
+        + "loop "
+        + "select bee; "
+        + "loop "
+        + "select abc; "
+        + "end loop;"
+        + "end loop";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "LOOP SELECT `BEE`;\n"
+            + "LOOP SELECT `ABC`;\n"
+            + "END LOOP;\n"
+            + "END LOOP";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testGetDiagnostics() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
