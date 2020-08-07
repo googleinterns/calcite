@@ -953,5 +953,5 @@ public interface CalciteResource {
   ExInst<SqlValidatorException> declareCursorStatementNameMismatch();
 
   @BaseMessage("SQLSTATE ''{0}'' must be exactly five characters")
-  ExInst<CalciteException> sqlStateCharLength(String value);
+  ExInst<SqlValidatorException> sqlStateCharLength(String value);
 }
