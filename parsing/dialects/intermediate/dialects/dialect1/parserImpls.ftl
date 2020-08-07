@@ -5199,6 +5199,35 @@ SqlDeclareCursor SqlDeclareCursor() :
     }
 }
 
+SqlLiteral IntervalLiteral() :
+{
+    final String p;
+    final int i;
+    final SqlIntervalQualifier intervalQualifier;
+    int sign = 1;
+    final Span s;
+}
+{
+    <INTERVAL> { s = span(); }
+    [
+        <MINUS> { sign = -1; }
+    |
+        <PLUS> { sign = 1; }
+    ]
+    (
+        <QUOTED_STRING> { p = token.image; }
+    |
+        i = IntLiteral()
+        // The single quotes are required as otherwise an exception gets
+        // thrown during unparsing.
+        { p = "'" + i + "'"; }
+    )
+    intervalQualifier = IntervalQualifier() {
+        return SqlParserUtil.parseIntervalLiteral(s.end(intervalQualifier),
+            sign, p, intervalQualifier);
+    }
+}
+
 SqlPrepareStatement SqlPrepareStatement() :
 {
     final SqlIdentifier statementName;
