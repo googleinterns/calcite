@@ -5041,6 +5041,8 @@ SqlNode CursorStmt() :
     |
         e = SqlFetchCursor()
     |
+        e = SqlPrepareStatement()
+    |
         e = SqlSelectAndConsume()
     |
         e = SqlUpdateUsingCursor()
@@ -5193,6 +5195,23 @@ SqlDeclareCursor SqlDeclareCursor() :
             returnType, returnToType, only, updateType, cursorSpecification,
             statementName, preparedStatementName, prepareFrom);
     }
+}
+
+SqlPrepareStatement SqlPrepareStatement() :
+{
+    final SqlIdentifier statementName;
+    final SqlNode statement;
+    final Span s = Span.of();
+}
+{
+    <PREPARE> statementName = SimpleIdentifier()
+    <FROM>
+    (
+        statement = SimpleIdentifier()
+    |
+        statement = StringLiteral()
+    )
+    { return new SqlPrepareStatement(s.end(this), statementName, statement); }
 }
 
 SqlUpdateUsingCursor SqlUpdateUsingCursor() :
