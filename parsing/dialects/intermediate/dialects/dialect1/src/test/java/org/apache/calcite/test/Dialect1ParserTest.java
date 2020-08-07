@@ -5603,4 +5603,64 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "END";
     sql(sql).ok(expected);
   }
+
+  @Test public void testSelectIntoAll() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select all bar into baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT ALL `BAR` INTO `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectIntoDistinct() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select distinct bar into baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT DISTINCT `BAR` INTO `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectAsterisk() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select * into baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT * INTO `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectIntoFromClause() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select bar, baz into a, b from quux;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT `BAR`, `BAZ` INTO `A`, `B` FROM `QUUX`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSelectIntoWhereClause() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "select bar into baz where bar = 2;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT `BAR` INTO `BAZ` WHERE (`BAR` = 2);\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
 }

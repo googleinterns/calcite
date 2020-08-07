@@ -2829,7 +2829,7 @@ SqlNode Qualify() :
 SqlNode SqlInsert() :
 {
     final List<SqlLiteral> keywords = new ArrayList<SqlLiteral>();
-    SqlNodeList keywordList = new SqlNodeList(getPos());
+    final SqlNodeList keywordList;
     SqlNode table;
     SqlNodeList extendList = null;
     SqlNode source;
@@ -2844,7 +2844,10 @@ SqlNode SqlInsert() :
     |
         <UPSERT> { keywords.add(SqlInsertKeyword.UPSERT.symbol(getPos())); }
     )
-    { s = span(); }
+    {
+        s = span();
+        keywordList = new SqlNodeList(keywords, s.addAll(keywords).pos());
+    }
     [ <INTO> ]
     table = TableRefWithHintsOpt()
     [
@@ -5470,7 +5473,7 @@ SqlSelectInto SqlSelectInto() :
     <INTO>
     e = SimpleIdentifier() { parameters.add(e); }
     ( <COMMA> e = SimpleIdentifier() { parameters.add(e); } )*
-    [ fromClause = FromClause() ]
+    [ <FROM> fromClause = FromClause() ]
     whereClause = WhereOpt()
     {
         return new SqlSelectInto(s.end(this), selectKeyword,

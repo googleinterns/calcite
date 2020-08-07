@@ -76,9 +76,11 @@ public class SqlSelectInto extends SqlCall {
     writer.keyword("INTO");
     parameters.unparse(writer, 0, 0);
     if (fromClause != null) {
+      writer.keyword("FROM");
       fromClause.unparse(writer, 0, 0);
     }
     if (whereClause != null) {
+      writer.keyword("WHERE");
       whereClause.unparse(writer, 0, 0);
     }
   }
