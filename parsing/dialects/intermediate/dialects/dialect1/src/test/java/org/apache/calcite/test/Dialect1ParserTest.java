@@ -5631,4 +5631,23 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
             + "END WHILE `LABEL1`";
     sql(sql).ok(expected);
   }
+
+  @Test public void testLeaveStmtInNestedWhileStmt() {
+    final String sql = "create procedure foo (bar integer) "
+        + "label1: while bar = 1 do "
+        + "select bee; "
+        + "label2: while abc = 2 do "
+        + "select cde; "
+        + "leave label1;"
+        + "end while label2; "
+        + "end while label1";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "`LABEL1` : WHILE (`BAR` = 1) DO SELECT `BEE`;\n"
+            + "`LABEL2` : WHILE (`ABC` = 2) DO SELECT `CDE`;\n"
+            + "LEAVE `LABEL1`;\n"
+            + "END WHILE `LABEL2`;\n"
+            + "END WHILE `LABEL1`";
+    sql(sql).ok(expected);
+  }
 }
