@@ -35,6 +35,6 @@ public class SqlState extends SqlIdentifier {
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("SQLSTATE");
-    writer.literal("'" + names.get(0) + "'");
+    writer.literal("'" + getSimple() + "'");
   }
 }
