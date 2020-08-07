@@ -1262,12 +1262,6 @@ public enum SqlKind {
   /** {@code WHILE STATEMENT} PL statement */
   WHILE_STATEMENT,
 
-  /** {@code ITERATION STATEMENT} PL statement */
-  ITERATION_STATEMENT,
-
-  /** {@code WHILE STATEMENT} PL statement */
-  WHILE_STATEMENT,
-
   /** {@code REPEAT STATEMENT} PL statement */
   REPEAT_STATEMENT,
 
