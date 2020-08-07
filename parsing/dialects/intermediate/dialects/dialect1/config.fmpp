@@ -115,6 +115,7 @@ data: {
       "org.apache.calcite.sql.SqlKind"
       "org.apache.calcite.sql.SqlLobUnitSize",
       "org.apache.calcite.sql.SqlNumberTypeNameSpec",
+      "org.apache.calcite.sql.SqlOpenCursor",
       "org.apache.calcite.sql.SqlPartitionByNoneUnknown",
       "org.apache.calcite.sql.SqlPeriodTypeNameSpec",
       "org.apache.calcite.sql.SqlPeriodTypeNameSpec.TimeScale",

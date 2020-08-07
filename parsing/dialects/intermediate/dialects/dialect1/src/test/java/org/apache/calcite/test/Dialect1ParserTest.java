@@ -5156,6 +5156,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testOpenCursor() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "open bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "OPEN `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testPrepareStatementIdentifier() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -5168,6 +5180,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testOpenCursorWithParameter() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "open bar using a;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "OPEN `BAR` USING `A`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testFetchCursor() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -5176,6 +5200,18 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
         + "FETCH `BAR` INTO `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testOpenCursorWithParameterList() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "open bar using a, b, c;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "OPEN `BAR` USING `A`, `B`, `C`;\n"
         + "END";
     sql(sql).ok(expected);
   }

@@ -5041,6 +5041,8 @@ SqlNode CursorStmt() :
     |
         e = SqlFetchCursor()
     |
+        e = SqlOpenCursor()
+    |
         e = SqlPrepareStatement()
     |
         e = SqlSelectAndConsume()
@@ -5238,6 +5240,23 @@ SqlUpdateUsingCursor SqlUpdateUsingCursor() :
         return new SqlUpdateUsingCursor(s.end(this), tableName, aliasName,
             assignments, cursorName);
     }
+}
+
+SqlOpenCursor SqlOpenCursor() :
+{
+    final SqlIdentifier cursorName;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <OPEN> cursorName = SimpleIdentifier()
+    [
+        <USING>
+        e = SimpleIdentifier() { parameters.add(e); }
+        ( <COMMA> e = SimpleIdentifier() { parameters.add(e); } )*
+    ]
+    { return new SqlOpenCursor(s.end(this), cursorName, parameters); }
 }
 
 SqlFetchCursor SqlFetchCursor() :
