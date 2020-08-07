@@ -4658,6 +4658,8 @@ SqlNode CreateProcedureStmt() :
         LOOKAHEAD(CursorStmt() <SEMICOLON>)
         e = CursorStmt()
     |
+        e = DiagnosticStmt()
+    |
         e = IterateStmt()
     |
         // This lookahead ensures parser chooses the right path when facing
@@ -5043,6 +5045,12 @@ SqlNode CursorStmt() :
     |
         e = SqlExecuteStatement()
     |
+        e = SqlFetchCursor()
+    |
+        e = SqlOpenCursor()
+    |
+        e = SqlPrepareStatement()
+    |
         e = SqlSelectAndConsume()
     |
         e = SqlUpdateUsingCursor()
@@ -5197,6 +5205,52 @@ SqlDeclareCursor SqlDeclareCursor() :
     }
 }
 
+SqlLiteral IntervalLiteral() :
+{
+    final String p;
+    final int i;
+    final SqlIntervalQualifier intervalQualifier;
+    int sign = 1;
+    final Span s;
+}
+{
+    <INTERVAL> { s = span(); }
+    [
+        <MINUS> { sign = -1; }
+    |
+        <PLUS> { sign = 1; }
+    ]
+    (
+        <QUOTED_STRING> { p = token.image; }
+    |
+        i = IntLiteral()
+        // The single quotes are required as otherwise an exception gets
+        // thrown during unparsing.
+        { p = "'" + i + "'"; }
+    )
+    intervalQualifier = IntervalQualifier() {
+        return SqlParserUtil.parseIntervalLiteral(s.end(intervalQualifier),
+            sign, p, intervalQualifier);
+    }
+}
+
+SqlPrepareStatement SqlPrepareStatement() :
+{
+    final SqlIdentifier statementName;
+    final SqlNode statement;
+    final Span s = Span.of();
+}
+{
+    <PREPARE> statementName = SimpleIdentifier()
+    <FROM>
+    (
+        statement = SimpleIdentifier()
+    |
+        statement = StringLiteral()
+    )
+    { return new SqlPrepareStatement(s.end(this), statementName, statement); }
+}
+
 SqlUpdateUsingCursor SqlUpdateUsingCursor() :
 {
     final SqlIdentifier tableName;
@@ -5220,6 +5274,53 @@ SqlUpdateUsingCursor SqlUpdateUsingCursor() :
     {
         return new SqlUpdateUsingCursor(s.end(this), tableName, aliasName,
             assignments, cursorName);
+    }
+}
+
+SqlOpenCursor SqlOpenCursor() :
+{
+    final SqlIdentifier cursorName;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <OPEN> cursorName = SimpleIdentifier()
+    [
+        <USING>
+        e = SimpleIdentifier() { parameters.add(e); }
+        ( <COMMA> e = SimpleIdentifier() { parameters.add(e); } )*
+    ]
+    { return new SqlOpenCursor(s.end(this), cursorName, parameters); }
+}
+
+SqlFetchCursor SqlFetchCursor() :
+{
+    final FetchType fetchType;
+    final SqlIdentifier cursorName;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <FETCH>
+    (
+        (
+            <NEXT> { fetchType = FetchType.NEXT; }
+        |
+            <FIRST> { fetchType = FetchType.FIRST; }
+        )
+        <FROM>
+    |
+        [ <FROM> ] { fetchType = FetchType.UNSPECIFIED; }
+    )
+    cursorName = SimpleIdentifier()
+    <INTO>
+    e = SimpleIdentifier() { parameters.add(e); }
+    ( <COMMA> e = SimpleIdentifier() { parameters.add(e); } )*
+    {
+        return new SqlFetchCursor(s.end(this), fetchType, cursorName,
+            parameters);
     }
 }
 
@@ -5307,6 +5408,52 @@ SqlWhileStmt WhileStmt() :
         return new SqlWhileStmt(s.end(this), condition, statements,
             beginLabel, endLabel);
     }
+}
+
+SqlNode DiagnosticStmt() :
+{
+    final SqlNode e;
+}
+{
+    (
+        e = SqlGetDiagnostics()
+    )
+    { return e; }
+}
+
+SqlGetDiagnostics SqlGetDiagnostics() :
+{
+    SqlNode conditionNumber = null;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <GET> <DIAGNOSTICS>
+    [
+        <EXCEPTION>
+        (
+            conditionNumber = SimpleIdentifier()
+        |
+            conditionNumber = NumericLiteral()
+        )
+    ]
+    e = SqlGetDiagnosticsParam() { parameters.add(e); }
+    ( <COMMA> e = SqlGetDiagnosticsParam() { parameters.add(e); } )*
+    { return new SqlGetDiagnostics(s.end(this), conditionNumber, parameters); }
+}
+
+SqlGetDiagnosticsParam SqlGetDiagnosticsParam() :
+{
+    final SqlIdentifier name;
+    final SqlIdentifier value;
+    final Span s = Span.of();
+}
+{
+    name = SimpleIdentifier()
+    <EQ>
+    value = SimpleIdentifier()
+    { return new SqlGetDiagnosticsParam(s.end(this), name, value); }
 }
 
 SqlLeaveStmt LeaveStmt() :
