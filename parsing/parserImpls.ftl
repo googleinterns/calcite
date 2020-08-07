@@ -1119,8 +1119,8 @@ SqlNode SqlDelete() :
     [ [ <AS> ] alias = SimpleIdentifier() ]
     condition = WhereOpt()
     {
-        return new SqlDelete(s.add(table).addIf(extendList).addIf(alias)
-            .addIf(condition).pos(), table, condition, null, alias);
+        return new SqlDelete(s.end(this), /*deleteTableName=*/null, table,
+            alias, condition, /*sourceSelect=*/null);
     }
 }
 

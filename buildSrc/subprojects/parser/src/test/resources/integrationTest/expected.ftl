@@ -44,6 +44,13 @@ MORE : {}
 | < QUUX: "quux1" > // From: parserTest/intermediate/dialects/testDialect/keywords.txt
 }
 
+// Auto generated.
+<DEFAULT, DQID, BTID> TOKEN :
+{
+< IDENTIFIER: (<LETTER>|<DOLLAR>) (<LETTER>|<DOLLAR>|<DIGIT>)* > // From: parserTest/intermediate/dialects/testDialect/identifiers.txt
+| < UNICODE_QUOTED_IDENTIFIER: "U" "&" <QUOTED_IDENTIFIER> > // From: parserTest/identifiers.txt
+}
+
 // Extracted from: parserTest/intermediate/dialects/testDialect/parserImpls.ftl
 void foo() :
 {
