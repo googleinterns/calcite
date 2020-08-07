@@ -21,14 +21,14 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import java.util.Objects;
 
 /**
- * Parse tree for a {@code SqlWhileStmt}.
+ * Parse tree for a {@code SqlRepeatStmt}.
  */
-public class SqlWhileStmt extends SqlIterationStmt {
+public class SqlRepeatStmt extends SqlIterationStmt {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("WHILE", SqlKind.WHILE_STATEMENT);
+      new SqlSpecialOperator("REPEAT", SqlKind.REPEAT_STATEMENT);
 
   /**
-   * Creates a {@code SqlWhileStmt}.
+   * Creates a {@code SqlRepeatStmt}.
    *
    * @param pos         Parser position, must not be null.
    * @param condition   Conditional expression, must not be null.
@@ -36,7 +36,7 @@ public class SqlWhileStmt extends SqlIterationStmt {
    * @param beginLabel  Optional begin label, must match end label if not null.
    * @param endLabel    Optional end label, must match begin label if not null.
    */
-  public SqlWhileStmt(final SqlParserPos pos, final SqlNode condition,
+  public SqlRepeatStmt(final SqlParserPos pos, final SqlNode condition,
       final SqlStatementList statements, final SqlIdentifier beginLabel,
       final SqlIdentifier endLabel) {
     super(pos, Objects.requireNonNull(condition), statements, beginLabel,
@@ -50,11 +50,11 @@ public class SqlWhileStmt extends SqlIterationStmt {
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
     unparseBeginLabel(writer, leftPrec, rightPrec);
-    writer.keyword("WHILE");
-    condition.unparse(writer, leftPrec, rightPrec);
-    writer.keyword("DO");
+    writer.keyword("REPEAT");
     statements.unparse(writer, leftPrec, rightPrec);
-    writer.keyword("END WHILE");
+    writer.keyword("UNTIL");
+    condition.unparse(writer, leftPrec, rightPrec);
+    writer.keyword("END REPEAT");
     unparseEndLabel(writer, leftPrec, rightPrec);
   }
 }
