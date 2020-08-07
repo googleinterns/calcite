@@ -4293,7 +4293,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         new SqlNodeList(
             expandedSelectItems,
             selectItems.getParserPosition());
-    if (config.identifierExpansion()) {
+    if (config.identifierExpansion() && !containsDynamicStar(fieldList)) {
       select.setSelectList(newSelectList);
     }
     getRawSelectScope(select).setExpandedSelectList(expandedSelectItems);
@@ -4308,6 +4308,16 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     }
 
     return typeFactory.createStructType(fieldList);
+  }
+
+  private static boolean containsDynamicStar(
+      final List<Map.Entry<String, RelDataType>> fieldList) {
+    for (Map.Entry<String, RelDataType> item : fieldList) {
+      if (item.getValue().getSqlTypeName() == SqlTypeName.DYNAMIC_STAR) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
