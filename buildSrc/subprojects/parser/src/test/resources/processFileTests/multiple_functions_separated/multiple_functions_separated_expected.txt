@@ -16,7 +16,7 @@
  */
 
 // Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
-void foo(int a) :
+void foo(int a, int[] b) :
 {
     String x = "}";
     String y = "\"";
@@ -30,7 +30,7 @@ void foo(int a) :
 }
 
 // Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
-void bar( final int a, int b ) :
+String[] bar( final int a, int b ) :
 {
     String x = " ' } ' ";
     char y = '\'';
@@ -58,3 +58,6 @@ final void qux(final String x) :
 {
 
 }
+
+// Extracted from: processFileTests/multiple_functions_separated/multiple_functions_separated.txt
+String [] [   ] quux(): {} {}

@@ -36,7 +36,7 @@ public class DialectGenerate {
 
   // Matches foo<body> where body can be [\w\s<>,]. This allows for easy
   // handling of nested angle brackets and comma separated values.
-  private static final String TYPE = "(final\\s+)?[\\w\\.]+\\s*(<\\s*[\\w<>,\\s]+>)?";
+  private static final String TYPE = "(final\\s+)?[\\w\\.]+(\\s*\\[\\s*\\])*\\s*(<\\s*[\\w<>,\\s\\[\\]]+>)?";
   private static final String TYPE_AND_NAME = TYPE + "\\s+\\w+";
   // The \\\\ delim splits by \.
   private static final String SPLIT_DELIMS = "(\\s|\\\\|\n|\"|//|/\\*|\\*/|'|\\}|\\{)";
@@ -73,16 +73,16 @@ public class DialectGenerate {
    * @throws IllegalStateException If a nonReservedKeyword is not also a keyword
    */
   public void validateNonReservedKeywords(final ExtractedData extractedData) {
-    for (Keyword keyword : extractedData.nonReservedKeywords) {
+    for (String keyword : extractedData.nonReservedKeywords.keySet()) {
       if (!extractedData.keywords.containsKey(keyword)) {
-        throw new IllegalStateException(keyword.keyword + " is not a keyword.");
+        throw new IllegalStateException(keyword + " is not a keyword.");
       }
     }
   }
 
   /**
-   * Adds extractedData.keywords (if nonempty) to extractedData.tokenAssignments
-   * with the form:
+   * If the map is nonempty, this function returns a formatted string of the
+   * form:
    *
    * // Auto generated.
    * <DEFAULT, DQID, BTID> TOKEN :
@@ -91,26 +91,29 @@ public class DialectGenerate {
    *   |< TOKEN_2: TOKEN_2_VALUE >
    *   ...
    * }
+   *
+   * Otherwise an empty string is returned.
+   *
    * File annotations are added as single-line comments following each token
    * if the filePath is specified.
    *
-   * @param extractedData The object which keeps state of all of the extracted
-   *                      data
+   * @param map The map containing the keywords and associated values
+   *
+   * @return The formatted string
    */
-  public void unparseReservedKeywords(ExtractedData extractedData) {
-    if (extractedData.keywords.isEmpty()) {
-      return;
+  public String unparseTokenAssignment(Map<String, Keyword> map) {
+    if (map.isEmpty()) {
+      return "";
     }
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append("// Auto generated.\n");
     stringBuilder.append("<DEFAULT, DQID, BTID> TOKEN :\n{\n");
     String tokenTemplate = "< %s: %s >";
     List<String> tokens = new ArrayList<>();
-    for (Map.Entry<Keyword, String> entry : extractedData.keywords.entrySet()) {
+    for (Keyword keyword : map.values()) {
       StringBuilder tokenBuilder = new StringBuilder();
-      Keyword keyword = entry.getKey();
       tokenBuilder.append(String.format(tokenTemplate, keyword.keyword,
-          entry.getValue()));
+            keyword.value));
       if (keyword.filePath == null) {
         tokenBuilder.append(" // No file specified.");
       } else {
@@ -121,7 +124,7 @@ public class DialectGenerate {
     }
     stringBuilder.append(String.join("| ", tokens));
     stringBuilder.append("}");
-    extractedData.tokenAssignments.add(stringBuilder.toString());
+    return stringBuilder.toString();
   }
 
   /**
@@ -154,7 +157,9 @@ public class DialectGenerate {
    *                      data
    */
   public void unparseNonReservedKeywords(ExtractedData extractedData) {
-    final ArrayList<Set<Keyword>> partitions = getPartitions(extractedData.nonReservedKeywords);
+    final ArrayList<Set<Keyword>> partitions =
+      getPartitions(
+          new LinkedHashSet<>(extractedData.nonReservedKeywords.values()));
     final int numPartitions = partitions.size();
     final String functionNameTemplate = "NonReservedKeyword%dof" + numPartitions;
     final StringBuilder bodyBuilder = new StringBuilder();

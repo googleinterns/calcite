@@ -46,9 +46,11 @@ public class SqlCaseStmtWithOperand extends SqlCaseStmt {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    List<SqlNode> operandList = ImmutableNullableList.of(firstOperand);
-    operandList.addAll(super.getOperandList());
-    return operandList;
+    ImmutableNullableList.Builder<SqlNode> builder =
+        ImmutableNullableList.builder();
+    builder.add(firstOperand);
+    builder.addAll(super.getOperandList());
+    return builder.build();
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
