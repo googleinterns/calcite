@@ -645,6 +645,11 @@ public enum SqlKind {
   SELECT_AND_CONSUME,
 
   /**
+   * GET DIAGNOSTICS statement in a BEGIN...END statement.
+   */
+  GET_DIAGNOSTICS,
+
+  /**
    * Special functions in MATCH_RECOGNIZE.
    */
   FINAL,

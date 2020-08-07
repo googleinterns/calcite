@@ -100,6 +100,8 @@ data: {
       "org.apache.calcite.sql.SqlExecMacroParam",
       "org.apache.calcite.sql.SqlExecuteImmediate",
       "org.apache.calcite.sql.SqlExecuteStatement",
+      "org.apache.calcite.sql.SqlGetDiagnostics",
+      "org.apache.calcite.sql.SqlGetDiagnosticsParam",
       "org.apache.calcite.sql.SqlHelp",
       "org.apache.calcite.sql.SqlHelpProcedure",
       "org.apache.calcite.sql.SqlHexCharStringLiteral",
