@@ -635,6 +635,21 @@ public enum SqlKind {
   DECLARE_CURSOR,
 
   /**
+   * OPEN cursor call in BEGIN...END statement.
+   */
+  OPEN_CURSOR,
+
+  /**
+   * PREPARE statement call in BEGIN...END statement.
+   */
+  PREPARE_STATEMENT,
+
+  /**
+   * FETCH cursor call in a CREATE PROCEDURE statement.
+   */
+  FETCH_CURSOR,
+
+  /**
    * Update using cursor call in BEGIN...END statement.
    */
   UPDATE_USING_CURSOR,
@@ -643,6 +658,11 @@ public enum SqlKind {
    * SELECT AND CONSUME statement in a BEGIN...END statement.
    */
   SELECT_AND_CONSUME,
+
+  /**
+   * GET DIAGNOSTICS statement in a BEGIN...END statement.
+   */
+  GET_DIAGNOSTICS,
 
   /**
    * Special functions in MATCH_RECOGNIZE.
@@ -1261,6 +1281,12 @@ public enum SqlKind {
 
   /** {@code WHILE STATEMENT} PL statement */
   WHILE_STATEMENT,
+
+  /** {@code REPEAT STATEMENT} PL statement */
+  REPEAT_STATEMENT,
+
+  /** {@code LOOP STATEMENT} PL statement */
+  LOOP_STATEMENT,
 
   /** DDL statement not handled above.
    *
