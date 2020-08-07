@@ -14,27 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.calcite.sql;
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 
-public class SqlLeaveStmt extends SqlCall{
+/**
+ * Parse tree for a {@code SqlLeaveStmt}.
+ */
+public class SqlLeaveStmt extends SqlCall {
+  public static final SqlSpecialOperator OPERATOR =
+      new SqlSpecialOperator("LEAVE", SqlKind.LEAVE_STATEMENT);
 
   public final SqlIdentifier label;
 
+  /**
+   * Creates a {@code SqlLeaveStmt}.
+   *
+   * @param pos     Parser position, must not be null.
+   * @param label   Labeled statement to be terminated.
+   */
   public SqlLeaveStmt(final SqlParserPos pos, final SqlIdentifier label) {
     super(pos);
     this.label = label;
   }
 
   @Override public SqlOperator getOperator() {
-    return null;
+    return OPERATOR;
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return null;
+    return ImmutableNullableList.of(label);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,

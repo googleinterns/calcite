@@ -1262,6 +1262,12 @@ public enum SqlKind {
   /** {@code WHILE STATEMENT} PL statement */
   WHILE_STATEMENT,
 
+  /** {@code ITERATE STATEMENT} PL statement */
+  ITERATE_STATEMENT,
+
+  /** {@code LEAVE STATEMENT} PL statement */
+  LEAVE_STATEMENT,
+
   /** DDL statement not handled above.
    *
    * <p><b>Note to other projects</b>: If you are extending Calcite's SQL parser
