@@ -5339,11 +5339,12 @@ SqlDeclareHandler SqlDeclareHandler() :
         (
             e = SqlState() { parameters.add(e); }
             ( <COMMA> e = SqlState() { parameters.add(e); })*
+            [ handlerStatement = CreateProcedureStmt() ]
         |
             e = DeclareHandlerCondition() { parameters.add(e); }
             ( <COMMA> e = DeclareHandlerCondition() { parameters.add(e); })*
+            handlerStatement = CreateProcedureStmt()
         )
-        [ handlerStatement = CreateProcedureStmt() ]
     ]
     <SEMICOLON>
     {
