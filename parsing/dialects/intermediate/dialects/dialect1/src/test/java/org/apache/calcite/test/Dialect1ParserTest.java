@@ -5141,4 +5141,113 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "END";
     sql(sql).ok(expected);
   }
+
+  @Test public void testDeclareHandlerContinue() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare continue handler;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE CONTINUE HANDLER;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareHandlerExit() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare exit handler;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE EXIT HANDLER;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareHandlerCondition() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare bar condition;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `BAR` CONDITION;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareHandlerSqlState() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare continue handler for sqlstate '00000';\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE CONTINUE HANDLER FOR SQLSTATE '00000';\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareHandlerSqlStateWrongLengthFails() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare continue handler for sqlstate ^'0000'^;\n"
+        + "end";
+    final String expected = "(?s).*SQLSTATE.*must be exactly five characters.*";
+    sql(sql).fails(expected);
+  }
+
+  @Test public void testDeclareHandlerSqlStateValueKeyword() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare continue handler for sqlstate value '00000';\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE CONTINUE HANDLER FOR SQLSTATE '00000';\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareHandlerSqlStateHandlerStatement() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare continue handler for sqlstate value '00000' select bar from "
+        + "baz;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE CONTINUE HANDLER FOR SQLSTATE '00000' SELECT `BAR`\n"
+        + "FROM `BAZ`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareHandlerConditionType() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare continue handler for sqlexception select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testDeclareHandlerConditionTypeList() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare continue handler for sqlwarning, sqlexception, not found, "
+        + "qux select bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE CONTINUE HANDLER FOR SQLWARNING, SQLEXCEPTION, NOT FOUND, "
+        + "`QUX` SELECT `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
 }
