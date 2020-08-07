@@ -27,7 +27,7 @@ import java.util.Objects;
  */
 public class SqlDeclareHandlerCondition extends SqlIdentifier {
 
-  DeclareHandlerConditionType conditionType;
+  public final DeclareHandlerConditionType conditionType;
 
   /**
    * Creates an instance of {@code SqlDeclareHandlerCondition}.

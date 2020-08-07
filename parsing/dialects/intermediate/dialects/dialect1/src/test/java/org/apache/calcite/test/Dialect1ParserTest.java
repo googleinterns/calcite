@@ -5523,4 +5523,25 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "END";
     sql(sql).ok(expected);
   }
+
+  @Test public void testDeclareHandlerWithOtherStatements() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "declare a integer default 15;\n"
+        + "declare bar cursor for baz;\n"
+        + "declare continue handler for sqlwarning, sqlexception, not found, "
+        + "qux select bar;\n"
+        + "insert into foo (SELECT * FROM bar);\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "DECLARE `A` INTEGER DEFAULT 15;\n"
+        + "DECLARE `BAR` CURSOR FOR `BAZ`;\n"
+        + "DECLARE CONTINUE HANDLER FOR SQLWARNING, SQLEXCEPTION, NOT FOUND, "
+        + "`QUX` SELECT `BAR`;\n"
+        + "INSERT INTO `FOO`\n"
+        + "(SELECT *\nFROM `BAR`);\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
 }
