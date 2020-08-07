@@ -5632,6 +5632,71 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testForStmtBaseCase() {
+    final String sql = "create procedure foo (bar integer) "
+        + "for abc as select column1 from table1 "
+        + "do "
+        + "select bee; "
+        + "end for";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "FOR `ABC` AS SELECT `COLUMN1`\n"
+            + "FROM `TABLE1` DO SELECT `BEE`;\n"
+            + "END FOR";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testForStmtWithLabel() {
+    final String sql = "create procedure foo (bar integer) "
+        + "label1: "
+        + "for abc as select column1 from table1 "
+        + "do "
+        + "select bee; "
+        + "end for "
+        + "label1";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "`LABEL1` : FOR `ABC` AS SELECT `COLUMN1`\n"
+            + "FROM `TABLE1` DO SELECT `BEE`;\n"
+            + "END FOR `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testForStmtWithCursorName() {
+    final String sql = "create procedure foo (bar integer) "
+        + "for abc as cde cursor for select column1 from table1 "
+        + "do "
+        + "select bee; "
+        + "end for";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "FOR `ABC` AS `CDE` CURSOR FOR SELECT `COLUMN1`\n"
+            + "FROM `TABLE1` DO SELECT `BEE`;\n"
+            + "END FOR";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testForStmtNested() {
+    final String sql = "create procedure foo (bar integer) "
+        + "for abc as select column1 from table1 "
+        + "do "
+        + "select bee; "
+        + "for efg as select column2, column3 from table2 "
+        + "do "
+        + "select baz; "
+        + "end for; "
+        + "end for";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "FOR `ABC` AS SELECT `COLUMN1`\n"
+            + "FROM `TABLE1` DO SELECT `BEE`;\n"
+            + "FOR `EFG` AS SELECT `COLUMN2`, `COLUMN3`\n"
+            + "FROM `TABLE2` DO SELECT `BAZ`;\n"
+            + "END FOR;\n"
+            + "END FOR";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testGetDiagnostics() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
