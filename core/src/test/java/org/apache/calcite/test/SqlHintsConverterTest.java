@@ -57,6 +57,7 @@ import org.apache.calcite.rel.rules.ProjectToCalcRule;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlInsert;
 import org.apache.calcite.sql.SqlMerge;
+import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlTableRef;
 import org.apache.calcite.sql.SqlUpdate;
@@ -281,8 +282,9 @@ class SqlHintsConverterTest extends SqlToRelTestBase {
   @Test void testTableHintsInDelete() throws Exception {
     final String sql = HintTools.withHint("delete from emp /*+ %s */ where deptno = 1");
     final SqlDelete sqlDelete = (SqlDelete) tester.parseQuery(sql);
-    assert sqlDelete.getTargetTable() instanceof SqlTableRef;
-    final SqlTableRef tableRef = (SqlTableRef) sqlDelete.getTargetTable();
+    SqlNode table = sqlDelete.tables.get(0);
+    assert table instanceof SqlTableRef;
+    final SqlTableRef tableRef = (SqlTableRef) table;
     List<RelHint> hints = SqlUtil.getRelHint(HintTools.HINT_STRATEGY_TABLE,
         (SqlNodeList) tableRef.getOperandList().get(1));
     assertHintsEquals(

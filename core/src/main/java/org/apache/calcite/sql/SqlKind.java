@@ -630,6 +630,21 @@ public enum SqlKind {
   DECLARE_CONDITION,
 
   /**
+   * DECLARE CURSOR call in a BEGIN...END statement.
+   */
+  DECLARE_CURSOR,
+
+  /**
+   * Update using cursor call in BEGIN...END statement.
+   */
+  UPDATE_USING_CURSOR,
+
+  /**
+   * SELECT AND CONSUME statement in a BEGIN...END statement.
+   */
+  SELECT_AND_CONSUME,
+
+  /**
    * Special functions in MATCH_RECOGNIZE.
    */
   FINAL,
@@ -1235,8 +1250,17 @@ public enum SqlKind {
   /** {@code RENAME PROCEDURE} DDL statement. */
   RENAME_PROCEDURE,
 
-  /** {@code CONDITIONAL STATEMENT} PL statement */
-  CONDITIONAL_STATEMENT,
+  /** {@code CASE STATEMENT} PL statement */
+  CASE_STATEMENT,
+
+  /** {@code IF STATEMENT} PL statement */
+  IF_STATEMENT,
+
+  /** {@code ITERATION STATEMENT} PL statement */
+  ITERATION_STATEMENT,
+
+  /** {@code WHILE STATEMENT} PL statement */
+  WHILE_STATEMENT,
 
   /** DDL statement not handled above.
    *

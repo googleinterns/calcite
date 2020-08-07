@@ -21,56 +21,42 @@ import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 import java.util.Objects;
-
 /**
- * Parse tree for a {@code SqlIfStmt}.
+ * Parse tree for a {@code SqlCaseStmtWithOperand}.
  */
-public class SqlIfStmt extends SqlCall {
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("IF", SqlKind.IF_STATEMENT);
-
-  public final SqlNodeList conditionalStmtListPairs;
-  public final SqlNodeList elseStmtList;
+public class SqlCaseStmtWithOperand extends SqlCaseStmt {
+  public final SqlNode firstOperand;
 
   /**
-   * Creates a {@code SqlIfStmt}.
+   * Creates a {@code SqlCaseStmtWithOperand}.
    * @param pos                       Parser position, must not be null.
-   * @param conditionalStmtListPairs  List of conditional expression pairs
+   * @param firstOperand              SqlNode representing the base operand for
+   *                                  comparison.
+   * @param conditionalStmtListPairs  List of SqlNode pairs
    *                                  with StatementList, must not be null.
    * @param elseStmtList              List of statements in the else clause,
    *                                  must not be null.
    */
-  public SqlIfStmt(final SqlParserPos pos,
+  public SqlCaseStmtWithOperand(final SqlParserPos pos,
+      final SqlNode firstOperand,
       final SqlNodeList conditionalStmtListPairs,
       final SqlNodeList elseStmtList) {
-    super(pos);
-    this.conditionalStmtListPairs =
-        Objects.requireNonNull(conditionalStmtListPairs);
-    this.elseStmtList = Objects.requireNonNull(elseStmtList);
-  }
-
-  @Override public SqlOperator getOperator() {
-    return OPERATOR;
+    super(pos, conditionalStmtListPairs, elseStmtList);
+    this.firstOperand = Objects.requireNonNull(firstOperand);
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(conditionalStmtListPairs, elseStmtList);
+    ImmutableNullableList.Builder<SqlNode> builder =
+        ImmutableNullableList.builder();
+    builder.add(firstOperand);
+    builder.addAll(super.getOperandList());
+    return builder.build();
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
-    for (int i = 0; i < conditionalStmtListPairs.size(); i++) {
-      if (i != 0) {
-        writer.keyword("ELSE IF");
-      } else {
-        writer.keyword("IF");
-      }
-      conditionalStmtListPairs.get(i).unparse(writer, leftPrec, rightPrec);
-    }
-    if (!SqlNodeList.isEmptyList(elseStmtList)) {
-      writer.keyword("ELSE");
-      elseStmtList.unparse(writer, leftPrec, rightPrec);
-    }
-    writer.keyword("END IF");
+    writer.keyword("CASE");
+    firstOperand.unparse(writer, leftPrec, rightPrec);
+    super.unparse(writer, leftPrec, rightPrec);
   }
 }

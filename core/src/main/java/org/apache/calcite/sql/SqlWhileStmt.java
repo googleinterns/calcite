@@ -17,48 +17,46 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.util.ImmutableNullableList;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
- * Parse tree representing a conditional expression or an operand
- * pairing with a list of statements.
+ * Parse tree for a {@code SqlWhileStmt}.
  */
-public class SqlConditionalStmtListPair extends SqlCall {
+public class SqlWhileStmt extends SqlIterationStmt {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("CONDITION_STATEMENT_LIST_PAIR", SqlKind.OTHER);
-
-  public final SqlNode condition;
-  public final SqlStatementList stmtList;
+      new SqlSpecialOperator("WHILE", SqlKind.WHILE_STATEMENT);
 
   /**
-   * Creates a {@code SqlConditionalStmtListPair}.
+   * Creates a {@code SqlWhileStmt}.
+   *
    * @param pos         Parser position, must not be null.
-   * @param condition   Condition expression or operand, must not be null.
-   * @param stmtList    A List of statements, must not be null.
+   * @param condition   Conditional expression, must not be null.
+   * @param statements  List of statements to iterate, must not be null.
+   * @param beginLabel  Optional begin label, must match end label if not null.
+   * @param endLabel    Optional end label, must match begin label if not null.
    */
-  public SqlConditionalStmtListPair(final SqlParserPos pos,
-      final SqlNode condition,
-      final SqlStatementList stmtList) {
-    super(pos);
-    this.condition = Objects.requireNonNull(condition);
-    this.stmtList = Objects.requireNonNull(stmtList);
+  public SqlWhileStmt(final SqlParserPos pos, final SqlNode condition,
+      final SqlStatementList statements, final SqlIdentifier beginLabel,
+      final SqlIdentifier endLabel) {
+    super(pos, condition, statements, beginLabel, endLabel);
   }
 
   @Override public SqlOperator getOperator() {
     return OPERATOR;
   }
 
-  @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(condition, stmtList);
-  }
-
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
+    if (label != null) {
+      label.unparse(writer, leftPrec, rightPrec);
+      writer.print(": ");
+    }
+    writer.keyword("WHILE");
     condition.unparse(writer, leftPrec, rightPrec);
-    writer.keyword("THEN");
-    stmtList.unparse(writer, leftPrec, rightPrec);
+    writer.keyword("DO");
+    statements.unparse(writer, leftPrec, rightPrec);
+    writer.keyword("END WHILE");
+    if (label != null) {
+      label.unparse(writer, leftPrec, rightPrec);
+    }
   }
 }

@@ -154,22 +154,22 @@ SqlNodeList ExtendColumnList() :
     }
 }
 
-void SourceTableAndAlias(SqlNodeList sourceTables, SqlNodeList sourceAliases) :
+void SourceTableAndAlias(SqlNodeList tables, SqlNodeList aliases) :
 {
-    SqlNode sourceTable;
-    SqlIdentifier sourceAlias;
+    SqlNode table;
+    SqlIdentifier alias;
 }
 {
-    sourceTable = TableRef() {
-        sourceTables.add(sourceTable);
+    table = TableRef() {
+        tables.add(table);
     }
     (
         [ <AS> ]
-        sourceAlias = SimpleIdentifier() {
-            sourceAliases.add(sourceAlias);
+        alias = SimpleIdentifier() {
+            aliases.add(alias);
         }
     |
-        { sourceAliases.add(null); }
+        { aliases.add(null); }
     )
 }
 
@@ -2886,10 +2886,11 @@ SqlNode SqlInsert() :
  */
 SqlNode SqlDelete() :
 {
+    SqlIdentifier deleteTableName = null;
     SqlNode table;
-    SqlIdentifier deleteTable = null;
-    SqlNodeList extendList = null;
-    SqlIdentifier alias = null;
+    final SqlNodeList tables;
+    SqlNode alias;
+    final SqlNodeList aliases;
     final SqlNode condition;
     final Span s;
 }
@@ -2899,26 +2900,37 @@ SqlNode SqlDelete() :
     |
         <DEL>
     )
-    { s = span(); }
+    {
+        s = span();
+        tables = new SqlNodeList(s.pos());
+        aliases = new SqlNodeList(s.pos());
+    }
     [
         // LOOKAHEAD is required for queries like "DELETE FOO" since "FOO" in
         // this case is supposed to be "table" not "deleteTable".
         LOOKAHEAD( CompoundIdentifier() [ <FROM> ] TableRefWithHintsOpt() )
-        deleteTable = CompoundIdentifier()
+        deleteTableName = CompoundIdentifier()
     ]
     [ <FROM> ]
-    table = TableRefWithHintsOpt()
-    [
-        [ <EXTEND> ]
-        extendList = ExtendList() {
-            table = extend(table, extendList);
-        }
-    ]
-    [ [ <AS> ] alias = SimpleIdentifier() ]
+    table = TableRefWithHintsOpt() { tables.add(table); }
+    (
+        [ <AS> ] alias = SimpleIdentifier() { aliases.add(alias); }
+    |
+        { aliases.add(null); }
+    )
+    (
+        <COMMA>
+        table = TableRefWithHintsOpt() { tables.add(table); }
+        (
+            [ <AS> ] alias = SimpleIdentifier() { aliases.add(alias); }
+        |
+            { aliases.add(null); }
+        )
+    )*
     condition = WhereOpt()
     {
-        return new SqlDelete(s.add(table).addIf(extendList).addIf(alias)
-            .addIf(condition).pos(), deleteTable, table, condition, null, alias);
+        return new SqlDelete(s.end(this), deleteTableName, tables, aliases,
+            condition, /*sourceSelect=*/null);
     }
 }
 
@@ -4640,9 +4652,18 @@ SqlNode CreateProcedureStmt() :
     (
         e = ConditionalStmt()
     |
+        // LOOKAHEAD ensures statements such as UPDATE table and EXECUTE macro
+        // do not get parsed by CursorStmt() when they should be parsed by
+        // SqlStmt().
+        LOOKAHEAD(CursorStmt() <SEMICOLON>)
         e = CursorStmt()
     |
         e = IterateStmt()
+    |
+        // This lookahead ensures parser chooses the right path when facing
+        // begin label.
+        LOOKAHEAD(3)
+        e = IterationStmt()
     |
         e = LeaveStmt()
     |
@@ -4761,11 +4782,23 @@ SqlBeginEndCall SqlBeginEndCall() :
 {
     [ beginLabel = SimpleIdentifier() <COLON> ]
     <BEGIN>
-    ( e = LocalDeclaration() { statements.add(e); } )*
-    CreateProcedureStmtList(statements)
+    (
+        // LOOKAHEAD ensures statement should not be parsed by
+        // SqlDeclareCursor() instead.
+        LOOKAHEAD(LocalDeclaration())
+        e = LocalDeclaration() { statements.add(e); }
+    )*
+    ( e = SqlDeclareCursor() { statements.add(e); } )*
+    [
+        LOOKAHEAD({ getToken(1).kind != END })
+        CreateProcedureStmtList(statements)
+    ]
     <END>
     [ endLabel = SimpleIdentifier() ]
-    { return new SqlBeginEndCall(s.end(this), beginLabel, endLabel, statements); }
+    {
+        return new SqlBeginEndCall(s.end(this), beginLabel, endLabel,
+            statements);
+    }
 }
 
 SqlCall LocalDeclaration() :
@@ -4915,7 +4948,11 @@ SqlNode ConditionalStmt() :
     final SqlNode e;
 }
 {
-    e = IfStmt()
+    (
+        e = CaseStmt()
+    |
+        e = IfStmt()
+    )
     { return e; }
 }
 
@@ -4943,6 +4980,36 @@ SqlIfStmt IfStmt() :
     }
 }
 
+SqlCaseStmt CaseStmt() :
+{
+    SqlNode firstOperand = null;
+    SqlNode e = null;
+    final SqlNodeList conditionMultiStmtList = new SqlNodeList(getPos());
+    final SqlStatementList elseMultiStmtList = new SqlStatementList(getPos());
+}
+{
+    <CASE>
+    [ firstOperand = Expression(ExprContext.ACCEPT_NON_QUERY) ]
+    (
+        <WHEN> e = ConditionMultiStmtPair()
+        { conditionMultiStmtList.add(e); }
+    )+
+    [
+        <ELSE>
+        CreateProcedureStmtList(elseMultiStmtList)
+    ]
+    <END> <CASE>
+    {
+        if (firstOperand == null) {
+            return new SqlCaseStmtWithConditionalExpression(getPos(),
+                conditionMultiStmtList, elseMultiStmtList);
+        } else {
+            return new SqlCaseStmtWithOperand(getPos(), firstOperand,
+                conditionMultiStmtList, elseMultiStmtList);
+        }
+    }
+}
+
 SqlNode ConditionMultiStmtPair() :
 {
     final SqlNode condition;
@@ -4956,19 +5023,6 @@ SqlNode ConditionMultiStmtPair() :
         return new SqlConditionalStmtListPair(getPos(), condition,
             multiStmtList);
     }
-}
-
-void CreateProcedureStmtList(SqlStatementList statements) :
-{
-    SqlNode e;
-}
-{
-    (
-        LOOKAHEAD(CreateProcedureStmt())
-        e = CreateProcedureStmt() <SEMICOLON> {
-            statements.add(e);
-        }
-    )+
 }
 
 SqlNode CursorStmt() :
@@ -4988,6 +5042,10 @@ SqlNode CursorStmt() :
         e = SqlExecuteImmediate()
     |
         e = SqlExecuteStatement()
+    |
+        e = SqlSelectAndConsume()
+    |
+        e = SqlUpdateUsingCursor()
     )
     { return e; }
 }
@@ -5066,6 +5124,189 @@ SqlCloseCursor SqlCloseCursor() :
 {
     <CLOSE> cursorName = SimpleIdentifier()
     { return new SqlCloseCursor(s.end(this), cursorName); }
+}
+
+SqlDeclareCursor SqlDeclareCursor() :
+{
+    final SqlIdentifier cursorName;
+    CursorScrollType scrollType = CursorScrollType.UNSPECIFIED;
+    CursorReturnType returnType = CursorReturnType.UNSPECIFIED;
+    CursorReturnToType returnToType = CursorReturnToType.UNSPECIFIED;
+    CursorUpdateType updateType = CursorUpdateType.UNSPECIFIED;
+    boolean only = false;
+    SqlNode cursorSpecification = null;
+    SqlIdentifier statementName = null;
+    SqlIdentifier preparedStatementName = null;
+    SqlNode prepareFrom = null;
+    final Span s = Span.of();
+}
+{
+    <DECLARE> cursorName = SimpleIdentifier()
+    [
+        (
+            <SCROLL> { scrollType = CursorScrollType.SCROLL; }
+        |
+            <NO> <SCROLL> { scrollType = CursorScrollType.NO_SCROLL; }
+        )
+    ]
+    <CURSOR>
+    [
+        (
+            <WITHOUT> <RETURN> { returnType = CursorReturnType.WITHOUT_RETURN; }
+        |
+            <WITH> <RETURN> { returnType = CursorReturnType.WITH_RETURN; }
+            [ <ONLY> { only = true; } ]
+            [
+                (
+                    <TO> <CALLER> { returnToType = CursorReturnToType.CALLER; }
+                |
+                    <TO> <CLIENT> { returnToType = CursorReturnToType.CLIENT; }
+                )
+            ]
+        )
+    ]
+    <FOR>
+    (
+        statementName = SimpleIdentifier()
+    |
+        LOOKAHEAD(OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY))
+        cursorSpecification = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+        [
+            <FOR>
+            (
+                <READ> <ONLY> { updateType = CursorUpdateType.READ_ONLY; }
+            |
+                <UPDATE> { updateType = CursorUpdateType.UPDATE; }
+            )
+        ]
+    )
+    [
+        <PREPARE> preparedStatementName = SimpleIdentifier()
+        <FROM>
+        (
+            prepareFrom = SimpleIdentifier()
+        |
+            prepareFrom = StringLiteral()
+        )
+    ]
+    <SEMICOLON>
+    {
+        return new SqlDeclareCursor(s.end(this), cursorName, scrollType,
+            returnType, returnToType, only, updateType, cursorSpecification,
+            statementName, preparedStatementName, prepareFrom);
+    }
+}
+
+SqlUpdateUsingCursor SqlUpdateUsingCursor() :
+{
+    final SqlIdentifier tableName;
+    SqlIdentifier aliasName = null;
+    final SqlNodeList assignments = new SqlNodeList(getPos());
+    final SqlIdentifier cursorName;
+    SqlNode e;
+    final Span s = Span.of();
+}
+{
+    ( <UPDATE> | <UPD> ) tableName = CompoundIdentifier()
+    [ aliasName = SimpleIdentifier() ]
+    <SET>
+    e = Expression(ExprContext.ACCEPT_NON_QUERY) { assignments.add(e); }
+    (
+        <COMMA> e = Expression(ExprContext.ACCEPT_NON_QUERY) {
+            assignments.add(e);
+        }
+    )*
+    <WHERE> <CURRENT> <OF> cursorName = SimpleIdentifier()
+    {
+        return new SqlUpdateUsingCursor(s.end(this), tableName, aliasName,
+            assignments, cursorName);
+    }
+}
+
+// This form of SELECT AND CONSUME is only valid inside a CREATE PROCEDURE
+// statement.
+SqlSelectAndConsume SqlSelectAndConsume() :
+{
+    final List<SqlNode> selectList;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    final SqlIdentifier fromTable;
+    final int topNum;
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    ( <SELECT> | <SEL> )
+    <AND> <CONSUME> <TOP> topNum = IntLiteral() {
+        if (topNum != 1) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.numberLiteralOutOfRange(String.valueOf(topNum)));
+        }
+    }
+    selectList = SelectList()
+    <INTO>
+    (
+        e = SimpleIdentifier()
+    |
+        e = SqlHostVariable()
+    )
+    { parameters.add(e); }
+    (
+        <COMMA>
+        (
+            e = SimpleIdentifier()
+        |
+            e = SqlHostVariable()
+        )
+        { parameters.add(e); }
+    )*
+    <FROM>
+    fromTable = CompoundIdentifier()
+    {
+        return new SqlSelectAndConsume(s.end(this),
+            new SqlNodeList(selectList, Span.of(selectList).pos()), parameters,
+            fromTable);
+    }
+}
+
+SqlIterationStmt IterationStmt() :
+{
+    final SqlIterationStmt e;
+}
+{
+    (
+        e = WhileStmt()
+    )
+    { return e; }
+}
+
+SqlWhileStmt WhileStmt() :
+{
+    final SqlIdentifier beginLabel;
+    final SqlIdentifier endLabel;
+    final SqlNode condition;
+    final SqlStatementList statements = new SqlStatementList(getPos());
+    final Span s = Span.of();
+}
+{
+    (
+        beginLabel = SimpleIdentifier() <COLON>
+    |
+        { beginLabel = null; }
+    )
+    <WHILE>
+    condition = Expression(ExprContext.ACCEPT_NON_QUERY)
+    <DO>
+    CreateProcedureStmtList(statements)
+    <END> <WHILE>
+    (
+        endLabel = SimpleIdentifier()
+    |
+        { endLabel = null; }
+    )
+    {
+        return new SqlWhileStmt(s.end(this), condition, statements,
+            beginLabel, endLabel);
+    }
 }
 
 SqlLeaveStmt LeaveStmt() :

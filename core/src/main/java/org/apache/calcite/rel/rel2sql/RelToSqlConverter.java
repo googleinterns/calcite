@@ -835,8 +835,8 @@ public class RelToSqlConverter extends SqlImplementor
       final Result input = visitChild(0, modify.getInput());
 
       final SqlDelete sqlDelete =
-          new SqlDelete(POS, sqlTargetTable,
-              input.asSelect().getWhere(), input.asSelect(), null);
+          new SqlDelete(POS, /*deleteTableName=*/null, sqlTargetTable,
+              /*alias=*/null, input.asSelect().getWhere(), input.asSelect());
 
       return result(sqlDelete, input.clauses, modify, null);
     }
