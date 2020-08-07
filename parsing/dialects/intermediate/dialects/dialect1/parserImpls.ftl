@@ -5363,11 +5363,9 @@ SqlState SqlState() :
     [ <VALUE> ]
     <QUOTED_STRING> {
         value = SqlParserUtil.parseString(token.image);
-        {
-            if (value.length() != 5) {
-                throw SqlUtil.newContextException(getPos(),
-                    RESOURCE.sqlStateCharLength(value));
-            }
+        if (value.length() != 5) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.sqlStateCharLength(value));
         }
     }
     { return new SqlState(value, s.end(this)); }

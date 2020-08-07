@@ -80,7 +80,6 @@ public class SqlDeclareHandler extends SqlCall {
       writer.keyword("FOR");
       parameters.unparse(writer, 0, 0);
       if (handlerStatement != null) {
-        writer.setNeedWhitespace(true);
         handlerStatement.unparse(writer, 0, 0);
       }
     }
