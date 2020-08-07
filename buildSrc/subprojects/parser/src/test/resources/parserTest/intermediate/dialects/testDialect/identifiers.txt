@@ -14,28 +14,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.calcite.buildtools.parser;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * A simple container class to hold the data extracted from files.
- */
-public class ExtractedData {
-  public final Map<String, Keyword> keywords;
-  public final Map<String, Keyword> nonReservedKeywords;
-  public final Map<String, Keyword> identifiers;
-  public final Map<String, String> functions;
-  public final List<String> tokenAssignments;
-
-  public ExtractedData() {
-    keywords = new LinkedHashMap<>();
-    nonReservedKeywords = new LinkedHashMap<>();
-    identifiers = new LinkedHashMap<>();
-    functions = new LinkedHashMap<>();
-    tokenAssignments = new ArrayList<>();
-  }
-}
+IDENTIFIER: (<LETTER>|<DOLLAR>) (<LETTER>|<DOLLAR>|<DIGIT>)*
