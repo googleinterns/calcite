@@ -294,51 +294,46 @@ public class DialectGenerateTest {
 
   @Test public void testNonReservedKeywordsValidNonEmpty() {
     ExtractedData extractedData = new ExtractedData();
-    extractedData.keywords.put(new Keyword("foo"), "\"foo\"");
-    extractedData.keywords.put(new Keyword("bar"), "\"bar\"");
-    extractedData.nonReservedKeywords.add(new Keyword("bar"));
+    extractedData.keywords.put("foo", new Keyword("foo"));
+    extractedData.keywords.put("bar", new Keyword("bar"));
+    extractedData.nonReservedKeywords.put("bar", new Keyword("bar"));
     assertNonReservedKeywordsValid(extractedData);
   }
 
   @Test public void testProcessKeywordsInvalidNonReservedKeywordFails() {
     ExtractedData extractedData = new ExtractedData();
-    extractedData.keywords.put(new Keyword("foo"), "\"foo\"");
-    extractedData.nonReservedKeywords.add(new Keyword("\"bar\""));
+    extractedData.keywords.put("foo", new Keyword("foo"));
+    extractedData.nonReservedKeywords.put("bar", new Keyword("bar"));
     assertNonReservedKeywordsInvalid(extractedData);
   }
 
-  @Test public void testUnparseReservedKeywordsEmpty() {
-    ExtractedData extractedData = new ExtractedData();
+  @Test public void testUnparseTokenAssignmentEmpty() {
+    Map<String, Keyword> keywords = new LinkedHashMap<>();
     DialectGenerate dialectGenerate = new DialectGenerate();
-    dialectGenerate.unparseReservedKeywords(extractedData);
-    assertEquals(0, extractedData.tokenAssignments.size());
+    String actual = dialectGenerate.unparseTokenAssignment(keywords);
+    assertEquals("", actual);
   }
 
-  @Test public void testUnparseReservedKeywordsSingle() {
-    ExtractedData extractedData = new ExtractedData();
+  @Test public void testUnparseTokenAssignmentSingle() {
+    Map<String, Keyword> keywords = new LinkedHashMap<>();
     DialectGenerate dialectGenerate = new DialectGenerate();
-    extractedData.keywords.put(new Keyword("foo", "path/file"), "\"FOO\"");
-    dialectGenerate.unparseReservedKeywords(extractedData);
-
-    String actual = extractedData.tokenAssignments.get(0);
+    keywords.put("foo", new Keyword("foo", "\"FOO\"", "path/file"));
+    String actual = dialectGenerate.unparseTokenAssignment(keywords);
     String expected = "// Auto generated.\n"
          + "<DEFAULT, DQID, BTID> TOKEN :\n"
          + "{\n"
          + "< FOO: \"FOO\" > // From: path/file\n"
          + "}";
-    assertEquals(1, extractedData.tokenAssignments.size());
     assertEquals(expected, actual);
   }
 
-  @Test public void testUnparseReservedKeywordsMultiple() {
-    ExtractedData extractedData = new ExtractedData();
+  @Test public void testUnparseTokenAssignmentMultiple() {
+    Map<String, Keyword> keywords = new LinkedHashMap<>();
     DialectGenerate dialectGenerate = new DialectGenerate();
-    extractedData.keywords.put(new Keyword("foo", "path/file"), "\"FOO\"");
-    extractedData.keywords.put(new Keyword("bar", /*filePath=*/ null), "\"BAR\"");
-    extractedData.keywords.put(new Keyword("baz", "path/file"), "\"BAZ\"");
-    dialectGenerate.unparseReservedKeywords(extractedData);
-
-    String actual = extractedData.tokenAssignments.get(0);
+    keywords.put("foo", new Keyword("foo", "\"FOO\"", "path/file"));
+    keywords.put("bar", new Keyword("bar", "\"BAR\""));
+    keywords.put("baz", new Keyword("baz", "\"BAZ\"", "path/file"));
+    String actual = dialectGenerate.unparseTokenAssignment(keywords);
     String expected = "// Auto generated.\n"
          + "<DEFAULT, DQID, BTID> TOKEN :\n"
          + "{\n"
@@ -346,15 +341,15 @@ public class DialectGenerateTest {
          + "| < BAR: \"BAR\" > // No file specified.\n"
          + "| < BAZ: \"BAZ\" > // From: path/file\n"
          + "}";
-    assertEquals(1, extractedData.tokenAssignments.size());
     assertEquals(expected, actual);
   }
 
   @Test public void testPartitionFunctionSingle() {
-    Set<Keyword> keywords = new HashSet<Keyword>();
+    Map<String, Keyword> keywords = new LinkedHashMap<>();
     DialectGenerate dialectGenerate = new DialectGenerate();
-    keywords.add(new Keyword("foo", "path/file"));
-    String actual = dialectGenerate.getPartitionFunction("void func():", keywords);
+    keywords.put("foo", new Keyword("foo", "foo", "path/file"));
+    String actual = dialectGenerate.getPartitionFunction("void func():",
+        new LinkedHashSet<>(keywords.values()));
     String expected = "// Auto generated.\n"
          + "void func():\n"
          + "{\n}\n{\n"
@@ -364,12 +359,13 @@ public class DialectGenerateTest {
   }
 
   @Test public void testPartitionFunctionMultiple() {
-    Set<Keyword> keywords = new LinkedHashSet<Keyword>();
+    Map<String, Keyword> keywords = new LinkedHashMap<>();
     DialectGenerate dialectGenerate = new DialectGenerate();
-    keywords.add(new Keyword("foo", "path/file"));
-    keywords.add(new Keyword("bar", /*filePath=*/ null));
-    keywords.add(new Keyword("baz", "intermediate/path/file"));
-    String actual = dialectGenerate.getPartitionFunction("void func():", keywords);
+    keywords.put("foo", new Keyword("foo", "foo", "path/file"));
+    keywords.put("bar", new Keyword("bar", "bar"));
+    keywords.put("baz", new Keyword("baz", "baz", "intermediate/path/file"));
+    String actual = dialectGenerate.getPartitionFunction("void func():",
+       new LinkedHashSet<>(keywords.values()));
     String expected = "// Auto generated.\n"
          + "void func():\n"
          + "{\n}\n{\n"
@@ -399,7 +395,7 @@ public class DialectGenerateTest {
   @Test public void testUnparseNonReservedKeywordsSinglePartition() {
     ExtractedData extractedData = new ExtractedData();
     DialectGenerate dialectGenerate = new DialectGenerate();
-    extractedData.nonReservedKeywords.add(new Keyword("foo"));
+    extractedData.nonReservedKeywords.put("foo", new Keyword("foo"));
     dialectGenerate.unparseNonReservedKeywords(extractedData);
     assertEquals(2, extractedData.functions.size());
     assertTrue(extractedData.functions.containsKey("NonReservedKeyword"));
@@ -420,7 +416,8 @@ public class DialectGenerateTest {
     ExtractedData extractedData = new ExtractedData();
     DialectGenerate dialectGenerate = new DialectGenerate();
     for (int i = 0; i < DialectGenerate.PARTITION_SIZE + 1; i++) {
-      extractedData.nonReservedKeywords.add(new Keyword("foo" + i));
+      String key = "foo" + i;
+      extractedData.nonReservedKeywords.put(key, new Keyword(key));
     }
     dialectGenerate.unparseNonReservedKeywords(extractedData);
     assertEquals(3, extractedData.functions.size());
