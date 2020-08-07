@@ -645,14 +645,14 @@ public enum SqlKind {
   SELECT_AND_CONSUME,
 
   /**
+   * DECLARE HANDLER call in a BEGIN...END statement.
+   */
+  DECLARE_HANDLER,
+
+  /**
    * SIGNAL statement in a BEGIN...END statement.
    */
   SIGNAL,
-
-  /**
-   * RESIGNAL statement in a BEGIN...END statement.
-   */
-  RESIGNAL,
 
   /**
    * Special functions in MATCH_RECOGNIZE.

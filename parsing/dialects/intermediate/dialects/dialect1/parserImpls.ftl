@@ -4784,7 +4784,13 @@ SqlBeginEndCall SqlBeginEndCall() :
         LOOKAHEAD(LocalDeclaration())
         e = LocalDeclaration() { statements.add(e); }
     )*
-    ( e = SqlDeclareCursor() { statements.add(e); } )*
+    (
+        // LOOKAHEAD ensures statement should not be parsed by
+        // SqlDeclareHandler() instead.
+        LOOKAHEAD(3)
+        e = SqlDeclareCursor() { statements.add(e); }
+    )*
+    ( e = SqlDeclareHandler() { statements.add(e); } )*
     [
         LOOKAHEAD({ getToken(1).kind != END })
         CreateProcedureStmtList(statements)
@@ -5303,6 +5309,88 @@ SqlWhileStmt WhileStmt() :
         return new SqlWhileStmt(s.end(this), condition, statements,
             beginLabel, endLabel);
     }
+}
+
+SqlDeclareHandler SqlDeclareHandler() :
+{
+    final HandlerType handlerType;
+    SqlIdentifier conditionName = null;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    SqlNode handlerStatement = null;
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <DECLARE>
+    (
+        (
+            <CONTINUE> { handlerType = HandlerType.CONTINUE; }
+        |
+            <EXIT> { handlerType = HandlerType.EXIT; }
+        )
+        <HANDLER>
+    |
+        conditionName = SimpleIdentifier()
+        <CONDITION>
+        { handlerType = HandlerType.CONDITION; }
+    )
+    [
+        <FOR>
+        (
+            e = SqlState() { parameters.add(e); }
+            ( <COMMA> e = SqlState() { parameters.add(e); })*
+            [ handlerStatement = CreateProcedureStmt() ]
+        |
+            e = DeclareHandlerCondition() { parameters.add(e); }
+            ( <COMMA> e = DeclareHandlerCondition() { parameters.add(e); })*
+            handlerStatement = CreateProcedureStmt()
+        )
+    ]
+    <SEMICOLON>
+    {
+        return new SqlDeclareHandler(s.end(this), handlerType, conditionName,
+            parameters, handlerStatement);
+    }
+}
+
+SqlState SqlState() :
+{
+    final Span s = Span.of();
+    final String value;
+}
+{
+    <SQLSTATE>
+    [ <VALUE> ]
+    <QUOTED_STRING> {
+        value = SqlParserUtil.parseString(token.image);
+        if (value.length() != 5) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.sqlStateCharLength(value));
+        }
+    }
+    { return new SqlState(value, s.end(this)); }
+}
+
+SqlIdentifier DeclareHandlerCondition() :
+{
+    final Span s = Span.of();
+    DeclareHandlerConditionType conditionType;
+    final SqlIdentifier condition;
+}
+{
+    (
+        (
+            <SQLEXCEPTION> { conditionType = DeclareHandlerConditionType.SQLEXCEPTION; }
+        |
+            <SQLWARNING> { conditionType = DeclareHandlerConditionType.SQLWARNING; }
+        |
+            <NOT> <FOUND> { conditionType = DeclareHandlerConditionType.NOT_FOUND; }
+        )
+        { condition = new SqlDeclareHandlerCondition(s.end(this), conditionType); }
+    |
+        condition = SimpleIdentifier()
+    )
+    { return condition; }
 }
 
 SqlSignal SqlSignal() :

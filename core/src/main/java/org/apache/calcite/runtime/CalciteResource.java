@@ -951,4 +951,7 @@ public interface CalciteResource {
 
   @BaseMessage("FOR statement name must match PREPARE statement name")
   ExInst<SqlValidatorException> declareCursorStatementNameMismatch();
+
+  @BaseMessage("SQLSTATE ''{0}'' must be exactly five characters")
+  ExInst<SqlValidatorException> sqlStateCharLength(String value);
 }
