@@ -2829,7 +2829,7 @@ SqlNode Qualify() :
 SqlNode SqlInsert() :
 {
     final List<SqlLiteral> keywords = new ArrayList<SqlLiteral>();
-    final SqlNodeList keywordList;
+    SqlNodeList keywordList = new SqlNodeList(getPos());
     SqlNode table;
     SqlNodeList extendList = null;
     SqlNode source;
@@ -2845,9 +2845,6 @@ SqlNode SqlInsert() :
         <UPSERT> { keywords.add(SqlInsertKeyword.UPSERT.symbol(getPos())); }
     )
     { s = span(); }
-    SqlInsertKeywords(keywords) {
-        keywordList = new SqlNodeList(keywords, s.addAll(keywords).pos());
-    }
     [ <INTO> ]
     table = TableRefWithHintsOpt()
     [
@@ -4658,7 +4655,6 @@ void CreateProcedureStmtList(SqlStatementList statements) :
 }
 {
     (
-        LOOKAHEAD(CreateProcedureStmt())
         e = CreateProcedureStmt() <SEMICOLON> {
             statements.add(e);
         }
@@ -4765,10 +4761,7 @@ SqlBeginEndCall SqlBeginEndCall() :
         e = LocalDeclaration() { statements.add(e); }
     )*
     ( e = SqlDeclareCursor() { statements.add(e); } )*
-    [
-        LOOKAHEAD({ getToken(1).kind != END })
-        CreateProcedureStmtList(statements)
-    ]
+    [ CreateProcedureStmtList(statements) ]
     <END>
     [ endLabel = SimpleIdentifier() ]
     {

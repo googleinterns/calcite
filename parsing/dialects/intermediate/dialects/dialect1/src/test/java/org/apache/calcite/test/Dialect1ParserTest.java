@@ -5224,28 +5224,4 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "END";
     sql(sql).ok(expected);
   }
-
-  @Test public void testSelectIntoWithModifier() {
-    final String sql = "create procedure foo ()\n"
-        + "begin\n"
-        + "with select bar into baz;\n"
-        + "end";
-    final String expected = "CREATE PROCEDURE `FOO` ()\n"
-        + "BEGIN\n"
-        + "WITH SELECT `BAR` INTO `BAZ`;\n"
-        + "END";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testSelectIntoWithRecursiveModifier() {
-    final String sql = "create procedure foo ()\n"
-        + "begin\n"
-        + "with recursive select bar into baz;\n"
-        + "end";
-    final String expected = "CREATE PROCEDURE `FOO` ()\n"
-        + "BEGIN\n"
-        + "WITH RECURSIVE SELECT `BAR` INTO `BAZ`;\n"
-        + "END";
-    sql(sql).ok(expected);
-  }
 }
