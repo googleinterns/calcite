@@ -5226,7 +5226,7 @@ SqlFetchCursor SqlFetchCursor() :
     final FetchType fetchType;
     final SqlIdentifier cursorName;
     final SqlNodeList parameters = new SqlNodeList(getPos());
-    final Span s = Span.of();	
+    final Span s = Span.of();
     SqlNode e;
 }
 {
