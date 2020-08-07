@@ -29,7 +29,7 @@ public class SqlForStmt extends SqlIterationStmt {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("FOR", SqlKind.FOR_STATEMENT);
 
-  public final SqlIdentifier forLoopVariable;
+  public final SqlIdentifier loopVariable;
   public final SqlIdentifier cursorName;
   public final SqlNode cursorSpecification;
 
@@ -39,18 +39,19 @@ public class SqlForStmt extends SqlIterationStmt {
    * @param statements  List of statements to iterate, must not be null.
    * @param beginLabel  Optional begin label, must match end label if not null.
    * @param endLabel    Optional end label, must match begin label if not null.
-   * @param forLoopVariable
-   *                    The name of the loop.
+   * @param loopVariable
+   *                    The name of the loop, must not be null.
    * @param cursorName  The name of the cursor.
    * @param cursorSpecification
-   *                    A single select statement used as the cursor.
+   *                    A single select statement used as the cursor, must not
+   *                    be null.
    */
   public SqlForStmt(final SqlParserPos pos,
       final SqlStatementList statements, final SqlIdentifier beginLabel,
-      final SqlIdentifier endLabel, final SqlIdentifier forLoopVariable,
+      final SqlIdentifier endLabel, final SqlIdentifier loopVariable,
       final SqlIdentifier cursorName, final SqlNode cursorSpecification) {
     super(pos, /*condition = */null, statements, beginLabel, endLabel);
-    this.forLoopVariable = Objects.requireNonNull(forLoopVariable);
+    this.loopVariable = Objects.requireNonNull(loopVariable);
     this.cursorName = cursorName;
     this.cursorSpecification = Objects.requireNonNull(cursorSpecification);
   }
@@ -60,7 +61,7 @@ public class SqlForStmt extends SqlIterationStmt {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(statements, label, forLoopVariable,
+    return ImmutableNullableList.of(statements, label, loopVariable,
         cursorName, cursorSpecification);
   }
 
@@ -68,7 +69,7 @@ public class SqlForStmt extends SqlIterationStmt {
       final int rightPrec) {
     unparseBeginLabel(writer, leftPrec, rightPrec);
     writer.keyword("FOR");
-    forLoopVariable.unparse(writer, leftPrec, rightPrec);
+    loopVariable.unparse(writer, leftPrec, rightPrec);
     writer.keyword("AS");
     if (cursorName != null) {
       cursorName.unparse(writer, leftPrec, rightPrec);
