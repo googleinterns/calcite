@@ -1652,15 +1652,13 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
   protected SqlSelect createSourceSelectForDelete(SqlDelete call) {
     final SqlNodeList selectList = new SqlNodeList(SqlParserPos.ZERO);
     selectList.add(SqlIdentifier.star(SqlParserPos.ZERO));
-    SqlNode sourceTable = call.getTargetTable();
-    if (call.getAlias() != null) {
-      sourceTable =
-          SqlValidatorUtil.addAlias(
-              sourceTable,
-              call.getAlias().getSimple());
+    SqlNode sourceTable = call.tables.get(0);
+    SqlIdentifier alias = (SqlIdentifier) call.aliases.get(0);
+    if (alias != null) {
+      sourceTable = SqlValidatorUtil.addAlias(sourceTable, alias.getSimple());
     }
     return new SqlSelect(SqlParserPos.ZERO, null, selectList, sourceTable,
-        call.getCondition(), null, null, null, null, null, null, null);
+        call.condition, null, null, null, null, null, null, null);
   }
 
   /**
@@ -2762,7 +2760,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       registerQuery(
           parentScope,
           usingScope,
-          deleteCall.getSourceSelect(),
+          deleteCall.sourceSelect,
           enclosingNode,
           null,
           false);
@@ -4841,14 +4839,16 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
   }
 
   public void validateDelete(SqlDelete call) {
-    final SqlSelect sqlSelect = call.getSourceSelect();
+    final SqlSelect sqlSelect = call.sourceSelect;
     validateSelect(sqlSelect, unknownType);
 
     final SqlValidatorNamespace targetNamespace = getNamespace(call);
     validateNamespace(targetNamespace, unknownType);
     final SqlValidatorTable table = targetNamespace.getTable();
 
-    validateAccess(call.getTargetTable(), table, SqlAccessEnum.DELETE);
+    for (SqlNode deleteTable : call.tables) {
+      validateAccess(deleteTable, table, SqlAccessEnum.DELETE);
+    }
   }
 
   public void validateUpdate(SqlUpdate call) {
@@ -5801,7 +5801,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
     DeleteNamespace(SqlValidatorImpl validator, SqlDelete node,
         SqlNode enclosingNode, SqlValidatorScope parentScope) {
-      super(validator, node.getTargetTable(), enclosingNode, parentScope);
+      super(validator, node.tables.get(0), enclosingNode, parentScope);
       this.node = Objects.requireNonNull(node);
     }
 

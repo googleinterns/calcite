@@ -154,22 +154,22 @@ SqlNodeList ExtendColumnList() :
     }
 }
 
-void SourceTableAndAlias(SqlNodeList sourceTables, SqlNodeList sourceAliases) :
+void SourceTableAndAlias(SqlNodeList tables, SqlNodeList aliases) :
 {
-    SqlNode sourceTable;
-    SqlIdentifier sourceAlias;
+    SqlNode table;
+    SqlIdentifier alias;
 }
 {
-    sourceTable = TableRef() {
-        sourceTables.add(sourceTable);
+    table = TableRef() {
+        tables.add(table);
     }
     (
         [ <AS> ]
-        sourceAlias = SimpleIdentifier() {
-            sourceAliases.add(sourceAlias);
+        alias = SimpleIdentifier() {
+            aliases.add(alias);
         }
     |
-        { sourceAliases.add(null); }
+        { aliases.add(null); }
     )
 }
 
@@ -2886,10 +2886,11 @@ SqlNode SqlInsert() :
  */
 SqlNode SqlDelete() :
 {
+    SqlIdentifier deleteTableName = null;
     SqlNode table;
-    SqlIdentifier deleteTable = null;
-    SqlNodeList extendList = null;
-    SqlIdentifier alias = null;
+    final SqlNodeList tables;
+    SqlNode alias;
+    final SqlNodeList aliases;
     final SqlNode condition;
     final Span s;
 }
@@ -2899,26 +2900,37 @@ SqlNode SqlDelete() :
     |
         <DEL>
     )
-    { s = span(); }
+    {
+        s = span();
+        tables = new SqlNodeList(s.pos());
+        aliases = new SqlNodeList(s.pos());
+    }
     [
         // LOOKAHEAD is required for queries like "DELETE FOO" since "FOO" in
         // this case is supposed to be "table" not "deleteTable".
         LOOKAHEAD( CompoundIdentifier() [ <FROM> ] TableRefWithHintsOpt() )
-        deleteTable = CompoundIdentifier()
+        deleteTableName = CompoundIdentifier()
     ]
     [ <FROM> ]
-    table = TableRefWithHintsOpt()
-    [
-        [ <EXTEND> ]
-        extendList = ExtendList() {
-            table = extend(table, extendList);
-        }
-    ]
-    [ [ <AS> ] alias = SimpleIdentifier() ]
+    table = TableRefWithHintsOpt() { tables.add(table); }
+    (
+        [ <AS> ] alias = SimpleIdentifier() { aliases.add(alias); }
+    |
+        { aliases.add(null); }
+    )
+    (
+        <COMMA>
+        table = TableRefWithHintsOpt() { tables.add(table); }
+        (
+            [ <AS> ] alias = SimpleIdentifier() { aliases.add(alias); }
+        |
+            { aliases.add(null); }
+        )
+    )*
     condition = WhereOpt()
     {
-        return new SqlDelete(s.add(table).addIf(extendList).addIf(alias)
-            .addIf(condition).pos(), deleteTable, table, condition, null, alias);
+        return new SqlDelete(s.end(this), deleteTableName, tables, aliases,
+            condition, /*sourceSelect=*/null);
     }
 }
 
