@@ -40,8 +40,7 @@ public abstract class SqlIterationStmt extends SqlCall {
    * Creates a {@code SqlIterationStmt}.
    *
    * @param pos         Parser position, must not be null.
-   * @param condition   Conditional expression, can be null for loop statement
-   *                    only.
+   * @param condition   Conditional expression.
    * @param statements  List of statements to iterate, must not be null.
    * @param beginLabel  Optional begin label, must match end label if not null.
    * @param endLabel    Optional end label, must match begin label if not null.
