@@ -5221,8 +5221,6 @@ SqlSelectAndConsume SqlSelectAndConsume() :
 
 SqlSelectInto SqlSelectInto() :
 {
-    final SelectIntoWithModifier withModifier;
-    boolean set = false;
     SqlSelectKeyword selectKeyword = null;
     final List<SqlNode> selectList;
     final SqlNodeList parameters = new SqlNodeList(getPos());
@@ -5232,17 +5230,7 @@ SqlSelectInto SqlSelectInto() :
     SqlNode e;
 }
 {
-    (
-        <WITH> <RECURSIVE> { withModifier = SelectIntoWithModifier.WITH_RECURSIVE; }
-    |
-        <WITH> {
-            withModifier = SelectIntoWithModifier.WITH;
-        }
-    |
-        { withModifier = SelectIntoWithModifier.UNSPECIFIED; }
-    )
-    <SELECT>
-    [ <SET> { set = true; } ]
+    ( <SELECT> | <SEL> )
     [
         (
             <ALL> { selectKeyword = SqlSelectKeyword.ALL; }
@@ -5257,7 +5245,7 @@ SqlSelectInto SqlSelectInto() :
     [ fromClause = FromClause() ]
     whereClause = WhereOpt()
     {
-        return new SqlSelectInto(s.end(this), withModifier, set, selectKeyword,
+        return new SqlSelectInto(s.end(this), selectKeyword,
             new SqlNodeList(selectList, Span.of(selectList).pos()), parameters,
             fromClause, whereClause);
     }
