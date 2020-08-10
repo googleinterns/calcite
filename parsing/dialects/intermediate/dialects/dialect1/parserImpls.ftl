@@ -5374,7 +5374,7 @@ SqlState SqlState() :
 SqlIdentifier DeclareHandlerCondition() :
 {
     final Span s = Span.of();
-    DeclareHandlerConditionType conditionType;
+    final DeclareHandlerConditionType conditionType;
     final SqlIdentifier condition;
 }
 {
