@@ -18,29 +18,23 @@ package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-import java.util.Objects;
-
 /**
- * Parse tree for a {@code SqlWhileStmt}.
+ * Parse tree for a {@code SqlLoopStmt}.
  */
-public class SqlWhileStmt extends SqlIterationStmt {
+public class SqlLoopStmt extends SqlIterationStmt {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("WHILE", SqlKind.WHILE_STATEMENT);
+      new SqlSpecialOperator("LOOP", SqlKind.LOOP_STATEMENT);
 
   /**
-   * Creates a {@code SqlWhileStmt}.
-   *
+   * Creates a {@code SqlLoopStmt}.
    * @param pos         Parser position, must not be null.
-   * @param condition   Conditional expression, must not be null.
    * @param statements  List of statements to iterate, must not be null.
    * @param beginLabel  Optional begin label, must match end label if not null.
    * @param endLabel    Optional end label, must match begin label if not null.
    */
-  public SqlWhileStmt(final SqlParserPos pos, final SqlNode condition,
-      final SqlStatementList statements, final SqlIdentifier beginLabel,
-      final SqlIdentifier endLabel) {
-    super(pos, Objects.requireNonNull(condition), statements, beginLabel,
-        endLabel);
+  public SqlLoopStmt(final SqlParserPos pos, final SqlStatementList statements,
+      final SqlIdentifier beginLabel, final SqlIdentifier endLabel) {
+    super(pos, /*condition = */null, statements, beginLabel, endLabel);
   }
 
   @Override public SqlOperator getOperator() {
@@ -50,11 +44,9 @@ public class SqlWhileStmt extends SqlIterationStmt {
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
     unparseBeginLabel(writer, leftPrec, rightPrec);
-    writer.keyword("WHILE");
-    condition.unparse(writer, leftPrec, rightPrec);
-    writer.keyword("DO");
+    writer.keyword("LOOP");
     statements.unparse(writer, leftPrec, rightPrec);
-    writer.keyword("END WHILE");
+    writer.keyword("END LOOP");
     unparseEndLabel(writer, leftPrec, rightPrec);
   }
 }
