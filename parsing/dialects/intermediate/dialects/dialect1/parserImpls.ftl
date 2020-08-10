@@ -3173,13 +3173,14 @@ List<Object> Expression2(ExprContext exprContext) :
             (
                 // Special case for "IN", because RHS of "IN" is the only place
                 // that an expression-list is allowed ("exp IN (exp1, exp2)").
-                LOOKAHEAD(2) {
+                LOOKAHEAD(3) {
                     checkNonQueryExpression(exprContext);
                 }
                 (
-                    ( <NOT> | <CARET> ) <IN> { op = SqlStdOperatorTable.NOT_IN; }
+                    [ <IS> ] ( <NOT> | <CARET> ) <IN>
+                    { op = SqlStdOperatorTable.NOT_IN; }
                 |
-                    <IN> { op = SqlStdOperatorTable.IN; }
+                    [ <IS> ] <IN> { op = SqlStdOperatorTable.IN; }
                 |
                     { final SqlKind k; }
                     k = comp()
