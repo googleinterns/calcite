@@ -39,7 +39,6 @@ public class SqlUpdate extends SqlCall {
   SqlSelect sourceSelect;
   SqlIdentifier alias;
   SqlNodeList sourceTables;
-  SqlNodeList sourceAliases;
 
   //~ Constructors -----------------------------------------------------------
 
@@ -51,7 +50,7 @@ public class SqlUpdate extends SqlCall {
       SqlSelect sourceSelect,
       SqlIdentifier alias) {
     this(pos, targetTable, targetColumnList, sourceExpressionList, condition, sourceSelect, alias,
-        /*sourceTables=*/ null, /*sourceAliases=*/ null);
+        /*sourceTables=*/ null);
   }
 
   public SqlUpdate(SqlParserPos pos,
@@ -61,8 +60,7 @@ public class SqlUpdate extends SqlCall {
       SqlNode condition,
       SqlSelect sourceSelect,
       SqlIdentifier alias,
-      SqlNodeList sourceTables,
-      SqlNodeList sourceAliases) {
+      SqlNodeList sourceTables) {
     super(pos);
     this.targetTable = targetTable;
     this.targetColumnList = targetColumnList;
@@ -72,11 +70,6 @@ public class SqlUpdate extends SqlCall {
     assert sourceExpressionList.size() == targetColumnList.size();
     this.alias = alias;
     this.sourceTables = sourceTables;
-    this.sourceAliases = sourceAliases;
-    if (sourceTables != null) {
-      assert this.sourceAliases != null;
-      assert this.sourceTables.size() == this.sourceAliases.size();
-    }
   }
 
   //~ Methods ----------------------------------------------------------------
@@ -188,13 +181,6 @@ public class SqlUpdate extends SqlCall {
    */
   public SqlNodeList getSourceTables() {
     return sourceTables;
-  }
-
-  /**
-   * @return the source table aliases
-   */
-  public SqlNodeList getSourceAliases() {
-    return sourceAliases;
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
