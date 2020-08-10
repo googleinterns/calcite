@@ -40,7 +40,7 @@ public class SqlFirstLastValue extends SqlCall implements SqlExecutableStatement
    * @param pos  Parser position, must not be null
    * @param first  Whether or not this is the FIRST_VALUE or LAST_VALUE
    * @param value  The value which is being used
-   * @param nullOption  If the nulls should be ignored or respected, may be null
+   * @param nullOption  If the nulls should be ignored or respected
    */
   public SqlFirstLastValue(SqlParserPos pos, boolean first, SqlNode value,
       NullOption nullOption) {
@@ -66,7 +66,7 @@ public class SqlFirstLastValue extends SqlCall implements SqlExecutableStatement
     }
     SqlWriter.Frame frame = writer.startList("(", ")");
     value.unparse(writer, leftPrec, rightPrec);
-    if (nullOption != null) {
+    if (nullOption != NullOption.UNSPECIFIED) {
       writer.keyword(nullOption.toString());
       writer.keyword("NULLS");
     }
@@ -86,5 +86,10 @@ public class SqlFirstLastValue extends SqlCall implements SqlExecutableStatement
      * Nulls should be respected.
      */
     RESPECT,
+
+    /**
+     * Unspecified.
+     */
+    UNSPECIFIED,
   }
 }
