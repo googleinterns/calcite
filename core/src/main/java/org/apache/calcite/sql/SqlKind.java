@@ -1297,6 +1297,9 @@ public enum SqlKind {
   /** {@code LEAVE STATEMENT} PL statement */
   LEAVE_STATEMENT,
 
+  /** {@code SET STATEMENT} PL statement */
+  SET_STATEMENT,
+
   /** DDL statement not handled above.
    *
    * <p><b>Note to other projects</b>: If you are extending Calcite's SQL parser
