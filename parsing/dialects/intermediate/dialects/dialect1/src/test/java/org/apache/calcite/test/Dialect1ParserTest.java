@@ -5945,7 +5945,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "INSERT INTO `FOO`\n"
         + "(SELECT *\nFROM `BAR`);\n"
         + "END";
-        sql(sql).ok(expected);
+    sql(sql).ok(expected);
   }
 
   @Test public void testLeaveStmtInBeginEndClause() {
