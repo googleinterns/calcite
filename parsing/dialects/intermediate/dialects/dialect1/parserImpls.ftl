@@ -5039,6 +5039,8 @@ SqlNode CursorStmt() :
     |
         e = SqlSelectAndConsume()
     |
+        e = SqlSelectInto()
+    |
         e = SqlUpdateUsingCursor()
     )
     { return e; }
@@ -5644,4 +5646,36 @@ SqlIterateStmt IterateStmt() :
 {
     <ITERATE> label = SimpleIdentifier()
     { return new SqlIterateStmt(getPos(), label); }
+}
+
+SqlSelectInto SqlSelectInto() :
+{
+    SqlSelectKeyword selectKeyword = SqlSelectKeyword.UNSPECIFIED;
+    final List<SqlNode> selectList;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    SqlNode fromClause = null;
+    SqlNode whereClause = null;
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    ( <SELECT> | <SEL> )
+    [
+        (
+            <ALL> { selectKeyword = SqlSelectKeyword.ALL; }
+        |
+            <DISTINCT> { selectKeyword = SqlSelectKeyword.DISTINCT; }
+        )
+    ]
+    selectList = SelectList()
+    <INTO>
+    e = SimpleIdentifier() { parameters.add(e); }
+    ( <COMMA> e = SimpleIdentifier() { parameters.add(e); } )*
+    [ <FROM> fromClause = FromClause() ]
+    whereClause = WhereOpt()
+    {
+        return new SqlSelectInto(s.end(this), selectKeyword,
+            new SqlNodeList(selectList, Span.of(selectList).pos()), parameters,
+            fromClause, whereClause);
+    }
 }
