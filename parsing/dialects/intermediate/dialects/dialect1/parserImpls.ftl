@@ -4643,10 +4643,14 @@ SqlNode CreateProcedureStmt() :
     |
         e = DiagnosticStmt()
     |
+        e = IterateStmt()
+    |
         // This lookahead ensures parser chooses the right path when facing
         // begin label.
         LOOKAHEAD(3)
         e = IterationStmt()
+    |
+        e = LeaveStmt()
     |
         e = SqlBeginEndCall()
     |
@@ -5533,4 +5537,22 @@ SqlGetDiagnosticsParam SqlGetDiagnosticsParam() :
     <EQ>
     value = SimpleIdentifier()
     { return new SqlGetDiagnosticsParam(s.end(this), name, value); }
+}
+
+SqlLeaveStmt LeaveStmt() :
+{
+    final SqlIdentifier label;
+}
+{
+    <LEAVE> label = SimpleIdentifier()
+    { return new SqlLeaveStmt(getPos(), label); }
+}
+
+SqlIterateStmt IterateStmt() :
+{
+    final SqlIdentifier label;
+}
+{
+    <ITERATE> label = SimpleIdentifier()
+    { return new SqlIterateStmt(getPos(), label); }
 }
