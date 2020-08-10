@@ -39,7 +39,8 @@ public class SqlSelectInto extends SqlCall {
    * Creates a {@code SqlSelectInto}.
    *
    * @param pos  Parser position, must not be null
-   * @param selectKeyword Whether DISTINCT or ALL was specified
+   * @param selectKeyword Whether DISTINCT or ALL was specified, must not be
+   *                      null
    * @param selectList  An asterisk or a list of SQL expressions, must not be
    *                    null
    * @param parameters A list of parameter names, must not be null
@@ -50,7 +51,7 @@ public class SqlSelectInto extends SqlCall {
       SqlNodeList selectList, SqlNodeList parameters, SqlNode fromClause,
       SqlNode whereClause) {
     super(pos);
-    this.selectKeyword = selectKeyword;
+    this.selectKeyword = Objects.requireNonNull(selectKeyword);
     this.selectList = Objects.requireNonNull(selectList);
     this.parameters = Objects.requireNonNull(parameters);
     this.fromClause = fromClause;
