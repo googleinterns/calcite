@@ -5601,6 +5601,19 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testLoopStmtSelectFrom() {
+    final String sql = "create procedure foo (bar integer) "
+        + "loop "
+        + "select * from bee; "
+        + "end loop";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "LOOP SELECT *\n"
+            + "FROM `BEE`;\n"
+            + "END LOOP";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testLoopStmtBaseCaseWithLabel() {
     final String sql = "create procedure foo (bar integer) "
         + "label1: "

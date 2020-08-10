@@ -2717,7 +2717,6 @@ SqlSelect SqlSelect() :
         CommaSepatatedSqlHints(hints)
         <COMMENT_END>
     ]
-    SqlSelectKeywords(keywords)
     (
         <STREAM> {
             keywords.add(SqlSelectKeyword.STREAM.symbol(getPos()));
