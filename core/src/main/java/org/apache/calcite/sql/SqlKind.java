@@ -1279,6 +1279,9 @@ public enum SqlKind {
   /** {@code ITERATION STATEMENT} PL statement */
   ITERATION_STATEMENT,
 
+  /** {@code FOR STATEMENT} PL statement */
+  FOR_STATEMENT,
+
   /** {@code WHILE STATEMENT} PL statement */
   WHILE_STATEMENT,
 
@@ -1287,6 +1290,12 @@ public enum SqlKind {
 
   /** {@code LOOP STATEMENT} PL statement */
   LOOP_STATEMENT,
+
+  /** {@code ITERATE STATEMENT} PL statement */
+  ITERATE_STATEMENT,
+
+  /** {@code LEAVE STATEMENT} PL statement */
+  LEAVE_STATEMENT,
 
   /** DDL statement not handled above.
    *
