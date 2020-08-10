@@ -3993,6 +3993,8 @@ SqlNode BuiltinFunctionCall() :
         node = CaseN() { return node; }
     |
         node = RangeN() { return node; }
+    |
+        node = FirstLastValue() { return node; }
     )
 }
 
@@ -5507,4 +5509,48 @@ SqlGetDiagnosticsParam SqlGetDiagnosticsParam() :
     <EQ>
     value = SimpleIdentifier()
     { return new SqlGetDiagnosticsParam(s.end(this), name, value); }
+}
+
+SqlCall FirstLastValue() :
+{
+    final boolean first;
+    final SqlNode value;
+    NullOption nullOption = null;
+    final SqlNode over;
+    final SqlNode window;
+    final SqlCall call;
+}
+{
+    (
+        <FIRST_VALUE> {
+            first = true;
+        }
+    |
+        <LAST_VALUE> {
+            first = false;
+        }
+    )
+    <LPAREN>
+    value = CompoundIdentifier()
+    [
+        (
+            <IGNORE> {
+                nullOption = NullOption.IGNORE;
+            }
+        |
+            <RESPECT> {
+                nullOption = NullOption.RESPECT;
+            }
+        )
+        <NULLS>
+    ]
+    <RPAREN>
+    {
+        call = new SqlFirstLastValue(getPos(), first, value, nullOption);
+    }
+    <OVER>
+    over = WindowSpecification()
+    {
+        return SqlStdOperatorTable.OVER.createCall(getPos(), call, over);
+    }
 }

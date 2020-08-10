@@ -33,7 +33,6 @@ public class SqlFirstLastValue extends SqlCall implements SqlExecutableStatement
   public final boolean first;
   public final SqlNode value;
   public final NullOption nullOption;
-  public final SqlNode window;
 
   /**
    * Creates a {@code SqlFirstLastOption}.
@@ -42,15 +41,13 @@ public class SqlFirstLastValue extends SqlCall implements SqlExecutableStatement
    * @param first Whether or not this is the FIRST_VALUE or LAST_VALUE
    * @param value The value which is being used
    * @param nullOption If the nulls should be ignored or respected, may be null
-   * @param window The window specificiation
    */
-  public SqlFirstLastOption(SqlParserPos pos, boolean first, SqlNode value,
-      NullOption nullOption, SqlNode window) {
+  public SqlFirstLastValue(SqlParserPos pos, boolean first, SqlNode value,
+      NullOption nullOption) {
     super(pos);
     this.first = first;
     this.value = Objects.requireNonNull(value);
     this.nullOption = nullOption;
-    this.window = Objects.requireNonNull(window);
   }
 
   @Override public SqlOperator getOperator() {
@@ -58,7 +55,7 @@ public class SqlFirstLastValue extends SqlCall implements SqlExecutableStatement
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(value, nullOption, window);
+    return ImmutableNullableList.of(value);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
@@ -74,8 +71,10 @@ public class SqlFirstLastValue extends SqlCall implements SqlExecutableStatement
       writer.keyword("NULLS");
     }
     writer.endList(frame);
-    window.unparse(writer, leftPrec, rightPrec);
   }
+
+  // Intentionally left empty.
+  @Override public void execute(CalcitePrepare.Context context) {}
 
   public enum NullOption {
     /**
