@@ -154,25 +154,6 @@ SqlNodeList ExtendColumnList() :
     }
 }
 
-void SourceTableAndAlias(SqlNodeList tables, SqlNodeList aliases) :
-{
-    SqlNode table;
-    SqlIdentifier alias;
-}
-{
-    table = TableRef() {
-        tables.add(table);
-    }
-    (
-        [ <AS> ]
-        alias = SimpleIdentifier() {
-            aliases.add(alias);
-        }
-    |
-        { aliases.add(null); }
-    )
-}
-
 // The DateTime functions are singled out to allow for arguments to
 // be parsed, such as CURRENT_DATE(0).
 SqlColumnAttribute ColumnAttributeDefault() :
@@ -2940,7 +2921,6 @@ SqlNode SqlUpdate() :
 {
     SqlNode table;
     SqlNodeList sourceTables = null;
-    SqlNodeList sourceAliases = null;
     SqlNodeList extendList = null;
     SqlIdentifier alias = null;
     SqlNode condition;
@@ -2949,6 +2929,7 @@ SqlNode SqlUpdate() :
     SqlIdentifier id;
     SqlNode exp;
     final Span s;
+    SqlNode e;
 }
 {
     (
@@ -2972,13 +2953,16 @@ SqlNode SqlUpdate() :
         (
             <FROM> {
                 sourceTables = new SqlNodeList(s.pos());
-                sourceAliases = new SqlNodeList(s.pos());
             }
-            SourceTableAndAlias(sourceTables, sourceAliases)
+            e = TableRef() {
+                sourceTables.add(e);
+            }
         )
         (
             <COMMA>
-            SourceTableAndAlias(sourceTables, sourceAliases)
+            e = TableRef() {
+                sourceTables.add(e);
+            }
         )*
     ]
     /* CompoundIdentifier() can read statements like FOO.X, SimpleIdentifier()
@@ -3007,7 +2991,7 @@ SqlNode SqlUpdate() :
         return new SqlUpdate(s.addAll(targetColumnList)
             .addAll(sourceExpressionList).addIf(condition).pos(), table,
             targetColumnList, sourceExpressionList, condition, null, alias,
-            sourceTables, sourceAliases);
+            sourceTables);
     }
 }
 
