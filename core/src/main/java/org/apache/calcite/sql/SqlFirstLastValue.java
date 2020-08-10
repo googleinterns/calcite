@@ -38,9 +38,9 @@ public class SqlFirstLastValue extends SqlCall implements SqlExecutableStatement
    * Creates a {@code SqlFirstLastOption}.
    *
    * @param pos  Parser position, must not be null
-   * @param first Whether or not this is the FIRST_VALUE or LAST_VALUE
-   * @param value The value which is being used
-   * @param nullOption If the nulls should be ignored or respected, may be null
+   * @param first  Whether or not this is the FIRST_VALUE or LAST_VALUE
+   * @param value  The value which is being used
+   * @param nullOption  If the nulls should be ignored or respected, may be null
    */
   public SqlFirstLastValue(SqlParserPos pos, boolean first, SqlNode value,
       NullOption nullOption) {

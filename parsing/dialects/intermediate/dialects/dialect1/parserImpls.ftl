@@ -5517,8 +5517,7 @@ SqlCall FirstLastValue() :
     final SqlNode value;
     NullOption nullOption = null;
     final SqlNode over;
-    final SqlNode window;
-    final SqlCall call;
+    final SqlFirstLastValue firstLastValueCall;
 }
 {
     (
@@ -5546,11 +5545,13 @@ SqlCall FirstLastValue() :
     ]
     <RPAREN>
     {
-        call = new SqlFirstLastValue(getPos(), first, value, nullOption);
+        firstLastValueCall =
+            new SqlFirstLastValue(getPos(), first, value, nullOption);
     }
     <OVER>
     over = WindowSpecification()
     {
-        return SqlStdOperatorTable.OVER.createCall(getPos(), call, over);
+        return SqlStdOperatorTable.OVER.createCall(getPos(),
+            firstLastValueCall, over);
     }
 }
