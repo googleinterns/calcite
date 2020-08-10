@@ -4087,6 +4087,14 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCaretNegationIsIn() {
+    String sql = "select * from emp where deptno is ^ in (10, 20)";
+    String expected = "SELECT *\n"
+        + "FROM `EMP`\n"
+        + "WHERE (`DEPTNO` NOT IN (10, 20))";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCaretNegationLike() {
     String sql = "select * from emp where deptno ^ LIKE 10";
     String expected = "SELECT *\n"
@@ -4140,6 +4148,40 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     String expected = "SELECT *\n"
         + "FROM `FOO`\n"
         + "WHERE (`A` < 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIsInLiteral() {
+    String sql = "select * from foo where a is in (1, 2, 3)";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` IN (1, 2, 3))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIsInExpression() {
+    String sql = "select * from foo where a is in (select a from bar)";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` IN (SELECT `A`\n"
+        + "FROM `BAR`))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIsNotInLiteral() {
+    String sql = "select * from foo where a is not in (1, 2, 3)";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` NOT IN (1, 2, 3))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIsNotInExpression() {
+    String sql = "select * from foo where a is not in (select a from bar)";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` NOT IN (SELECT `A`\n"
+        + "FROM `BAR`))";
     sql(sql).ok(expected);
   }
 
