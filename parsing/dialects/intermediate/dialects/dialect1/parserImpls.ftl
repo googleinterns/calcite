@@ -2949,6 +2949,7 @@ SqlNode SqlUpdate() :
     SqlIdentifier id;
     SqlNode exp;
     final Span s;
+    SqlNode e;
 }
 {
     (
@@ -2974,11 +2975,15 @@ SqlNode SqlUpdate() :
                 sourceTables = new SqlNodeList(s.pos());
                 sourceAliases = new SqlNodeList(s.pos());
             }
-            SourceTableAndAlias(sourceTables, sourceAliases)
+            e = TableRef() {
+                sourceTables.add(e);
+            }
         )
         (
             <COMMA>
-            SourceTableAndAlias(sourceTables, sourceAliases)
+            e = TableRef() {
+                sourceTables.add(e);
+            }
         )*
     ]
     /* CompoundIdentifier() can read statements like FOO.X, SimpleIdentifier()
