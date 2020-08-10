@@ -4653,11 +4653,11 @@ SqlNode CreateProcedureStmt() :
     |
         e = LeaveStmt()
     |
+        e = SetStmt()
+    |
         e = SqlBeginEndCall()
     |
         e = SqlBeginRequestCall()
-    |
-        e = SetStmt()
     |
         e = SqlStmt()
     )
