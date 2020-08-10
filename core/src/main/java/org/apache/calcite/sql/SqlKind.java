@@ -670,6 +670,11 @@ public enum SqlKind {
   SELECT_INTO,
 
   /**
+   * DECLARE HANDLER call in a BEGIN...END statement.
+   */
+  DECLARE_HANDLER,
+
+  /**
    * Special functions in MATCH_RECOGNIZE.
    */
   FINAL,

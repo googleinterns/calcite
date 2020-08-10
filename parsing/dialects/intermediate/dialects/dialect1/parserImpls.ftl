@@ -3173,13 +3173,14 @@ List<Object> Expression2(ExprContext exprContext) :
             (
                 // Special case for "IN", because RHS of "IN" is the only place
                 // that an expression-list is allowed ("exp IN (exp1, exp2)").
-                LOOKAHEAD(2) {
+                LOOKAHEAD(3) {
                     checkNonQueryExpression(exprContext);
                 }
                 (
-                    ( <NOT> | <CARET> ) <IN> { op = SqlStdOperatorTable.NOT_IN; }
+                    [ <IS> ] ( <NOT> | <CARET> ) <IN>
+                    { op = SqlStdOperatorTable.NOT_IN; }
                 |
-                    <IN> { op = SqlStdOperatorTable.IN; }
+                    [ <IS> ] <IN> { op = SqlStdOperatorTable.IN; }
                 |
                     { final SqlKind k; }
                     k = comp()
@@ -4772,7 +4773,13 @@ SqlBeginEndCall SqlBeginEndCall() :
         LOOKAHEAD(LocalDeclaration())
         e = LocalDeclaration() { statements.add(e); }
     )*
-    ( e = SqlDeclareCursor() { statements.add(e); } )*
+    (
+        // LOOKAHEAD ensures statement should not be parsed by
+        // SqlDeclareHandler() instead.
+        LOOKAHEAD(3)
+        e = SqlDeclareCursor() { statements.add(e); }
+    )*
+    ( e = SqlDeclareHandler() { statements.add(e); } )*
     [ CreateProcedureStmtList(statements) ]
     <END>
     [ endLabel = SimpleIdentifier() ]
@@ -5539,6 +5546,88 @@ SqlGetDiagnosticsParam SqlGetDiagnosticsParam() :
     <EQ>
     value = SimpleIdentifier()
     { return new SqlGetDiagnosticsParam(s.end(this), name, value); }
+}
+
+SqlDeclareHandler SqlDeclareHandler() :
+{
+    final HandlerType handlerType;
+    SqlIdentifier conditionName = null;
+    final SqlNodeList parameters = new SqlNodeList(getPos());
+    SqlNode handlerStatement = null;
+    final Span s = Span.of();
+    SqlNode e;
+}
+{
+    <DECLARE>
+    (
+        (
+            <CONTINUE> { handlerType = HandlerType.CONTINUE; }
+        |
+            <EXIT> { handlerType = HandlerType.EXIT; }
+        )
+        <HANDLER>
+    |
+        conditionName = SimpleIdentifier()
+        <CONDITION>
+        { handlerType = HandlerType.CONDITION; }
+    )
+    [
+        <FOR>
+        (
+            e = SqlState() { parameters.add(e); }
+            ( <COMMA> e = SqlState() { parameters.add(e); })*
+            [ handlerStatement = CreateProcedureStmt() ]
+        |
+            e = DeclareHandlerCondition() { parameters.add(e); }
+            ( <COMMA> e = DeclareHandlerCondition() { parameters.add(e); })*
+            handlerStatement = CreateProcedureStmt()
+        )
+    ]
+    <SEMICOLON>
+    {
+        return new SqlDeclareHandler(s.end(this), handlerType, conditionName,
+            parameters, handlerStatement);
+    }
+}
+
+SqlState SqlState() :
+{
+    final Span s = Span.of();
+    final String value;
+}
+{
+    <SQLSTATE>
+    [ <VALUE> ]
+    <QUOTED_STRING> {
+        value = SqlParserUtil.parseString(token.image);
+        if (value.length() != 5) {
+            throw SqlUtil.newContextException(getPos(),
+                RESOURCE.sqlStateCharLength(value));
+        }
+    }
+    { return new SqlState(value, s.end(this)); }
+}
+
+SqlIdentifier DeclareHandlerCondition() :
+{
+    final Span s = Span.of();
+    final DeclareHandlerConditionType conditionType;
+    final SqlIdentifier condition;
+}
+{
+    (
+        (
+            <SQLEXCEPTION> { conditionType = DeclareHandlerConditionType.SQLEXCEPTION; }
+        |
+            <SQLWARNING> { conditionType = DeclareHandlerConditionType.SQLWARNING; }
+        |
+            <NOT> <FOUND> { conditionType = DeclareHandlerConditionType.NOT_FOUND; }
+        )
+        { condition = new SqlDeclareHandlerCondition(s.end(this), conditionType); }
+    |
+        condition = SimpleIdentifier()
+    )
+    { return condition; }
 }
 
 SqlLeaveStmt LeaveStmt() :
