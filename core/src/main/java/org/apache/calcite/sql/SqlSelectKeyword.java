@@ -24,7 +24,8 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 public enum SqlSelectKeyword {
   DISTINCT,
   ALL,
-  STREAM;
+  STREAM,
+  UNSPECIFIED;
 
   /**
    * Creates a parse-tree node representing an occurrence of this keyword

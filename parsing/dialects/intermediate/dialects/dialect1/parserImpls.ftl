@@ -5514,7 +5514,7 @@ SqlGetDiagnosticsParam SqlGetDiagnosticsParam() :
 
 SqlSelectInto SqlSelectInto() :
 {
-    SqlSelectKeyword selectKeyword = null;
+    SqlSelectKeyword selectKeyword = SqlSelectKeyword.UNSPECIFIED;
     final List<SqlNode> selectList;
     final SqlNodeList parameters = new SqlNodeList(getPos());
     SqlNode fromClause = null;

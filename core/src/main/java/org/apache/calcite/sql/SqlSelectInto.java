@@ -68,15 +68,13 @@ public class SqlSelectInto extends SqlCall {
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     writer.keyword("SELECT");
-    if (selectKeyword != null) {
-      switch (selectKeyword) {
-      case ALL:
-      case DISTINCT:
-        writer.keyword(selectKeyword.toString());
-        break;
-      default:
-        break;
-      }
+    switch (selectKeyword) {
+    case ALL:
+    case DISTINCT:
+      writer.keyword(selectKeyword.toString());
+      break;
+    default:
+      break;
     }
     selectList.unparse(writer, 0, 0);
     writer.setNeedWhitespace(true);
