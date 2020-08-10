@@ -47,7 +47,7 @@ public class SqlFirstLastValue extends SqlCall implements SqlExecutableStatement
     super(pos);
     this.first = first;
     this.value = Objects.requireNonNull(value);
-    this.nullOption = nullOption;
+    this.nullOption = Objects.requireNonNull(nullOption);
   }
 
   @Override public SqlOperator getOperator() {
