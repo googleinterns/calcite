@@ -5351,6 +5351,9 @@ SqlIterationStmt IterationStmt() :
 {
     (
         LOOKAHEAD(3)
+        e = ForStmt()
+    |
+        LOOKAHEAD(3)
         e = LoopStmt()
     |
         LOOKAHEAD(3)
@@ -5359,6 +5362,45 @@ SqlIterationStmt IterationStmt() :
         e = WhileStmt()
     )
     { return e; }
+}
+
+SqlForStmt ForStmt() :
+{
+    final SqlIdentifier beginLabel;
+    final SqlIdentifier endLabel;
+    final SqlIdentifier forLoopVariable;
+    final SqlIdentifier cursorName;
+    final SqlNode cursorSpecification;
+    final SqlStatementList statements = new SqlStatementList(getPos());
+    final Span s = Span.of();
+}
+{
+    (
+        beginLabel = SimpleIdentifier() <COLON>
+    |
+        { beginLabel = null; }
+    )
+    <FOR> forLoopVariable = SimpleIdentifier()
+    <AS>
+    (
+        cursorName = SimpleIdentifier()
+        <CURSOR> <FOR>
+    |
+        { cursorName = null; }
+    )
+    cursorSpecification = SqlSelect()
+    <DO>
+    CreateProcedureStmtList(statements)
+    <END> <FOR>
+    (
+        endLabel = SimpleIdentifier()
+    |
+        { endLabel = null; }
+    )
+    {
+        return new SqlForStmt(s.end(this), statements, beginLabel, endLabel,
+            forLoopVariable, cursorName, cursorSpecification);
+    }
 }
 
 SqlWhileStmt WhileStmt() :
