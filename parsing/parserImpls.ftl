@@ -1178,8 +1178,7 @@ SqlNode SqlUpdate() :
     {
         return new SqlUpdate(s.addAll(targetColumnList)
             .addAll(sourceExpressionList).addIf(condition).pos(), table,
-            targetColumnList, sourceExpressionList, condition, null, alias,
-            null, null);
+            targetColumnList, sourceExpressionList, condition, null, alias);
     }
 }
 
@@ -1248,8 +1247,7 @@ SqlUpdate WhenMatchedClause(SqlNode table, SqlIdentifier alias) :
     )*
     {
         return new SqlUpdate(s.addAll(updateExprList).pos(), table,
-            updateColumnList, updateExprList, null, null, alias,
-            /*secondTable=*/ null, /*secondAlias=*/ null);
+            updateColumnList, updateExprList, null, null, alias);
     }
 }
 

@@ -84,7 +84,7 @@ public class SqlUpdate extends SqlCall {
 
   public List<SqlNode> getOperandList() {
     return ImmutableNullableList.of(targetTable, targetColumnList,
-        sourceExpressionList, condition, alias, sourceTables, sourceAliases);
+        sourceExpressionList, condition, alias, sourceTables);
   }
 
   @Override public void setOperand(int i, SqlNode operand) {
@@ -110,9 +110,6 @@ public class SqlUpdate extends SqlCall {
       break;
     case 6:
       sourceTables = (SqlNodeList) operand;
-      break;
-    case 7:
-      sourceAliases = (SqlNodeList) operand;
       break;
     default:
       throw new AssertionError(i);
