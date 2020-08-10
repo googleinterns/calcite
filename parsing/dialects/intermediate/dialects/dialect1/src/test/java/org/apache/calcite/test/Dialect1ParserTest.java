@@ -4087,6 +4087,14 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testCaretNegationIsIn() {
+    String sql = "select * from emp where deptno is ^ in (10, 20)";
+    String expected = "SELECT *\n"
+        + "FROM `EMP`\n"
+        + "WHERE (`DEPTNO` NOT IN (10, 20))";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testCaretNegationLike() {
     String sql = "select * from emp where deptno ^ LIKE 10";
     String expected = "SELECT *\n"
@@ -4140,6 +4148,40 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     String expected = "SELECT *\n"
         + "FROM `FOO`\n"
         + "WHERE (`A` < 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIsInLiteral() {
+    String sql = "select * from foo where a is in (1, 2, 3)";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` IN (1, 2, 3))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIsInExpression() {
+    String sql = "select * from foo where a is in (select a from bar)";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` IN (SELECT `A`\n"
+        + "FROM `BAR`))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIsNotInLiteral() {
+    String sql = "select * from foo where a is not in (1, 2, 3)";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` NOT IN (1, 2, 3))";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIsNotInExpression() {
+    String sql = "select * from foo where a is not in (select a from bar)";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "WHERE (`A` NOT IN (SELECT `A`\n"
+        + "FROM `BAR`))";
     sql(sql).ok(expected);
   }
 
@@ -5645,6 +5687,71 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testForStmtBaseCase() {
+    final String sql = "create procedure foo (bar integer) "
+        + "for abc as select column1 from table1 "
+        + "do "
+        + "select bee; "
+        + "end for";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "FOR `ABC` AS SELECT `COLUMN1`\n"
+            + "FROM `TABLE1` DO SELECT `BEE`;\n"
+            + "END FOR";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testForStmtWithLabel() {
+    final String sql = "create procedure foo (bar integer) "
+        + "label1: "
+        + "for abc as select column1 from table1 "
+        + "do "
+        + "select bee; "
+        + "end for "
+        + "label1";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "`LABEL1` : FOR `ABC` AS SELECT `COLUMN1`\n"
+            + "FROM `TABLE1` DO SELECT `BEE`;\n"
+            + "END FOR `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testForStmtWithCursorName() {
+    final String sql = "create procedure foo (bar integer) "
+        + "for abc as cde cursor for select column1 from table1 "
+        + "do "
+        + "select bee; "
+        + "end for";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "FOR `ABC` AS `CDE` CURSOR FOR SELECT `COLUMN1`\n"
+            + "FROM `TABLE1` DO SELECT `BEE`;\n"
+            + "END FOR";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testForStmtNested() {
+    final String sql = "create procedure foo (bar integer) "
+        + "for abc as select column1 from table1 "
+        + "do "
+        + "select bee; "
+        + "for efg as select column2, column3 from table2 "
+        + "do "
+        + "select baz; "
+        + "end for; "
+        + "end for";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "FOR `ABC` AS SELECT `COLUMN1`\n"
+            + "FROM `TABLE1` DO SELECT `BEE`;\n"
+            + "FOR `EFG` AS SELECT `COLUMN2`, `COLUMN3`\n"
+            + "FROM `TABLE2` DO SELECT `BAZ`;\n"
+            + "END FOR;\n"
+            + "END FOR";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testGetDiagnostics() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -5838,6 +5945,65 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "INSERT INTO `FOO`\n"
         + "(SELECT *\nFROM `BAR`);\n"
         + "END";
+        sql(sql).ok(expected);
+  }
+
+  @Test public void testLeaveStmtInBeginEndClause() {
+    final String sql = "create procedure foo ()\n"
+        + "label1: begin\n"
+        + "leave label1;\n"
+        + "end label1";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "`LABEL1`: BEGIN\n"
+        + "LEAVE `LABEL1`;\n"
+        + "END `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLeaveStmtInIterationStmt() {
+    final String sql = "create procedure foo (bar integer) "
+        + "label1: "
+        + "while bar = 1 do "
+        + "leave label1; "
+        + "end while "
+        + "label1";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "`LABEL1` : WHILE (`BAR` = 1) DO LEAVE `LABEL1`;\n"
+            + "END WHILE `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testIterateStmtInIterationStmt() {
+    final String sql = "create procedure foo (bar integer) "
+        + "label1: "
+        + "while bar = 1 do "
+        + "iterate label1; "
+        + "end while "
+        + "label1";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "`LABEL1` : WHILE (`BAR` = 1) DO ITERATE `LABEL1`;\n"
+            + "END WHILE `LABEL1`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLeaveStmtInNestedWhileStmt() {
+    final String sql = "create procedure foo (bar integer) "
+        + "label1: while bar = 1 do "
+        + "select bee; "
+        + "label2: while abc = 2 do "
+        + "select cde; "
+        + "leave label1;"
+        + "end while label2; "
+        + "end while label1";
+    final String expected =
+        "CREATE PROCEDURE `FOO` (IN `BAR` INTEGER)\n"
+            + "`LABEL1` : WHILE (`BAR` = 1) DO SELECT `BEE`;\n"
+            + "`LABEL2` : WHILE (`ABC` = 2) DO SELECT `CDE`;\n"
+            + "LEAVE `LABEL1`;\n"
+            + "END WHILE `LABEL2`;\n"
+            + "END WHILE `LABEL1`";
     sql(sql).ok(expected);
   }
 }
