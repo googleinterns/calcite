@@ -178,16 +178,9 @@ public class BigQuerySqlDialect extends SqlDialect {
     if (updateCall.getSourceTables() != null) {
       writer.keyword("FROM");
       final SqlWriter.Frame fromFrame = writer.startList("", "");
-      for (Pair<SqlNode, SqlNode> pair
-          : Pair.zip(updateCall.getSourceTables(), updateCall.getSourceAliases())) {
+      for (SqlNode sourceTable : updateCall.getSourceTables()) {
         writer.sep(",");
-        SqlNode sourceTable = pair.left;
         sourceTable.unparse(writer, opLeft, opRight);
-        SqlNode sourceAlias = pair.right;
-        if (sourceAlias != null) {
-          writer.keyword("AS");
-          sourceAlias.unparse(writer, opLeft, opRight);
-        }
       }
       writer.endList(fromFrame);
     }
