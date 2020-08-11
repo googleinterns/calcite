@@ -2641,36 +2641,59 @@ SqlNode JoinClause(SqlNode e) :
     )
 }
 
+/**
+ * Parses either a table reference, or a parenthesized table reference.
+ * Due to deficiencies of JavaCC's nested syntactic LOOKAHEADs, only simple
+ * parenthesized table references (those parsable by {@code
+ * TableRefWithHintsOpt}) are supported. When the syntactic LOOKAHEAD issues
+ * are resolved, this function can be rewritten using {@code TableRef2} inside
+ * the LOOKAHEAD in order to enable broader support for parenthesized table
+ * references.
+ */
 SqlNode OptionallyParenthesizedTableRef(boolean lateral) :
 {
     final SqlNode tableRef;
 }
 {
     (
-        LOOKAHEAD( <LPAREN> TableRef2(lateral) <RPAREN> )
+        LOOKAHEAD( <LPAREN> TableRefWithHintsOpt() <RPAREN> )
         <LPAREN>
-        tableRef = TableRef2(lateral)
+        tableRef = TableRefWithHintsOpt()
         <RPAREN>
     |
-
         tableRef = TableRef2(lateral)
-
     )
     { return tableRef; }
 }
 
+/**
+ * Parses either a FROM clause, or a parenthesized FROM clause.
+ * Due to deficiencies of JavaCC's nested syntactic LOOKAHEADs, parsing will
+ * fail if a parenthesized FROM clause begins with anything other than a simple
+ * parenthesized or unparenthesized table reference (parsable by {@code
+ * TableRefWithHintsOpt}). When the syntactic LOOKAHEAD issues are resolved, the
+ * LOOKAHEADS can be rewritten to use {@code FromClause()} directly in order to
+ * provide support for a broader range of syntaxes.
+ */
 SqlNode OptionallyParenthesizedFromClause() :
 {
     final SqlNode fromClause;
 }
 {
     (
-        LOOKAHEAD( FromClause() )
-        fromClause = FromClause()
+        LOOKAHEAD( <LPAREN> ( TableRefWithHintsOpt() | <LPAREN>
+            TableRefWithHintsOpt() <RPAREN> ) )
+        (
+            LOOKAHEAD( <LPAREN> ( TableRefWithHintsOpt() | <LPAREN>
+                TableRefWithHintsOpt() <RPAREN> ) <RPAREN> )
+            fromClause = FromClause()
+        |
+            <LPAREN>
+            fromClause = FromClause()
+            <RPAREN>
+        )
     |
-        <LPAREN>
         fromClause = FromClause()
-        <RPAREN>
     )
     { return fromClause; }
 }
@@ -2747,7 +2770,7 @@ SqlNode FromClause() :
             }
         |
             <OUTER> { joinType = JoinType.LEFT.symbol(getPos()); } <APPLY>
-            e2 =OptionallyParenthesizedTableRef(true) {
+            e2 = OptionallyParenthesizedTableRef(true) {
                 if (!this.conformance.isApplyAllowed()) {
                     throw SqlUtil.newContextException(getPos(), RESOURCE.applyNotAllowed());
                 }
@@ -2937,7 +2960,13 @@ SqlNode SqlUpdate() :
 }
 
 /**
- * Parses either a table reference or a nested JOIN clause.
+ * Parses either a nested JOIN clause or an optionally parenthesized table
+ * reference. Due to deficiencies of JavaCC's nested syntactic LOOKAHEADs,
+ * parenthesized table references can only contain simple table references
+ * (parsable by {@code TableRefWithHintsOpt}). When the syntactic LOOKAHEAD
+ * issues are resolved, the {@code TableRefWithHintsOpt} inside the
+ * LOOKAHEAD can be rewritten to use {@code TableRef()} directly in order to
+ * provide support for a broader range of syntaxes.
  */
 SqlNode TableRefOrJoinClause() :
 {
@@ -2945,13 +2974,18 @@ SqlNode TableRefOrJoinClause() :
 }
 {
     (
-        LOOKAHEAD(<LPAREN> OptionallyParenthesizedTableRef(false) Natural() JoinType())
+        LOOKAHEAD( <LPAREN> TableRefWithHintsOpt() <RPAREN> )
         <LPAREN>
-        e = OptionallyParenthesizedTableRef(false)
+        e = TableRef()
+        <RPAREN>
+    |
+        LOOKAHEAD(<LPAREN> TableRef() Natural() JoinType())
+        <LPAREN>
+        e = TableRef()
         e = JoinClause(e)
         <RPAREN>
     |
-        e = OptionallyParenthesizedTableRef(false)
+        e = TableRef()
     )
     { return e; }
 }
