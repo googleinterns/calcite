@@ -2658,7 +2658,7 @@ SqlNode OptionallyParenthesizedTableRef(boolean lateral) :
     (
         LOOKAHEAD( <LPAREN> TableRefWithHintsOpt() <RPAREN> )
         <LPAREN>
-        tableRef = TableRefWithHintsOpt()
+        tableRef = TableRef2(lateral)
         <RPAREN>
     |
         tableRef = TableRef2(lateral)
