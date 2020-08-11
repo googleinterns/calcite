@@ -3093,7 +3093,8 @@ SqlBinaryOperator BinaryRowOperator() :
             return SqlStdOperatorTable.PERCENT_REMAINDER;
         }
     |
-        <CONCAT> { return SqlStdOperatorTable.CONCAT; }
+        ( <CONCAT> | <CONCAT_BROKEN_BAR> )
+        { return SqlStdOperatorTable.CONCAT; }
     |
         <AND> { return SqlStdOperatorTable.AND; }
     |
@@ -4655,6 +4656,8 @@ SqlNode CreateProcedureStmt() :
     |
         e = LeaveStmt()
     |
+        e = SetStmt()
+    |
         e = SqlBeginEndCall()
     |
         e = SqlBeginRequestCall()
@@ -5693,6 +5696,20 @@ SqlIterateStmt IterateStmt() :
 {
     <ITERATE> label = SimpleIdentifier()
     { return new SqlIterateStmt(getPos(), label); }
+}
+
+SqlSetStmt SetStmt() :
+{
+    final SqlIdentifier target;
+    final SqlNode source;
+    final Span s = Span.of();
+}
+{
+    <SET>
+    target = SimpleIdentifier()
+    <EQ>
+    source = Expression(ExprContext.ACCEPT_NON_QUERY)
+    { return new SqlSetStmt(s.end(this), target, source); }
 }
 
 SqlSelectInto SqlSelectInto() :

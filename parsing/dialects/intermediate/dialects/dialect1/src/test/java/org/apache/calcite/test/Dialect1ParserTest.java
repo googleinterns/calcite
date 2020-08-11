@@ -6039,6 +6039,30 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testSetStmtSourceIsSqlIdentifier() {
+    final String sql = "create procedure foo () "
+        + "set abc = cde";
+    final String expected =
+        "CREATE PROCEDURE `FOO` ()\n"
+            + "SET `ABC` = `CDE`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSetStmtSourceIsExpression() {
+    final String sql = "create procedure foo () "
+        + "set abc = abc + 1";
+    final String expected =
+        "CREATE PROCEDURE `FOO` ()\n"
+            + "SET `ABC` = (`ABC` + 1)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testConcatBrokenBar() {
+    final String sql = "'hello' ¦¦ abc";
+    final String expected = "('hello' || `ABC`)";
+    expr(sql).ok(expected);
+  }
+
   @Test public void testSelectInto() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"

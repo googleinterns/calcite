@@ -144,6 +144,7 @@ data: {
       "org.apache.calcite.sql.SqlSelectAndConsume",
       "org.apache.calcite.sql.SqlSelectInto",
       "org.apache.calcite.sql.SqlSelectTopN",
+      "org.apache.calcite.sql.SqlSetStmt",
       "org.apache.calcite.sql.SqlSetTimeZone",
       "org.apache.calcite.sql.SqlState",
       "org.apache.calcite.sql.SqlStatementList",
