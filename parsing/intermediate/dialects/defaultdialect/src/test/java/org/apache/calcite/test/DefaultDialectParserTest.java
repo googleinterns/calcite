@@ -47,13 +47,5 @@ final class DefaultDialectParserTest extends SqlDialectParserTest {
     // <table-name> may not occur within parentheses.
     sql("select * from (^emp^) as x")
         .fails("(?s)Non-query expression encountered in illegal context.*");
-
-    // Parentheses around JOINs are OK, and sometimes necessary.
-    if (false) {
-      // todo:
-      sql("select * from (emp join dept using (deptno))").ok("xx");
-
-      sql("select * from (emp join dept using (deptno)) join foo using (x)").ok("xx");
-    }
   }
 }
