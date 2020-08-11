@@ -5804,14 +5804,14 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testFirstValue() {
     final String sql = "SELECT FIRST_VALUE (foo) OVER (PARTITION BY (foo)) FROM bar";
-    final String expected = "SELECT (FIRST_VALUE (`FOO`) OVER (PARTITION BY `FOO`))\n"
+    final String expected = "SELECT (FIRST_VALUE(`FOO`) OVER (PARTITION BY `FOO`))\n"
         + "FROM `BAR`";
     sql(sql).ok(expected);
   }
 
   @Test public void testLastValue() {
     final String sql = "SELECT LAST_VALUE (foo) OVER (PARTITION BY (foo)) FROM bar";
-    final String expected = "SELECT (LAST_VALUE (`FOO`) OVER (PARTITION BY `FOO`))\n"
+    final String expected = "SELECT (LAST_VALUE(`FOO`) OVER (PARTITION BY `FOO`))\n"
         + "FROM `BAR`";
     sql(sql).ok(expected);
   }
@@ -5819,7 +5819,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testFirstValueIgnoreNulls() {
     final String sql = "SELECT FIRST_VALUE (foo IGNORE NULLS) OVER"
         + " (PARTITION BY (foo)) FROM bar";
-    final String expected = "SELECT (FIRST_VALUE (`FOO` IGNORE NULLS) OVER"
+    final String expected = "SELECT (FIRST_VALUE(`FOO` IGNORE NULLS) OVER"
         + " (PARTITION BY `FOO`))\n"
         + "FROM `BAR`";
     sql(sql).ok(expected);
@@ -5828,7 +5828,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testFirstValueRespectNulls() {
     final String sql = "SELECT FIRST_VALUE (foo RESPECT NULLS) OVER"
         + " (PARTITION BY (foo)) FROM bar";
-    final String expected = "SELECT (FIRST_VALUE (`FOO` RESPECT NULLS) OVER"
+    final String expected = "SELECT (FIRST_VALUE(`FOO` RESPECT NULLS) OVER"
         + " (PARTITION BY `FOO`))\n"
         + "FROM `BAR`";
     sql(sql).ok(expected);

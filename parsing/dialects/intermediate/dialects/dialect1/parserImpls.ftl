@@ -5556,10 +5556,10 @@ SqlGetDiagnosticsParam SqlGetDiagnosticsParam() :
 SqlCall FirstLastValue() :
 {
     final boolean first;
-    final SqlNode value;
-    NullOption nullOption = NullOption.UNSPECIFIED;
+    SqlNode value;
     final SqlNode over;
-    final SqlFirstLastValue firstLastValueCall;
+    SqlCall firstLastCall;
+    final SqlCall nullTreatmentCall;
 }
 {
     (
@@ -5574,28 +5574,40 @@ SqlCall FirstLastValue() :
     <LPAREN>
     value = CompoundIdentifier()
     [
-        (
-            <IGNORE> {
-                nullOption = NullOption.IGNORE;
-            }
-        |
-            <RESPECT> {
-                nullOption = NullOption.RESPECT;
-            }
-        )
-        <NULLS>
+        value = nullTreatmentSqlNode(value)
     ]
-    <RPAREN>
     {
-        firstLastValueCall =
-            new SqlFirstLastValue(getPos(), first, value, nullOption);
+        if (first) {
+            firstLastCall = SqlStdOperatorTable.FIRST_VALUE.createCall(getPos(), value);
+        } else {
+            firstLastCall = SqlStdOperatorTable.LAST_VALUE.createCall(getPos(), value);
+        }
     }
+    <RPAREN>
     <OVER>
     over = WindowSpecification()
     {
         return SqlStdOperatorTable.OVER.createCall(getPos(),
-            firstLastValueCall, over);
+            firstLastCall, over);
     }
+}
+
+SqlCall nullTreatmentSqlNode(SqlNode value) :
+{
+    final Span span;
+}
+{
+    (
+        <IGNORE> { span = span(); } <NULLS> {
+            return SqlStdOperatorTable.IGNORE_NULLS.createCall(
+                span.end(this), value);
+        }
+    |
+        <RESPECT> { span = span(); } <NULLS> {
+            return SqlStdOperatorTable.RESPECT_NULLS.createCall(
+                span.end(this), value);
+        }
+    )
 }
 
 SqlDeclareHandler SqlDeclareHandler() :
