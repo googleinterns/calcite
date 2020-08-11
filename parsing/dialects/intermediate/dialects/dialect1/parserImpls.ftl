@@ -5548,9 +5548,9 @@ SqlNode SignalConditionOrSqlState() :
 }
 {
     (
-        e = SqlState()
-    |
         e = SimpleIdentifier()
+    |
+        e = SqlState()
     )
     { return e; }
 }
