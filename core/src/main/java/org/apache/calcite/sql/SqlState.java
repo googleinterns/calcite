@@ -19,19 +19,22 @@ package org.apache.calcite.sql;
 import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
- * Defines the keywords which can occur immediately after the "SELECT" keyword.
+ * Parse tree for {@code SqlState}. This class represents a SQLSTATE value.
  */
-public enum SqlSelectKeyword {
-  DISTINCT,
-  ALL,
-  STREAM,
-  UNSPECIFIED;
+public class SqlState extends SqlIdentifier {
 
   /**
-   * Creates a parse-tree node representing an occurrence of this keyword
-   * at a particular position in the parsed text.
+   * Creates an instance of {@code SqlState}.
+   *
+   * @param value A SQLSTATE value, must not be null
+   * @param pos Parser position, must not be null
    */
-  public SqlLiteral symbol(SqlParserPos pos) {
-    return SqlLiteral.createSymbol(this, pos);
+  public SqlState(String value, SqlParserPos pos) {
+    super(value, pos);
+  }
+
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
+    writer.keyword("SQLSTATE");
+    writer.literal("'" + getSimple() + "'");
   }
 }
