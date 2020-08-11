@@ -17,44 +17,49 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.util.ImmutableNullableList;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
- * Parse tree for a {@code SqlWhileStmt}.
+ * Parse tree for a {@code SqlSetStmt}.
  */
-public class SqlWhileStmt extends SqlIterationStmt {
+public class SqlSetStmt extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("WHILE", SqlKind.WHILE_STATEMENT);
+      new SqlSpecialOperator("SET", SqlKind.SET_STATEMENT);
+
+  public final SqlIdentifier target;
+  public final SqlNode source;
 
   /**
-   * Creates a {@code SqlWhileStmt}.
+   * Creates a {@code SqlSetStmt}.
    *
-   * @param pos         Parser position, must not be null.
-   * @param condition   Conditional expression, must not be null.
-   * @param statements  List of statements to iterate, must not be null.
-   * @param beginLabel  Optional begin label, must match end label if not null.
-   * @param endLabel    Optional end label, must match begin label if not null.
+   * @param pos     Parser position, must not be null.
+   * @param target  The name of the variable or parameter to be assigned a
+   *                value, cannot be null.
+   * @param source  The value to be assigned to target, cannot be null.
    */
-  public SqlWhileStmt(final SqlParserPos pos, final SqlNode condition,
-      final SqlStatementList statements, final SqlIdentifier beginLabel,
-      final SqlIdentifier endLabel) {
-    super(pos, Objects.requireNonNull(condition), statements, beginLabel,
-        endLabel);
+  public SqlSetStmt(final SqlParserPos pos, final SqlIdentifier target,
+      final SqlNode source) {
+    super(pos);
+    this.target = Objects.requireNonNull(target);
+    this.source = Objects.requireNonNull(source);
   }
 
   @Override public SqlOperator getOperator() {
     return OPERATOR;
   }
 
+  @Override public List<SqlNode> getOperandList() {
+    return ImmutableNullableList.of(target, source);
+  }
+
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
-    unparseBeginLabel(writer, leftPrec, rightPrec);
-    writer.keyword("WHILE");
-    condition.unparse(writer, leftPrec, rightPrec);
-    writer.keyword("DO");
-    statements.unparse(writer, leftPrec, rightPrec);
-    writer.keyword("END WHILE");
-    unparseEndLabel(writer, leftPrec, rightPrec);
+    writer.keyword("SET");
+    target.unparse(writer, leftPrec, rightPrec);
+    writer.keyword("=");
+    source.unparse(writer, leftPrec, rightPrec);
   }
 }

@@ -76,12 +76,13 @@ public class SqlDeclareHandler extends SqlCall {
       writer.keyword("CONDITION");
       break;
     }
-    if (!SqlNodeList.isEmptyList(parameters)) {
-      writer.keyword("FOR");
-      parameters.unparse(writer, 0, 0);
-      if (handlerStatement != null) {
-        handlerStatement.unparse(writer, 0, 0);
-      }
+    if (SqlNodeList.isEmptyList(parameters)) {
+      return;
+    }
+    writer.keyword("FOR");
+    parameters.unparse(writer, 0, 0);
+    if (handlerStatement != null) {
+      handlerStatement.unparse(writer, 0, 0);
     }
   }
 

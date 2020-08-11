@@ -17,44 +17,68 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.util.ImmutableNullableList;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
- * Parse tree for a {@code SqlWhileStmt}.
+ * Parse tree for a {@code SqlForStmt}.
  */
-public class SqlWhileStmt extends SqlIterationStmt {
+public class SqlForStmt extends SqlIterationStmt {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("WHILE", SqlKind.WHILE_STATEMENT);
+      new SqlSpecialOperator("FOR", SqlKind.FOR_STATEMENT);
+
+  public final SqlIdentifier loopVariable;
+  public final SqlIdentifier cursorName;
+  public final SqlNode cursorSpecification;
 
   /**
-   * Creates a {@code SqlWhileStmt}.
-   *
+   * Creates a {@code SqlForStmt}.
    * @param pos         Parser position, must not be null.
-   * @param condition   Conditional expression, must not be null.
    * @param statements  List of statements to iterate, must not be null.
    * @param beginLabel  Optional begin label, must match end label if not null.
    * @param endLabel    Optional end label, must match begin label if not null.
+   * @param loopVariable
+   *                    The name of the loop, must not be null.
+   * @param cursorName  The name of the cursor.
+   * @param cursorSpecification
+   *                    A single select statement used as the cursor, must not
+   *                    be null.
    */
-  public SqlWhileStmt(final SqlParserPos pos, final SqlNode condition,
+  public SqlForStmt(final SqlParserPos pos,
       final SqlStatementList statements, final SqlIdentifier beginLabel,
-      final SqlIdentifier endLabel) {
-    super(pos, Objects.requireNonNull(condition), statements, beginLabel,
-        endLabel);
+      final SqlIdentifier endLabel, final SqlIdentifier loopVariable,
+      final SqlIdentifier cursorName, final SqlNode cursorSpecification) {
+    super(pos, /*condition = */null, statements, beginLabel, endLabel);
+    this.loopVariable = Objects.requireNonNull(loopVariable);
+    this.cursorName = cursorName;
+    this.cursorSpecification = Objects.requireNonNull(cursorSpecification);
   }
 
   @Override public SqlOperator getOperator() {
     return OPERATOR;
   }
 
+  @Override public List<SqlNode> getOperandList() {
+    return ImmutableNullableList.of(statements, label, loopVariable,
+        cursorName, cursorSpecification);
+  }
+
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
       final int rightPrec) {
     unparseBeginLabel(writer, leftPrec, rightPrec);
-    writer.keyword("WHILE");
-    condition.unparse(writer, leftPrec, rightPrec);
+    writer.keyword("FOR");
+    loopVariable.unparse(writer, leftPrec, rightPrec);
+    writer.keyword("AS");
+    if (cursorName != null) {
+      cursorName.unparse(writer, leftPrec, rightPrec);
+      writer.keyword("CURSOR FOR");
+    }
+    cursorSpecification.unparse(writer, leftPrec, rightPrec);
     writer.keyword("DO");
     statements.unparse(writer, leftPrec, rightPrec);
-    writer.keyword("END WHILE");
+    writer.keyword("END FOR");
     unparseEndLabel(writer, leftPrec, rightPrec);
   }
 }

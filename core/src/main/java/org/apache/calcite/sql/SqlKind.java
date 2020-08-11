@@ -547,6 +547,9 @@ public enum SqlKind {
    */
   VALUES,
 
+  /** {@code FIRST_LAST_VALUE} expression. */
+  FIRST_LAST_VALUE,
+
   /**
    * Explicit table, e.g. <code>select * from (TABLE t)</code> or <code>TABLE
    * t</code>. See also {@link #COLLECTION_TABLE}.
@@ -635,6 +638,21 @@ public enum SqlKind {
   DECLARE_CURSOR,
 
   /**
+   * OPEN cursor call in BEGIN...END statement.
+   */
+  OPEN_CURSOR,
+
+  /**
+   * PREPARE statement call in BEGIN...END statement.
+   */
+  PREPARE_STATEMENT,
+
+  /**
+   * FETCH cursor call in a CREATE PROCEDURE statement.
+   */
+  FETCH_CURSOR,
+
+  /**
    * Update using cursor call in BEGIN...END statement.
    */
   UPDATE_USING_CURSOR,
@@ -643,6 +661,16 @@ public enum SqlKind {
    * SELECT AND CONSUME statement in a BEGIN...END statement.
    */
   SELECT_AND_CONSUME,
+
+  /**
+   * GET DIAGNOSTICS statement in a BEGIN...END statement.
+   */
+  GET_DIAGNOSTICS,
+
+  /**
+   * SELECT INTO statement in a BEGIN...END statement.
+   */
+  SELECT_INTO,
 
   /**
    * DECLARE HANDLER call in a BEGIN...END statement.
@@ -1269,8 +1297,26 @@ public enum SqlKind {
   /** {@code ITERATION STATEMENT} PL statement */
   ITERATION_STATEMENT,
 
+  /** {@code FOR STATEMENT} PL statement */
+  FOR_STATEMENT,
+
   /** {@code WHILE STATEMENT} PL statement */
   WHILE_STATEMENT,
+
+  /** {@code REPEAT STATEMENT} PL statement */
+  REPEAT_STATEMENT,
+
+  /** {@code LOOP STATEMENT} PL statement */
+  LOOP_STATEMENT,
+
+  /** {@code ITERATE STATEMENT} PL statement */
+  ITERATE_STATEMENT,
+
+  /** {@code LEAVE STATEMENT} PL statement */
+  LEAVE_STATEMENT,
+
+  /** {@code SET STATEMENT} PL statement */
+  SET_STATEMENT,
 
   /** DDL statement not handled above.
    *
