@@ -31,8 +31,7 @@ public class SqlSignal extends SqlCall {
 
   public final SignalType signalType;
   public final SqlNode conditionOrSqlState;
-  public final SqlIdentifier infoItem;
-  public final SqlNode infoItemValue;
+  public final SqlSetStmt setStmt;
 
   /**
    * Creates a {@code SqlSignal}.
@@ -40,17 +39,14 @@ public class SqlSignal extends SqlCall {
    * @param pos Parser position, must not be null
    * @param signalType Specifies if call is SIGNAL or RESIGNAL, must not be null
    * @param conditionOrSqlState A condition name or SQLSTATE value
-   * @param infoItem The condition info item in the SET clause
-   * @param infoItemValue The condition info item value in the SET clause
+   * @param setStmt The optional SET clause
    */
   public SqlSignal(SqlParserPos pos, SignalType signalType,
-      SqlNode conditionOrSqlState, SqlIdentifier infoItem,
-      SqlNode infoItemValue) {
+      SqlNode conditionOrSqlState, SqlSetStmt setStmt) {
     super(pos);
     this.signalType = Objects.requireNonNull(signalType);
     this.conditionOrSqlState = conditionOrSqlState;
-    this.infoItem = infoItem;
-    this.infoItemValue = infoItemValue;
+    this.setStmt = setStmt;
   }
 
   @Override public SqlOperator getOperator() {
@@ -58,8 +54,7 @@ public class SqlSignal extends SqlCall {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(conditionOrSqlState, infoItem,
-        infoItemValue);
+    return ImmutableNullableList.of(conditionOrSqlState, setStmt);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
@@ -67,11 +62,8 @@ public class SqlSignal extends SqlCall {
     if (conditionOrSqlState != null) {
       conditionOrSqlState.unparse(writer, 0, 0);
     }
-    if (infoItem != null && infoItemValue != null) {
-      writer.keyword("SET");
-      infoItem.unparse(writer, 0, 0);
-      writer.keyword("=");
-      infoItemValue.unparse(writer, 0, 0);
+    if (setStmt != null) {
+      setStmt.unparse(writer, 0, 0);
     }
   }
 

@@ -5507,7 +5507,7 @@ SqlLoopStmt LoopStmt() :
     }
 }
 
-SqlNode DiagnosticStatement() :
+SqlNode DiagnosticStmt() :
 {
     final SqlNode e;
 }
@@ -5524,8 +5524,7 @@ SqlSignal SqlSignal() :
 {
     final SignalType signalType;
     SqlNode conditionOrSqlState = null;
-    SqlIdentifier infoItem = null;
-    SqlNode infoItemValue = null;
+    SqlSetStmt setStmt = null;
     final Span s = Span.of();
 }
 {
@@ -5536,15 +5535,10 @@ SqlSignal SqlSignal() :
         <RESIGNAL> { signalType = SignalType.RESIGNAL; }
         [ conditionOrSqlState = SignalConditionOrSqlState() ]
     )
-    [
-        <SET>
-        infoItem = SimpleIdentifier()
-        <EQ>
-        infoItemValue = Literal()
-    ]
+    [ setStmt = SetStmt() ]
     {
         return new SqlSignal(s.end(this), signalType, conditionOrSqlState,
-            infoItem, infoItemValue);
+            setStmt);
     }
 }
 
