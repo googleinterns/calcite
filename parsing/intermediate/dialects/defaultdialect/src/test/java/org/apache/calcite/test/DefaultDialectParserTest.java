@@ -30,8 +30,7 @@ final class DefaultDialectParserTest extends SqlDialectParserTest {
     return DefaultDialectParserImpl.FACTORY;
   }
 
-  @Test
-  void testParensInFrom() {
+  @Test void testParensInFrom() {
     // UNNEST may not occur within parentheses.
     // FIXME should fail at "unnest"
     sql("select *from ^(^unnest(x))")

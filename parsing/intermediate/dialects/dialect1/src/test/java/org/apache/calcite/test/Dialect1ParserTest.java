@@ -3623,14 +3623,14 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testParenthesizedFromClauseTableRef() {
     final String sql = "select * from (foo)";
     final String expected = "SELECT *\n"
-        +"FROM `FOO`";
+        + "FROM `FOO`";
     sql(sql).ok(expected);
   }
 
   @Test public void testParenthesizedFromClauseTableRefWithAlias() {
     final String sql = "select * from (foo as f)";
     final String expected = "SELECT *\n"
-        +"FROM `FOO` AS `F`";
+        + "FROM `FOO` AS `F`";
     sql(sql).ok(expected);
   }
 

@@ -2590,57 +2590,6 @@ SqlSelect SqlSelect() :
     }
 }
 
-/** Matches "LEFT JOIN t ON ...", "RIGHT JOIN t USING ...", "JOIN t". */
-SqlNode JoinClause(SqlNode e) :
-{
-    SqlNode e2, condition;
-    final SqlLiteral natural, joinType, joinConditionType;
-    SqlNodeList list;
-}
-{
-    natural = Natural()
-    joinType = JoinType()
-    e2 = TableRefOrJoinClause()
-    (
-        <ON> {
-            joinConditionType = JoinConditionType.ON.symbol(getPos());
-        }
-        condition = Expression(ExprContext.ACCEPT_SUB_QUERY) {
-            return new SqlJoin(joinType.getParserPosition(),
-                e,
-                natural,
-                joinType,
-                e2,
-                joinConditionType,
-                condition);
-        }
-    |
-        <USING> {
-            joinConditionType = JoinConditionType.USING.symbol(getPos());
-        }
-        list = ParenthesizedSimpleIdentifierList() {
-            return new SqlJoin(joinType.getParserPosition(),
-                e,
-                natural,
-                joinType,
-                e2,
-                joinConditionType,
-                new SqlNodeList(list.getList(),
-                Span.of(joinConditionType).end(this)));
-        }
-    |
-        {
-            return new SqlJoin(joinType.getParserPosition(),
-                e,
-                natural,
-                joinType,
-                e2,
-                JoinConditionType.NONE.symbol(joinType.getParserPosition()),
-                null);
-        }
-    )
-}
-
 /**
  * Parses either a table reference, or a parenthesized table reference.
  * Due to deficiencies of JavaCC's nested syntactic LOOKAHEADs, only simple
