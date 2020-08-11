@@ -547,9 +547,6 @@ public enum SqlKind {
    */
   VALUES,
 
-  /** {@code FIRST_LAST_VALUE} expression. */
-  FIRST_LAST_VALUE,
-
   /**
    * Explicit table, e.g. <code>select * from (TABLE t)</code> or <code>TABLE
    * t</code>. See also {@link #COLLECTION_TABLE}.
