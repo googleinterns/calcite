@@ -547,6 +547,9 @@ public enum SqlKind {
    */
   VALUES,
 
+  /** {@code FIRST_LAST_VALUE} expression. */
+  FIRST_LAST_VALUE,
+
   /**
    * Explicit table, e.g. <code>select * from (TABLE t)</code> or <code>TABLE
    * t</code>. See also {@link #COLLECTION_TABLE}.
@@ -663,6 +666,16 @@ public enum SqlKind {
    * GET DIAGNOSTICS statement in a BEGIN...END statement.
    */
   GET_DIAGNOSTICS,
+
+  /**
+   * SELECT INTO statement in a BEGIN...END statement.
+   */
+  SELECT_INTO,
+
+  /**
+   * DECLARE HANDLER call in a BEGIN...END statement.
+   */
+  DECLARE_HANDLER,
 
   /**
    * Special functions in MATCH_RECOGNIZE.
