@@ -5512,6 +5512,43 @@ SqlNode DiagnosticStmt() :
 {
     (
         e = SqlGetDiagnostics()
+    |
+        e = SqlSignal()
+    )
+    { return e; }
+}
+
+SqlSignal SqlSignal() :
+{
+    final SignalType signalType;
+    SqlNode conditionOrSqlState = null;
+    SqlSetStmt setStmt = null;
+    final Span s = Span.of();
+}
+{
+    (
+        <SIGNAL> { signalType = SignalType.SIGNAL; }
+        conditionOrSqlState = SignalConditionOrSqlState()
+    |
+        <RESIGNAL> { signalType = SignalType.RESIGNAL; }
+        [ conditionOrSqlState = SignalConditionOrSqlState() ]
+    )
+    [ setStmt = SetStmt() ]
+    {
+        return new SqlSignal(s.end(this), signalType, conditionOrSqlState,
+            setStmt);
+    }
+}
+
+SqlNode SignalConditionOrSqlState() :
+{
+    final SqlNode e;
+}
+{
+    (
+        e = SimpleIdentifier()
+    |
+        e = SqlState()
     )
     { return e; }
 }

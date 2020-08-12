@@ -675,6 +675,11 @@ public enum SqlKind {
   DECLARE_HANDLER,
 
   /**
+   * SIGNAL statement in a BEGIN...END statement.
+   */
+  SIGNAL,
+
+  /**
    * Special functions in MATCH_RECOGNIZE.
    */
   FINAL,
