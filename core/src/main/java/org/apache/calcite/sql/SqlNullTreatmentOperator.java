@@ -35,7 +35,6 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * @see SqlAggFunction#allowsNullTreatment()
  */
 public class SqlNullTreatmentOperator extends SqlSpecialOperator {
-
   public SqlNullTreatmentOperator(SqlKind kind) {
     super(kind.sql, kind, 20, true, ReturnTypes.ARG0, null, OperandTypes.ANY);
     Preconditions.checkArgument(kind == SqlKind.RESPECT_NULLS
