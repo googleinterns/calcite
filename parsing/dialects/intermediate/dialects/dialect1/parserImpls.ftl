@@ -5559,7 +5559,7 @@ SqlCall FirstLastValue() :
     final SqlNode value;
     final SqlNode over;
     NullOption nullOption = NullOption.UNSPECIFIED;
-    SqlCall firstLastCall;
+    final SqlCall firstLastCall;
 }
 {
     (
