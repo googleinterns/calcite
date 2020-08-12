@@ -21,12 +21,13 @@ import org.apache.calcite.sql.parser.defaultdialect.DefaultDialectParserImpl;
 import org.apache.calcite.sql.test.SqlTestFactory;
 import org.apache.calcite.sql.test.SqlTester;
 import org.apache.calcite.sql.test.SqlValidatorTester;
+
 import com.google.common.collect.ImmutableList;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Locale;
 import java.util.List;
+import java.util.Locale;
 
 public class DefaultDialectValidatorTest extends SqlValidatorTest {
 
