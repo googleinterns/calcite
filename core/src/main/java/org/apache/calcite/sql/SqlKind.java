@@ -238,7 +238,7 @@ public enum SqlKind {
   OVER,
 
   /**
-   *  NULLS operator
+   * RESPECT NULLS operator
    */
   RESPECT_NULLS("RESPECT NULLS"),
 
