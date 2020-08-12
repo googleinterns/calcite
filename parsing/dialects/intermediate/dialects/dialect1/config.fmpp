@@ -106,8 +106,6 @@ data: {
       "org.apache.calcite.sql.SqlExecuteStatement",
       "org.apache.calcite.sql.SqlFetchCursor",
       "org.apache.calcite.sql.SqlFetchCursor.FetchType",
-      "org.apache.calcite.sql.SqlFirstLastValue",
-      "org.apache.calcite.sql.SqlFirstLastValue.NullOption",
       "org.apache.calcite.sql.SqlForStmt",
       "org.apache.calcite.sql.SqlGetDiagnostics",
       "org.apache.calcite.sql.SqlGetDiagnosticsParam",
