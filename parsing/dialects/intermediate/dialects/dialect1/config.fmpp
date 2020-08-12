@@ -124,8 +124,6 @@ data: {
       "org.apache.calcite.sql.SqlLeaveStmt",
       "org.apache.calcite.sql.SqlLobUnitSize",
       "org.apache.calcite.sql.SqlLoopStmt",
-      "org.apache.calcite.sql.SqlNullTreatment",
-      "org.apache.calcite.sql.SqlNullTreatment.NullOption",
       "org.apache.calcite.sql.SqlNumberTypeNameSpec",
       "org.apache.calcite.sql.SqlOpenCursor",
       "org.apache.calcite.sql.SqlPartitionByNoneUnknown",
