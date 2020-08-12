@@ -24,28 +24,25 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Parse tree for {@code SqlFirstLastValue} statement.
+ * Parse tree for {@code SqlNullTreatment} statement.
  */
-public class SqlFirstLastValue extends SqlCall implements SqlExecutableStatement {
+public class SqlNullTreatment extends SqlCall implements SqlExecutableStatement {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("FIRST_LAST_VALUE", SqlKind.FIRST_LAST_VALUE);
+      new SqlSpecialOperator("NULL_TREATMENT", SqlKind.NULL_TREATMENT);
 
-  public final boolean first;
   public final SqlNode value;
   public final NullOption nullOption;
 
   /**
-   * Creates a {@code SqlFirstLastOption}.
+   * Creates a {@code SqlNullTreatment}.
    *
    * @param pos  Parser position, must not be null
-   * @param first  Whether or not this is the FIRST_VALUE or LAST_VALUE
    * @param value  The value which is being used
    * @param nullOption  If the nulls should be ignored or respected
    */
-  public SqlFirstLastValue(SqlParserPos pos, boolean first, SqlNode value,
+  public SqlNullTreatment(SqlParserPos pos, SqlNode value,
       NullOption nullOption) {
     super(pos);
-    this.first = first;
     this.value = Objects.requireNonNull(value);
     this.nullOption = Objects.requireNonNull(nullOption);
   }
@@ -59,18 +56,11 @@ public class SqlFirstLastValue extends SqlCall implements SqlExecutableStatement
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    if (first) {
-      writer.keyword("FIRST_VALUE");
-    } else {
-      writer.keyword("LAST_VALUE");
-    }
-    SqlWriter.Frame frame = writer.startList("(", ")");
     value.unparse(writer, leftPrec, rightPrec);
     if (nullOption != NullOption.UNSPECIFIED) {
       writer.keyword(nullOption.toString());
       writer.keyword("NULLS");
     }
-    writer.endList(frame);
   }
 
   // Intentionally left empty.

@@ -238,7 +238,7 @@ public enum SqlKind {
   OVER,
 
   /**
-   * RESPECT NULLS operator
+   *  NULLS operator
    */
   RESPECT_NULLS("RESPECT NULLS"),
 
@@ -547,8 +547,8 @@ public enum SqlKind {
    */
   VALUES,
 
-  /** {@code FIRST_LAST_VALUE} expression. */
-  FIRST_LAST_VALUE,
+  /** {@code NULL_TREATMENT} call. */
+  NULL_TREATMENT,
 
   /**
    * Explicit table, e.g. <code>select * from (TABLE t)</code> or <code>TABLE

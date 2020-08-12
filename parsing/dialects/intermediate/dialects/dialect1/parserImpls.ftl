@@ -5556,10 +5556,10 @@ SqlGetDiagnosticsParam SqlGetDiagnosticsParam() :
 SqlCall FirstLastValue() :
 {
     final boolean first;
-    SqlNode value;
+    final SqlNode value;
     final SqlNode over;
+    NullOption nullOption = NullOption.UNSPECIFIED;
     SqlCall firstLastCall;
-    final SqlCall nullTreatmentCall;
 }
 {
     (
@@ -5574,13 +5574,26 @@ SqlCall FirstLastValue() :
     <LPAREN>
     value = CompoundIdentifier()
     [
-        value = nullTreatmentSqlNode(value)
+        (
+            <IGNORE> {
+                nullOption = NullOption.IGNORE;
+            }
+        |
+            <RESPECT> {
+                nullOption = NullOption.RESPECT;
+            }
+        )
+        <NULLS>
     ]
     {
+        SqlNullTreatment nullTreatment = new SqlNullTreatment(getPos(), value,
+            nullOption);
         if (first) {
-            firstLastCall = SqlStdOperatorTable.FIRST_VALUE.createCall(getPos(), value);
+            firstLastCall = SqlStdOperatorTable.FIRST_VALUE.createCall(getPos(),
+                nullTreatment);
         } else {
-            firstLastCall = SqlStdOperatorTable.LAST_VALUE.createCall(getPos(), value);
+            firstLastCall = SqlStdOperatorTable.LAST_VALUE.createCall(getPos(),
+                nullTreatment);
         }
     }
     <RPAREN>

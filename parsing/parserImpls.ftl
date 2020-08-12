@@ -5629,17 +5629,20 @@ SqlCall withinGroup(SqlNode arg) :
 SqlCall nullTreatment(SqlCall arg) :
 {
     final Span span;
+    final SqlNullTreatment nullTreatment;
 }
 {
     (
         <IGNORE> { span = span(); } <NULLS> {
+            nullTreatment = new SqlNullTreatment(span.end(this), arg, NullOption.IGNORE);
             return SqlStdOperatorTable.IGNORE_NULLS.createCall(
-                span.end(this), arg);
+                span.end(this), nullTreatment);
         }
     |
         <RESPECT> { span = span(); } <NULLS> {
+            nullTreatment = new SqlNullTreatment(span.end(this), arg, NullOption.RESPECT);
             return SqlStdOperatorTable.RESPECT_NULLS.createCall(
-                span.end(this), arg);
+                span.end(this), nullTreatment);
         }
     )
 }
