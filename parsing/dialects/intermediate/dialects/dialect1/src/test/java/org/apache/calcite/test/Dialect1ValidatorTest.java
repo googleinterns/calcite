@@ -21,7 +21,6 @@ import org.apache.calcite.sql.test.SqlTestFactory;
 import org.apache.calcite.sql.test.SqlTester;
 import org.apache.calcite.sql.test.SqlValidatorTester;
 
-
 public class Dialect1ValidatorTest extends SqlValidatorTest {
 
   @Override public SqlTester getTester() {
