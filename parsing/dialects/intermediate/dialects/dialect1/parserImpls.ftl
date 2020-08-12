@@ -5605,24 +5605,6 @@ SqlCall FirstLastValue() :
     }
 }
 
-SqlCall nullTreatmentSqlNode(SqlNode value) :
-{
-    final Span span;
-}
-{
-    (
-        <IGNORE> { span = span(); } <NULLS> {
-            return SqlStdOperatorTable.IGNORE_NULLS.createCall(
-                span.end(this), value);
-        }
-    |
-        <RESPECT> { span = span(); } <NULLS> {
-            return SqlStdOperatorTable.RESPECT_NULLS.createCall(
-                span.end(this), value);
-        }
-    )
-}
-
 SqlDeclareHandler SqlDeclareHandler() :
 {
     final HandlerType handlerType;
