@@ -3732,7 +3732,13 @@ SqlNode BuiltinFunctionCall() :
 {
     //~ FUNCTIONS WITH SPECIAL SYNTAX ---------------------------------------
     (
-        <CAST> { s = span(); }
+        { final SqlKind castKind; }
+        (
+            <CAST> { castKind = SqlKind.CAST; }
+        |
+            <TRYCAST> { castKind = SqlKind.TRYCAST; }
+        )
+        { s = span(); }
         <LPAREN> e = Expression(ExprContext.ACCEPT_SUB_QUERY) { args = startList(e); }
         <AS>
         (
@@ -3746,7 +3752,9 @@ SqlNode BuiltinFunctionCall() :
             ( e = AlternativeTypeConversionAttribute() { args.add(e); } )*
         )
         <RPAREN> {
-            return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
+            return castKind == SqlKind.TRYCAST
+                ? SqlStdOperatorTable.TRYCAST.createCall(s.end(this), args)
+                : SqlStdOperatorTable.CAST.createCall(s.end(this), args);
         }
     |
         e = SqlExtractFromDateTime() { return e; }
