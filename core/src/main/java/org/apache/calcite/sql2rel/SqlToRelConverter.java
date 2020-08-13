@@ -1939,7 +1939,12 @@ public class SqlToRelConverter {
       ignoreNulls = true;
       // fall through
     case RESPECT_NULLS:
-      aggCall = aggCall.operand(0);
+      if (aggCall.operand(0) instanceof SqlNullTreatment) {
+        SqlNullTreatment nullTreatment = (SqlNullTreatment) aggCall.operand(0);
+        aggCall = (SqlCall) nullTreatment.value;
+      } else {
+        aggCall = aggCall.operand(0);
+      }
     }
 
     SqlNode windowOrRef = call.operand(1);
