@@ -49,6 +49,7 @@ here to appease testAllFunctionsAreDocumented:
 | SUCCEEDS       | Documented as a period operator
 | TABLE          | Documented as part of FROM syntax
 | TRANSLATE_CHK()| Documented as part of TRANSLATE syntax
+| TRYCAST()      | Documented as part of CAST syntax
 | VARIANCE()     | In SqlStdOperatorTable, but not fully implemented
 | FORMAT()       | TODO: document
 {% endcomment %}

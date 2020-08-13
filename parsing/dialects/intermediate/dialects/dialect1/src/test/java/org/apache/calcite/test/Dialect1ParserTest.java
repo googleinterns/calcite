@@ -1555,6 +1555,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTryCast() {
+    final String sql = "select trycast('-2.5' as integer)";
+    final String expected = "SELECT TRYCAST('-2.5' AS INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testNamedExpressionLiteral() {
     final String sql = "select 1 (named b) from foo";
     final String expected = "SELECT 1 AS `B`\n"
