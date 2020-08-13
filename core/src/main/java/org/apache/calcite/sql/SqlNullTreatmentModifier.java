@@ -26,7 +26,7 @@ import com.google.common.base.Preconditions;
 
 import java.util.Objects;
 
-
+/** Simple class to hold null treatment info. */
 public class SqlNullTreatmentModifier extends SqlNode {
   public final SqlKind kind;
 
@@ -54,7 +54,7 @@ public class SqlNullTreatmentModifier extends SqlNode {
     return false;
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec,int rightPrec) {
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     if (kind == SqlKind.RESPECT_NULLS) {
       writer.keyword("RESPECT NULLS");
     } else {

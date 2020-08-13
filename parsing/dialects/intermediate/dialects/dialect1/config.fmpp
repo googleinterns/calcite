@@ -27,6 +27,7 @@ data: {
       "org.apache.calcite.sql.CharacterSet"
       "org.apache.calcite.sql.OnCommitType",
       "org.apache.calcite.sql.SetType",
+      "org.apache.calcite.sql.SqlAggFunction"
       "org.apache.calcite.sql.SqlAllocateCursor",
       "org.apache.calcite.sql.SqlAlterProcedure",
       "org.apache.calcite.sql.SqlAlterProcedure.AlterProcedureWithOption",
@@ -106,7 +107,6 @@ data: {
       "org.apache.calcite.sql.SqlExecuteStatement",
       "org.apache.calcite.sql.SqlFetchCursor",
       "org.apache.calcite.sql.SqlFetchCursor.FetchType",
-      "org.apache.calcite.sql.SqlAggFunction"
       "org.apache.calcite.sql.SqlForStmt",
       "org.apache.calcite.sql.SqlGetDiagnostics",
       "org.apache.calcite.sql.SqlGetDiagnosticsParam",
