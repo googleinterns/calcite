@@ -69,7 +69,12 @@ public class SqlOverOperator extends SqlBinaryOperator {
     case RESPECT_NULLS:
     case IGNORE_NULLS:
       validator.validateCall(aggCall, scope);
-      aggCall = aggCall.operand(0);
+      if (aggCall.operand(0) instanceof SqlNullTreatment) {
+        SqlNullTreatment nullTreatment = (SqlNullTreatment) aggCall.operand(0);
+        aggCall = (SqlCall) nullTreatment.value;
+      } else {
+        aggCall = aggCall.operand(0);
+      }
     }
     if (!aggCall.getOperator().isAggregator()) {
       throw validator.newValidationError(aggCall, RESOURCE.overNonAggregate());
