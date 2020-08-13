@@ -1324,6 +1324,15 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
           list.getList().set(i, newOperand);
         }
       }
+    } else if (node instanceof SqlNullTreatment) {
+      SqlNullTreatment nullTreatment = (SqlNullTreatment) node;
+      newOperand =
+        performUnconditionalRewrites(
+            nullTreatment.value,
+            false);
+      if (newOperand != null) {
+        nullTreatment.value = newOperand;
+      }
     }
 
     // now transform node itself

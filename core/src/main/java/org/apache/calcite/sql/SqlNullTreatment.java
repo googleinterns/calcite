@@ -32,7 +32,7 @@ import java.util.Objects;
  */
 public class SqlNullTreatment extends SqlNode {
 
-  public final SqlNode value;
+  public SqlNode value;
   public final NullOption nullOption;
 
   /**
