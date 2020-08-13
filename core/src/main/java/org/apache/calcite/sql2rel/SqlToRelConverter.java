@@ -117,6 +117,7 @@ import org.apache.calcite.sql.SqlMatchRecognize;
 import org.apache.calcite.sql.SqlMerge;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlNullTreatment;
 import org.apache.calcite.sql.SqlNumericLiteral;
 import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlOperatorTable;
@@ -5027,6 +5028,10 @@ public class SqlToRelConverter {
       return convertInterval(intervalQualifier);
     }
 
+    @Override public RexNode visit(SqlNullTreatment nullTreatment) {
+      throw new UnsupportedOperationException();
+    }
+
     @Override public RexNode visit(SqlColumnAttribute attribute) {
       throw new UnsupportedOperationException();
     }
@@ -5248,6 +5253,10 @@ public class SqlToRelConverter {
     }
 
     public Void visit(SqlIntervalQualifier intervalQualifier) {
+      return null;
+    }
+
+    @Override public Void visit(SqlNullTreatment nullTreatment) {
       return null;
     }
 

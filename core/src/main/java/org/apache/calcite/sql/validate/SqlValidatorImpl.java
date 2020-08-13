@@ -78,6 +78,7 @@ import org.apache.calcite.sql.SqlUpdate;
 import org.apache.calcite.sql.SqlUtil;
 import org.apache.calcite.sql.SqlWindow;
 import org.apache.calcite.sql.SqlWith;
+import org.apache.calcite.sql.SqlNullTreatment;
 import org.apache.calcite.sql.SqlWithItem;
 import org.apache.calcite.sql.fun.SqlCase;
 import org.apache.calcite.sql.fun.SqlStdOperatorTable;
@@ -5869,6 +5870,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       throw Util.needToImplement(intervalQualifier);
     }
 
+    @Override public Void visit(SqlNullTreatment nullTreatment) {
+      throw Util.needToImplement(nullTreatment);
+    }
+
     @Override public Void visit(SqlColumnAttribute attribute) {
       throw Util.needToImplement(attribute);
     }
@@ -6004,6 +6009,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
     public RelDataType visit(SqlIntervalQualifier intervalQualifier) {
       return typeFactory.createSqlIntervalType(intervalQualifier);
+    }
+
+    @Override public RelDataType visit(SqlNullTreatment nullTreatment) {
+      return unknownType;
     }
 
     @Override public RelDataType visit(SqlColumnAttribute attribute) {

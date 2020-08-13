@@ -19,6 +19,10 @@ package org.apache.calcite.sql;
 import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.util.SqlVisitor;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
+import org.apache.calcite.util.Litmus;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,9 +30,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlNullTreatment} statement.
  */
-public class SqlNullTreatment extends SqlCall implements SqlExecutableStatement {
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("NULL_TREATMENT", SqlKind.NULL_TREATMENT);
+public class SqlNullTreatment extends SqlNode {
 
   public final SqlNode value;
   public final NullOption nullOption;
@@ -47,14 +49,6 @@ public class SqlNullTreatment extends SqlCall implements SqlExecutableStatement 
     this.nullOption = Objects.requireNonNull(nullOption);
   }
 
-  @Override public SqlOperator getOperator() {
-    return OPERATOR;
-  }
-
-  @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(value);
-  }
-
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     value.unparse(writer, leftPrec, rightPrec);
     if (nullOption != NullOption.UNSPECIFIED) {
@@ -63,8 +57,24 @@ public class SqlNullTreatment extends SqlCall implements SqlExecutableStatement 
     }
   }
 
-  // Intentionally left empty.
-  @Override public void execute(CalcitePrepare.Context context) {}
+  @Override public boolean equalsDeep(SqlNode node, Litmus litmus) {
+    return false;
+  }
+
+  /**
+   * Clones a SqlNode with a different position.
+   */
+  public SqlNode clone(SqlParserPos pos) {
+    return new SqlNullTreatment(pos, value, nullOption);
+  }
+
+  public <R> R accept(SqlVisitor<R> visitor) {
+    return visitor.visit(this);
+  }
+
+  public void validate(SqlValidator validator,
+      SqlValidatorScope scope) {
+  }
 
   public enum NullOption {
     /**
