@@ -5743,6 +5743,7 @@ SqlSelectInto SqlSelectInto() :
             fromClause, whereClause);
     }
 }
+
 SqlCall FirstLastValue() :
 {
     final SqlNode value;
