@@ -55,7 +55,8 @@ public class SqlNullTreatmentOperator extends SqlSpecialOperator {
       SqlValidatorScope operandScope) {
     assert call.getOperator() == this;
     assert call.operandCount() == 1;
-    SqlCall aggCall = call.operand(0);
+    SqlNullTreatment nullTreatment = call.operand(0);
+    SqlCall aggCall = (SqlCall) nullTreatment.value;
     if (!aggCall.getOperator().isAggregator()
         || !((SqlAggFunction) aggCall.getOperator()).allowsNullTreatment()) {
       throw validator.newValidationError(aggCall,
