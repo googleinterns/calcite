@@ -137,10 +137,12 @@ public class SqlShuttle extends SqlBasicVisitor<SqlNode> {
         return null;
       }
       SqlNode newOperand = operand.accept(SqlShuttle.this);
-      if (newOperand != operand) {
+      if (newOperand != operand && newOperand != null) {
         update = true;
       }
-      clonedOperands[i] = newOperand;
+      if (newOperand != null) {
+        clonedOperands[i] = newOperand;
+      }
       return newOperand;
     }
   }
