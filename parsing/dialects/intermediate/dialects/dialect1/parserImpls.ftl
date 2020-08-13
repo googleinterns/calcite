@@ -3987,6 +3987,8 @@ SqlNode BuiltinFunctionCall() :
         node = CaseN() { return node; }
     |
         node = RangeN() { return node; }
+    |
+        node = FirstLastValue() { return node; }
     )
 }
 
@@ -5739,5 +5741,134 @@ SqlSelectInto SqlSelectInto() :
         return new SqlSelectInto(s.end(this), selectKeyword,
             new SqlNodeList(selectList, Span.of(selectList).pos()), parameters,
             fromClause, whereClause);
+    }
+}
+SqlCall FirstLastValue() :
+{
+    final boolean first;
+    final SqlNode value;
+    final SqlNode over;
+    final int nullOption;
+    final SqlNumericLiteral numericLiteral;
+    final SqlCall firstLastCall;
+}
+{
+    (
+        <FIRST_VALUE> {
+            first = true;
+        }
+    |
+        <LAST_VALUE> {
+            first = false;
+        }
+    )
+    <LPAREN>
+    value = CompoundIdentifier()
+    (
+        (
+            <IGNORE> {
+                nullOption = SqlKind.IGNORE_NULLS.ordinal();
+            }
+        |
+            <RESPECT> {
+                nullOption = SqlKind.RESPECT_NULLS.ordinal();
+            }
+        )
+        <NULLS>
+    |
+        { nullOption = -1; }
+    )
+    {
+        numericLiteral =  SqlLiteral.createExactNumeric(String.valueOf(nullOption), getPos());
+    }
+    {
+        if (first) {
+            firstLastCall = SqlStdOperatorTable.FIRST_VALUE.createCall(getPos(),
+                value, numericLiteral);
+        } else {
+            firstLastCall = SqlStdOperatorTable.LAST_VALUE.createCall(getPos(),
+                value, numericLiteral);
+        }
+    }
+    <RPAREN>
+    <OVER>
+    over = WindowSpecification()
+    {
+        return SqlStdOperatorTable.OVER.createCall(getPos(),
+            firstLastCall, over);
+    }
+}
+
+/**
+ * Parses a reserved word which is used as the name of a function.
+ */
+SqlIdentifier ReservedFunctionName() :
+{
+}
+{
+    (
+        <ABS>
+    |   <AVG>
+    |   <CARDINALITY>
+    |   <CEILING>
+    |   <CHAR_LENGTH>
+    |   <CHARACTER_LENGTH>
+    |   <COALESCE>
+    |   <COLLECT>
+    |   <COVAR_POP>
+    |   <COVAR_SAMP>
+    |   <CUME_DIST>
+    |   <COUNT>
+    |   <CURRENT_DATE>
+    |   <CURRENT_TIME>
+    |   <CURRENT_TIMESTAMP>
+    |   <DENSE_RANK>
+    |   <ELEMENT>
+    |   <EVERY>
+    |   <EXP>
+    |   <FLOOR>
+    |   <FUSION>
+    |   <INTERSECTION>
+    |   <GROUPING>
+    |   <HOUR>
+    |   <LAG>
+    |   <LEAD>
+    |   <LEFT>
+    |   <LN>
+    |   <LOCALTIME>
+    |   <LOCALTIMESTAMP>
+    |   <LOWER>
+    |   <MAX>
+    |   <MIN>
+    |   <MINUTE>
+    |   <MOD>
+    |   <MONTH>
+    |   <NTH_VALUE>
+    |   <NTILE>
+    |   <NULLIF>
+    |   <OCTET_LENGTH>
+    |   <PERCENT_RANK>
+    |   <POWER>
+    |   <RANK>
+    |   <REGR_COUNT>
+    |   <REGR_SXX>
+    |   <REGR_SYY>
+    |   <RIGHT>
+    |   <ROW_NUMBER>
+    |   <SECOND>
+    |   <SOME>
+    |   <SQRT>
+    |   <STDDEV_POP>
+    |   <STDDEV_SAMP>
+    |   <SUM>
+    |   <UPPER>
+    |   <TRUNCATE>
+    |   <USER>
+    |   <VAR_POP>
+    |   <VAR_SAMP>
+    |   <YEAR>
+    )
+    {
+        return new SqlIdentifier(unquotedIdentifier(), getPos());
     }
 }

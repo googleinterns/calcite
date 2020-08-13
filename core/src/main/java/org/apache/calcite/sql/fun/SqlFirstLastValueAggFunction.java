@@ -21,6 +21,9 @@ import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.sql.SqlAggFunction;
 import org.apache.calcite.sql.SqlFunctionCategory;
 import org.apache.calcite.sql.SqlKind;
+import org.apache.calcite.sql.SqlWriter;
+import org.apache.calcite.sql.SqlLiteral;
+import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.ReturnTypes;
 import org.apache.calcite.sql.type.SqlTypeName;
@@ -77,5 +80,26 @@ public class SqlFirstLastValueAggFunction extends SqlAggFunction {
 
   @Override public boolean allowsNullTreatment() {
     return true;
+  }
+
+  @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec,
+      int rightPrec) {
+    writer.keyword(getName());
+    writer.setNeedWhitespace(false);
+   // SqlWriter.Frame frame = writer.startList("(", ")");
+    writer.keyword("(");
+    call.operand(0).unparse(writer, leftPrec, rightPrec);
+    int x = ((SqlLiteral) call.operand(1)).getValueAs(Integer.class);
+    if (x == -1) {
+      return;
+    }
+    SqlKind kind = SqlKind.values()[x];
+    if (kind == SqlKind.IGNORE_NULLS) {
+      writer.keyword("IGNORE NULLS");
+    } else if (kind == SqlKind.RESPECT_NULLS) {
+      writer.keyword("RESPECT NULLS");
+    }
+    writer.keyword(")");
+    //writer.endList(frame);
   }
 }
