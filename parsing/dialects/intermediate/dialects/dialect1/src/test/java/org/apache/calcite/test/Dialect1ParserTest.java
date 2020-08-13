@@ -6169,7 +6169,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
- @Test public void testFirstValue() {
+  @Test public void testFirstValue() {
     final String sql = "SELECT FIRST_VALUE (foo) OVER (PARTITION BY (foo)) FROM bar";
     final String expected = "SELECT (FIRST_VALUE(`FOO`) OVER (PARTITION BY `FOO`))\n"
         + "FROM `BAR`";
