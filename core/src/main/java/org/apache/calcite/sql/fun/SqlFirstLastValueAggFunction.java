@@ -86,20 +86,11 @@ public class SqlFirstLastValueAggFunction extends SqlAggFunction {
       int rightPrec) {
     writer.keyword(getName());
     writer.setNeedWhitespace(false);
-   // SqlWriter.Frame frame = writer.startList("(", ")");
-    writer.keyword("(");
+    SqlWriter.Frame frame = writer.startList("(", ")");
     call.operand(0).unparse(writer, leftPrec, rightPrec);
-    int x = ((SqlLiteral) call.operand(1)).getValueAs(Integer.class);
-    if (x == -1) {
-      return;
+    if (call.operandCount() == 2) {
+      call.operand(1).unparse(writer, leftPrec, rightPrec);
     }
-    SqlKind kind = SqlKind.values()[x];
-    if (kind == SqlKind.IGNORE_NULLS) {
-      writer.keyword("IGNORE NULLS");
-    } else if (kind == SqlKind.RESPECT_NULLS) {
-      writer.keyword("RESPECT NULLS");
-    }
-    writer.keyword(")");
-    //writer.endList(frame);
+    writer.endList(frame);
   }
 }

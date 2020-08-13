@@ -5745,49 +5745,41 @@ SqlSelectInto SqlSelectInto() :
 }
 SqlCall FirstLastValue() :
 {
-    final boolean first;
     final SqlNode value;
     final SqlNode over;
-    final int nullOption;
-    final SqlNumericLiteral numericLiteral;
+    SqlNullTreatmentModifier nullTreatmentModifier = null;
+    final SqlAggFunction function;
     final SqlCall firstLastCall;
 }
 {
     (
         <FIRST_VALUE> {
-            first = true;
+            function = SqlStdOperatorTable.FIRST_VALUE;
         }
     |
         <LAST_VALUE> {
-            first = false;
+            function = SqlStdOperatorTable.LAST_VALUE;
         }
     )
     <LPAREN>
     value = CompoundIdentifier()
-    (
+    [
         (
             <IGNORE> {
-                nullOption = SqlKind.IGNORE_NULLS.ordinal();
+                nullTreatmentModifier = new SqlNullTreatmentModifier(getPos(), SqlKind.IGNORE_NULLS);
             }
         |
             <RESPECT> {
-                nullOption = SqlKind.RESPECT_NULLS.ordinal();
+                nullTreatmentModifier = new SqlNullTreatmentModifier(getPos(), SqlKind.RESPECT_NULLS);
             }
         )
         <NULLS>
-    |
-        { nullOption = -1; }
-    )
+    ]
     {
-        numericLiteral =  SqlLiteral.createExactNumeric(String.valueOf(nullOption), getPos());
-    }
-    {
-        if (first) {
-            firstLastCall = SqlStdOperatorTable.FIRST_VALUE.createCall(getPos(),
-                value, numericLiteral);
+        if (nullTreatmentModifier != null) {
+            firstLastCall = function.createCall(getPos(), value, nullTreatmentModifier);
         } else {
-            firstLastCall = SqlStdOperatorTable.LAST_VALUE.createCall(getPos(),
-                value, numericLiteral);
+            firstLastCall = function.createCall(getPos(), value);
         }
     }
     <RPAREN>

@@ -106,6 +106,7 @@ data: {
       "org.apache.calcite.sql.SqlExecuteStatement",
       "org.apache.calcite.sql.SqlFetchCursor",
       "org.apache.calcite.sql.SqlFetchCursor.FetchType",
+      "org.apache.calcite.sql.SqlAggFunction"
       "org.apache.calcite.sql.SqlForStmt",
       "org.apache.calcite.sql.SqlGetDiagnostics",
       "org.apache.calcite.sql.SqlGetDiagnosticsParam",
@@ -124,6 +125,7 @@ data: {
       "org.apache.calcite.sql.SqlLeaveStmt",
       "org.apache.calcite.sql.SqlLobUnitSize",
       "org.apache.calcite.sql.SqlLoopStmt",
+      "org.apache.calcite.sql.SqlNullTreatmentModifier",
       "org.apache.calcite.sql.SqlNumberTypeNameSpec",
       "org.apache.calcite.sql.SqlOpenCursor",
       "org.apache.calcite.sql.SqlPartitionByNoneUnknown",
