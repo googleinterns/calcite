@@ -55,7 +55,7 @@ public class SqlNullTreatmentModifier extends SqlNode {
   }
 
   @Override public <R> R accept(SqlVisitor<R> visitor) {
-    throw new UnsupportedOperationException();
+    return visitor.visit(this);
   }
 
   @Override public boolean equalsDeep(SqlNode node, Litmus litmus) {

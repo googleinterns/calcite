@@ -41,4 +41,11 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "FROM `ABC` AS `ABC`";
     sql(sql).rewritesTo(expected);
   }
+
+  @Test public void testFirstValueRewrite() {
+    String sql = "SELECT FIRST_VALUE (foo) OVER (PARTITION BY (foo)) FROM bar";
+    String expected = "SELECT (FIRST_VALUE(`FOO`) OVER (PARTITION BY `FOO`))\n"
+        + "FROM `BAR`";
+    sql(sql).rewritesTo(expected);
+  }
 }
