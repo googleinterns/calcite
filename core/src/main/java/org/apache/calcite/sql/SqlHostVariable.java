@@ -17,6 +17,9 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.util.SqlVisitor;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
 
 /**
  * A {@code SqlHostVariable} is a host variable of the form ":name".
@@ -38,4 +41,12 @@ public class SqlHostVariable extends SqlIdentifier {
     // Ensures whitespace is added before a separator such as "AS".
     writer.setNeedWhitespace(true);
   }
+
+  @Override public <R> R accept(SqlVisitor<R> visitor) {
+    return visitor.visit(this);
+  }
+
+  // Intentionally left blank.
+  @Override public void validateExpr(SqlValidator validator,
+      SqlValidatorScope scope) {}
 }
