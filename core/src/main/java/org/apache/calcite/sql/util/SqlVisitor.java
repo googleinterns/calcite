@@ -114,7 +114,7 @@ public interface SqlVisitor<R> {
    * Visits a null treatment modifier.
    *
    * @param nullTreatmentModifier The modifier
-   * @see SqlNullTreatment#accept(SqlVisitor)
+   * @see SqlNullTreatmentModifier#accept(SqlVisitor)
    */
   R visit(SqlNullTreatmentModifier nullTreatmentModifier);
 
