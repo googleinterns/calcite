@@ -60,6 +60,7 @@ import org.apache.calcite.sql.SqlBasicCall;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDialect;
+import org.apache.calcite.sql.SqlHostVariable;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlInsert;
 import org.apache.calcite.sql.SqlIntervalLiteral;
@@ -175,6 +176,10 @@ public class RelToSqlConverter extends SqlImplementor
         return selectItem.clone(id.getParserPosition());
       }
       return id;
+    }
+
+    @Override public SqlNode visit(SqlHostVariable hostVariable) {
+      return hostVariable;
     }
   }
 
