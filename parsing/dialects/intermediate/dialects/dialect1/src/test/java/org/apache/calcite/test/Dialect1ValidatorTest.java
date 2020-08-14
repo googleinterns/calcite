@@ -59,18 +59,18 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
   @Test public void testFirstValueIgnoreNullsRewrite() {
     final String sql = "SELECT FIRST_VALUE (foo IGNORE NULLS) OVER"
         + " (PARTITION BY (foo)) FROM bar";
-    final String expected = "SELECT (FIRST_VALUE(`FOO` IGNORE NULLS) OVER"
-        + " (PARTITION BY `FOO`))\n"
-        + "FROM `BAR`";
+    final String expected = "SELECT FIRST_VALUE(`BAR`.`FOO` IGNORE NULLS)"
+        + " OVER (PARTITION BY `BAR`.`FOO`)\n"
+        + "FROM `BAR` AS `BAR`";
     sql(sql).rewritesTo(expected);
   }
 
   @Test public void testFirstValueRespectNulls() {
     final String sql = "SELECT FIRST_VALUE (foo RESPECT NULLS) OVER"
         + " (PARTITION BY (foo)) FROM bar";
-    final String expected = "SELECT (FIRST_VALUE(`FOO` RESPECT NULLS) OVER"
-        + " (PARTITION BY `FOO`))\n"
-        + "FROM `BAR`";
+    final String expected = "SELECT FIRST_VALUE(`BAR`.`FOO` RESPECT NULLS)"
+        + " OVER (PARTITION BY `BAR`.`FOO`)\n"
+        + "FROM `BAR` AS `BAR`";
     sql(sql).rewritesTo(expected);
   }
 }

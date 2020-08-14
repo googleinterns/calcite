@@ -48,7 +48,7 @@ public class SqlFirstLastValueAggFunction extends SqlAggFunction {
         kind,
         ReturnTypes.ARG0_NULLABLE_IF_EMPTY,
         null,
-        OperandTypes.ANY,
+        OperandTypes.ANY_OPTIONAL_ANY,
         SqlFunctionCategory.NUMERIC,
         false,
         true,
