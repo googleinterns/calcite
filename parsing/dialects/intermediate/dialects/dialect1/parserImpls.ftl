@@ -4052,9 +4052,6 @@ SqlNode NamedFunctionCall() :
         call = createCall(qualifiedName, s.end(this), funcType, quantifier, args);
     }
     [
-        LOOKAHEAD(2) call = nullTreatment(call)
-    ]
-    [
         call = withinGroup(call)
     ]
     [
@@ -5748,6 +5745,7 @@ SqlCall FirstLastValue() :
 {
     final SqlNode value;
     final SqlNode over;
+    final List<SqlNode> args = new ArrayList<SqlNode>();
     SqlNullTreatmentModifier nullTreatmentModifier = null;
     final SqlAggFunction function;
     final SqlCall firstLastCall;
@@ -5763,25 +5761,23 @@ SqlCall FirstLastValue() :
         }
     )
     <LPAREN>
-    value = CompoundIdentifier()
+    value = CompoundIdentifier() { args.add(value); }
     [
         (
             <IGNORE> {
-                nullTreatmentModifier = new SqlNullTreatmentModifier(getPos(), SqlKind.IGNORE_NULLS);
+                nullTreatmentModifier = new SqlNullTreatmentModifier(getPos(),
+                    SqlKind.IGNORE_NULLS);
             }
         |
             <RESPECT> {
-                nullTreatmentModifier = new SqlNullTreatmentModifier(getPos(), SqlKind.RESPECT_NULLS);
+                nullTreatmentModifier = new SqlNullTreatmentModifier(getPos(),
+                    SqlKind.RESPECT_NULLS);
             }
         )
-        <NULLS>
+        <NULLS> { args.add(nullTreatmentModifier); }
     ]
     {
-        if (nullTreatmentModifier != null) {
-            firstLastCall = function.createCall(getPos(), value, nullTreatmentModifier);
-        } else {
-            firstLastCall = function.createCall(getPos(), value);
-        }
+            firstLastCall = function.createCall(getPos(), args);
     }
     <RPAREN>
     <OVER>
@@ -5789,5 +5785,79 @@ SqlCall FirstLastValue() :
     {
         return SqlStdOperatorTable.OVER.createCall(getPos(),
             firstLastCall, over);
+    }
+}
+
+/**
+ * Parses a reserved word which is used as the name of a function.
+ */
+SqlIdentifier ReservedFunctionName() :
+{
+}
+{
+    (
+        <ABS>
+    |   <AVG>
+    |   <CARDINALITY>
+    |   <CEILING>
+    |   <CHAR_LENGTH>
+    |   <CHARACTER_LENGTH>
+    |   <COALESCE>
+    |   <COLLECT>
+    |   <COVAR_POP>
+    |   <COVAR_SAMP>
+    |   <CUME_DIST>
+    |   <COUNT>
+    |   <CURRENT_DATE>
+    |   <CURRENT_TIME>
+    |   <CURRENT_TIMESTAMP>
+    |   <DENSE_RANK>
+    |   <ELEMENT>
+    |   <EVERY>
+    |   <EXP>
+    |   <FLOOR>
+    |   <FUSION>
+    |   <INTERSECTION>
+    |   <GROUPING>
+    |   <HOUR>
+    |   <LAG>
+    |   <LEAD>
+    |   <LEFT>
+    |   <LN>
+    |   <LOCALTIME>
+    |   <LOCALTIMESTAMP>
+    |   <LOWER>
+    |   <MAX>
+    |   <MIN>
+    |   <MINUTE>
+    |   <MOD>
+    |   <MONTH>
+    |   <NTH_VALUE>
+    |   <NTILE>
+    |   <NULLIF>
+    |   <OCTET_LENGTH>
+    |   <PERCENT_RANK>
+    |   <POWER>
+    |   <RANK>
+    |   <REGR_COUNT>
+    |   <REGR_SXX>
+    |   <REGR_SYY>
+    |   <RIGHT>
+    |   <ROW_NUMBER>
+    |   <SECOND>
+    |   <SOME>
+    |   <SQRT>
+    |   <STDDEV_POP>
+    |   <STDDEV_SAMP>
+    |   <SUM>
+    |   <UPPER>
+    |   <TRUNCATE>
+    |   <USER>
+    |   <VAR_POP>
+    |   <VAR_SAMP>
+    |   <YEAR>
+    )
+    {
+        return new SqlIdentifier(unquotedIdentifier(), getPos());
     }
 }

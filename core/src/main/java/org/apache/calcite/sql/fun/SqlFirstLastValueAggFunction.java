@@ -84,8 +84,8 @@ public class SqlFirstLastValueAggFunction extends SqlAggFunction {
   @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec,
       int rightPrec) {
     writer.keyword(getName());
-    writer.setNeedWhitespace(false);
-    SqlWriter.Frame frame = writer.startList("(", ")");
+    final SqlWriter.Frame frame =
+        writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
     call.operand(0).unparse(writer, leftPrec, rightPrec);
     if (call.operandCount() == 2) {
       call.operand(1).unparse(writer, leftPrec, rightPrec);

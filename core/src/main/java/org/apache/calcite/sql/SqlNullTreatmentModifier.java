@@ -55,10 +55,6 @@ public class SqlNullTreatmentModifier extends SqlNode {
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    if (kind == SqlKind.RESPECT_NULLS) {
-      writer.keyword("RESPECT NULLS");
-    } else {
-      writer.keyword("IGNORE NULLS");
-    }
+    writer.keyword(kind.sql);
   }
 }
