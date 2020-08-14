@@ -23,20 +23,26 @@ import org.apache.calcite.sql.parser.dialect1.Dialect1ParserImpl;
 import org.apache.calcite.sql.test.SqlTestFactory;
 import org.apache.calcite.sql.test.SqlTester;
 import org.apache.calcite.sql.test.SqlValidatorTester;
-import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlConformanceEnum;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.StringReader;
-
-import static org.apache.calcite.sql.parser.SqlParser.configBuilder;
-
-public class Dialect1ValidatorTest extends SqlValidatorTest {
+public class Dialect1ValidatorTest extends SqlValidatorTestCase {
 
   @Override public SqlTester getTester() {
     return new SqlValidatorTester(
         SqlTestFactory.INSTANCE
-            .with("parserFactory", Dialect1ParserImpl.FACTORY));
+            .with("parserFactory", Dialect1ParserImpl.FACTORY)
+            .with("conformance", SqlConformanceEnum.LENIENT)
+            .with("identifierExpansion", true)
+            .with("allowUnknownTables", true));
+  }
+
+  @Test public void testSelRewrite() {
+    String sql = "sel a from abc";
+    String expected = "SELECT `ABC`.`A`\n"
+        + "FROM `ABC` AS `ABC`";
+    sql(sql).rewritesTo(expected);
   }
 
   @Test public void testCaretNegation() throws SqlParseException {
