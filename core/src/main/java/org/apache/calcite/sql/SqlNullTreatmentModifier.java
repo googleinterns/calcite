@@ -33,7 +33,7 @@ public class SqlNullTreatmentModifier extends SqlNode {
   /**
    * Creates a {@code SqlNullTreatmentModifier}.
    *
-   * @param pos  SqlParserPos, can not be null
+   * @param pos  SqlParserPos, cannot be null
    * @param kind  The kind, cannot be null and must be either RESPECT_NULLS
    *              or IGNORE_NULLS
    */
