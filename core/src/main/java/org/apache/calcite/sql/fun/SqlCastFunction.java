@@ -80,12 +80,8 @@ public class SqlCastFunction extends SqlFunction {
 
   //~ Constructors -----------------------------------------------------------
 
-  public SqlCastFunction() {
-    super("CAST",
-        SqlKind.CAST,
-        null,
-        InferTypes.FIRST_KNOWN,
-        null,
+  public SqlCastFunction(SqlKind castKind) {
+    super(castKind.name(), castKind, null, InferTypes.FIRST_KNOWN, null,
         SqlFunctionCategory.SYSTEM);
   }
 
@@ -174,7 +170,7 @@ public class SqlCastFunction extends SqlFunction {
     return true;
   }
 
-  public SqlSyntax getSyntax() {
+  @Override public SqlSyntax getSyntax() {
     return SqlSyntax.SPECIAL;
   }
 

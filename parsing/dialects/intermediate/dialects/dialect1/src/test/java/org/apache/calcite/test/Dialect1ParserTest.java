@@ -1555,6 +1555,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTryCast() {
+    final String sql = "select trycast('-2.5' as integer)";
+    final String expected = "SELECT TRYCAST('-2.5' AS INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testNamedExpressionLiteral() {
     final String sql = "select 1 (named b) from foo";
     final String expected = "SELECT 1 AS `B`\n"
@@ -6099,6 +6105,66 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
         + "SELECT `BAR` INTO `BAZ` WHERE (`BAR` = 2);\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSignalConditionName() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "signal bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SIGNAL `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSignalSqlState() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "signal sqlstate '00000';\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SIGNAL SQLSTATE '00000';\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testResignal() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "resignal;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "RESIGNAL;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testResignalSqlState() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "resignal sqlstate '00000';\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "RESIGNAL SQLSTATE '00000';\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSignalSet() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "signal bar set message_length = 10;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SIGNAL `BAR` SET `MESSAGE_LENGTH` = 10;\n"
         + "END";
     sql(sql).ok(expected);
   }

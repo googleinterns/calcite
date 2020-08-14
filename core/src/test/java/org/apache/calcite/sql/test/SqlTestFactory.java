@@ -26,6 +26,8 @@ import org.apache.calcite.sql.SqlOperatorTable;
 import org.apache.calcite.sql.advise.SqlAdvisor;
 import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 import org.apache.calcite.sql.parser.SqlParser;
+import org.apache.calcite.sql.parser.SqlParserImplFactory;
+import org.apache.calcite.sql.parser.impl.SqlParserImpl;
 import org.apache.calcite.sql.validate.SqlConformance;
 import org.apache.calcite.sql.validate.SqlConformanceEnum;
 import org.apache.calcite.sql.validate.SqlValidator;
@@ -56,6 +58,7 @@ import java.util.Objects;
 public class SqlTestFactory {
   public static final ImmutableMap<String, Object> DEFAULT_OPTIONS =
       ImmutableSortedMap.<String, Object>naturalOrder()
+          .put("parserFactory", SqlParserImpl.FACTORY)
           .put("quoting", Quoting.DOUBLE_QUOTE)
           .put("quotedCasing", Casing.UNCHANGED)
           .put("unquotedCasing", Casing.TO_UPPER)
@@ -121,6 +124,7 @@ public class SqlTestFactory {
 
   public static SqlParser.Config createParserConfig(ImmutableMap<String, Object> options) {
     return SqlParser.configBuilder()
+        .setParserFactory((SqlParserImplFactory) options.get("parserFactory"))
         .setQuoting((Quoting) options.get("quoting"))
         .setUnquotedCasing((Casing) options.get("unquotedCasing"))
         .setQuotedCasing((Casing) options.get("quotedCasing"))

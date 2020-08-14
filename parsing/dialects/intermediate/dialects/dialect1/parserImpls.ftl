@@ -3732,7 +3732,13 @@ SqlNode BuiltinFunctionCall() :
 {
     //~ FUNCTIONS WITH SPECIAL SYNTAX ---------------------------------------
     (
-        <CAST> { s = span(); }
+        { final SqlKind castKind; }
+        (
+            <CAST> { castKind = SqlKind.CAST; }
+        |
+            <TRYCAST> { castKind = SqlKind.TRYCAST; }
+        )
+        { s = span(); }
         <LPAREN> e = Expression(ExprContext.ACCEPT_SUB_QUERY) { args = startList(e); }
         <AS>
         (
@@ -3746,7 +3752,9 @@ SqlNode BuiltinFunctionCall() :
             ( e = AlternativeTypeConversionAttribute() { args.add(e); } )*
         )
         <RPAREN> {
-            return SqlStdOperatorTable.CAST.createCall(s.end(this), args);
+            return castKind == SqlKind.TRYCAST
+                ? SqlStdOperatorTable.TRYCAST.createCall(s.end(this), args)
+                : SqlStdOperatorTable.CAST.createCall(s.end(this), args);
         }
     |
         e = SqlExtractFromDateTime() { return e; }
@@ -5512,6 +5520,43 @@ SqlNode DiagnosticStmt() :
 {
     (
         e = SqlGetDiagnostics()
+    |
+        e = SqlSignal()
+    )
+    { return e; }
+}
+
+SqlSignal SqlSignal() :
+{
+    final SignalType signalType;
+    SqlNode conditionOrSqlState = null;
+    SqlSetStmt setStmt = null;
+    final Span s = Span.of();
+}
+{
+    (
+        <SIGNAL> { signalType = SignalType.SIGNAL; }
+        conditionOrSqlState = SignalConditionOrSqlState()
+    |
+        <RESIGNAL> { signalType = SignalType.RESIGNAL; }
+        [ conditionOrSqlState = SignalConditionOrSqlState() ]
+    )
+    [ setStmt = SetStmt() ]
+    {
+        return new SqlSignal(s.end(this), signalType, conditionOrSqlState,
+            setStmt);
+    }
+}
+
+SqlNode SignalConditionOrSqlState() :
+{
+    final SqlNode e;
+}
+{
+    (
+        e = SimpleIdentifier()
+    |
+        e = SqlState()
     )
     { return e; }
 }
