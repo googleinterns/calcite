@@ -41,4 +41,11 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "FROM `ABC` AS `ABC`";
     sql(sql).rewritesTo(expected);
   }
+
+  @Test public void testHostVariable() {
+    String sql = "select :a from abc";
+    String expected = "SELECT :A\n"
+        + "FROM `ABC` AS `ABC`";
+    sql(sql).rewritesTo(expected);
+  }
 }
