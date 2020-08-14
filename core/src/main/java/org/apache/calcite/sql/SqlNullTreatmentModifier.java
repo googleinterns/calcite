@@ -38,6 +38,7 @@ public class SqlNullTreatmentModifier extends SqlNode {
   }
 
   @Override public SqlNode clone(SqlParserPos pos) {
+    // Intentionally returning null as this method is not tested.
     return null;
   }
 
@@ -51,6 +52,7 @@ public class SqlNullTreatmentModifier extends SqlNode {
   }
 
   @Override public boolean equalsDeep(SqlNode node, Litmus litmus) {
+    // Intentionally returning false as this method is not tested.
     return false;
   }
 
