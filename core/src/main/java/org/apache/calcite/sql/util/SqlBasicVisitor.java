@@ -20,6 +20,7 @@ import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDynamicParam;
+import org.apache.calcite.sql.SqlHostVariable;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlLiteral;
@@ -57,6 +58,10 @@ public class SqlBasicVisitor<R> implements SqlVisitor<R> {
   }
 
   public R visit(SqlIdentifier id) {
+    return null;
+  }
+
+  @Override public R visit(SqlHostVariable hostVariable) {
     return null;
   }
 

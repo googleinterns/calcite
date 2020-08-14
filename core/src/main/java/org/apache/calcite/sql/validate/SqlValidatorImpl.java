@@ -54,6 +54,7 @@ import org.apache.calcite.sql.SqlDynamicParam;
 import org.apache.calcite.sql.SqlExplain;
 import org.apache.calcite.sql.SqlFunction;
 import org.apache.calcite.sql.SqlFunctionCategory;
+import org.apache.calcite.sql.SqlHostVariable;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlInsert;
 import org.apache.calcite.sql.SqlIntervalLiteral;
@@ -5858,6 +5859,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return null;
     }
 
+    @Override public Void visit(SqlHostVariable hostVariable) {
+      return null;
+    }
+
     @Override public Void visit(SqlDataTypeSpec type) {
       throw Util.needToImplement(type);
     }
@@ -5995,6 +6000,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return type;
     }
 
+    @Override public RelDataType visit(SqlHostVariable hostVariable) {
+      return unknownType;
+    }
+
     public RelDataType visit(SqlDataTypeSpec dataType) {
       // Q. How can a data type have a type?
       // A. When it appears in an expression. (Say as the 2nd arg to the
@@ -6047,6 +6056,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
     @Override public SqlNode visit(SqlNullTreatmentModifier nullTreatmentModifier) {
       return nullTreatmentModifier;
+    }
+
+    @Override public SqlNode visit(SqlHostVariable hostVariable) {
+      return hostVariable;
     }
 
     @Override protected SqlNode visitScoped(SqlCall call) {
@@ -6181,6 +6194,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return nullTreatmentModifier;
     }
 
+    @Override public SqlNode visit(SqlHostVariable hostVariable) {
+      return hostVariable;
+    }
+
     protected SqlNode visitScoped(SqlCall call) {
       // Don't attempt to expand sub-queries. We haven't implemented
       // these yet.
@@ -6212,6 +6229,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       } else {
         return super.visit(id);
       }
+    }
+
+    @Override public SqlNode visit(SqlHostVariable hostVariable) {
+      return hostVariable;
     }
   }
 
@@ -6279,6 +6300,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
     @Override public SqlNode visit(SqlNullTreatmentModifier nullTreatmentModifier) {
       return nullTreatmentModifier;
+    }
+
+    @Override public SqlNode visit(SqlHostVariable hostVariable) {
+      return hostVariable;
     }
 
     public SqlNode visit(SqlLiteral literal) {
@@ -6462,6 +6487,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         return op.createCall(SqlParserPos.ZERO, id, offset);
       }
     }
+
+    @Override public SqlNode visit(SqlHostVariable hostVariable) {
+      return hostVariable;
+    }
   }
 
   /**
@@ -6512,6 +6541,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
       return operator.createCall(SqlParserPos.ZERO, id,
         SqlLiteral.createExactNumeric("0", SqlParserPos.ZERO));
+    }
+
+    @Override public SqlNode visit(SqlHostVariable hostVariable) {
+      return hostVariable;
     }
   }
 
@@ -6622,6 +6655,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         vars.add(identifier.names.get(0));
       }
       return vars;
+    }
+
+    @Override public Set<String> visit(SqlHostVariable hostVariable) {
+      return ImmutableSet.of();
     }
 
     @Override public Set<String> visit(SqlLiteral literal) {
