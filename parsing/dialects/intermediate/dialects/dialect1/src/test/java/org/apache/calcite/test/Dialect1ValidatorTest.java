@@ -34,4 +34,11 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
             .with("identifierExpansion", true)
             .with("allowUnknownTables", true));
   }
+
+  @Test public void testSelRewrite() {
+    String sql = "sel a from abc";
+    String expected = "SELECT `ABC`.`A`\n"
+        + "FROM `ABC` AS `ABC`";
+    sql(sql).rewritesTo(expected);
+  }
 }
