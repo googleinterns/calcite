@@ -20,12 +20,18 @@ import org.apache.calcite.sql.parser.dialect1.Dialect1ParserImpl;
 import org.apache.calcite.sql.test.SqlTestFactory;
 import org.apache.calcite.sql.test.SqlTester;
 import org.apache.calcite.sql.test.SqlValidatorTester;
+import org.apache.calcite.sql.validate.SqlConformanceEnum;
 
-public class Dialect1ValidatorTest extends SqlValidatorTest {
+import org.junit.jupiter.api.Test;
+
+public class Dialect1ValidatorTest extends SqlValidatorTestCase {
 
   @Override public SqlTester getTester() {
     return new SqlValidatorTester(
         SqlTestFactory.INSTANCE
-            .with("parserFactory", Dialect1ParserImpl.FACTORY));
+            .with("parserFactory", Dialect1ParserImpl.FACTORY)
+            .with("conformance", SqlConformanceEnum.LENIENT)
+            .with("identifierExpansion", true)
+            .with("allowUnknownTables", true));
   }
 }
