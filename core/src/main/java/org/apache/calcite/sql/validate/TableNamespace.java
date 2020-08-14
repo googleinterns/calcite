@@ -76,11 +76,7 @@ class TableNamespace extends AbstractNamespace {
 
   @Override public SqlMonotonicity getMonotonicity(String columnName) {
     final SqlValidatorTable table = getTable();
-    if (table != null) {
-      return table.getMonotonicity(columnName);
-    } else {
-      return SqlMonotonicity.MONOTONIC;
-    }
+    return table.getMonotonicity(columnName);
   }
 
   /** Creates a TableNamespace based on the same table as this one, but with
