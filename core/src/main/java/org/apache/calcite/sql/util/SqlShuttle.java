@@ -70,7 +70,6 @@ public class SqlShuttle extends SqlBasicVisitor<SqlNode> {
     return nullTreatmentModifier;
   }
 
-
   @Override public SqlNode visit(SqlColumnAttribute attribute) {
     return attribute;
   }
