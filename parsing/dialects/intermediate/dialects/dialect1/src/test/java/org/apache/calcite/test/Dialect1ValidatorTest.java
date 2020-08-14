@@ -42,6 +42,16 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(sql).rewritesTo(expected);
   }
 
+  // The sql() call removes "^" symbols in the query, so this test calls
+  // checkRewrite() which does not remove the caret operator.
+  @Test public void testCaretNegation() {
+    String sql = "select a from abc where ^a = 1";
+    String expected = "SELECT `ABC`.`A`\n"
+        + "FROM `ABC` AS `ABC`\n"
+        + "WHERE ^`ABC`.`A` = 1";
+    getTester().checkRewrite(sql, expected);
+  }
+
   @Test public void testHostVariable() {
     String sql = "select :a from abc";
     String expected = "SELECT :A\n"
