@@ -16,9 +16,6 @@
  */
 package org.apache.calcite.test;
 
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.parser.SqlParseException;
-import org.apache.calcite.sql.parser.SqlParser;
 import org.apache.calcite.sql.parser.dialect1.Dialect1ParserImpl;
 import org.apache.calcite.sql.test.SqlTestFactory;
 import org.apache.calcite.sql.test.SqlTester;
@@ -45,14 +42,13 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(sql).rewritesTo(expected);
   }
 
-  @Test public void testCaretNegation() throws SqlParseException {
-    String sql = "select * from dept where ^deptno = 1";
-    SqlParser.Config config = configBuilder()
-        .setParserFactory(Dialect1ParserImpl.FACTORY)
-        .build();
-    SqlParser sqlParserReader = SqlParser.create(new StringReader(sql), config);
-    SqlNode node = sqlParserReader.parseQuery();
-    SqlValidator validator = tester.getValidator();
-    validator.validate(node);
+  // The sql() call removes "^" symbols in the query, so this test calls
+  // checkRewrite() which does not remove the caret operator.
+  @Test public void testCaretNegation() {
+    String sql = "select a from abc where ^a = 1";
+    String expected = "SELECT `ABC`.`A`\n"
+        + "FROM `ABC` AS `ABC`\n"
+        + "WHERE ^`ABC`.`A` = 1";
+    getTester().checkRewrite(sql, expected);
   }
 }
