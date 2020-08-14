@@ -2331,6 +2331,10 @@ public class SqlToRelConverter {
             return rexBuilder.makeLiteral(id.getSimple());
           }
 
+          @Override public RexNode visit(SqlNullTreatmentModifier nullTreatmentModifier) {
+            return rexBuilder.makeFlag(nullTreatmentModifier.kind);
+          }
+
           @Override public RexNode visit(SqlLiteral literal) {
             if (literal instanceof SqlNumericLiteral) {
               return rexBuilder.makeExactLiteral(BigDecimal.valueOf(literal.intValue(true)));
@@ -5029,7 +5033,7 @@ public class SqlToRelConverter {
     }
 
     @Override public RexNode visit(SqlNullTreatmentModifier nullTreatmentModifier) {
-      throw new UnsupportedOperationException();
+      return exprConverter.convertNullTreatmentModifier(this, nullTreatmentModifier);
     }
 
     @Override public RexNode visit(SqlColumnAttribute attribute) {

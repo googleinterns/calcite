@@ -49,10 +49,14 @@ public class SqlNullTreatmentModifier extends SqlNode {
     return null;
   }
 
+  // Intentionally left blank.
   @Override public void validate(
       SqlValidator validator,
-      SqlValidatorScope scope) {
-  }
+      SqlValidatorScope scope) {}
+
+  // Intentionally left blank.
+  @Override public void validateExpr(SqlValidator validator,
+      SqlValidatorScope scope) {}
 
   @Override public <R> R accept(SqlVisitor<R> visitor) {
     return visitor.visit(this);

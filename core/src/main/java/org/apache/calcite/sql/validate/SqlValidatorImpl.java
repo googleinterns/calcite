@@ -6045,6 +6045,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return expandedExpr;
     }
 
+    @Override public SqlNode visit(SqlNullTreatmentModifier nullTreatmentModifier) {
+      return nullTreatmentModifier;
+    }
+
     @Override protected SqlNode visitScoped(SqlCall call) {
       switch (call.getKind()) {
       case SCALAR_QUERY:
@@ -6173,6 +6177,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return getScope().fullyQualify(id).identifier;
     }
 
+    @Override public SqlNode visit(SqlNullTreatmentModifier nullTreatmentModifier) {
+      return nullTreatmentModifier;
+    }
+
     protected SqlNode visitScoped(SqlCall call) {
       // Don't attempt to expand sub-queries. We haven't implemented
       // these yet.
@@ -6267,6 +6275,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         }
       }
       return super.visit(id);
+    }
+
+    @Override public SqlNode visit(SqlNullTreatmentModifier nullTreatmentModifier) {
+      return nullTreatmentModifier;
     }
 
     public SqlNode visit(SqlLiteral literal) {
@@ -6617,6 +6629,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     }
 
     @Override public Set<String> visit(SqlIntervalQualifier qualifier) {
+      return ImmutableSet.of();
+    }
+
+    @Override public Set<String> visit(SqlNullTreatmentModifier nullTreatmentModifier) {
       return ImmutableSet.of();
     }
 
