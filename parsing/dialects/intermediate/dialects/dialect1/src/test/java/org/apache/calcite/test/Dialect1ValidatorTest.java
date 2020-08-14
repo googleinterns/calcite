@@ -16,10 +16,20 @@
  */
 package org.apache.calcite.test;
 
+import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.parser.SqlParseException;
+import org.apache.calcite.sql.parser.SqlParser;
 import org.apache.calcite.sql.parser.dialect1.Dialect1ParserImpl;
 import org.apache.calcite.sql.test.SqlTestFactory;
 import org.apache.calcite.sql.test.SqlTester;
 import org.apache.calcite.sql.test.SqlValidatorTester;
+import org.apache.calcite.sql.validate.SqlValidator;
+
+import org.junit.jupiter.api.Test;
+
+import java.io.StringReader;
+
+import static org.apache.calcite.sql.parser.SqlParser.configBuilder;
 
 public class Dialect1ValidatorTest extends SqlValidatorTest {
 
@@ -27,5 +37,16 @@ public class Dialect1ValidatorTest extends SqlValidatorTest {
     return new SqlValidatorTester(
         SqlTestFactory.INSTANCE
             .with("parserFactory", Dialect1ParserImpl.FACTORY));
+  }
+
+  @Test public void testCaretNegation() throws SqlParseException {
+    String sql = "select * from dept where ^deptno = 1";
+    SqlParser.Config config = configBuilder()
+        .setParserFactory(Dialect1ParserImpl.FACTORY)
+        .build();
+    SqlParser sqlParserReader = SqlParser.create(new StringReader(sql), config);
+    SqlNode node = sqlParserReader.parseQuery();
+    SqlValidator validator = tester.getValidator();
+    validator.validate(node);
   }
 }
