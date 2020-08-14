@@ -126,6 +126,12 @@ public class BasicSqlType extends AbstractSqlType {
         this.precision, this.scale, this.collation, this.wrappedCharset);
   }
 
+  public BasicSqlType relaxToAny() {
+    return new BasicSqlType(this.typeSystem, SqlTypeName.ANY,
+        /*nullable=*/true, /*precision=*/-1, /*scale=*/-1, /*collation=*/null,
+        /*wrappedCharset=*/null);
+  }
+
   /**
    * Constructs a type with charset and collation.
    *
