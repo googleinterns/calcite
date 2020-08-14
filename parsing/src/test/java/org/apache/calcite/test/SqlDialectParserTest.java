@@ -4464,6 +4464,41 @@ public abstract class SqlDialectParserTest {
             + "FROM `BIDS`");
   }
 
+  @Test void testAs() {
+    // AS is optional for column aliases
+    sql("select x y from t")
+        .ok("SELECT `X` AS `Y`\n"
+            + "FROM `T`");
+
+    sql("select x AS y from t")
+        .ok("SELECT `X` AS `Y`\n"
+            + "FROM `T`");
+    sql("select sum(x) y from t group by z")
+        .ok("SELECT SUM(`X`) AS `Y`\n"
+            + "FROM `T`\n"
+            + "GROUP BY `Z`");
+
+    // Even after OVER
+    sql("select count(z) over w foo from Bids window w as (order by x)")
+        .ok("SELECT (COUNT(`Z`) OVER `W`) AS `FOO`\n"
+            + "FROM `BIDS`\n"
+            + "WINDOW `W` AS (ORDER BY `X`)");
+
+    // AS is optional for table correlation names
+    final String expected = "SELECT `X`\n"
+        + "FROM `T` AS `T1`";
+    sql("select x from t as t1").ok(expected);
+    sql("select x from t t1").ok(expected);
+
+    // AS is required in WINDOW declaration
+    sql("select sum(x) over w from bids window w ^(order by x)")
+        .fails("(?s).*Encountered \"\\(\".*");
+
+    // Error if OVER and AS are in wrong order
+    sql("select count(*) as foo ^over^ w from Bids window w (order by x)")
+        .fails("(?s).*Encountered \"over\".*");
+  }
+
   @Test void testAsAliases() {
     sql("select x from t as t1 (a, b) where foo")
         .ok("SELECT `X`\n"
