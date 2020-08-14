@@ -30,6 +30,13 @@ import java.util.Objects;
 public class SqlNullTreatmentModifier extends SqlNode {
   public final SqlKind kind;
 
+  /**
+   * Creates a {@code SqlNullTreatmentModifier}.
+   *
+   * @param pos  SqlParserPos, can not be null
+   * @param kind  The kind, cannot be null and must be either RESPECT_NULLS
+   *              or IGNORE_NULLS
+   */
   public SqlNullTreatmentModifier(SqlParserPos pos, SqlKind kind) {
     super(pos);
     this.kind = Objects.requireNonNull(kind);

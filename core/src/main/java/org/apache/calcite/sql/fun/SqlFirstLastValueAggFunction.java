@@ -87,6 +87,7 @@ public class SqlFirstLastValueAggFunction extends SqlAggFunction {
     final SqlWriter.Frame frame =
         writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
     call.operand(0).unparse(writer, leftPrec, rightPrec);
+    // Case IGNORE/RESPECT NULLS was provided *inside* this function.
     if (call.operandCount() == 2) {
       call.operand(1).unparse(writer, leftPrec, rightPrec);
     }

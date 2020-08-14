@@ -5746,7 +5746,7 @@ SqlCall FirstLastValue() :
     final SqlNode value;
     final SqlNode over;
     final List<SqlNode> args = new ArrayList<SqlNode>();
-    SqlNullTreatmentModifier nullTreatmentModifier = null;
+    final SqlKind kind;
     final SqlAggFunction function;
     final SqlCall firstLastCall;
 }
@@ -5765,16 +5765,14 @@ SqlCall FirstLastValue() :
     [
         (
             <IGNORE> {
-                nullTreatmentModifier = new SqlNullTreatmentModifier(getPos(),
-                    SqlKind.IGNORE_NULLS);
+                kind = SqlKind.IGNORE_NULLS;
             }
         |
             <RESPECT> {
-                nullTreatmentModifier = new SqlNullTreatmentModifier(getPos(),
-                    SqlKind.RESPECT_NULLS);
+                kind = SqlKind.RESPECT_NULLS;
             }
         )
-        <NULLS> { args.add(nullTreatmentModifier); }
+        <NULLS> { args.add(new SqlNullTreatmentModifier(getPos(), kind)); }
     ]
     {
             firstLastCall = function.createCall(getPos(), args);
