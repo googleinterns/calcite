@@ -54,4 +54,42 @@ final class DefaultDialectParserTest extends SqlDialectParserTest {
     sql("values (a^#^b)")
         .fails("Lexical error at line 1, column 10\\.  Encountered: \"#\" \\(35\\), after : \"\"");
   }
+
+  @Test void testNullTreatment() {
+    sql("select lead(x) respect nulls over (w) from t")
+        .ok("SELECT (LEAD(`X`) RESPECT NULLS OVER (`W`))\n"
+            + "FROM `T`");
+    sql("select deptno, sum(sal) respect nulls from emp group by deptno")
+        .ok("SELECT `DEPTNO`, SUM(`SAL`) RESPECT NULLS\n"
+            + "FROM `EMP`\n"
+            + "GROUP BY `DEPTNO`");
+    sql("select deptno, sum(sal) ignore nulls from emp group by deptno")
+        .ok("SELECT `DEPTNO`, SUM(`SAL`) IGNORE NULLS\n"
+            + "FROM `EMP`\n"
+            + "GROUP BY `DEPTNO`");
+    final String sql = "select col1,\n"
+        + " collect(col2) ignore nulls\n"
+        + "   within group (order by col3)\n"
+        + "   filter (where 1 = 0)\n"
+        + "   over (rows 10 preceding)\n"
+        + " as c\n"
+        + "from t\n"
+        + "order by col1 limit 10";
+    final String expected = "SELECT `COL1`, (COLLECT(`COL2`) IGNORE NULLS"
+        + " WITHIN GROUP (ORDER BY `COL3`)"
+        + " FILTER (WHERE (1 = 0)) OVER (ROWS 10 PRECEDING)) AS `C`\n"
+        + "FROM `T`\n"
+        + "ORDER BY `COL1`\n"
+        + "FETCH NEXT 10 ROWS ONLY";
+    sql(sql).ok(expected);
+
+    // See [CALCITE-2993] ParseException may be thrown for legal
+    // SQL queries due to incorrect "LOOKAHEAD(1)" hints
+    sql("select lead(x) ignore from t")
+        .ok("SELECT LEAD(`X`) AS `IGNORE`\n"
+            + "FROM `T`");
+    sql("select lead(x) respect from t")
+        .ok("SELECT LEAD(`X`) AS `RESPECT`\n"
+            + "FROM `T`");
+  }
 }
