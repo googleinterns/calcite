@@ -22,6 +22,7 @@ import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlNullTreatmentModifier;
 
 /**
  * Converts expressions from {@link SqlNode} to {@link RexNode}.
@@ -55,4 +56,12 @@ public interface SqlNodeToRexConverter {
   RexLiteral convertInterval(
       SqlRexContext cx,
       SqlIntervalQualifier intervalQualifier);
+
+  /**
+   * Converts a {@link SqlNullTreatmentModifier} to a
+   * {@link RexLiteral REX literal}.
+   */
+  RexLiteral convertNullTreatmentModifier(
+      SqlRexContext cx,
+      SqlNullTreatmentModifier nullTreatmentModifier);
 }

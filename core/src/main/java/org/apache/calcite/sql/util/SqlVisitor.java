@@ -26,6 +26,7 @@ import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlNullTreatmentModifier;
 import org.apache.calcite.sql.SqlOperator;
 
 /**
@@ -108,6 +109,14 @@ public interface SqlVisitor<R> {
    * @see SqlIntervalQualifier#accept(SqlVisitor)
    */
   R visit(SqlIntervalQualifier intervalQualifier);
+
+  /**
+   * Visits a null treatment modifier.
+   *
+   * @param nullTreatmentModifier The modifier
+   * @see SqlNullTreatmentModifier#accept(SqlVisitor)
+   */
+  R visit(SqlNullTreatmentModifier nullTreatmentModifier);
 
   /**
    * Visits a column attribute.

@@ -42,6 +42,40 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(sql).rewritesTo(expected);
   }
 
+  @Test public void testFirstValueRewrite() {
+    String sql = "SELECT FIRST_VALUE (foo) OVER (PARTITION BY (foo)) FROM bar";
+    String expected = "SELECT FIRST_VALUE(`BAR`.`FOO`) OVER (PARTITION BY "
+        + "`BAR`.`FOO`)\n"
+        + "FROM `BAR` AS `BAR`";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testLastValueRewrite() {
+    String sql = "SELECT LAST_VALUE (foo) OVER (PARTITION BY (foo)) FROM bar";
+    String expected = "SELECT LAST_VALUE(`BAR`.`FOO`) OVER (PARTITION BY "
+        + "`BAR`.`FOO`)\n"
+        + "FROM `BAR` AS `BAR`";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testFirstValueIgnoreNullsRewrite() {
+    final String sql = "SELECT FIRST_VALUE (foo IGNORE NULLS) OVER"
+        + " (PARTITION BY (foo)) FROM bar";
+    final String expected = "SELECT FIRST_VALUE(`BAR`.`FOO` IGNORE NULLS)"
+        + " OVER (PARTITION BY `BAR`.`FOO`)\n"
+        + "FROM `BAR` AS `BAR`";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testFirstValueRespectNulls() {
+    final String sql = "SELECT FIRST_VALUE (foo RESPECT NULLS) OVER"
+        + " (PARTITION BY (foo)) FROM bar";
+    final String expected = "SELECT FIRST_VALUE(`BAR`.`FOO` RESPECT NULLS)"
+        + " OVER (PARTITION BY `BAR`.`FOO`)\n"
+        + "FROM `BAR` AS `BAR`";
+    sql(sql).rewritesTo(expected);
+  }
+
   // The sql() call removes "^" symbols in the query, so this test calls
   // checkRewrite() which does not remove the caret operator.
   @Test public void testCaretNegation() {

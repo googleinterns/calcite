@@ -341,6 +341,9 @@ public class RelOptTableImpl extends Prepare.AbstractPreparingTable {
   }
 
   public SqlMonotonicity getMonotonicity(String columnName) {
+    if (table == null) {
+      return SqlMonotonicity.NOT_MONOTONIC;
+    }
     for (RelCollation collation : table.getStatistic().getCollations()) {
       final RelFieldCollation fieldCollation =
           collation.getFieldCollations().get(0);

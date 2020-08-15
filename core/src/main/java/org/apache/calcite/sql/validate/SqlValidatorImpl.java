@@ -66,6 +66,7 @@ import org.apache.calcite.sql.SqlMatchRecognize;
 import org.apache.calcite.sql.SqlMerge;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlNullTreatmentModifier;
 import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlOperatorTable;
 import org.apache.calcite.sql.SqlOrderBy;
@@ -5874,6 +5875,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       throw Util.needToImplement(intervalQualifier);
     }
 
+    @Override public Void visit(SqlNullTreatmentModifier nullTreatmentModifier) {
+      throw Util.needToImplement(nullTreatmentModifier);
+    }
+
     @Override public Void visit(SqlColumnAttribute attribute) {
       throw Util.needToImplement(attribute);
     }
@@ -6015,6 +6020,11 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return typeFactory.createSqlIntervalType(intervalQualifier);
     }
 
+    @Override public RelDataType visit(
+        SqlNullTreatmentModifier nullTreatmentModifier) {
+      return unknownType;
+    }
+
     @Override public RelDataType visit(SqlColumnAttribute attribute) {
       return unknownType;
     }
@@ -6043,6 +6053,11 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       SqlNode expandedExpr = expandDynamicStar(id, fqId);
       validator.setOriginal(expandedExpr, id);
       return expandedExpr;
+    }
+
+    @Override public SqlNode visit(
+        SqlNullTreatmentModifier nullTreatmentModifier) {
+      return nullTreatmentModifier;
     }
 
     @Override public SqlNode visit(SqlHostVariable hostVariable) {
@@ -6177,6 +6192,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return getScope().fullyQualify(id).identifier;
     }
 
+    @Override public SqlNode visit(SqlNullTreatmentModifier nullTreatmentModifier) {
+      return nullTreatmentModifier;
+    }
+
     @Override public SqlNode visit(SqlHostVariable hostVariable) {
       return hostVariable;
     }
@@ -6279,6 +6298,11 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         }
       }
       return super.visit(id);
+    }
+
+    @Override public SqlNode visit(
+        SqlNullTreatmentModifier nullTreatmentModifier) {
+      return nullTreatmentModifier;
     }
 
     @Override public SqlNode visit(SqlHostVariable hostVariable) {
@@ -6645,6 +6669,11 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     }
 
     @Override public Set<String> visit(SqlIntervalQualifier qualifier) {
+      return ImmutableSet.of();
+    }
+
+    @Override public Set<String> visit(
+        SqlNullTreatmentModifier nullTreatmentModifier) {
       return ImmutableSet.of();
     }
 
