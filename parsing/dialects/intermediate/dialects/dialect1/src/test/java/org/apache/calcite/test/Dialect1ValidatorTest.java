@@ -44,14 +44,16 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
 
   @Test public void testFirstValueRewrite() {
     String sql = "SELECT FIRST_VALUE (foo) OVER (PARTITION BY (foo)) FROM bar";
-    String expected = "SELECT FIRST_VALUE(`BAR`.`FOO`) OVER (PARTITION BY `BAR`.`FOO`)\n"
+    String expected = "SELECT FIRST_VALUE(`BAR`.`FOO`) OVER (PARTITION BY "
+        + "`BAR`.`FOO`)\n"
         + "FROM `BAR` AS `BAR`";
     sql(sql).rewritesTo(expected);
   }
 
   @Test public void testLastValueRewrite() {
     String sql = "SELECT LAST_VALUE (foo) OVER (PARTITION BY (foo)) FROM bar";
-    String expected = "SELECT LAST_VALUE(`BAR`.`FOO`) OVER (PARTITION BY `BAR`.`FOO`)\n"
+    String expected = "SELECT LAST_VALUE(`BAR`.`FOO`) OVER (PARTITION BY "
+        + "`BAR`.`FOO`)\n"
         + "FROM `BAR` AS `BAR`";
     sql(sql).rewritesTo(expected);
   }

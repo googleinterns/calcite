@@ -6020,7 +6020,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return typeFactory.createSqlIntervalType(intervalQualifier);
     }
 
-    @Override public RelDataType visit(SqlNullTreatmentModifier nullTreatmentModifier) {
+    @Override public RelDataType visit(
+        SqlNullTreatmentModifier nullTreatmentModifier) {
       return unknownType;
     }
 
@@ -6054,7 +6055,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return expandedExpr;
     }
 
-    @Override public SqlNode visit(SqlNullTreatmentModifier nullTreatmentModifier) {
+    @Override public SqlNode visit(
+        SqlNullTreatmentModifier nullTreatmentModifier) {
       return nullTreatmentModifier;
     }
 
@@ -6298,7 +6300,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return super.visit(id);
     }
 
-    @Override public SqlNode visit(SqlNullTreatmentModifier nullTreatmentModifier) {
+    @Override public SqlNode visit(
+        SqlNullTreatmentModifier nullTreatmentModifier) {
       return nullTreatmentModifier;
     }
 
@@ -6669,7 +6672,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return ImmutableSet.of();
     }
 
-    @Override public Set<String> visit(SqlNullTreatmentModifier nullTreatmentModifier) {
+    @Override public Set<String> visit(
+        SqlNullTreatmentModifier nullTreatmentModifier) {
       return ImmutableSet.of();
     }
 
