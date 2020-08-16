@@ -49,6 +49,10 @@ public class SqlNullTreatmentModifier extends SqlNode {
     return null;
   }
 
+  @Override public SqlKind getKind() {
+    return kind;
+  }
+
   // Intentionally left blank.
   @Override public void validate(
       SqlValidator validator,
