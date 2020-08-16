@@ -1509,17 +1509,13 @@ SqlNode InlineModOperatorLiteralOrIdentifier() :
 SqlNode InlineModOperator(SqlNode q) :
 {
     final List<SqlNode> args = new ArrayList<SqlNode>();
-    final SqlIdentifier qualifiedName;
     final Span s;
     SqlNode e;
-    SqlFunctionCategory funcType = SqlFunctionCategory.USER_DEFINED_FUNCTION;
-    SqlLiteral quantifier = null;
 }
 {
     <MOD> {
         s = span();
         args.add(q);
-        qualifiedName = new SqlIdentifier(unquotedIdentifier(), s.pos());
     }
     (
         e = NumericLiteral()
@@ -1527,10 +1523,11 @@ SqlNode InlineModOperator(SqlNode q) :
         e = CompoundIdentifier()
     |
         e = ParenthesizedQueryOrCommaList(ExprContext.ACCEPT_SUB_QUERY)
+        { e = ((SqlNodeList) e).get(0); }
     )
     {
         args.add(e);
-        return createCall(qualifiedName, s.end(this), funcType, quantifier, args);
+        return SqlStdOperatorTable.MOD.createCall(s.end(this), args);
     }
 }
 

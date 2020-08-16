@@ -35,14 +35,14 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
             .with("allowUnknownTables", true));
   }
 
-  @Test public void testSelRewrite() {
+  @Test public void testSel() {
     String sql = "sel a from abc";
     String expected = "SELECT `ABC`.`A`\n"
         + "FROM `ABC` AS `ABC`";
     sql(sql).rewritesTo(expected);
   }
 
-  @Test public void testFirstValueRewrite() {
+  @Test public void testFirstValue() {
     String sql = "SELECT FIRST_VALUE (foo) OVER (PARTITION BY (foo)) FROM bar";
     String expected = "SELECT FIRST_VALUE(`BAR`.`FOO`) OVER (PARTITION BY "
         + "`BAR`.`FOO`)\n"
@@ -50,7 +50,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(sql).rewritesTo(expected);
   }
 
-  @Test public void testLastValueRewrite() {
+  @Test public void testLastValue() {
     String sql = "SELECT LAST_VALUE (foo) OVER (PARTITION BY (foo)) FROM bar";
     String expected = "SELECT LAST_VALUE(`BAR`.`FOO`) OVER (PARTITION BY "
         + "`BAR`.`FOO`)\n"
@@ -58,7 +58,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(sql).rewritesTo(expected);
   }
 
-  @Test public void testFirstValueIgnoreNullsRewrite() {
+  @Test public void testFirstValueIgnoreNulls() {
     final String sql = "SELECT FIRST_VALUE (foo IGNORE NULLS) OVER"
         + " (PARTITION BY (foo)) FROM bar";
     final String expected = "SELECT FIRST_VALUE(`BAR`.`FOO` IGNORE NULLS)"
@@ -90,6 +90,15 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     String sql = "select :a from abc";
     String expected = "SELECT :A\n"
         + "FROM `ABC` AS `ABC`";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testInlineModOperatorWithExpressions() {
+    String sql = "select (select a from abc) mod (select d from def) from ghi";
+    String expected = "SELECT MOD(((SELECT `ABC`.`A`\n"
+     + "FROM `ABC` AS `ABC`)), ((SELECT `DEF`.`D`\n"
+     + "FROM `DEF` AS `DEF`)))\n"
+     + "FROM `GHI` AS `GHI`";
     sql(sql).rewritesTo(expected);
   }
 }

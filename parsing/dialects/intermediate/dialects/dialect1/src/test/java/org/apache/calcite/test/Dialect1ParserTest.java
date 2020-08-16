@@ -1623,33 +1623,33 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testInlineModSyntaxInteger() {
     final String sql = "select 27 mod -3";
-    final String expected = "SELECT MOD(27, -3)";
+    final String expected = "SELECT (MOD(27, -3))";
     sql(sql).ok(expected);
   }
 
   @Test public void testInlineModSyntaxFloatingPoint() {
     final String sql = "select 27.123 mod 4.12";
-    final String expected = "SELECT MOD(27.123, 4.12)";
+    final String expected = "SELECT (MOD(27.123, 4.12))";
     sql(sql).ok(expected);
   }
 
   @Test public void testInlineModSyntaxSimpleIdentifiers() {
     final String sql = "select foo mod bar";
-    final String expected = "SELECT MOD(`FOO`, `BAR`)";
+    final String expected = "SELECT (MOD(`FOO`, `BAR`))";
     sql(sql).ok(expected);
   }
 
   @Test public void testInlineModSyntaxCompoundIdentifiers() {
     final String sql = "select foo.bar mod baz.qux";
-    final String expected = "SELECT MOD(`FOO`.`BAR`, `BAZ`.`QUX`)";
+    final String expected = "SELECT (MOD(`FOO`.`BAR`, `BAZ`.`QUX`))";
     sql(sql).ok(expected);
   }
 
   @Test public void testInlineModSyntaxExpressions() {
     final String sql = "select (select foo from bar) mod (select baz from qux)";
-    final String expected = "SELECT MOD((SELECT `FOO`\n"
+    final String expected = "SELECT (MOD((SELECT `FOO`\n"
         + "FROM `BAR`), (SELECT `BAZ`\n"
-        + "FROM `QUX`))";
+        + "FROM `QUX`)))";
     sql(sql).ok(expected);
   }
 
