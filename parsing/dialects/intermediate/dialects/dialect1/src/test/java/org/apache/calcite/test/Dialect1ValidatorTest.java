@@ -96,9 +96,9 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
   @Test public void testInlineModOperatorWithExpressions() {
     String sql = "select (select a from abc) mod (select d from def) from ghi";
     String expected = "SELECT MOD(((SELECT `ABC`.`A`\n"
-     + "FROM `ABC` AS `ABC`)), ((SELECT `DEF`.`D`\n"
-     + "FROM `DEF` AS `DEF`)))\n"
-     + "FROM `GHI` AS `GHI`";
+        + "FROM `ABC` AS `ABC`)), ((SELECT `DEF`.`D`\n"
+        + "FROM `DEF` AS `DEF`)))\n"
+        + "FROM `GHI` AS `GHI`";
     sql(sql).rewritesTo(expected);
   }
 }
