@@ -30,8 +30,8 @@ public abstract class SqlScriptingNode extends SqlCall {
     super(pos);
   }
 
-  @Override public void validate(final SqlValidator validator,
-      final SqlValidatorScope scope) {
+  @Override public void validate(SqlValidator validator,
+      SqlValidatorScope scope) {
     // NO-OP
   }
 }
