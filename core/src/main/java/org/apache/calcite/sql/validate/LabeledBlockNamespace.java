@@ -20,6 +20,8 @@ import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.SqlLabeledBlock;
 import org.apache.calcite.sql.SqlNode;
 
+import java.util.Objects;
+
 /**
  * Namespace for a labeled block such as a BEGIN...END clause or an iteration
  * statement.
@@ -32,14 +34,14 @@ public class LabeledBlockNamespace extends AbstractNamespace {
    * Creates a LabeledBlockNamespace.
    *
    * @param validator Validator
-   * @param labeledBlock The labeled block node
+   * @param labeledBlock The labeled block node, must not be null
    * @param enclosingNode Enclosing node
    */
   LabeledBlockNamespace(SqlValidatorImpl validator,
       SqlLabeledBlock labeledBlock,
       SqlNode enclosingNode) {
     super(validator, enclosingNode);
-    this.labeledBlock = labeledBlock;
+    this.labeledBlock = Objects.requireNonNull(labeledBlock);
   }
 
   protected RelDataType validateImpl(RelDataType targetRowType) {

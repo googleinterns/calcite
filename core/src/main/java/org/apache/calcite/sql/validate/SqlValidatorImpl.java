@@ -76,7 +76,6 @@ import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlOperatorTable;
 import org.apache.calcite.sql.SqlOrderBy;
 import org.apache.calcite.sql.SqlSampleSpec;
-import org.apache.calcite.sql.SqlScriptingNode;
 import org.apache.calcite.sql.SqlSelect;
 import org.apache.calcite.sql.SqlSelectKeyword;
 import org.apache.calcite.sql.SqlSnapshot;
@@ -1173,7 +1172,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     return scopes.get(stripAs(node));
   }
 
-  public BlockScope getBlockScope(SqlScriptingNode block) {
+  public BlockScope getBlockScope(SqlLabeledBlock block) {
     return (BlockScope) scopes.get(block);
   }
 
@@ -2891,8 +2890,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       break;
 
     case CREATE_PROCEDURE:
-      final SqlCreateProcedure createProcedure = (SqlCreateProcedure) node;
-      nodeToTypeMap.put(createProcedure, unknownType);
+      SqlCreateProcedure createProcedure = (SqlCreateProcedure) node;
+      nodeToTypeMap.put(createProcedure, getUnknownType());
       registerQuery(parentScope, null, createProcedure.statement,
           node, null, false, false);
       break;
@@ -2941,12 +2940,13 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
   private void registerStatementList(SqlValidatorScope parentScope,
       SqlValidatorScope usingScope, String alias, SqlNodeList statements,
       SqlNode enclosingNode) {
-    List<SqlKind> kinds = Arrays.asList(SqlKind.SELECT, SqlKind.INSERT,
-        SqlKind.DELETE, SqlKind.MERGE, SqlKind.UPDATE, SqlKind.BEGIN_END,
-        SqlKind.ITERATION_STATEMENT, SqlKind.DECLARE_CONDITION,
-        SqlKind.DECLARE_HANDLER, SqlKind.IF_STATEMENT, SqlKind.CASE_STATEMENT,
-        SqlKind.CONDITION_STATEMENT_LIST_PAIR);
-    Set<SqlKind> supportedKinds = new HashSet<>(kinds);
+    Set<SqlKind> supportedKinds = new HashSet<>(
+        Arrays.asList(SqlKind.SELECT,
+        SqlKind.INSERT, SqlKind.DELETE, SqlKind.MERGE, SqlKind.UPDATE,
+        SqlKind.BEGIN_END, SqlKind.ITERATION_STATEMENT,
+        SqlKind.DECLARE_CONDITION, SqlKind.DECLARE_HANDLER,
+        SqlKind.IF_STATEMENT, SqlKind.CASE_STATEMENT,
+        SqlKind.CONDITION_STATEMENT_LIST_PAIR));
     for (SqlNode child : statements) {
       if (supportedKinds.contains(child.getKind())) {
         registerQuery(parentScope, usingScope, child,

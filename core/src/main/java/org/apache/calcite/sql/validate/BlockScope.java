@@ -34,8 +34,7 @@ public class BlockScope extends ListScope {
   public final SqlLabeledBlock block;
 
   /**
-   * Creates a scope corresponding to a BEGIN...END clause or an iteration
-   * statement in a script.
+   * Creates an instance of {@code BlockScope}.
    *
    * @param parent  Parent scope, must not be null
    * @param block  May be a {@link org.apache.calcite.sql.SqlBeginEndCall} or a
