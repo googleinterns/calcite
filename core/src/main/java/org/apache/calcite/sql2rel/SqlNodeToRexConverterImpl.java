@@ -77,7 +77,7 @@ public class SqlNodeToRexConverterImpl implements SqlNodeToRexConverter {
     return rexBuilder.makeIntervalLiteral(intervalQualifier);
   }
 
-  public RexLiteral convertNullTreatmentModifier(
+  @Override public RexLiteral convertNullTreatmentModifier(
       SqlRexContext cx,
       SqlNullTreatmentModifier nullTreatmentModifier) {
     RexBuilder rexBuilder = cx.getRexBuilder();

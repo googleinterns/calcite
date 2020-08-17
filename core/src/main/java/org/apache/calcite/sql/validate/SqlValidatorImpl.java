@@ -6219,30 +6219,6 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return super.visit(literal);
     }
 
-    /**
-     * Returns the <code>ordinal</code>th item in the select list.
-     */
-    private SqlNode nthSelectItem(int ordinal, final SqlParserPos pos) {
-      // TODO: Don't expand the list every time. Maybe keep an expanded
-      // version of each expression -- select lists and identifiers -- in
-      // the validator.
-
-      SqlNodeList expandedSelectList =
-          expandStar(
-              select.getSelectList(),
-              select,
-              false);
-      SqlNode expr = expandedSelectList.get(ordinal);
-      expr = stripAs(expr);
-      if (expr instanceof SqlIdentifier) {
-        expr = getScope().fullyQualify((SqlIdentifier) expr).identifier;
-      }
-
-      // Create a copy of the expression with the position of the order
-      // item.
-      return expr.clone(pos);
-    }
-
     public SqlNode visit(SqlIdentifier id) {
       // Aliases, e.g. 'select a as x, b from t order by x'.
       if (id.isSimple()
@@ -6279,6 +6255,30 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         return call;
       }
       return super.visitScoped(call);
+    }
+
+    /**
+     * Returns the <code>ordinal</code>th item in the select list.
+     */
+    private SqlNode nthSelectItem(int ordinal, final SqlParserPos pos) {
+      // TODO: Don't expand the list every time. Maybe keep an expanded
+      // version of each expression -- select lists and identifiers -- in
+      // the validator.
+
+      SqlNodeList expandedSelectList =
+          expandStar(
+              select.getSelectList(),
+              select,
+              false);
+      SqlNode expr = expandedSelectList.get(ordinal);
+      expr = stripAs(expr);
+      if (expr instanceof SqlIdentifier) {
+        expr = getScope().fullyQualify((SqlIdentifier) expr).identifier;
+      }
+
+      // Create a copy of the expression with the position of the order
+      // item.
+      return expr.clone(pos);
     }
   }
 
