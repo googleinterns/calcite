@@ -17,6 +17,7 @@
 package org.apache.calcite.sql.validate;
 
 import org.apache.calcite.config.NullCollation;
+import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.linq4j.Ord;
 import org.apache.calcite.linq4j.function.Function2;
 import org.apache.calcite.linq4j.function.Functions;
@@ -38,6 +39,7 @@ import org.apache.calcite.runtime.Feature;
 import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.schema.Table;
+import org.apache.calcite.schema.impl.ExplicitRowTypeTable;
 import org.apache.calcite.schema.impl.ModifiableViewTable;
 import org.apache.calcite.sql.JoinConditionType;
 import org.apache.calcite.sql.JoinType;
@@ -45,9 +47,12 @@ import org.apache.calcite.sql.SqlAccessEnum;
 import org.apache.calcite.sql.SqlAccessType;
 import org.apache.calcite.sql.SqlAggFunction;
 import org.apache.calcite.sql.SqlBasicCall;
+import org.apache.calcite.sql.SqlBasicTypeNameSpec;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCallBinding;
 import org.apache.calcite.sql.SqlColumnAttribute;
+import org.apache.calcite.sql.SqlColumnDeclaration;
+import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
@@ -75,6 +80,7 @@ import org.apache.calcite.sql.SqlSelect;
 import org.apache.calcite.sql.SqlSelectKeyword;
 import org.apache.calcite.sql.SqlSnapshot;
 import org.apache.calcite.sql.SqlSyntax;
+import org.apache.calcite.sql.SqlTypeNameSpec;
 import org.apache.calcite.sql.SqlUnresolvedFunction;
 import org.apache.calcite.sql.SqlUpdate;
 import org.apache.calcite.sql.SqlUtil;
@@ -2585,6 +2591,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     SqlCall call;
     List<SqlNode> operands;
     switch (node.getKind()) {
+    case CREATE_TABLE:
+      return;
     case SELECT:
       final SqlSelect select = (SqlSelect) node;
       final SelectNamespace selectNs =
@@ -3217,6 +3225,33 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
               fracPrecision,
               "INTERVAL " + qualifier));
     }
+  }
+
+  @Override public void validateCreateTable(SqlCreateTable createTable) {
+    assert createTable != null;
+    setValidatedNodeType(createTable, unknownType);
+    CalciteSchema schema = catalogReader.getRootSchema();
+    RelDataTypeFactory.Builder builder = typeFactory.builder();
+    if (createTable.columnList == null) {
+      schema.add(createTable.name.toString(),
+          new ExplicitRowTypeTable(builder.build()));
+      return;
+    }
+    for (SqlNode column : createTable.columnList) {
+      // This field is guaranteed to be of type SqlColumnDeclaration since this
+      // is a SqlCreateTable node type.
+      assert column instanceof SqlColumnDeclaration;
+      SqlColumnDeclaration col = (SqlColumnDeclaration) column;
+      SqlTypeNameSpec typeNameSpec = col.dataType.getTypeNameSpec();
+      // All data types that we initially plan to support (e.g. INTEGER, VARCHAR,
+      // BOOLEAN, DATE, etc) are of type SqlBasicTypeNameSpec.
+      assert typeNameSpec instanceof SqlBasicTypeNameSpec;
+      SqlBasicTypeNameSpec basicTypeNameSpec =
+        (SqlBasicTypeNameSpec) typeNameSpec;
+      builder.add(col.name.toString(), basicTypeNameSpec.sqlTypeName);
+    }
+    schema.add(createTable.name.toString(),
+        new ExplicitRowTypeTable(builder.build()));
   }
 
   /**
