@@ -16,8 +16,6 @@
  */
 package org.apache.calcite.sql.validate;
 
-import com.sun.org.apache.bcel.internal.classfile.Unknown;
-
 import org.apache.calcite.config.NullCollation;
 import org.apache.calcite.linq4j.Ord;
 import org.apache.calcite.linq4j.function.Function2;
