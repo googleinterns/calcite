@@ -28,7 +28,7 @@ import static org.apache.calcite.util.Static.RESOURCE;
 /**
  * Parse tree for a {@code SqlIterationStmt}.
  */
-public abstract class SqlIterationStmt extends SqlCall {
+public abstract class SqlIterationStmt extends SqlScriptingNode {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("ITERATION", SqlKind.ITERATION_STATEMENT);
 

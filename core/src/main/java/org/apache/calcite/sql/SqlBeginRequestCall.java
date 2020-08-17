@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlBeginRequestCall} expression.
  */
-public class SqlBeginRequestCall extends SqlCall {
+public class SqlBeginRequestCall extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("BEGIN REQUEST", SqlKind.BEGIN_REQUEST);
 

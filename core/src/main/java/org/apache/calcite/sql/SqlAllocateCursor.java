@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlAllocateCursor} call.
  */
-public class SqlAllocateCursor extends SqlCall {
+public class SqlAllocateCursor extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("ALLOCATE CURSOR", SqlKind.ALLOCATE_CURSOR);
 

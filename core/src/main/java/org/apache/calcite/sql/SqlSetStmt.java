@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for a {@code SqlSetStmt}.
  */
-public class SqlSetStmt extends SqlCall {
+public class SqlSetStmt extends SqlScriptingNode {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("SET", SqlKind.SET_STATEMENT);
 

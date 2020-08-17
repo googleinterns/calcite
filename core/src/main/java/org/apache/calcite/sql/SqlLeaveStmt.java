@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Parse tree for a {@code SqlLeaveStmt}.
  */
-public class SqlLeaveStmt extends SqlCall {
+public class SqlLeaveStmt extends SqlScriptingNode {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("LEAVE", SqlKind.LEAVE_STATEMENT);
 
