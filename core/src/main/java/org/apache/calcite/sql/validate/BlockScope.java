@@ -67,6 +67,13 @@ public class BlockScope extends ListScope {
     super.resolve(names, nameMatcher, deep, resolved);
   }
 
+  /**
+   * Searches this scope and parent scopes for a {@link SqlLabeledBlock} that
+   * matches the provided label.
+   *
+   * @param label The label of the block to find
+   * @return The labeled block
+   */
   public SqlLabeledBlock findLabeledBlockReference(SqlIdentifier label) {
     SqlNameMatcher nameMatcher = validator.catalogReader.nameMatcher();
     SqlValidatorScope.ResolvedImpl resolved =
