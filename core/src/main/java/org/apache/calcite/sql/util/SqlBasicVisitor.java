@@ -20,11 +20,13 @@ import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDynamicParam;
+import org.apache.calcite.sql.SqlHostVariable;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlNullTreatmentModifier;
 
 /**
  * Basic implementation of {@link SqlVisitor} which does nothing at each node.
@@ -59,6 +61,10 @@ public class SqlBasicVisitor<R> implements SqlVisitor<R> {
     return null;
   }
 
+  @Override public R visit(SqlHostVariable hostVariable) {
+    return null;
+  }
+
   public R visit(SqlDataTypeSpec type) {
     return null;
   }
@@ -68,6 +74,10 @@ public class SqlBasicVisitor<R> implements SqlVisitor<R> {
   }
 
   public R visit(SqlIntervalQualifier intervalQualifier) {
+    return null;
+  }
+
+  @Override public R visit(SqlNullTreatmentModifier nullTreatmentModifier) {
     return null;
   }
 

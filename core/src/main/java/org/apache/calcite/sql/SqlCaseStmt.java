@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * Parse tree for a {@code SqlCaseStmt}.
  */
-public class SqlCaseStmt extends SqlCall {
+public class SqlCaseStmt extends SqlScriptingNode {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("CASE", SqlKind.CASE_STATEMENT);
 

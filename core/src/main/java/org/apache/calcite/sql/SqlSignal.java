@@ -23,27 +23,30 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Parse tree for {@code SqlGetDiagnostics} call.
+ * Parse tree for {@code SqlSignal} call.
  */
-public class SqlGetDiagnostics extends SqlScriptingNode {
+public class SqlSignal extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("GET DIAGNOSTICS", SqlKind.GET_DIAGNOSTICS);
+      new SqlSpecialOperator("SIGNAL", SqlKind.SIGNAL);
 
-  public final SqlNode conditionNumber;
-  public final SqlNodeList parameters;
+  public final SignalType signalType;
+  public final SqlNode conditionOrSqlState;
+  public final SqlSetStmt setStmt;
 
   /**
-   * Creates a {@code SqlGetDiagnostics}.
+   * Creates a {@code SqlSignal}.
    *
    * @param pos Parser position, must not be null
-   * @param conditionNumber Number of Condition Area to retrieve info from
-   * @param parameters List of Condition Area field assignments, must not be null
+   * @param signalType Specifies if call is SIGNAL or RESIGNAL, must not be null
+   * @param conditionOrSqlState A condition name or SQLSTATE value
+   * @param setStmt The optional SET clause
    */
-  public SqlGetDiagnostics(SqlParserPos pos, SqlNode conditionNumber,
-      SqlNodeList parameters) {
+  public SqlSignal(SqlParserPos pos, SignalType signalType,
+      SqlNode conditionOrSqlState, SqlSetStmt setStmt) {
     super(pos);
-    this.conditionNumber = conditionNumber;
-    this.parameters = Objects.requireNonNull(parameters);
+    this.signalType = Objects.requireNonNull(signalType);
+    this.conditionOrSqlState = conditionOrSqlState;
+    this.setStmt = setStmt;
   }
 
   @Override public SqlOperator getOperator() {
@@ -51,15 +54,28 @@ public class SqlGetDiagnostics extends SqlScriptingNode {
   }
 
   @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(conditionNumber, parameters);
+    return ImmutableNullableList.of(conditionOrSqlState, setStmt);
   }
 
   @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.keyword("GET DIAGNOSTICS");
-    if (conditionNumber != null) {
-      writer.keyword("EXCEPTION");
-      conditionNumber.unparse(writer, 0, 0);
+    writer.keyword(signalType.toString());
+    if (conditionOrSqlState != null) {
+      conditionOrSqlState.unparse(writer, 0, 0);
     }
-    parameters.unparse(writer, 0, 0);
+    if (setStmt != null) {
+      setStmt.unparse(writer, 0, 0);
+    }
+  }
+
+  public enum SignalType {
+    /**
+     * Raises an exception or condition.
+     */
+    SIGNAL,
+
+    /**
+     * Resignals or invokes a condition from a handler declaration.
+     */
+    RESIGNAL,
   }
 }

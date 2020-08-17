@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlExecuteStatement} call.
  */
-public class SqlExecuteStatement extends SqlCall {
+public class SqlExecuteStatement extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("EXECUTE_STATEMENT", SqlKind.EXECUTE_STATEMENT);
 

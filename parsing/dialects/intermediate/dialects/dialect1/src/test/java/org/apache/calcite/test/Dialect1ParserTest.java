@@ -1555,6 +1555,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testTryCast() {
+    final String sql = "select trycast('-2.5' as integer)";
+    final String expected = "SELECT TRYCAST('-2.5' AS INTEGER)";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testNamedExpressionLiteral() {
     final String sql = "select 1 (named b) from foo";
     final String expected = "SELECT 1 AS `B`\n"
@@ -1617,33 +1623,33 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testInlineModSyntaxInteger() {
     final String sql = "select 27 mod -3";
-    final String expected = "SELECT MOD(27, -3)";
+    final String expected = "SELECT (MOD(27, -3))";
     sql(sql).ok(expected);
   }
 
   @Test public void testInlineModSyntaxFloatingPoint() {
     final String sql = "select 27.123 mod 4.12";
-    final String expected = "SELECT MOD(27.123, 4.12)";
+    final String expected = "SELECT (MOD(27.123, 4.12))";
     sql(sql).ok(expected);
   }
 
   @Test public void testInlineModSyntaxSimpleIdentifiers() {
     final String sql = "select foo mod bar";
-    final String expected = "SELECT MOD(`FOO`, `BAR`)";
+    final String expected = "SELECT (MOD(`FOO`, `BAR`))";
     sql(sql).ok(expected);
   }
 
   @Test public void testInlineModSyntaxCompoundIdentifiers() {
     final String sql = "select foo.bar mod baz.qux";
-    final String expected = "SELECT MOD(`FOO`.`BAR`, `BAZ`.`QUX`)";
+    final String expected = "SELECT (MOD(`FOO`.`BAR`, `BAZ`.`QUX`))";
     sql(sql).ok(expected);
   }
 
   @Test public void testInlineModSyntaxExpressions() {
     final String sql = "select (select foo from bar) mod (select baz from qux)";
-    final String expected = "SELECT MOD((SELECT `FOO`\n"
+    final String expected = "SELECT (MOD((SELECT `FOO`\n"
         + "FROM `BAR`), (SELECT `BAZ`\n"
-        + "FROM `QUX`))";
+        + "FROM `QUX`)))";
     sql(sql).ok(expected);
   }
 
@@ -5787,38 +5793,6 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test public void testFirstValue() {
-    final String sql = "SELECT FIRST_VALUE (foo) OVER (PARTITION BY (foo)) FROM bar";
-    final String expected = "SELECT (FIRST_VALUE (`FOO`) OVER (PARTITION BY `FOO`))\n"
-        + "FROM `BAR`";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testLastValue() {
-    final String sql = "SELECT LAST_VALUE (foo) OVER (PARTITION BY (foo)) FROM bar";
-    final String expected = "SELECT (LAST_VALUE (`FOO`) OVER (PARTITION BY `FOO`))\n"
-        + "FROM `BAR`";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testFirstValueIgnoreNulls() {
-    final String sql = "SELECT FIRST_VALUE (foo IGNORE NULLS) OVER"
-        + " (PARTITION BY (foo)) FROM bar";
-    final String expected = "SELECT (FIRST_VALUE (`FOO` IGNORE NULLS) OVER"
-        + " (PARTITION BY `FOO`))\n"
-        + "FROM `BAR`";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testFirstValueRespectNulls() {
-    final String sql = "SELECT FIRST_VALUE (foo RESPECT NULLS) OVER"
-        + " (PARTITION BY (foo)) FROM bar";
-    final String expected = "SELECT (FIRST_VALUE (`FOO` RESPECT NULLS) OVER"
-        + " (PARTITION BY `FOO`))\n"
-        + "FROM `BAR`";
-    sql(sql).ok(expected);
-  }
-
   @Test public void testDeclareHandlerContinue() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
@@ -6208,5 +6182,97 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "bar.x = baz.x ^on^  foo .x = bar.x";
     final String expected = "(?s).*Encountered \"on\" at.*";
     sql(sql).fails(expected);
+  }
+  
+  @Test public void testSignalConditionName() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "signal bar;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SIGNAL `BAR`;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSignalSqlState() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "signal sqlstate '00000';\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SIGNAL SQLSTATE '00000';\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testResignal() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "resignal;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "RESIGNAL;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testResignalSqlState() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "resignal sqlstate '00000';\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "RESIGNAL SQLSTATE '00000';\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testSignalSet() {
+    final String sql = "create procedure foo ()\n"
+        + "begin\n"
+        + "signal bar set message_length = 10;\n"
+        + "end";
+    final String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SIGNAL `BAR` SET `MESSAGE_LENGTH` = 10;\n"
+        + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testFirstValue() {
+    final String sql = "SELECT FIRST_VALUE (foo) OVER (PARTITION BY (foo)) FROM bar";
+    final String expected = "SELECT (FIRST_VALUE(`FOO`) OVER (PARTITION BY `FOO`))\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLastValue() {
+    final String sql = "SELECT LAST_VALUE (foo) OVER (PARTITION BY (foo)) FROM bar";
+    final String expected = "SELECT (LAST_VALUE(`FOO`) OVER (PARTITION BY `FOO`))\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testFirstValueIgnoreNulls() {
+    final String sql = "SELECT FIRST_VALUE (foo IGNORE NULLS) OVER"
+        + " (PARTITION BY (foo)) FROM bar";
+    final String expected = "SELECT (FIRST_VALUE(`FOO` IGNORE NULLS) OVER"
+        + " (PARTITION BY `FOO`))\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testFirstValueRespectNulls() {
+    final String sql = "SELECT FIRST_VALUE (foo RESPECT NULLS) OVER"
+        + " (PARTITION BY (foo)) FROM bar";
+    final String expected = "SELECT (FIRST_VALUE(`FOO` RESPECT NULLS) OVER"
+        + " (PARTITION BY `FOO`))\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
   }
 }

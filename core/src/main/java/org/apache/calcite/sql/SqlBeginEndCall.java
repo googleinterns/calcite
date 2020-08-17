@@ -27,7 +27,7 @@ import static org.apache.calcite.util.Static.RESOURCE;
 /**
  * Parse tree for {@code SqlBeginEndCall} expression.
  */
-public class SqlBeginEndCall extends SqlCall {
+public class SqlBeginEndCall extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("BEGIN_END", SqlKind.BEGIN_END);
 

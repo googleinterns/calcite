@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlDeclareVariable} expression.
  */
-public class SqlDeclareVariable extends SqlCall {
+public class SqlDeclareVariable extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("DECLARE_VARIABLE",
           SqlKind.DECLARE_VARIABLE);

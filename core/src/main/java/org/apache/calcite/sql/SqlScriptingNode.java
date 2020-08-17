@@ -17,36 +17,21 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.sql.util.SqlVisitor;
 import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
 
 /**
- * A {@code SqlHostVariable} is a host variable of the form ":name".
+ * Parse tree for {@code SqlScriptingNode} call.
  */
-public class SqlHostVariable extends SqlIdentifier {
+public abstract class SqlScriptingNode extends SqlCall {
 
-  /**
-   * Creates a {@code SqlHostVariable}.
-   *
-   * @param name  Name of the host variable
-   * @param pos  Parser position, must not be null
-   */
-  public SqlHostVariable(String name, SqlParserPos pos) {
-    super(name, pos);
+  public SqlScriptingNode(SqlParserPos pos) {
+    super(pos);
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.print(":" + names.get(0));
-    // Ensures whitespace is added before a separator such as "AS".
-    writer.setNeedWhitespace(true);
+  @Override public void validate(SqlValidator validator,
+      SqlValidatorScope scope) {
+    // Left empty so that scripting statements such as cursor calls are not
+    // validated.
   }
-
-  @Override public <R> R accept(SqlVisitor<R> visitor) {
-    return visitor.visit(this);
-  }
-
-  // Intentionally left blank.
-  @Override public void validateExpr(SqlValidator validator,
-      SqlValidatorScope scope) {}
 }
