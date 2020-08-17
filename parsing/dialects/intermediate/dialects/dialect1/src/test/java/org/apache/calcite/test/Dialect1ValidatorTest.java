@@ -111,14 +111,6 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(sql).rewritesTo(expected);
   }
 
-  @Test public void testCreateProcedure() {
-    String sql = "create procedure foo() select a from abc";
-    String expected = "CREATE PROCEDURE `FOO` ()\n"
-        + "SELECT `ABC`.`A`\n"
-        + "FROM `ABC` AS `ABC`";
-    sql(sql).rewritesTo(expected);
-  }
-
   @Test public void testCreateProcedureBeginEndLabel() {
     String sql = "create procedure foo()\n"
         + "label1: begin\n"

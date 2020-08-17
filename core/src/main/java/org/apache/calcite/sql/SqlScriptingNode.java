@@ -30,7 +30,7 @@ public abstract class SqlScriptingNode extends SqlCall {
   }
 
   @Override public void validate(SqlValidator validator,
-      final SqlValidatorScope scope) {
+      SqlValidatorScope scope) {
     // Left empty so that scripting statements such as cursor calls are not
     // validated.
   }
@@ -46,12 +46,7 @@ public abstract class SqlScriptingNode extends SqlCall {
   public void validateStatementList(SqlValidator validator,
       SqlValidatorScope scope, SqlNodeList statements) {
     for (SqlNode statement : statements) {
-      if (statement instanceof SqlScriptingNode
-          || statement instanceof SqlSelect
-          || statement instanceof SqlInsert
-          || statement instanceof SqlUpdate
-          || statement instanceof SqlMerge
-          || statement instanceof SqlDelete) {
+      if (statement instanceof SqlScriptingNode) {
         statement.validate(validator, scope);
       }
     }

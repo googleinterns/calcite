@@ -105,7 +105,9 @@ public class SqlCreateProcedure extends SqlCreate {
 
   @Override public void validate(SqlValidator validator,
       SqlValidatorScope scope) {
-    statement.validate(validator, scope);
+    if (statement instanceof SqlScriptingNode) {
+      statement.validate(validator, scope);
+    }
   }
 
   public enum CreateProcedureSecurity {
