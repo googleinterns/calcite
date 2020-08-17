@@ -59,7 +59,7 @@ public class BlockScope extends ListScope {
     String label = block.label.getSimple();
     if (names.size() == 1 && nameMatcher.matches(names.get(0), label)) {
       SqlValidatorNamespace ns = validator.getNamespace(block);
-      final Step path = Path.EMPTY.plus(ns.getRowType(), 0, names.get(0),
+      Step path = Path.EMPTY.plus(ns.getRowType(), 0, names.get(0),
           StructKind.FULLY_QUALIFIED);
       resolved.found(ns, false, this, path, null);
       return;
@@ -68,10 +68,10 @@ public class BlockScope extends ListScope {
   }
 
   public SqlLabeledBlock findLabeledBlockReference(SqlIdentifier label) {
-    final SqlNameMatcher nameMatcher = validator.catalogReader.nameMatcher();
-    final SqlValidatorScope.ResolvedImpl resolved =
+    SqlNameMatcher nameMatcher = validator.catalogReader.nameMatcher();
+    SqlValidatorScope.ResolvedImpl resolved =
         new SqlValidatorScope.ResolvedImpl();
-    final List<String> names = new ArrayList<>();
+    List<String> names = new ArrayList<>();
     names.add(label.getSimple());
     resolve(names, nameMatcher, true, resolved);
     if (resolved.count() == 0) {
