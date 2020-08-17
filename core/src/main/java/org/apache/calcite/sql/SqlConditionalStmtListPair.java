@@ -28,7 +28,8 @@ import java.util.Objects;
  */
 public class SqlConditionalStmtListPair extends SqlScriptingNode {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("CONDITION_STATEMENT_LIST_PAIR", SqlKind.OTHER);
+      new SqlSpecialOperator("CONDITION_STATEMENT_LIST_PAIR",
+          SqlKind.CONDITION_STATEMENT_LIST_PAIR);
 
   public final SqlNode condition;
   public final SqlStatementList stmtList;

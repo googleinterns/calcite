@@ -17,34 +17,28 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.sql.validate.SqlValidator;
-import org.apache.calcite.sql.validate.SqlValidatorScope;
+
+import java.util.Objects;
 
 /**
- * Parse tree for {@code SqlAllocateCursor} call.
+ * Parse tree for {@code SqlLabeledBlock} call.
  */
-public abstract class SqlScriptingNode extends SqlCall {
+public abstract class SqlLabeledBlock extends SqlScriptingNode {
 
-  public SqlScriptingNode(SqlParserPos pos) {
+  public final SqlIdentifier label;
+  public final SqlStatementList statements;
+
+  /**
+   * Creates an instance of {@code SqlLabeledBlock}.
+   *
+   * @param pos SQL parser position
+   * @param label The label of the block
+   * @param statements A list of statements inside the block, must not be null
+   */
+  public SqlLabeledBlock(SqlParserPos pos, SqlIdentifier label,
+      SqlStatementList statements) {
     super(pos);
-  }
-
-  @Override public void validate(SqlValidator validator,
-      final SqlValidatorScope scope) {
-    // NO-OP
-  }
-
-  public void validateStatementList(SqlValidator validator,
-      SqlValidatorScope scope, SqlNodeList statements) {
-    for (SqlNode statement : statements) {
-      if (statement instanceof SqlScriptingNode
-          || statement instanceof SqlSelect
-          || statement instanceof SqlInsert
-          || statement instanceof SqlUpdate
-          || statement instanceof SqlMerge
-          || statement instanceof SqlDelete) {
-        statement.validate(validator, scope);
-      }
-    }
+    this.label = label;
+    this.statements = Objects.requireNonNull(statements);
   }
 }

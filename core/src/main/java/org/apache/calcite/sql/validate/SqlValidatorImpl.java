@@ -47,7 +47,10 @@ import org.apache.calcite.sql.SqlAggFunction;
 import org.apache.calcite.sql.SqlBasicCall;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCallBinding;
+import org.apache.calcite.sql.SqlCaseStmt;
 import org.apache.calcite.sql.SqlColumnAttribute;
+import org.apache.calcite.sql.SqlConditionalStmtListPair;
+import org.apache.calcite.sql.SqlCreateProcedure;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
@@ -56,11 +59,13 @@ import org.apache.calcite.sql.SqlFunction;
 import org.apache.calcite.sql.SqlFunctionCategory;
 import org.apache.calcite.sql.SqlHostVariable;
 import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlIfStmt;
 import org.apache.calcite.sql.SqlInsert;
 import org.apache.calcite.sql.SqlIntervalLiteral;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlJoin;
 import org.apache.calcite.sql.SqlKind;
+import org.apache.calcite.sql.SqlLabeledBlock;
 import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlMatchRecognize;
 import org.apache.calcite.sql.SqlMerge;
@@ -71,6 +76,7 @@ import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlOperatorTable;
 import org.apache.calcite.sql.SqlOrderBy;
 import org.apache.calcite.sql.SqlSampleSpec;
+import org.apache.calcite.sql.SqlScriptingNode;
 import org.apache.calcite.sql.SqlSelect;
 import org.apache.calcite.sql.SqlSelectKeyword;
 import org.apache.calcite.sql.SqlSnapshot;
@@ -1165,6 +1171,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
   public SqlValidatorScope getJoinScope(SqlNode node) {
     return scopes.get(stripAs(node));
+  }
+
+  public BlockScope getBlockScope(SqlScriptingNode block) {
+    return (BlockScope) scopes.get(block);
   }
 
   public SqlValidatorScope getOverScope(SqlNode node) {
@@ -2880,8 +2890,68 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       }
       break;
 
+    case CREATE_PROCEDURE:
+      final SqlCreateProcedure createProcedure = (SqlCreateProcedure) node;
+      nodeToTypeMap.put(createProcedure, unknownType);
+      registerQuery(parentScope, null, createProcedure.statement,
+          node, null, false, false);
+      break;
+
+    case BEGIN_END:
+    case ITERATION_STATEMENT:
+      SqlLabeledBlock labeledBlock = (SqlLabeledBlock) node;
+      BlockScope blockScope = new BlockScope(parentScope, labeledBlock);
+      scopes.put(labeledBlock, blockScope);
+      LabeledBlockNamespace labeledBlockNs =
+          new LabeledBlockNamespace(this, labeledBlock, enclosingNode);
+      String blockAlias = deriveAlias(labeledBlock, nextGeneratedId++);
+      registerNamespace(blockScope, blockAlias, labeledBlockNs, false);
+      registerStatementList(blockScope, blockScope, blockAlias,
+          labeledBlock.statements, labeledBlock);
+      break;
+
+    case IF_STATEMENT:
+      SqlIfStmt ifStmt = (SqlIfStmt) node;
+      registerStatementList(parentScope, usingScope, alias,
+          ifStmt.conditionalStmtListPairs, ifStmt);
+      registerStatementList(parentScope, usingScope, alias,
+          ifStmt.elseStmtList, ifStmt);
+      break;
+
+    case CASE_STATEMENT:
+      SqlCaseStmt caseStmt = (SqlCaseStmt) node;
+      registerStatementList(parentScope, usingScope, alias,
+          caseStmt.conditionalStmtListPairs, caseStmt);
+      registerStatementList(parentScope, usingScope, alias,
+          caseStmt.elseStmtList, caseStmt);
+      break;
+
+    case CONDITION_STATEMENT_LIST_PAIR:
+      SqlConditionalStmtListPair stmtListPair
+          = (SqlConditionalStmtListPair) node;
+      registerStatementList(parentScope, usingScope, alias,
+          stmtListPair.stmtList, stmtListPair);
+      break;
+
     default:
       throw Util.unexpected(node.getKind());
+    }
+  }
+
+  private void registerStatementList(SqlValidatorScope parentScope,
+      SqlValidatorScope usingScope, String alias, SqlNodeList statements,
+      SqlNode enclosingNode) {
+    List<SqlKind> kinds = Arrays.asList(SqlKind.SELECT, SqlKind.INSERT,
+        SqlKind.DELETE, SqlKind.MERGE, SqlKind.UPDATE, SqlKind.BEGIN_END,
+        SqlKind.ITERATION_STATEMENT, SqlKind.DECLARE_CONDITION,
+        SqlKind.DECLARE_HANDLER, SqlKind.IF_STATEMENT, SqlKind.CASE_STATEMENT,
+        SqlKind.CONDITION_STATEMENT_LIST_PAIR);
+    Set<SqlKind> supportedKinds = new HashSet<>(kinds);
+    for (SqlNode child : statements) {
+      if (supportedKinds.contains(child.getKind())) {
+        registerQuery(parentScope, usingScope, child,
+            enclosingNode, alias, false, false);
+      }
     }
   }
 

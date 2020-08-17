@@ -37,6 +37,7 @@ import org.apache.calcite.sql.SqlMerge;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlOperatorTable;
+import org.apache.calcite.sql.SqlScriptingNode;
 import org.apache.calcite.sql.SqlSelect;
 import org.apache.calcite.sql.SqlUpdate;
 import org.apache.calcite.sql.SqlWindow;
@@ -577,6 +578,15 @@ public interface SqlValidator {
    * @return naming scope for HAVING clause
    */
   SqlValidatorScope getHavingScope(SqlSelect select);
+
+  /**
+   * Returns a scope containing the objects visible from either a BEGIN...END
+   * block or an iteration statement.
+   *
+   * @param block Block scripting statement
+   * @return naming scope for block
+   */
+  BlockScope getBlockScope(SqlScriptingNode block);
 
   /**
    * Returns the scope that expressions in the SELECT and HAVING clause of

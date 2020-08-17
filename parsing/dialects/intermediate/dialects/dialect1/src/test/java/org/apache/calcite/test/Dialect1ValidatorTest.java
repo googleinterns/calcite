@@ -16,13 +16,21 @@
  */
 package org.apache.calcite.test;
 
+import org.apache.calcite.sql.SqlBeginEndCall;
+import org.apache.calcite.sql.SqlCreateProcedure;
+import org.apache.calcite.sql.SqlLeaveStmt;
 import org.apache.calcite.sql.parser.dialect1.Dialect1ParserImpl;
 import org.apache.calcite.sql.test.SqlTestFactory;
 import org.apache.calcite.sql.test.SqlTester;
 import org.apache.calcite.sql.test.SqlValidatorTester;
 import org.apache.calcite.sql.validate.SqlConformanceEnum;
+import org.apache.calcite.sql.validate.SqlValidator;
 
 import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class Dialect1ValidatorTest extends SqlValidatorTestCase {
 
@@ -100,5 +108,82 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "FROM `DEF` AS `DEF`)))\n"
         + "FROM `GHI` AS `GHI`";
     sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedure() {
+    String sql = "create procedure foo() select a from abc";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "SELECT `ABC`.`A`\n"
+        + "FROM `ABC` AS `ABC`";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureBeginEndLabel() {
+    String sql = "create procedure foo()\n"
+        + "label1: begin\n"
+        + "leave label1;\n"
+        + "end";
+    SqlValidator validator = getTester().getValidator();
+    SqlCreateProcedure node = (SqlCreateProcedure) getTester().parseAndValidate(validator, sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlLeaveStmt leaveStmt = (SqlLeaveStmt) beginEnd.statements.get(0);
+    assertThat(beginEnd, sameInstance(leaveStmt.labeledBlock));
+  }
+
+  @Test public void testCreateProcedureBeginEndNestedOuterLabel() {
+    String sql = "create procedure foo()\n"
+        + "label1: begin\n"
+        + "label2: begin\n"
+        + "leave label1;\n"
+        + "end;"
+        + "end";
+    SqlValidator validator = getTester().getValidator();
+    SqlCreateProcedure node = (SqlCreateProcedure) getTester().parseAndValidate(validator, sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlBeginEndCall nestedBeginEnd = (SqlBeginEndCall) beginEnd.statements.get(0);
+    SqlLeaveStmt leaveStmt = (SqlLeaveStmt) nestedBeginEnd.statements.get(0);
+    assertThat(beginEnd, sameInstance(leaveStmt.labeledBlock));
+  }
+
+  @Test public void testCreateProcedureBeginEndNestedInnerLabel() {
+    String sql = "create procedure foo()\n"
+        + "label1: begin\n"
+        + "label2: begin\n"
+        + "leave label2;\n"
+        + "end;"
+        + "end";
+    SqlValidator validator = getTester().getValidator();
+    SqlCreateProcedure node = (SqlCreateProcedure) getTester().parseAndValidate(validator, sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlBeginEndCall nestedBeginEnd = (SqlBeginEndCall) beginEnd.statements.get(0);
+    SqlLeaveStmt leaveStmt = (SqlLeaveStmt) nestedBeginEnd.statements.get(0);
+    assertThat(nestedBeginEnd, sameInstance(leaveStmt.labeledBlock));
+  }
+
+  @Test public void testCreateProcedureBeginEndNestedSameNameLabel() {
+    String sql = "create procedure foo()\n"
+        + "label1: begin\n"
+        + "label1: begin\n"
+        + "leave label1;\n"
+        + "end;"
+        + "end";
+    SqlValidator validator = getTester().getValidator();
+    SqlCreateProcedure node = (SqlCreateProcedure) getTester().parseAndValidate(validator, sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlBeginEndCall nestedBeginEnd = (SqlBeginEndCall) beginEnd.statements.get(0);
+    SqlLeaveStmt leaveStmt = (SqlLeaveStmt) nestedBeginEnd.statements.get(0);
+    assertThat(nestedBeginEnd, sameInstance(leaveStmt.labeledBlock));
+  }
+
+  @Test public void testCreateProcedureBeginEndNullLabel() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "leave label1;\n"
+        + "end";
+    SqlValidator validator = getTester().getValidator();
+    SqlCreateProcedure node = (SqlCreateProcedure) getTester().parseAndValidate(validator, sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlLeaveStmt leaveStmt = (SqlLeaveStmt) beginEnd.statements.get(0);
+    assertThat(leaveStmt.labeledBlock, nullValue());
   }
 }

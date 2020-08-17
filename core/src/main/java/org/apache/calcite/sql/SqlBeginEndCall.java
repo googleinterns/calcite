@@ -17,6 +17,10 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.validate.BlockScope;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorImpl;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
 import org.apache.calcite.util.Litmus;
 
@@ -27,12 +31,9 @@ import static org.apache.calcite.util.Static.RESOURCE;
 /**
  * Parse tree for {@code SqlBeginEndCall} expression.
  */
-public class SqlBeginEndCall extends SqlScriptingNode {
+public class SqlBeginEndCall extends SqlLabeledBlock {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("BEGIN_END", SqlKind.BEGIN_END);
-
-  public final SqlIdentifier label;
-  public final SqlStatementList statements;
 
   /**
    * Creates an instance of {@code SqlBeginEndCall}.
@@ -44,9 +45,7 @@ public class SqlBeginEndCall extends SqlScriptingNode {
    */
   public SqlBeginEndCall(SqlParserPos pos, SqlIdentifier beginLabel,
       SqlIdentifier endLabel, SqlStatementList statements) {
-    super(pos);
-    this.label = beginLabel;
-    this.statements = statements;
+    super(pos, beginLabel, statements);
     if (endLabel != null && (
         beginLabel == null
         || !beginLabel.equalsDeep(endLabel, Litmus.IGNORE))) {
@@ -76,5 +75,12 @@ public class SqlBeginEndCall extends SqlScriptingNode {
 
   @Override public List<SqlNode> getOperandList() {
     return ImmutableNullableList.of(label, statements);
+  }
+
+  @Override public void validate(final SqlValidator validator,
+      final SqlValidatorScope scope) {
+    SqlValidatorImpl validatorImpl = (SqlValidatorImpl) validator;
+    BlockScope bs = validatorImpl.getBlockScope(this);
+    validateStatementList(validator, bs, statements);
   }
 }
