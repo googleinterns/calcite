@@ -21,10 +21,9 @@ import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
 
 /**
- * Parse tree for {@code SqlAllocateCursor} call.
+ * Parse tree for {@code SqlScriptingNode} call.
  */
 public abstract class SqlScriptingNode extends SqlCall {
-
 
   public SqlScriptingNode(SqlParserPos pos) {
     super(pos);
@@ -32,6 +31,7 @@ public abstract class SqlScriptingNode extends SqlCall {
 
   @Override public void validate(SqlValidator validator,
       SqlValidatorScope scope) {
-    // NO-OP
+    // Left empty so that scripting statements such as cursor calls are not
+    // validated.
   }
 }
