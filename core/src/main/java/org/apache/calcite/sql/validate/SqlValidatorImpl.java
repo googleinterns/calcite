@@ -3248,7 +3248,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       // BOOLEAN, DATE, etc) are of type SqlBasicTypeNameSpec.
       Preconditions.checkArgument(typeNameSpec instanceof SqlBasicTypeNameSpec);
       SqlBasicTypeNameSpec basicTypeNameSpec =
-        (SqlBasicTypeNameSpec) typeNameSpec;
+          (SqlBasicTypeNameSpec) typeNameSpec;
       builder.add(col.name.toString(), basicTypeNameSpec.sqlTypeName);
     }
     schema.add(createTable.name.toString(),
