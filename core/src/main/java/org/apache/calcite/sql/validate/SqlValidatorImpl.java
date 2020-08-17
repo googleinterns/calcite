@@ -3229,7 +3229,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
   @Override public void validateCreateTable(SqlCreateTable createTable) {
     assert createTable != null;
-    setValidatedNodeType(createTable, unknownType);
+    // Type doesn't matter for CREATE TABLE statements.
+    nodeToTypeMap.put(createTable, unknownType);
     CalciteSchema schema = catalogReader.getRootSchema();
     RelDataTypeFactory.Builder builder = typeFactory.builder();
     if (createTable.columnList == null) {

@@ -11127,4 +11127,9 @@ class SqlValidatorTest extends SqlValidatorTestCase {
         .withConformance(SqlConformanceEnum.LENIENT)
         .rewritesTo(expected);
   }
+
+  @Test public void testCreateTableNoColumns() {
+    String sql = "create table foo";
+    sql(sql).ok();
+  }
 }

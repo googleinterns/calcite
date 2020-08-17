@@ -101,9 +101,4 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "FROM `GHI` AS `GHI`";
     sql(sql).rewritesTo(expected);
   }
-
-  @Test public void testCreateTable() {
-    String sql = "create table foo";
-    sql(sql).ok();
-  }
 }
