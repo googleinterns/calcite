@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlOpenCursor} call.
  */
-public class SqlOpenCursor extends SqlCall {
+public class SqlOpenCursor extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("OPEN_CURSOR", SqlKind.OPEN_CURSOR);
 

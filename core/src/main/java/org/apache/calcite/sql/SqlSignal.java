@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlSignal} call.
  */
-public class SqlSignal extends SqlCall {
+public class SqlSignal extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("SIGNAL", SqlKind.SIGNAL);
 

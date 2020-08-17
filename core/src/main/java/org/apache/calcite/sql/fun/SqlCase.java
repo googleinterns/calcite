@@ -22,6 +22,7 @@ import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
 import org.apache.calcite.sql.SqlOperator;
+import org.apache.calcite.sql.SqlScriptingNode;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.UnmodifiableArrayList;
 
@@ -32,7 +33,7 @@ import java.util.List;
  * statement. It warrants its own node type just because we have a lot of
  * methods to put somewhere.
  */
-public class SqlCase extends SqlCall {
+public class SqlCase extends SqlScriptingNode {
   SqlNode value;
   SqlNodeList whenList;
   SqlNodeList thenList;

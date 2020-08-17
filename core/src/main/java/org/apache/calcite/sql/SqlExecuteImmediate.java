@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlExecuteImmediate} call.
  */
-public class SqlExecuteImmediate extends SqlCall {
+public class SqlExecuteImmediate extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("EXECUTE IMMEDIATE",
           SqlKind.EXECUTE_IMMEDIATE);

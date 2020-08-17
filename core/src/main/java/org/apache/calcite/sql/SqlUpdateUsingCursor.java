@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlUpdateUsingCursor} call.
  */
-public class SqlUpdateUsingCursor extends SqlCall {
+public class SqlUpdateUsingCursor extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("UPDATE_USING_CURSOR", SqlKind.UPDATE_USING_CURSOR);
 
