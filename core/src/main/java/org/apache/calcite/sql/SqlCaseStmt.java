@@ -17,6 +17,8 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
@@ -66,5 +68,11 @@ public class SqlCaseStmt extends SqlScriptingNode {
       elseStmtList.unparse(writer, leftPrec, rightPrec);
     }
     writer.keyword("END CASE");
+  }
+
+  @Override public void validate(SqlValidator validator,
+      SqlValidatorScope scope) {
+    validateStatementList(validator, scope, conditionalStmtListPairs);
+    validateStatementList(validator, scope, elseStmtList);
   }
 }

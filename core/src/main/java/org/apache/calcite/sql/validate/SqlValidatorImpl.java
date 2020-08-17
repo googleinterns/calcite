@@ -2897,7 +2897,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       break;
 
     case BEGIN_END:
-    case ITERATION_STATEMENT:
+    case FOR_STATEMENT:
+    case WHILE_STATEMENT:
+    case REPEAT_STATEMENT:
+    case LOOP_STATEMENT:
       SqlLabeledBlock labeledBlock = (SqlLabeledBlock) node;
       BlockScope blockScope = new BlockScope(parentScope, labeledBlock);
       scopes.put(labeledBlock, blockScope);
@@ -2943,7 +2946,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     Set<SqlKind> supportedKinds = new HashSet<>(
         Arrays.asList(SqlKind.SELECT,
         SqlKind.INSERT, SqlKind.DELETE, SqlKind.MERGE, SqlKind.UPDATE,
-        SqlKind.BEGIN_END, SqlKind.ITERATION_STATEMENT,
+        SqlKind.BEGIN_END, SqlKind.WHILE_STATEMENT, SqlKind.FOR_STATEMENT,
+        SqlKind.REPEAT_STATEMENT, SqlKind.LOOP_STATEMENT,
         SqlKind.DECLARE_CONDITION, SqlKind.DECLARE_HANDLER,
         SqlKind.IF_STATEMENT, SqlKind.CASE_STATEMENT,
         SqlKind.CONDITION_STATEMENT_LIST_PAIR));

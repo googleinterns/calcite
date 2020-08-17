@@ -19,6 +19,7 @@ package org.apache.calcite.test;
 import org.apache.calcite.sql.SqlBeginEndCall;
 import org.apache.calcite.sql.SqlCreateProcedure;
 import org.apache.calcite.sql.SqlLeaveStmt;
+import org.apache.calcite.sql.SqlWhileStmt;
 import org.apache.calcite.sql.parser.dialect1.Dialect1ParserImpl;
 import org.apache.calcite.sql.test.SqlTestFactory;
 import org.apache.calcite.sql.test.SqlTester;
@@ -213,5 +214,21 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
     SqlLeaveStmt leaveStmt = (SqlLeaveStmt) beginEnd.statements.get(0);
     assertThat(leaveStmt.labeledBlock, nullValue());
+  }
+
+  @Test public void testCreateProcedureIterationStatementLabel() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "label1: while bar = 1 do\n"
+        + "leave label1;\n"
+        + "end while label1;"
+        + "end";
+    SqlValidator validator = getTester().getValidator();
+    SqlCreateProcedure node = (SqlCreateProcedure) getTester()
+        .parseAndValidate(validator, sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlWhileStmt whileLoop = (SqlWhileStmt) beginEnd.statements.get(0);
+    SqlLeaveStmt leaveStmt = (SqlLeaveStmt) whileLoop.statements.get(0);
+    assertThat(whileLoop, sameInstance(leaveStmt.labeledBlock));
   }
 }
