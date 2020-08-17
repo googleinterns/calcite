@@ -1623,33 +1623,33 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testInlineModSyntaxInteger() {
     final String sql = "select 27 mod -3";
-    final String expected = "SELECT MOD(27, -3)";
+    final String expected = "SELECT (MOD(27, -3))";
     sql(sql).ok(expected);
   }
 
   @Test public void testInlineModSyntaxFloatingPoint() {
     final String sql = "select 27.123 mod 4.12";
-    final String expected = "SELECT MOD(27.123, 4.12)";
+    final String expected = "SELECT (MOD(27.123, 4.12))";
     sql(sql).ok(expected);
   }
 
   @Test public void testInlineModSyntaxSimpleIdentifiers() {
     final String sql = "select foo mod bar";
-    final String expected = "SELECT MOD(`FOO`, `BAR`)";
+    final String expected = "SELECT (MOD(`FOO`, `BAR`))";
     sql(sql).ok(expected);
   }
 
   @Test public void testInlineModSyntaxCompoundIdentifiers() {
     final String sql = "select foo.bar mod baz.qux";
-    final String expected = "SELECT MOD(`FOO`.`BAR`, `BAZ`.`QUX`)";
+    final String expected = "SELECT (MOD(`FOO`.`BAR`, `BAZ`.`QUX`))";
     sql(sql).ok(expected);
   }
 
   @Test public void testInlineModSyntaxExpressions() {
     final String sql = "select (select foo from bar) mod (select baz from qux)";
-    final String expected = "SELECT MOD((SELECT `FOO`\n"
+    final String expected = "SELECT (MOD((SELECT `FOO`\n"
         + "FROM `BAR`), (SELECT `BAZ`\n"
-        + "FROM `QUX`))";
+        + "FROM `QUX`)))";
     sql(sql).ok(expected);
   }
 
@@ -6166,6 +6166,38 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "BEGIN\n"
         + "SIGNAL `BAR` SET `MESSAGE_LENGTH` = 10;\n"
         + "END";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testFirstValue() {
+    final String sql = "SELECT FIRST_VALUE (foo) OVER (PARTITION BY (foo)) FROM bar";
+    final String expected = "SELECT (FIRST_VALUE(`FOO`) OVER (PARTITION BY `FOO`))\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testLastValue() {
+    final String sql = "SELECT LAST_VALUE (foo) OVER (PARTITION BY (foo)) FROM bar";
+    final String expected = "SELECT (LAST_VALUE(`FOO`) OVER (PARTITION BY `FOO`))\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testFirstValueIgnoreNulls() {
+    final String sql = "SELECT FIRST_VALUE (foo IGNORE NULLS) OVER"
+        + " (PARTITION BY (foo)) FROM bar";
+    final String expected = "SELECT (FIRST_VALUE(`FOO` IGNORE NULLS) OVER"
+        + " (PARTITION BY `FOO`))\n"
+        + "FROM `BAR`";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testFirstValueRespectNulls() {
+    final String sql = "SELECT FIRST_VALUE (foo RESPECT NULLS) OVER"
+        + " (PARTITION BY (foo)) FROM bar";
+    final String expected = "SELECT (FIRST_VALUE(`FOO` RESPECT NULLS) OVER"
+        + " (PARTITION BY `FOO`))\n"
+        + "FROM `BAR`";
     sql(sql).ok(expected);
   }
 }

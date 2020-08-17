@@ -20,11 +20,13 @@ import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDynamicParam;
+import org.apache.calcite.sql.SqlHostVariable;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlNullTreatmentModifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +50,10 @@ public class SqlShuttle extends SqlBasicVisitor<SqlNode> {
     return id;
   }
 
+  @Override public SqlNode visit(SqlHostVariable hostVariable) {
+    return hostVariable;
+  }
+
   public SqlNode visit(SqlDataTypeSpec type) {
     return type;
   }
@@ -58,6 +64,10 @@ public class SqlShuttle extends SqlBasicVisitor<SqlNode> {
 
   public SqlNode visit(SqlIntervalQualifier intervalQualifier) {
     return intervalQualifier;
+  }
+
+  @Override public SqlNode visit(SqlNullTreatmentModifier nullTreatmentModifier) {
+    return nullTreatmentModifier;
   }
 
   @Override public SqlNode visit(SqlColumnAttribute attribute) {
