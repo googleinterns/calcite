@@ -123,7 +123,10 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(query3).type("RecordType(INTEGER NOT NULL X, VARCHAR NOT NULL Y)"
         + " NOT NULL");
 
-    String query4 = "select ^z^ from foo";
-    sql(query4).fails("Column 'Z' not found in any table");
+    String query4 = "insert into foo values (1, 'str', 1)";
+    sql(query4).fails("end index \\(3\\) must not be greater than size \\(2\\)");
+
+    String query5 = "select ^z^ from foo";
+    sql(query5).fails("Column 'Z' not found in any table");
   }
 }

@@ -225,7 +225,7 @@ public interface SqlValidator {
   void validateIntervalQualifier(SqlIntervalQualifier qualifier);
 
   /**
-   * Validates a {@link SqlCreateTable}
+   * Validates a {@link SqlCreateTable}.
    *
    * @param createTable The create table statement
    */

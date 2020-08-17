@@ -28,9 +28,7 @@ public class ExplicitRowTypeTable extends AbstractTable {
     this.rowType = Objects.requireNonNull(rowType);
   }
 
-  @Override
-  public RelDataType getRowType(RelDataTypeFactory typeFactory) {
+  @Override public RelDataType getRowType(RelDataTypeFactory typeFactory) {
     return this.rowType;
   }
 }
-

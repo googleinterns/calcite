@@ -3241,12 +3241,12 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     for (SqlNode column : createTable.columnList) {
       // This field is guaranteed to be of type SqlColumnDeclaration since this
       // is a SqlCreateTable node type.
-      assert column instanceof SqlColumnDeclaration;
+      Preconditions.checkArgument(column instanceof SqlColumnDeclaration);
       SqlColumnDeclaration col = (SqlColumnDeclaration) column;
       SqlTypeNameSpec typeNameSpec = col.dataType.getTypeNameSpec();
       // All data types that we initially plan to support (e.g. INTEGER, VARCHAR,
       // BOOLEAN, DATE, etc) are of type SqlBasicTypeNameSpec.
-      assert typeNameSpec instanceof SqlBasicTypeNameSpec;
+      Preconditions.checkArgument(typeNameSpec instanceof SqlBasicTypeNameSpec);
       SqlBasicTypeNameSpec basicTypeNameSpec =
         (SqlBasicTypeNameSpec) typeNameSpec;
       builder.add(col.name.toString(), basicTypeNameSpec.sqlTypeName);
