@@ -136,4 +136,55 @@ final class DefaultDialectParserTest extends SqlDialectParserTest {
         + "`DEPT`";
     sql(sql).ok(expected);
   }
+
+  @Test void testTableSample() {
+    final String sql0 = "select * from ("
+        + "  select * "
+        + "  from emp "
+        + "  join dept on emp.deptno = dept.deptno"
+        + "  where gender = 'F'"
+        + "  order by sal) tablesample substitute('medium')";
+    final String expected0 = "SELECT *\n"
+        + "FROM (SELECT *\n"
+        + "FROM `EMP`\n"
+        + "INNER JOIN `DEPT` ON (`EMP`.`DEPTNO` = `DEPT`.`DEPTNO`)\n"
+        + "WHERE (`GENDER` = 'F')\n"
+        + "ORDER BY `SAL`) TABLESAMPLE SUBSTITUTE('MEDIUM')";
+    sql(sql0).ok(expected0);
+
+    final String sql1 = "select * "
+        + "from emp as x tablesample substitute('medium') "
+        + "join dept tablesample substitute('lar' /* split */ 'ge') on x.deptno = dept.deptno";
+    final String expected1 = "SELECT *\n"
+        + "FROM `EMP` AS `X` TABLESAMPLE SUBSTITUTE('MEDIUM')\n"
+        + "INNER JOIN `DEPT` TABLESAMPLE SUBSTITUTE('LARGE') ON (`X`.`DEPTNO` = `DEPT`.`DEPTNO`)";
+    sql(sql1).ok(expected1);
+
+    final String sql2 = "select * "
+        + "from emp as x tablesample bernoulli(50)";
+    final String expected2 = "SELECT *\n"
+        + "FROM `EMP` AS `X` TABLESAMPLE BERNOULLI(50.0)";
+    sql(sql2).ok(expected2);
+
+    final String sql3 = "select * "
+        + "from emp as x "
+        + "tablesample bernoulli(50) REPEATABLE(10) ";
+    final String expected3 = "SELECT *\n"
+        + "FROM `EMP` AS `X` TABLESAMPLE BERNOULLI(50.0) REPEATABLE(10)";
+    sql(sql3).ok(expected3);
+
+    // test repeatable with invalid int literal.
+    sql("select * "
+        + "from emp as x "
+        + "tablesample bernoulli(50) REPEATABLE(^100000000000000000000^) ")
+        .fails("Literal '100000000000000000000' "
+            + "can not be parsed to type 'java\\.lang\\.Integer'");
+
+    // test repeatable with invalid negative int literal.
+    sql("select * "
+        + "from emp as x "
+        + "tablesample bernoulli(50) REPEATABLE(-^100000000000000000000^) ")
+        .fails("Literal '100000000000000000000' "
+            + "can not be parsed to type 'java\\.lang\\.Integer'");
+  }
 }

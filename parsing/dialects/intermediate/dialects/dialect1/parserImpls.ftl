@@ -2947,12 +2947,6 @@ SqlNode TableAlias(SqlNode tableRef) :
 {
     final SqlIdentifier alias;
     SqlNodeList columnAliasList = null;
-    final Span s, s2;
-    SqlNode sample;
-    boolean isBernoulli;
-    SqlNumericLiteral samplePercentage;
-    boolean isRepeatable = false;
-    int repeatableSeed = 0;
 }
 {
     [
@@ -2971,69 +2965,6 @@ SqlNode TableAlias(SqlNode tableRef) :
                     Span.of(tableRef).end(this), idList);
             }
         }
-    ]
-    [
-        <TABLESAMPLE> { s2 = span(); }
-        (
-            <SUBSTITUTE> <LPAREN> sample = StringLiteral() <RPAREN>
-            {
-                String sampleName =
-                    SqlLiteral.unchain(sample).getValueAs(String.class);
-                SqlSampleSpec sampleSpec = SqlSampleSpec.createNamed(sampleName);
-                final SqlLiteral sampleLiteral =
-                    SqlLiteral.createSample(sampleSpec, s2.end(this));
-                tableRef = SqlStdOperatorTable.TABLESAMPLE.createCall(
-                    s2.add(tableRef).end(this), tableRef, sampleLiteral);
-            }
-        |
-            (
-                <BERNOULLI>
-                {
-                    isBernoulli = true;
-                }
-            |
-                <SYSTEM>
-                {
-                    isBernoulli = false;
-                }
-            )
-            <LPAREN> samplePercentage = UnsignedNumericLiteral() <RPAREN>
-            [
-                <REPEATABLE> <LPAREN> repeatableSeed = IntLiteral() <RPAREN>
-                {
-                    isRepeatable = true;
-                }
-            ]
-            {
-                final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100L);
-                BigDecimal rate = samplePercentage.bigDecimalValue();
-                if (rate.compareTo(BigDecimal.ZERO) < 0
-                    || rate.compareTo(ONE_HUNDRED) > 0)
-                {
-                    throw SqlUtil.newContextException(getPos(), RESOURCE.invalidSampleSize());
-                }
-
-                // Treat TABLESAMPLE(0) and TABLESAMPLE(100) as no table
-                // sampling at all.  Not strictly correct: TABLESAMPLE(0)
-                // should produce no output, but it simplifies implementation
-                // to know that some amount of sampling will occur.
-                // In practice values less than ~1E-43% are treated as 0.0 and
-                // values greater than ~99.999997% are treated as 1.0
-                float fRate = rate.divide(ONE_HUNDRED).floatValue();
-                if (fRate > 0.0f && fRate < 1.0f) {
-                    SqlSampleSpec tableSampleSpec =
-                    isRepeatable
-                        ? SqlSampleSpec.createTableSample(
-                            isBernoulli, fRate, repeatableSeed)
-                        : SqlSampleSpec.createTableSample(isBernoulli, fRate);
-
-                    SqlLiteral tableSampleLiteral =
-                        SqlLiteral.createSample(tableSampleSpec, s2.end(this));
-                    tableRef = SqlStdOperatorTable.TABLESAMPLE.createCall(
-                        s2.end(this), tableRef, tableSampleLiteral);
-                }
-            }
-        )
     ]
     {
         return tableRef;
