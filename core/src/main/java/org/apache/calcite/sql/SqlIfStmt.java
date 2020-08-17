@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for a {@code SqlIfStmt}.
  */
-public class SqlIfStmt extends SqlCall {
+public class SqlIfStmt extends SqlScriptingNode {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("IF", SqlKind.IF_STATEMENT);
 

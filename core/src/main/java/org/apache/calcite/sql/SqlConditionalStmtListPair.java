@@ -26,7 +26,7 @@ import java.util.Objects;
  * Parse tree representing a conditional expression or an operand
  * pairing with a list of statements.
  */
-public class SqlConditionalStmtListPair extends SqlCall {
+public class SqlConditionalStmtListPair extends SqlScriptingNode {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("CONDITION_STATEMENT_LIST_PAIR", SqlKind.OTHER);
 
