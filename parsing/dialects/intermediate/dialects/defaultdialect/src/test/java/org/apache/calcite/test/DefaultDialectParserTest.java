@@ -54,4 +54,86 @@ final class DefaultDialectParserTest extends SqlDialectParserTest {
     sql("values (a^#^b)")
         .fails("Lexical error at line 1, column 10\\.  Encountered: \"#\" \\(35\\), after : \"\"");
   }
+
+  @Test void testLateral() {
+    // Bad: LATERAL table
+    sql("select * from lateral ^emp^")
+        .fails("(?s)Encountered \"emp\" at .*");
+    sql("select * from lateral table ^emp^ as e")
+        .fails("(?s)Encountered \"emp\" at .*");
+
+    // Bad: LATERAL TABLE schema.table
+    sql("select * from lateral table ^scott^.emp")
+        .fails("(?s)Encountered \"scott\" at .*");
+    final String expected = "SELECT *\n"
+        + "FROM LATERAL TABLE(`RAMP`(1))";
+
+    // Good: LATERAL TABLE function(arg, arg)
+    sql("select * from lateral table(ramp(1))")
+        .ok(expected);
+    sql("select * from lateral table(ramp(1)) as t")
+        .ok(expected + " AS `T`");
+    sql("select * from lateral table(ramp(1)) as t(x)")
+        .ok(expected + " AS `T` (`X`)");
+    // Bad: Parentheses make it look like a sub-query
+    sql("select * from lateral (table^(^ramp(1)))")
+        .fails("(?s)Encountered \"\\(\" at .*");
+
+    // Good: LATERAL (subQuery)
+    final String expected2 = "SELECT *\n"
+        + "FROM LATERAL (SELECT *\n"
+        + "FROM `EMP`)";
+    sql("select * from lateral (select * from emp)")
+        .ok(expected2);
+    sql("select * from lateral (select * from emp) as t")
+        .ok(expected2 + " AS `T`");
+    sql("select * from lateral (select * from emp) as t(x)")
+        .ok(expected2 + " AS `T` (`X`)");
+  }
+
+  @Test void testParensInFrom() {
+    // UNNEST may not occur within parentheses.
+    // FIXME should fail at "unnest"
+    sql("select *from ^(^unnest(x))")
+        .fails("(?s)Encountered \"\\( unnest\" at .*");
+
+    // <table-name> may not occur within parentheses.
+    sql("select * from (^emp^)")
+        .fails("(?s)Non-query expression encountered in illegal context.*");
+
+    // <table-name> may not occur within parentheses.
+    sql("select * from (^emp^ as x)")
+        .fails("(?s)Non-query expression encountered in illegal context.*");
+
+    // <table-name> may not occur within parentheses.
+    sql("select * from (^emp^) as x")
+        .fails("(?s)Non-query expression encountered in illegal context.*");
+
+    // Parentheses around JOINs are OK, and sometimes necessary.
+    if (false) {
+      // todo:
+      sql("select * from (emp join dept using (deptno))").ok("xx");
+
+      sql("select * from (emp join dept using (deptno)) join foo using (x)").ok("xx");
+    }
+  }
+
+  @Test void testCollectionTableWithLateral2() {
+    final String sql = "select * from dept as d\n"
+        + "cross join lateral table(ramp(dept.deptno)) as r";
+    final String expected = "SELECT *\n"
+        + "FROM `DEPT` AS `D`\n"
+        + "CROSS JOIN LATERAL TABLE(`RAMP`(`DEPT`.`DEPTNO`)) AS `R`";
+    sql(sql).ok(expected);
+  }
+
+  @Test void testCollectionTableWithLateral3() {
+    // LATERAL before first table in FROM clause doesn't achieve anything, but
+    // it's valid.
+    final String sql = "select * from lateral table(ramp(dept.deptno)), dept";
+    final String expected = "SELECT *\n"
+        + "FROM LATERAL TABLE(`RAMP`(`DEPT`.`DEPTNO`)),\n"
+        + "`DEPT`";
+    sql(sql).ok(expected);
+  }
 }
