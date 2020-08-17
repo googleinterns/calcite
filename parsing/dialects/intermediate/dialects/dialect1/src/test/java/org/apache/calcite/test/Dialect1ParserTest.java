@@ -6127,6 +6127,13 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
+  @Test public void testParenthesizedFromClauseTableRefMultipleParens() {
+    final String sql = "select * from (((foo)))";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`";
+    sql(sql).ok(expected);
+  }
+
   @Test public void testParenthesizedFromClauseTableRefWithAlias() {
     final String sql = "select * from (foo as f)";
     final String expected = "SELECT *\n"
@@ -6136,6 +6143,15 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testParenthesizedFromClauseJoin() {
     final String sql = "select * from (foo inner join bar on foo.x = bar.x)";
+    final String expected = "SELECT *\n"
+        + "FROM `FOO`\n"
+        + "INNER JOIN `BAR` ON (`FOO`.`X` = `BAR`.`X`)";
+    sql(sql).ok(expected);
+  }
+
+  @Test public void testParenthesizedFromClauseMultipleParens() {
+    final String sql = "select * from "
+        + "(((foo inner join bar on foo.x = bar.x)))";
     final String expected = "SELECT *\n"
         + "FROM `FOO`\n"
         + "INNER JOIN `BAR` ON (`FOO`.`X` = `BAR`.`X`)";
