@@ -16,11 +16,14 @@
  */
 package org.apache.calcite.sql.validate;
 
+import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.plan.RelOptSchema;
 import org.apache.calcite.prepare.RelOptTableImpl;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeField;
-import org.apache.calcite.rel.type.UnknownRecordType;
+import org.apache.calcite.schema.Table;
+import org.apache.calcite.schema.impl.AbstractSchema;
+import org.apache.calcite.schema.impl.UnknownPlaceholderTable;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlKind;
@@ -32,7 +35,6 @@ import org.apache.calcite.util.Pair;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -204,11 +206,24 @@ public class IdentifierNamespace extends AbstractNamespace {
    * @return    A placeholder {@code TableNamespace}.
    */
   private SqlValidatorNamespace getPlaceholderNamespace(SqlIdentifier id) {
-    SqlValidatorTable table = RelOptTableImpl.create(
+    CalciteSchema parentSchema =
+        getValidator().getCatalogReader().getRootSchema();
+    //add chain of subschemas corresponding to identifier prefixes
+    for (int i = 0; i < id.names.size() - 1; i++) {
+      //check that subschema is not already present before adding
+      if (parentSchema.getSubSchema(id.names.get(i), false) == null) {
+        parentSchema.add(id.names.get(i), new AbstractSchema());
+      }
+      parentSchema = parentSchema.getSubSchema(id.names.get(i), false);
+    }
+    //handle creating actual table representation
+    SqlIdentifier tableId = id.getComponent(id.names.size() - 1);
+    Table table = new UnknownPlaceholderTable(validator.getTypeFactory());
+    SqlValidatorTable valTable = RelOptTableImpl.create(
         (RelOptSchema) validator.getCatalogReader(),
-        new UnknownRecordType(validator.getTypeFactory()),
-        Arrays.asList(id.toString()), null);
-    return new TableNamespace(validator, table);
+        table.getRowType(validator.getTypeFactory()), id.names, null);
+    parentSchema.add(tableId.toString(), table);
+    return new TableNamespace(validator, valTable);
   }
 
   public RelDataType validateImpl(RelDataType targetRowType) {
