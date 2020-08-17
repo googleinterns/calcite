@@ -101,4 +101,29 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "FROM `GHI` AS `GHI`";
     sql(sql).rewritesTo(expected);
   }
+
+  @Test public void testCreateTableNoColumns() {
+    String ddl = "create table foo";
+    String query = "select * from foo";
+    sql(ddl).ok();
+    sql(query).type("RecordType() NOT NULL");
+  }
+
+  @Test public void testCreateTableWithColumns() {
+    String ddl = "create table foo(x int, y varchar)";
+    sql(ddl).ok();
+
+    String query = "select x from foo";
+    sql(query).type("RecordType(INTEGER NOT NULL X) NOT NULL");
+
+    String query2 = "select y from foo";
+    sql(query2).type("RecordType(VARCHAR NOT NULL Y) NOT NULL");
+
+    String query3 = "insert into foo values (1, 'str')";
+    sql(query3).type("RecordType(INTEGER NOT NULL X, VARCHAR NOT NULL Y)"
+        + " NOT NULL");
+
+    String query4 = "select ^z^ from foo";
+    sql(query4).fails("Column 'Z' not found in any table");
+  }
 }
