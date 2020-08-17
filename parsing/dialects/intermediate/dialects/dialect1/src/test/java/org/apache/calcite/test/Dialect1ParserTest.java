@@ -6183,7 +6183,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String expected = "(?s).*Encountered \"on\" at.*";
     sql(sql).fails(expected);
   }
-  
+
   @Test public void testSignalConditionName() {
     final String sql = "create procedure foo ()\n"
         + "begin\n"
