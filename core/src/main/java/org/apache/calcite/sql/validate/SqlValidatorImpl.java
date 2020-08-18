@@ -30,6 +30,7 @@ import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.rel.type.RelDataTypeField;
 import org.apache.calcite.rel.type.RelDataTypeSystem;
 import org.apache.calcite.rel.type.RelRecordType;
+import org.apache.calcite.rel.type.UnknownRecordType;
 import org.apache.calcite.rex.RexNode;
 import org.apache.calcite.rex.RexPatternFieldRef;
 import org.apache.calcite.rex.RexVisitor;
@@ -4587,10 +4588,15 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
             .stream().filter(f -> strategies.get(f.getIndex()).canInsertInto())
             .collect(Collectors.toList()));
 
-    final RelDataType targetRowTypeToValidate =
-        logicalSourceRowType.getFieldCount() == logicalTargetRowType.getFieldCount()
-        ? logicalTargetRowType
-        : realTargetRowType;
+    final RelDataType targetRowTypeToValidate;
+    if (logicalTargetRowType instanceof UnknownRecordType) {
+      targetRowTypeToValidate = logicalSourceRowType;
+    } else if (logicalSourceRowType.getFieldCount()
+        == logicalTargetRowType.getFieldCount()) {
+      targetRowTypeToValidate = logicalTargetRowType;
+    } else {
+      targetRowTypeToValidate = realTargetRowType;
+    }
 
     checkFieldCount(insert.getTargetTable(), table, strategies,
         targetRowTypeToValidate, realTargetRowType,
@@ -4725,6 +4731,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       List<ColumnStrategy> strategies, RelDataType targetRowTypeToValidate,
       RelDataType realTargetRowType, SqlNode source,
       RelDataType logicalSourceRowType, RelDataType logicalTargetRowType) {
+    if (table.getRowType() instanceof UnknownRecordType
+        && logicalTargetRowType.getFieldCount() == 0) {
+      return;
+    }
     final int sourceFieldCount = logicalSourceRowType.getFieldCount();
     final int targetFieldCount = logicalTargetRowType.getFieldCount();
     final int targetRealFieldCount = realTargetRowType.getFieldCount();
