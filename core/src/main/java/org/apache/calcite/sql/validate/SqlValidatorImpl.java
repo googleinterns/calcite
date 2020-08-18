@@ -307,8 +307,14 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       RelDataTypeFactory typeFactory,
       Config config) {
     this.catalogReader = Objects.requireNonNull(catalogReader);
-    this.opTab = ChainedSqlOperatorTable.of(Objects.requireNonNull(opTab),
-        (SqlOperatorTable) catalogReader);
+    SqlOperatorTable readerTable = (SqlOperatorTable) catalogReader;
+    if (opTab instanceof ChainedSqlOperatorTable){
+      ((ChainedSqlOperatorTable) opTab).add(readerTable);
+    } else {
+      opTab = ChainedSqlOperatorTable.of(Objects.requireNonNull(opTab),
+          readerTable);
+    }
+    this.opTab = opTab;
     this.typeFactory = Objects.requireNonNull(typeFactory);
     this.config = Objects.requireNonNull(config);
 
