@@ -2715,7 +2715,7 @@ SqlSelect SqlSelect() :
     }
     selectList = SelectList()
     (
-        <FROM> e = FromTable(true)
+        <FROM> e = FromTable(/*enableSuffix=*/true)
         {
             if (from != null) {
                 throw SqlUtil.newContextException(s.pos(),
@@ -2795,11 +2795,11 @@ SqlNode FromTable(boolean enableSuffix) :
 }
 {
     (
-        fromTable = NonqueryTable()
+        fromTable = NonQueryTable()
     |
         <LPAREN>
         (
-            fromTable = FromTable(true)
+            fromTable = FromTable(/*enableSuffix=*/true)
         |
             fromTable = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
         )
@@ -2822,17 +2822,20 @@ SqlNode FromSuffix(SqlNode e) :
     (
         LOOKAHEAD(2)
         (
-            // Decide whether to read a JOIN clause or a comma, or to quit having
-            // seen a single entry FROM clause like 'FROM emps'. See comments
-            // elsewhere regarding <COMMA> lookahead.
+            // Decide whether to read a JOIN clause or a comma, or to quit
+            //having seen a single entry FROM clause like 'FROM emps'. See
+            //comments elsewhere regarding <COMMA> lookahead.
             //
-            // And LOOKAHEAD(3) is needed here rather than a LOOKAHEAD(2). Because currently JavaCC
-            // calculates minimum lookahead count incorrectly for choice that contains zero size
-            // child. For instance, with the generated code, "LOOKAHEAD(2, Natural(), JoinType())"
-            // returns true immediately if it sees a single "<CROSS>" token. Where we expect
-            // the lookahead succeeds after "<CROSS> <APPLY>".
+            // And LOOKAHEAD(3) is needed here rather than a LOOKAHEAD(2).
+            // Because currently JavaCC calculates minimum lookahead count
+            // incorrectly for choice that contains zero size child. For
+            // instance, with the generated code, "LOOKAHEAD(2, Natural(),
+            // JoinType())" returns true immediately if it sees a single
+            // "<CROSS>" token. Where we expect the lookahead succeeds after
+            // "<CROSS> <APPLY>".
             //
-            // For more information about the issue, see https://github.com/javacc/javacc/issues/86
+            // For more information about the issue, see
+            // https://github.com/javacc/javacc/issues/86
             LOOKAHEAD(3)
             e = JoinClause(e)
         |
@@ -2845,7 +2848,8 @@ SqlNode FromSuffix(SqlNode e) :
             e2 = TableRef() {
                 e = new SqlJoin(joinType.getParserPosition(),
                     e,
-                    SqlLiteral.createBoolean(false, joinType.getParserPosition()),
+                    SqlLiteral.createBoolean(false,
+                        joinType.getParserPosition()),
                     joinType,
                     e2,
                     JoinConditionType.NONE.symbol(SqlParserPos.ZERO),
@@ -2855,11 +2859,13 @@ SqlNode FromSuffix(SqlNode e) :
             <CROSS> { joinType = JoinType.CROSS.symbol(getPos()); } <APPLY>
             e2 = TableRef2(true) {
                 if (!this.conformance.isApplyAllowed()) {
-                    throw SqlUtil.newContextException(getPos(), RESOURCE.applyNotAllowed());
+                    throw SqlUtil.newContextException(getPos(),
+                        RESOURCE.applyNotAllowed());
                 }
                 e = new SqlJoin(joinType.getParserPosition(),
                     e,
-                    SqlLiteral.createBoolean(false, joinType.getParserPosition()),
+                    SqlLiteral.createBoolean(false,
+                        joinType.getParserPosition()),
                     joinType,
                     e2,
                     JoinConditionType.NONE.symbol(SqlParserPos.ZERO),
@@ -2869,15 +2875,18 @@ SqlNode FromSuffix(SqlNode e) :
             <OUTER> { joinType = JoinType.LEFT.symbol(getPos()); } <APPLY>
             e2 = TableRef2(true) {
                 if (!this.conformance.isApplyAllowed()) {
-                    throw SqlUtil.newContextException(getPos(), RESOURCE.applyNotAllowed());
+                    throw SqlUtil.newContextException(getPos(),
+                        RESOURCE.applyNotAllowed());
                 }
                 e = new SqlJoin(joinType.getParserPosition(),
                     e,
-                    SqlLiteral.createBoolean(false, joinType.getParserPosition()),
+                    SqlLiteral.createBoolean(false,
+                        joinType.getParserPosition()),
                     joinType,
                     e2,
                     JoinConditionType.ON.symbol(SqlParserPos.ZERO),
-                    SqlLiteral.createBoolean(true, joinType.getParserPosition()));
+                    SqlLiteral.createBoolean(true,
+                        joinType.getParserPosition()));
             }
         )
     )*
@@ -2886,7 +2895,7 @@ SqlNode FromSuffix(SqlNode e) :
     }
 }
 
-SqlNode NonqueryTable() :
+SqlNode NonQueryTable() :
 {
     SqlNode tableRef;
     final SqlNode over;
@@ -2971,14 +2980,14 @@ SqlNode TableAlias(SqlNode tableRef) :
 /** Matches "LEFT JOIN t ON ...", "RIGHT JOIN t USING ...", "JOIN t". */
 SqlNode JoinClause(SqlNode e) :
 {
-    SqlNode e2, condition;
+    final SqlNode e2, condition;
     final SqlLiteral natural, joinType, joinConditionType;
-    SqlNodeList list;
+    final SqlNodeList list;
 }
 {
     natural = Natural()
     joinType = JoinType()
-    e2 = FromTable(false)
+    e2 = FromTable(/*enableSuffix=*/false)
     (
         <ON> {
             joinConditionType = JoinConditionType.ON.symbol(getPos());
