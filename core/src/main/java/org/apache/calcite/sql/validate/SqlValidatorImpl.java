@@ -2941,7 +2941,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
             SqlKind.FOR_STATEMENT, SqlKind.REPEAT_STATEMENT,
             SqlKind.LOOP_STATEMENT, SqlKind.DECLARE_CONDITION,
             SqlKind.DECLARE_HANDLER, SqlKind.IF_STATEMENT,
-            SqlKind.CASE_STATEMENT, SqlKind.CONDITION_STATEMENT_LIST_PAIR));
+            SqlKind.CASE_STATEMENT, SqlKind.CONDITION_STATEMENT_LIST_PAIR,
+            SqlKind.SELECT, SqlKind.INSERT, SqlKind.DELETE, SqlKind.MERGE,
+            SqlKind.UPDATE));
     for (SqlNode child : statements) {
       if (supportedKinds.contains(child.getKind())) {
         registerQuery(parentScope, usingScope, child,
