@@ -109,24 +109,39 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(query).type("RecordType() NOT NULL");
   }
 
-  @Test public void testCreateTableWithColumns() {
+  @Test public void testCreateTableSelectInteger() {
     String ddl = "create table foo(x int, y varchar)";
-    sql(ddl).ok();
-
     String query = "select x from foo";
+    sql(ddl).ok();
     sql(query).type("RecordType(INTEGER NOT NULL X) NOT NULL");
+  }
 
-    String query2 = "select y from foo";
-    sql(query2).type("RecordType(VARCHAR NOT NULL Y) NOT NULL");
+  @Test public void testCreateTableSelectVarchar() {
+    String ddl = "create table foo(x int, y varchar)";
+    String query = "select y from foo";
+    sql(ddl).ok();
+    sql(query).type("RecordType(VARCHAR NOT NULL Y) NOT NULL");
+  }
 
-    String query3 = "insert into foo values (1, 'str')";
-    sql(query3).type("RecordType(INTEGER NOT NULL X, VARCHAR NOT NULL Y)"
+  @Test public void testCreateTableInsert() {
+    String ddl = "create table foo(x int, y varchar)";
+    String query = "insert into foo values (1, 'str')";
+    sql(ddl).ok();
+    sql(query).type("RecordType(INTEGER NOT NULL X, VARCHAR NOT NULL Y)"
         + " NOT NULL");
+  }
 
-    String query4 = "insert into foo values (1, 'str', 1)";
-    sql(query4).fails("end index \\(3\\) must not be greater than size \\(2\\)");
+  @Test public void testCreateTableSelectNonExistingColumnFails() {
+    String ddl = "create table foo(x int, y varchar)";
+    String query = "select ^z^ from foo";
+    sql(ddl).ok();
+    sql(query).fails("Column 'Z' not found in any table");
+  }
 
-    String query5 = "select ^z^ from foo";
-    sql(query5).fails("Column 'Z' not found in any table");
+  @Test public void testCreateTableInsertTooManyValuesFails() {
+    String ddl = "create table foo(x int, y varchar)";
+    String query = "insert into foo values (1, 'str', 1)";
+    sql(ddl).ok();
+    sql(query).fails("end index \\(3\\) must not be greater than size \\(2\\)");
   }
 }
