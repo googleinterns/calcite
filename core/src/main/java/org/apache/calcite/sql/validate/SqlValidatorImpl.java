@@ -368,6 +368,18 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     return unknownType;
   }
 
+  @Override public SqlUserDefinedFunction getUserDefinedFunction(
+      SqlFunction function) {
+    List<SqlOperator> udfs = new ArrayList<>();
+    ((SqlOperatorTable) catalogReader)
+      .lookupOperatorOverloads(function.getNameAsId(),
+          function.getFunctionType(), SqlSyntax.FUNCTION, udfs, catalogReader.nameMatcher());
+    if (udfs.size() == 1) {
+      return (SqlUserDefinedFunction) udfs.get(0);
+    }
+    return null;
+  }
+
   public SqlNodeList expandStar(
       SqlNodeList selectList,
       SqlSelect select,

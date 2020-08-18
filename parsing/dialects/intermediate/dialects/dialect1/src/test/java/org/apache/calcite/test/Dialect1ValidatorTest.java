@@ -101,4 +101,15 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "FROM `GHI` AS `GHI`";
     sql(sql).rewritesTo(expected);
   }
+
+  @Test public void testCreateFunction() {
+    String ddl = "create function foo() "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return current_date + 1";
+    String query = "select foo()";
+    sql(ddl).ok();
+    sql(query).type("");
+  }
 }
