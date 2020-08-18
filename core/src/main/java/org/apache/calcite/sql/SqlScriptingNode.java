@@ -46,12 +46,12 @@ public abstract class SqlScriptingNode extends SqlCall {
   public void validateSqlNodeList(SqlValidator validator,
       SqlValidatorScope scope, SqlNodeList nodes) {
     for (SqlNode node : nodes) {
-      if (statement instanceof SqlScriptingNode
-          || statement instanceof SqlSelect
-          || statement instanceof SqlDelete
-          || statement instanceof SqlInsert
-          || statement instanceof SqlMerge
-          || statement instanceof SqlUpdate) {
+      if (node instanceof SqlScriptingNode
+          || node instanceof SqlSelect
+          || node instanceof SqlDelete
+          || node instanceof SqlInsert
+          || node instanceof SqlMerge
+          || node instanceof SqlUpdate) {
         node.validate(validator, scope);
       }
     }
