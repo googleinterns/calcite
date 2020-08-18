@@ -116,8 +116,7 @@ public class SqlCreateTable extends SqlCreate
     }
   }
 
-  public void validate(
-      SqlValidator validator,
+  @Override public void validate(SqlValidator validator,
       SqlValidatorScope scope) {
     validator.validateCreateTable(this);
   }

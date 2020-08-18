@@ -3311,9 +3311,13 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       Preconditions.checkArgument(column instanceof SqlColumnDeclaration);
       SqlColumnDeclaration col = (SqlColumnDeclaration) column;
       SqlTypeNameSpec typeNameSpec = col.dataType.getTypeNameSpec();
-      // All data types that we initially plan to support (e.g. INTEGER, VARCHAR,
-      // BOOLEAN, DATE, etc) are of type SqlBasicTypeNameSpec.
-      Preconditions.checkArgument(typeNameSpec instanceof SqlBasicTypeNameSpec);
+      // All data types that we initially plan to support (e.g. INTEGER,
+      // VARCHAR, BOOLEAN, DATE, etc) are of type SqlBasicTypeNameSpec.
+      if (!(typeNameSpec instanceof SqlBasicTypeNameSpec)) {
+        throw newValidationError(
+            col, RESOURCE.disallowNonBasicTypes(
+            typeNameSpec.getTypeName().toString()));
+      }
       SqlBasicTypeNameSpec basicTypeNameSpec =
           (SqlBasicTypeNameSpec) typeNameSpec;
       builder.add(col.name.toString(), basicTypeNameSpec.sqlTypeName);
