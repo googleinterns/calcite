@@ -38,7 +38,6 @@ import org.apache.calcite.runtime.CalciteException;
 import org.apache.calcite.runtime.Feature;
 import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
-import org.apache.calcite.schema.Function;
 import org.apache.calcite.schema.FunctionParameter;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.impl.FunctionParameterImpl;
@@ -3244,7 +3243,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
           (SqlIdentifier) createFunction.fieldNames.get(i);
       SqlDataTypeSpec paramType =
           (SqlDataTypeSpec) createFunction.fieldTypes.get(i);
-      parameters.add(new FunctionParameterImpl(i, paramName.toString(),
+      parameters.add(
+          new FunctionParameterImpl(i, paramName.toString(),
             paramType.deriveType(this), /*optional=*/ false));
     }
     schema.add(name, new UserDefinedFunction(parameters, returnType));
