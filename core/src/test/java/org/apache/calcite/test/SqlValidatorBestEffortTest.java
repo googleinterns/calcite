@@ -237,10 +237,23 @@ public class SqlValidatorBestEffortTest extends SqlValidatorTestCase {
   }
 
   @Test public void testSelectWithUnknownSubquery() {
-    String sql = "with t AS (select * FROM foo) select (select 2 AS x from t where x = 1) from " +
-        "foo";
-    String expected = "SELECT `DEPT`.`DEPTNO`, `DEPT`.`NAME`\n"
-        + "FROM `CATALOG`.`SALES`.`DEPT` AS `DEPT`";
+    String sql = "with t AS (select * FROM foo) select (select 2 AS x from t where x = 1) from "
+        + "foo";
+    String expected = "WITH `T` AS (SELECT *\n"
+        + "FROM `FOO` AS `FOO`) (SELECT (((SELECT 2 AS `X`\n"
+        + "FROM `T` AS `T`\n"
+        + "WHERE `T`.`X` = 1)))\n"
+        + "FROM `FOO` AS `FOO`)";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
+
+  @Test public void testSelectFromUnknownSubquery() {
+    String sql = "SELECT f.x FROM (SELECT * FROM foo) AS f";
+    String expected = "SELECT `F`.`X`\n"
+        + "FROM (SELECT *\n"
+        + "FROM `FOO` AS `FOO`) AS `F`";
     sql(sql)
         .withValidatorIdentifierExpansion(true)
         .rewritesTo(expected);
