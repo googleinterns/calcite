@@ -25,6 +25,7 @@ import org.apache.calcite.runtime.CalciteException;
 import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCreateFunctionSqlForm;
+import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
@@ -230,6 +231,13 @@ public interface SqlValidator {
    * @param createFunction The create function statement
    */
   void validateCreateFunctionSqlForm(SqlCreateFunctionSqlForm createFunction);
+
+  /**
+   * Validates a {@link SqlCreateTable}.
+   *
+   * @param createTable The create table statement
+   */
+  void validateCreateTable(SqlCreateTable createTable);
 
   /**
    * Validates an INSERT statement.

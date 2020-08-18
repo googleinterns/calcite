@@ -2715,7 +2715,7 @@ SqlSelect SqlSelect() :
     }
     selectList = SelectList()
     (
-        <FROM> e = FromClause()
+        <FROM> e = FromTable(/*enableSuffix=*/true)
         {
             if (from != null) {
                 throw SqlUtil.newContextException(s.pos(),
@@ -2789,6 +2789,244 @@ SqlSelect SqlSelect() :
     }
 }
 
+SqlNode FromTable(boolean enableSuffix) :
+{
+    SqlNode fromTable;
+}
+{
+    (
+        fromTable = NonQueryTable()
+    |
+        <LPAREN>
+        (
+            fromTable = FromTable(/*enableSuffix=*/true)
+        |
+            fromTable = OrderedQueryOrExpr(ExprContext.ACCEPT_QUERY)
+        )
+        <RPAREN>
+    )
+    fromTable = TableAlias(fromTable)
+    { if (!enableSuffix) { return fromTable; } }
+    fromTable = FromSuffix(fromTable)
+    { return fromTable; }
+}
+
+SqlNode FromSuffix(SqlNode e) :
+{
+    SqlNode e2, condition;
+    SqlLiteral natural, joinType, joinConditionType;
+    SqlNodeList list;
+    SqlParserPos pos;
+}
+{
+    (
+        LOOKAHEAD(2)
+        (
+            // Decide whether to read a JOIN clause or a comma, or to quit
+            //having seen a single entry FROM clause like 'FROM emps'. See
+            //comments elsewhere regarding <COMMA> lookahead.
+            //
+            // And LOOKAHEAD(3) is needed here rather than a LOOKAHEAD(2).
+            // Because currently JavaCC calculates minimum lookahead count
+            // incorrectly for choice that contains zero size child. For
+            // instance, with the generated code, "LOOKAHEAD(2, Natural(),
+            // JoinType())" returns true immediately if it sees a single
+            // "<CROSS>" token. Where we expect the lookahead succeeds after
+            // "<CROSS> <APPLY>".
+            //
+            // For more information about the issue, see
+            // https://github.com/javacc/javacc/issues/86
+            LOOKAHEAD(3)
+            e = JoinClause(e)
+        |
+            // NOTE jvs 6-Feb-2004:  See comments at top of file for why
+            // hint is necessary here.  I had to use this special semantic
+            // lookahead form to get JavaCC to shut up, which makes
+            // me even more uneasy.
+            //LOOKAHEAD({true})
+            <COMMA> { joinType = JoinType.COMMA.symbol(getPos()); }
+            e2 = TableRef() {
+                e = new SqlJoin(joinType.getParserPosition(),
+                    e,
+                    SqlLiteral.createBoolean(false,
+                        joinType.getParserPosition()),
+                    joinType,
+                    e2,
+                    JoinConditionType.NONE.symbol(SqlParserPos.ZERO),
+                    null);
+            }
+        |
+            <CROSS> { joinType = JoinType.CROSS.symbol(getPos()); } <APPLY>
+            e2 = TableRef2(true) {
+                if (!this.conformance.isApplyAllowed()) {
+                    throw SqlUtil.newContextException(getPos(),
+                        RESOURCE.applyNotAllowed());
+                }
+                e = new SqlJoin(joinType.getParserPosition(),
+                    e,
+                    SqlLiteral.createBoolean(false,
+                        joinType.getParserPosition()),
+                    joinType,
+                    e2,
+                    JoinConditionType.NONE.symbol(SqlParserPos.ZERO),
+                    null);
+            }
+        |
+            <OUTER> { joinType = JoinType.LEFT.symbol(getPos()); } <APPLY>
+            e2 = TableRef2(true) {
+                if (!this.conformance.isApplyAllowed()) {
+                    throw SqlUtil.newContextException(getPos(),
+                        RESOURCE.applyNotAllowed());
+                }
+                e = new SqlJoin(joinType.getParserPosition(),
+                    e,
+                    SqlLiteral.createBoolean(false,
+                        joinType.getParserPosition()),
+                    joinType,
+                    e2,
+                    JoinConditionType.ON.symbol(SqlParserPos.ZERO),
+                    SqlLiteral.createBoolean(true,
+                        joinType.getParserPosition()));
+            }
+        )
+    )*
+    {
+        return e;
+    }
+}
+
+SqlNode NonQueryTable() :
+{
+    SqlNode tableRef;
+    final SqlNode over;
+    final SqlNode snapshot;
+    final SqlNode match;
+    SqlNodeList extendList = null;
+    SqlUnnestOperator unnestOp = SqlStdOperatorTable.UNNEST;
+    final Span s, s2;
+    SqlNodeList args;
+}
+{
+    (
+        LOOKAHEAD(2)
+        tableRef = TableRefWithHintsOpt()
+        [
+            [ <EXTEND> ]
+            extendList = ExtendList() {
+                tableRef = extend(tableRef, extendList);
+            }
+        ]
+        over = TableOverOpt() {
+            if (over != null) {
+                tableRef = SqlStdOperatorTable.OVER.createCall(
+                    getPos(), tableRef, over);
+            }
+        }
+        [
+            tableRef = Snapshot(tableRef)
+        ]
+        [
+            tableRef = MatchRecognize(tableRef)
+        ]
+    |
+        <UNNEST> { s = span(); }
+        args = ParenthesizedQueryOrCommaList(ExprContext.ACCEPT_SUB_QUERY)
+        [
+            <WITH> <ORDINALITY> {
+                unnestOp = SqlStdOperatorTable.UNNEST_WITH_ORDINALITY;
+            }
+        ]
+        {
+            tableRef = unnestOp.createCall(s.end(this), args.toArray());
+        }
+    |
+        <TABLE> { s = span(); } <LPAREN>
+        tableRef = TableFunctionCall(s.pos())
+        <RPAREN>
+    |
+        tableRef = ExtendedTableRef()
+    )
+    { return tableRef; }
+}
+
+SqlNode TableAlias(SqlNode tableRef) :
+{
+    final SqlIdentifier alias;
+    SqlNodeList columnAliasList = null;
+}
+{
+    [
+        [ <AS> ] alias = SimpleIdentifier()
+        [ columnAliasList = ParenthesizedSimpleIdentifierList() ]
+        {
+            if (columnAliasList == null) {
+                tableRef = SqlStdOperatorTable.AS.createCall(
+                    Span.of(tableRef).end(this), tableRef, alias);
+            } else {
+                List<SqlNode> idList = new ArrayList<SqlNode>();
+                idList.add(tableRef);
+                idList.add(alias);
+                idList.addAll(columnAliasList.getList());
+                tableRef = SqlStdOperatorTable.AS.createCall(
+                    Span.of(tableRef).end(this), idList);
+            }
+        }
+    ]
+    {
+        return tableRef;
+    }
+}
+
+/** Matches "LEFT JOIN t ON ...", "RIGHT JOIN t USING ...", "JOIN t". */
+SqlNode JoinClause(SqlNode e) :
+{
+    final SqlNode e2, condition;
+    final SqlLiteral natural, joinType, joinConditionType;
+    final SqlNodeList list;
+}
+{
+    natural = Natural()
+    joinType = JoinType()
+    e2 = FromTable(/*enableSuffix=*/false)
+    (
+        <ON> {
+            joinConditionType = JoinConditionType.ON.symbol(getPos());
+        }
+        condition = Expression(ExprContext.ACCEPT_SUB_QUERY) {
+            return new SqlJoin(joinType.getParserPosition(),
+                e,
+                natural,
+                joinType,
+                e2,
+                joinConditionType,
+                condition);
+        }
+    |
+        <USING> {
+            joinConditionType = JoinConditionType.USING.symbol(getPos());
+        }
+        list = ParenthesizedSimpleIdentifierList() {
+            return new SqlJoin(joinType.getParserPosition(),
+                e,
+                natural,
+                joinType,
+                e2,
+                joinConditionType,
+                new SqlNodeList(list.getList(),
+                Span.of(joinConditionType).end(this)));
+        }
+    |
+        {
+            return new SqlJoin(joinType.getParserPosition(),
+                e,
+                natural,
+                joinType,
+                e2,
+                JoinConditionType.NONE.symbol(joinType.getParserPosition()),
+                null);
+        }
+    )
+}
 /**
  * Parses the QUALIFY clause for SELECT.
  */
@@ -2990,26 +3228,6 @@ SqlNode SqlUpdate() :
             targetColumnList, sourceExpressionList, condition, null, alias,
             sourceTables);
     }
-}
-
-/**
- * Parses either a table reference or a nested JOIN clause.
- */
-SqlNode TableRefOrJoinClause() :
-{
-    SqlNode e;
-}
-{
-    (
-        LOOKAHEAD(<LPAREN> TableRef() Natural() JoinType())
-        <LPAREN>
-        e = TableRef()
-        e = JoinClause(e)
-        <RPAREN>
-    |
-        e = TableRef()
-    )
-    { return e; }
 }
 
 /**

@@ -2564,57 +2564,6 @@ public abstract class SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testTableSample() {
-    final String sql0 = "select * from ("
-        + "  select * "
-        + "  from emp "
-        + "  join dept on emp.deptno = dept.deptno"
-        + "  where gender = 'F'"
-        + "  order by sal) tablesample substitute('medium')";
-    final String expected0 = "SELECT *\n"
-        + "FROM (SELECT *\n"
-        + "FROM `EMP`\n"
-        + "INNER JOIN `DEPT` ON (`EMP`.`DEPTNO` = `DEPT`.`DEPTNO`)\n"
-        + "WHERE (`GENDER` = 'F')\n"
-        + "ORDER BY `SAL`) TABLESAMPLE SUBSTITUTE('MEDIUM')";
-    sql(sql0).ok(expected0);
-
-    final String sql1 = "select * "
-        + "from emp as x tablesample substitute('medium') "
-        + "join dept tablesample substitute('lar' /* split */ 'ge') on x.deptno = dept.deptno";
-    final String expected1 = "SELECT *\n"
-        + "FROM `EMP` AS `X` TABLESAMPLE SUBSTITUTE('MEDIUM')\n"
-        + "INNER JOIN `DEPT` TABLESAMPLE SUBSTITUTE('LARGE') ON (`X`.`DEPTNO` = `DEPT`.`DEPTNO`)";
-    sql(sql1).ok(expected1);
-
-    final String sql2 = "select * "
-        + "from emp as x tablesample bernoulli(50)";
-    final String expected2 = "SELECT *\n"
-        + "FROM `EMP` AS `X` TABLESAMPLE BERNOULLI(50.0)";
-    sql(sql2).ok(expected2);
-
-    final String sql3 = "select * "
-        + "from emp as x "
-        + "tablesample bernoulli(50) REPEATABLE(10) ";
-    final String expected3 = "SELECT *\n"
-        + "FROM `EMP` AS `X` TABLESAMPLE BERNOULLI(50.0) REPEATABLE(10)";
-    sql(sql3).ok(expected3);
-
-    // test repeatable with invalid int literal.
-    sql("select * "
-        + "from emp as x "
-        + "tablesample bernoulli(50) REPEATABLE(^100000000000000000000^) ")
-        .fails("Literal '100000000000000000000' "
-            + "can not be parsed to type 'java\\.lang\\.Integer'");
-
-    // test repeatable with invalid negative int literal.
-    sql("select * "
-        + "from emp as x "
-        + "tablesample bernoulli(50) REPEATABLE(-^100000000000000000000^) ")
-        .fails("Literal '100000000000000000000' "
-            + "can not be parsed to type 'java\\.lang\\.Integer'");
-  }
-
   @Test void testLiteral() {
     expr("'foo'").same();
     expr("100").same();
@@ -3404,41 +3353,7 @@ public abstract class SqlDialectParserTest {
             + "FROM `EMPS`))), (ROW(`EMPNO`, `NAME`))))");
   }
 
-  @Test void testLateral() {
-    // Bad: LATERAL table
-    sql("select * from lateral ^emp^")
-        .fails("(?s)Encountered \"emp\" at .*");
-    sql("select * from lateral table ^emp^ as e")
-        .fails("(?s)Encountered \"emp\" at .*");
 
-    // Bad: LATERAL TABLE schema.table
-    sql("select * from lateral table ^scott^.emp")
-        .fails("(?s)Encountered \"scott\" at .*");
-    final String expected = "SELECT *\n"
-        + "FROM LATERAL TABLE(`RAMP`(1))";
-
-    // Good: LATERAL TABLE function(arg, arg)
-    sql("select * from lateral table(ramp(1))")
-        .ok(expected);
-    sql("select * from lateral table(ramp(1)) as t")
-        .ok(expected + " AS `T`");
-    sql("select * from lateral table(ramp(1)) as t(x)")
-        .ok(expected + " AS `T` (`X`)");
-    // Bad: Parentheses make it look like a sub-query
-    sql("select * from lateral (table^(^ramp(1)))")
-        .fails("(?s)Encountered \"\\(\" at .*");
-
-    // Good: LATERAL (subQuery)
-    final String expected2 = "SELECT *\n"
-        + "FROM LATERAL (SELECT *\n"
-        + "FROM `EMP`)";
-    sql("select * from lateral (select * from emp)")
-        .ok(expected2);
-    sql("select * from lateral (select * from emp) as t")
-        .ok(expected2 + " AS `T`");
-    sql("select * from lateral (select * from emp) as t(x)")
-        .ok(expected2 + " AS `T` (`X`)");
-  }
 
   @Test void testTemporalTable() {
     final String sql0 = "select stream * from orders, products\n"
@@ -3496,24 +3411,7 @@ public abstract class SqlDialectParserTest {
     sql(sql).ok(expected);
   }
 
-  @Test void testCollectionTableWithLateral2() {
-    final String sql = "select * from dept as d\n"
-        + "cross join lateral table(ramp(dept.deptno)) as r";
-    final String expected = "SELECT *\n"
-        + "FROM `DEPT` AS `D`\n"
-        + "CROSS JOIN LATERAL TABLE(`RAMP`(`DEPT`.`DEPTNO`)) AS `R`";
-    sql(sql).ok(expected);
-  }
 
-  @Test void testCollectionTableWithLateral3() {
-    // LATERAL before first table in FROM clause doesn't achieve anything, but
-    // it's valid.
-    final String sql = "select * from lateral table(ramp(dept.deptno)), dept";
-    final String expected = "SELECT *\n"
-        + "FROM LATERAL TABLE(`RAMP`(`DEPT`.`DEPTNO`)),\n"
-        + "`DEPT`";
-    sql(sql).ok(expected);
-  }
 
   @Test void testIllegalCursors() {
     sql("select ^cursor^(select * from emps) from emps")
@@ -7080,32 +6978,7 @@ public abstract class SqlDialectParserTest {
         .fails("(?s)Encountered \"with\" at .*");
   }
 
-  @Test void testParensInFrom() {
-    // UNNEST may not occur within parentheses.
-    // FIXME should fail at "unnest"
-    sql("select *from ^(^unnest(x))")
-        .fails("(?s)Encountered \"\\( unnest\" at .*");
 
-    // <table-name> may not occur within parentheses.
-    sql("select * from (^emp^)")
-        .fails("(?s)Non-query expression encountered in illegal context.*");
-
-    // <table-name> may not occur within parentheses.
-    sql("select * from (^emp^ as x)")
-        .fails("(?s)Non-query expression encountered in illegal context.*");
-
-    // <table-name> may not occur within parentheses.
-    sql("select * from (^emp^) as x")
-        .fails("(?s)Non-query expression encountered in illegal context.*");
-
-    // Parentheses around JOINs are OK, and sometimes necessary.
-    if (false) {
-      // todo:
-      sql("select * from (emp join dept using (deptno))").ok("xx");
-
-      sql("select * from (emp join dept using (deptno)) join foo using (x)").ok("xx");
-    }
-  }
 
   @Test void testProcedureCall() {
     sql("call blubber(5)")
