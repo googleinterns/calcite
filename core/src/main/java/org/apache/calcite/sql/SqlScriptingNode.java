@@ -36,23 +36,23 @@ public abstract class SqlScriptingNode extends SqlCall {
   }
 
   /**
-   * Validates a list of statements only if validation is supported for its
+   * Validates a list of SqlNode objects only if validation is supported for its
    * SqlNode type.
    *
    * @param validator The validator
    * @param scope The current scope for this node
-   * @param statements The list of statements to validate
+   * @param nodes The list of SqlNode objects to validate
    */
-  public void validateStatementList(SqlValidator validator,
-      SqlValidatorScope scope, SqlNodeList statements) {
-    for (SqlNode statement : statements) {
+  public void validateSqlNodeList(SqlValidator validator,
+      SqlValidatorScope scope, SqlNodeList nodes) {
+    for (SqlNode node : nodes) {
       if (statement instanceof SqlScriptingNode
           || statement instanceof SqlSelect
           || statement instanceof SqlDelete
           || statement instanceof SqlInsert
           || statement instanceof SqlMerge
           || statement instanceof SqlUpdate) {
-        statement.validate(validator, scope);
+        node.validate(validator, scope);
       }
     }
   }

@@ -38,7 +38,7 @@ public abstract class SqlLabeledBlock extends SqlScriptingNode {
    * @param label The label of the block
    * @param statements A list of statements inside the block, must not be null
    */
-  public SqlLabeledBlock(SqlParserPos pos, SqlIdentifier label,
+  protected SqlLabeledBlock(SqlParserPos pos, SqlIdentifier label,
       SqlStatementList statements) {
     super(pos);
     this.label = label;
@@ -48,6 +48,6 @@ public abstract class SqlLabeledBlock extends SqlScriptingNode {
   @Override public void validate(final SqlValidator validator,
       final SqlValidatorScope scope) {
     BlockScope bs = validator.getBlockScope(this);
-    validateStatementList(validator, bs, statements);
+    validateSqlNodeList(validator, bs, statements);
   }
 }

@@ -72,7 +72,7 @@ public class BlockScope extends ListScope {
    * matches the provided label.
    *
    * @param label The label of the block to find
-   * @return The labeled block
+   * @return The labeled block, returns null if label is not found
    */
   public SqlLabeledBlock findLabeledBlockReference(SqlIdentifier label) {
     SqlNameMatcher nameMatcher = validator.catalogReader.nameMatcher();

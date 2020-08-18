@@ -67,6 +67,6 @@ public class SqlConditionalStmtListPair extends SqlScriptingNode {
 
   @Override public void validate(SqlValidator validator,
       SqlValidatorScope scope) {
-    validateStatementList(validator, scope, stmtList);
+    validateSqlNodeList(validator, scope, stmtList);
   }
 }

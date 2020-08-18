@@ -38,7 +38,7 @@ public abstract class SqlConditionalStmt extends SqlScriptingNode {
    * @param elseStmtList              List of statements in the else clause,
    *                                  must not be null.
    */
-  public SqlConditionalStmt(SqlParserPos pos,
+  protected SqlConditionalStmt(SqlParserPos pos,
       SqlNodeList conditionalStmtListPairs, SqlNodeList elseStmtList) {
     super(pos);
     this.conditionalStmtListPairs =
@@ -48,7 +48,7 @@ public abstract class SqlConditionalStmt extends SqlScriptingNode {
 
   @Override public void validate(SqlValidator validator,
       SqlValidatorScope scope) {
-    validateStatementList(validator, scope, conditionalStmtListPairs);
-    validateStatementList(validator, scope, elseStmtList);
+    validateSqlNodeList(validator, scope, conditionalStmtListPairs);
+    validateSqlNodeList(validator, scope, elseStmtList);
   }
 }
