@@ -124,6 +124,18 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(query).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
   }
 
+  @Test public void testCreateFunctionWrongTypeGetsCasted() {
+    String ddl = "create function foo(x varchar) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select foo(1)";
+    sql(ddl).ok();
+    sql(query).rewritesTo("SELECT `FOO`(CAST(1 AS VARCHAR CHARACTER SET"
+        + " `ISO-8859-1`))");
+  }
+
   @Test public void testCreateFunctionWrongNumberOfParametersFails() {
     String ddl = "create function foo(x integer, y varchar) "
         + "returns Integer "
@@ -136,15 +148,23 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "Was expecting 2 arguments");
   }
 
-  @Test public void testCreateFunctionWrongTypeFails() {
-    String ddl = "create function foo(x varchar) "
+  @Test public void testCreateFunctionOverloaded() {
+    String ddl = "create function foo(x integer, y varchar) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String ddl2 = "create function foo(x integer) "
         + "returns Integer "
         + "language sql "
         + "collation invoker inline type 1 "
         + "return 1";
     String query = "select foo(1)";
+    String query2 = "select foo(1, 'str')";
     sql(ddl).ok();
-    sql(query).fails("");
+    sql(ddl2).ok();
+    sql(query).ok();
+    sql(query2).ok();
   }
 
   @Test public void testCreateFunctionNonExistentFunctionFails() {
