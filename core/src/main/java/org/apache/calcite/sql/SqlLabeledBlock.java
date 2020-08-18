@@ -48,6 +48,6 @@ public abstract class SqlLabeledBlock extends SqlScriptingNode {
   @Override public void validate(final SqlValidator validator,
       final SqlValidatorScope scope) {
     BlockScope bs = validator.getBlockScope(this);
-    validateStatementList(validator, bs, statements);
+    validateSqlNodeList(validator, bs, statements);
   }
 }

@@ -48,7 +48,7 @@ public abstract class SqlConditionalStmt extends SqlScriptingNode {
 
   @Override public void validate(SqlValidator validator,
       SqlValidatorScope scope) {
-    validateStatementList(validator, scope, conditionalStmtListPairs);
-    validateStatementList(validator, scope, elseStmtList);
+    validateSqlNodeList(validator, scope, conditionalStmtListPairs);
+    validateSqlNodeList(validator, scope, elseStmtList);
   }
 }
