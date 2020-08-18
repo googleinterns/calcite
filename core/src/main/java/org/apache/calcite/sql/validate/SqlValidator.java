@@ -29,6 +29,7 @@ import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
 import org.apache.calcite.sql.SqlFunction;
 import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlCreateFunctionSqlForm;
 import org.apache.calcite.sql.SqlInsert;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlLiteral;
@@ -222,6 +223,13 @@ public interface SqlValidator {
    * @param qualifier Interval qualifier
    */
   void validateIntervalQualifier(SqlIntervalQualifier qualifier);
+
+  /**
+   * Validates a {@link SqlCreateFunctionSqlForm}
+   *
+   * @param createFunction The create function statement
+   */
+  void validateCreateFunctionSqlForm(SqlCreateFunctionSqlForm createFunction);
 
   /**
    * Validates an INSERT statement.

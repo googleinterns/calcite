@@ -17,6 +17,8 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
@@ -135,6 +137,12 @@ public class SqlCreateFunctionSqlForm extends SqlCreate {
     writer.print(typeInt + " ");
     writer.keyword("RETURN");
     returnExpression.unparse(writer, 0, 0);
+  }
+
+  @Override public void validate(
+      SqlValidator validator,
+      SqlValidatorScope scope) {
+    validator.validateCreateFunctionSqlForm(this);
   }
 
   public enum DeterministicType {

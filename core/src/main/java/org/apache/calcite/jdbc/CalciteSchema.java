@@ -204,7 +204,7 @@ public abstract class CalciteSchema {
     return entry;
   }
 
-  private FunctionEntry add(String name, Function function) {
+  public FunctionEntry add(String name, Function function) {
     final FunctionEntryImpl entry =
         new FunctionEntryImpl(this, name, function);
     functionMap.put(name, entry);

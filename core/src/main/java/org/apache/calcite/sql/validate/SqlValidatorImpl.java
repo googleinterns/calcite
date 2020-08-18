@@ -38,6 +38,11 @@ import org.apache.calcite.runtime.Feature;
 import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.schema.Table;
+import org.apache.calcite.schema.Function;
+import org.apache.calcite.jdbc.CalciteSchema;
+import org.apache.calcite.schema.impl.UserDefinedFunction;
+import org.apache.calcite.schema.impl.FunctionParameterImpl;
+import org.apache.calcite.schema.FunctionParameter;
 import org.apache.calcite.schema.impl.ModifiableViewTable;
 import org.apache.calcite.sql.JoinConditionType;
 import org.apache.calcite.sql.JoinType;
@@ -61,6 +66,7 @@ import org.apache.calcite.sql.SqlIntervalLiteral;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlJoin;
 import org.apache.calcite.sql.SqlKind;
+import org.apache.calcite.sql.SqlCreateFunctionSqlForm;
 import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlMatchRecognize;
 import org.apache.calcite.sql.SqlMerge;
@@ -2585,6 +2591,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     SqlCall call;
     List<SqlNode> operands;
     switch (node.getKind()) {
+    case CREATE_FUNCTION:
+      return;
     case SELECT:
       final SqlSelect select = (SqlSelect) node;
       final SelectNamespace selectNs =
@@ -3217,6 +3225,27 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
               fracPrecision,
               "INTERVAL " + qualifier));
     }
+  }
+
+  @Override public void validateCreateFunctionSqlForm(
+      SqlCreateFunctionSqlForm createFunction) {
+    Preconditions.checkArgument(createFunction != null);
+    nodeToTypeMap.put(createFunction, unknownType);
+    CalciteSchema schema = catalogReader.getRootSchema();
+    List<FunctionParameter> parameters = new ArrayList<>();
+    String name = createFunction.functionName.toString();
+    RelDataType returnType = createFunction.returnsDataType.deriveType(this);
+    Preconditions.checkArgument(createFunction.fieldNames.size()
+        == createFunction.fieldTypes.size());
+    for (int i = 0; i < createFunction.fieldNames.size(); i++) {
+      SqlIdentifier paramName =
+          (SqlIdentifier) createFunction.fieldNames.get(i);
+      SqlDataTypeSpec paramType =
+          (SqlDataTypeSpec) createFunction.fieldTypes.get(i);
+      parameters.add(new FunctionParameterImpl(i, paramName.toString(),
+            paramType.deriveType(this), /*optional=*/ false));
+    }
+    schema.add(name, new UserDefinedFunction(parameters, returnType));
   }
 
   /**
