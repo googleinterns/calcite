@@ -52,7 +52,8 @@ final class DefaultDialectParserTest extends SqlDialectParserTest {
     // throws a java.lang.Error. The usual case is that the parser throws
     // an exception.
     sql("values (a^#^b)")
-        .fails("Lexical error at line 1, column 10\\.  Encountered: \"#\" \\(35\\), after : \"\"");
+        .fails("Lexical error at line 1, column 10\\.  Encountered: \"#\" "
+            + "\\(35\\), after : \"\"");
   }
 
   @Test void testLateral() {
@@ -114,7 +115,8 @@ final class DefaultDialectParserTest extends SqlDialectParserTest {
       // todo:
       sql("select * from (emp join dept using (deptno))").ok("xx");
 
-      sql("select * from (emp join dept using (deptno)) join foo using (x)").ok("xx");
+      sql("select * from (emp join dept using (deptno)) join foo using (x)")
+          .ok("xx");
     }
   }
 
@@ -154,10 +156,12 @@ final class DefaultDialectParserTest extends SqlDialectParserTest {
 
     final String sql1 = "select * "
         + "from emp as x tablesample substitute('medium') "
-        + "join dept tablesample substitute('lar' /* split */ 'ge') on x.deptno = dept.deptno";
+        + "join dept tablesample substitute('lar' /* split */ 'ge') on x.deptno"
+        + " = dept.deptno";
     final String expected1 = "SELECT *\n"
         + "FROM `EMP` AS `X` TABLESAMPLE SUBSTITUTE('MEDIUM')\n"
-        + "INNER JOIN `DEPT` TABLESAMPLE SUBSTITUTE('LARGE') ON (`X`.`DEPTNO` = `DEPT`.`DEPTNO`)";
+        + "INNER JOIN `DEPT` TABLESAMPLE SUBSTITUTE('LARGE') ON (`X`.`DEPTNO` "
+        + "= `DEPT`.`DEPTNO`)";
     sql(sql1).ok(expected1);
 
     final String sql2 = "select * "
