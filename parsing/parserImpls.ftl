@@ -3950,6 +3950,7 @@ TimeUnit TimeUnit() :
 |   <DECADE> { return TimeUnit.DECADE; }
 |   <CENTURY> { return TimeUnit.CENTURY; }
 |   <MILLENNIUM> { return TimeUnit.MILLENNIUM; }
+|   <TIME> { return TimeUnit.TIME; }
 }
 
 TimeUnit TimestampInterval() :

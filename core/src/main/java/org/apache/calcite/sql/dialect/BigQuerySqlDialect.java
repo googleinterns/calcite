@@ -310,6 +310,7 @@ public class BigQuerySqlDialect extends SqlDialect {
     case QUARTER:
     case YEAR:
     case ISOYEAR:
+    case TIME:
       return timeUnit;
     default:
       throw new RuntimeException("Time unit " + timeUnit + " is not supported for BigQuery.");

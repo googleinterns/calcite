@@ -167,6 +167,7 @@ public class SqlIntervalQualifier extends SqlNode {
     case EPOCH:
     case MICROSECOND:
     case NANOSECOND:
+    case TIME:
       return SqlTypeName.INTERVAL_SECOND;
     default:
       throw new AssertionError(timeUnitRange);
