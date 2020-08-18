@@ -131,7 +131,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + " NOT NULL");
   }
 
-  @Test public void testCreateTableSelectNonExistingColumnFails() {
+  @Test public void testCreateTableSelectNonExistentColumnFails() {
     String ddl = "create table foo(x int, y varchar)";
     String query = "select ^z^ from foo";
     sql(ddl).ok();
