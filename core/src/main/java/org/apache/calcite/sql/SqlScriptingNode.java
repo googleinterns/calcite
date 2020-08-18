@@ -25,7 +25,7 @@ import org.apache.calcite.sql.validate.SqlValidatorScope;
  */
 public abstract class SqlScriptingNode extends SqlCall {
 
-  public SqlScriptingNode(SqlParserPos pos) {
+  protected SqlScriptingNode(SqlParserPos pos) {
     super(pos);
   }
 
