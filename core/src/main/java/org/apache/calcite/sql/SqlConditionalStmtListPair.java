@@ -17,6 +17,8 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
@@ -61,5 +63,10 @@ public class SqlConditionalStmtListPair extends SqlScriptingNode {
     condition.unparse(writer, leftPrec, rightPrec);
     writer.keyword("THEN");
     stmtList.unparse(writer, leftPrec, rightPrec);
+  }
+
+  @Override public void validate(SqlValidator validator,
+      SqlValidatorScope scope) {
+    validateStatementList(validator, scope, stmtList);
   }
 }

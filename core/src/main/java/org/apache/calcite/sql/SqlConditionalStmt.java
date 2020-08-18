@@ -25,48 +25,32 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Parse tree for a {@code SqlIfStmt}.
+ * Parse tree for a {@code SqlConditionalStmt}.
  */
-public class SqlIfStmt extends SqlConditionalStmt {
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("IF", SqlKind.IF_STATEMENT);
+public abstract class SqlConditionalStmt extends SqlScriptingNode {
+
+  public final SqlNodeList conditionalStmtListPairs;
+  public final SqlNodeList elseStmtList;
 
   /**
-   * Creates a {@code SqlIfStmt}.
+   * Creates a {@code SqlConditionalStmt}.
    * @param pos                       Parser position, must not be null.
    * @param conditionalStmtListPairs  List of conditional expression pairs
    *                                  with StatementList, must not be null.
    * @param elseStmtList              List of statements in the else clause,
    *                                  must not be null.
    */
-  public SqlIfStmt(final SqlParserPos pos,
-      final SqlNodeList conditionalStmtListPairs,
-      final SqlNodeList elseStmtList) {
-    super(pos, conditionalStmtListPairs, elseStmtList);
+  public SqlConditionalStmt(SqlParserPos pos,
+      SqlNodeList conditionalStmtListPairs, SqlNodeList elseStmtList) {
+    super(pos);
+    this.conditionalStmtListPairs =
+        Objects.requireNonNull(conditionalStmtListPairs);
+    this.elseStmtList = Objects.requireNonNull(elseStmtList);
   }
 
-  @Override public SqlOperator getOperator() {
-    return OPERATOR;
-  }
-
-  @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(conditionalStmtListPairs, elseStmtList);
-  }
-
-  @Override public void unparse(final SqlWriter writer, final int leftPrec,
-      final int rightPrec) {
-    for (int i = 0; i < conditionalStmtListPairs.size(); i++) {
-      if (i != 0) {
-        writer.keyword("ELSE IF");
-      } else {
-        writer.keyword("IF");
-      }
-      conditionalStmtListPairs.get(i).unparse(writer, leftPrec, rightPrec);
-    }
-    if (!SqlNodeList.isEmptyList(elseStmtList)) {
-      writer.keyword("ELSE");
-      elseStmtList.unparse(writer, leftPrec, rightPrec);
-    }
-    writer.keyword("END IF");
+  @Override public void validate(SqlValidator validator,
+      SqlValidatorScope scope) {
+    validateStatementList(validator, scope, conditionalStmtListPairs);
+    validateStatementList(validator, scope, elseStmtList);
   }
 }

@@ -17,8 +17,11 @@
 package org.apache.calcite.test;
 
 import org.apache.calcite.sql.SqlBeginEndCall;
+import org.apache.calcite.sql.SqlConditionalStmt;
+import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateProcedure;
 import org.apache.calcite.sql.SqlLeaveStmt;
+import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlWhileStmt;
 import org.apache.calcite.sql.parser.dialect1.Dialect1ParserImpl;
 import org.apache.calcite.sql.test.SqlTestFactory;
@@ -42,6 +45,11 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
             .with("conformance", SqlConformanceEnum.LENIENT)
             .with("identifierExpansion", true)
             .with("allowUnknownTables", true));
+  }
+
+  public SqlNode parseAndValidate(String sql) {
+    SqlValidator validator = getTester().getValidator();
+    return getTester().parseAndValidate(validator, sql);
   }
 
   @Test public void testSel() {
@@ -116,9 +124,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "label1: begin\n"
         + "leave label1;\n"
         + "end";
-    SqlValidator validator = getTester().getValidator();
-    SqlCreateProcedure node = (SqlCreateProcedure) getTester()
-        .parseAndValidate(validator, sql);
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
     SqlLeaveStmt leaveStmt = (SqlLeaveStmt) beginEnd.statements.get(0);
     assertThat(beginEnd, sameInstance(leaveStmt.labeledBlock));
@@ -129,11 +135,9 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "label1: begin\n"
         + "label2: begin\n"
         + "leave label1;\n"
-        + "end;"
+        + "end;\n"
         + "end";
-    SqlValidator validator = getTester().getValidator();
-    SqlCreateProcedure node = (SqlCreateProcedure) getTester()
-        .parseAndValidate(validator, sql);
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
     SqlBeginEndCall nestedBeginEnd
         = (SqlBeginEndCall) beginEnd.statements.get(0);
@@ -146,11 +150,9 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "label1: begin\n"
         + "label2: begin\n"
         + "leave label2;\n"
-        + "end;"
+        + "end;\n"
         + "end";
-    SqlValidator validator = getTester().getValidator();
-    SqlCreateProcedure node = (SqlCreateProcedure) getTester()
-        .parseAndValidate(validator, sql);
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
     SqlBeginEndCall nestedBeginEnd
         = (SqlBeginEndCall) beginEnd.statements.get(0);
@@ -163,11 +165,9 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "label1: begin\n"
         + "label1: begin\n"
         + "leave label1;\n"
-        + "end;"
+        + "end;\n"
         + "end";
-    SqlValidator validator = getTester().getValidator();
-    SqlCreateProcedure node = (SqlCreateProcedure) getTester()
-        .parseAndValidate(validator, sql);
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
     SqlBeginEndCall nestedBeginEnd
         = (SqlBeginEndCall) beginEnd.statements.get(0);
@@ -185,9 +185,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "leave label1;\n"
         + "end;\n"
         + "end";
-    SqlValidator validator = getTester().getValidator();
-    SqlCreateProcedure node = (SqlCreateProcedure) getTester()
-        .parseAndValidate(validator, sql);
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
     SqlBeginEndCall nestedBeginEnd
         = (SqlBeginEndCall) beginEnd.statements.get(1);
@@ -200,9 +198,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "begin\n"
         + "leave label1;\n"
         + "end";
-    SqlValidator validator = getTester().getValidator();
-    SqlCreateProcedure node = (SqlCreateProcedure) getTester()
-        .parseAndValidate(validator, sql);
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
     SqlLeaveStmt leaveStmt = (SqlLeaveStmt) beginEnd.statements.get(0);
     assertThat(leaveStmt.labeledBlock, nullValue());
@@ -213,14 +209,30 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "begin\n"
         + "label1: while bar = 1 do\n"
         + "leave label1;\n"
-        + "end while label1;"
+        + "end while label1;\n"
         + "end";
-    SqlValidator validator = getTester().getValidator();
-    SqlCreateProcedure node = (SqlCreateProcedure) getTester()
-        .parseAndValidate(validator, sql);
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
     SqlWhileStmt whileLoop = (SqlWhileStmt) beginEnd.statements.get(0);
     SqlLeaveStmt leaveStmt = (SqlLeaveStmt) whileLoop.statements.get(0);
     assertThat(whileLoop, sameInstance(leaveStmt.labeledBlock));
+  }
+
+  @Test public void testCreateProcedureConditionalStatementLeaveCall() {
+    String sql = "create procedure foo()\n"
+        + "label1: begin\n"
+        + "if a = 3 then\n"
+        + "leave label1;\n"
+        + "end if;\n"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlConditionalStmt conditionalStmt
+        = (SqlConditionalStmt) beginEnd.statements.get(0);
+    SqlConditionalStmtListPair listPair
+        = (SqlConditionalStmtListPair) conditionalStmt
+        .conditionalStmtListPairs.get(0);
+    SqlLeaveStmt leaveStmt = (SqlLeaveStmt) listPair.stmtList.get(0);
+    assertThat(beginEnd, sameInstance(leaveStmt.labeledBlock));
   }
 }

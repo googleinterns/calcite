@@ -26,12 +26,10 @@ import java.util.Objects;
 /**
  * Parse tree for a {@code SqlCaseStmt}.
  */
-public class SqlCaseStmt extends SqlScriptingNode {
+public class SqlCaseStmt extends SqlConditionalStmt {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("CASE", SqlKind.CASE_STATEMENT);
 
-  public final SqlNodeList conditionalStmtListPairs;
-  public final SqlNodeList elseStmtList;
   /**
    * Creates a {@code SqlCaseStmt}.
    * @param pos                       Parser position, must not be null.
@@ -43,10 +41,7 @@ public class SqlCaseStmt extends SqlScriptingNode {
   public SqlCaseStmt(final SqlParserPos pos,
       final SqlNodeList conditionalStmtListPairs,
       final SqlNodeList elseStmtList) {
-    super(pos);
-    this.conditionalStmtListPairs =
-        Objects.requireNonNull(conditionalStmtListPairs);
-    this.elseStmtList = Objects.requireNonNull(elseStmtList);
+    super(pos, conditionalStmtListPairs, elseStmtList);
   }
 
   @Override public SqlOperator getOperator() {
@@ -68,11 +63,5 @@ public class SqlCaseStmt extends SqlScriptingNode {
       elseStmtList.unparse(writer, leftPrec, rightPrec);
     }
     writer.keyword("END CASE");
-  }
-
-  @Override public void validate(SqlValidator validator,
-      SqlValidatorScope scope) {
-    validateStatementList(validator, scope, conditionalStmtListPairs);
-    validateStatementList(validator, scope, elseStmtList);
   }
 }

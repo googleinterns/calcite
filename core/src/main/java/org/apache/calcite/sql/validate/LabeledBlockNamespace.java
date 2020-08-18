@@ -44,11 +44,11 @@ public class LabeledBlockNamespace extends AbstractNamespace {
     this.labeledBlock = Objects.requireNonNull(labeledBlock);
   }
 
-  protected RelDataType validateImpl(RelDataType targetRowType) {
+  @Override protected RelDataType validateImpl(RelDataType targetRowType) {
     return getValidator().getUnknownType();
   }
 
-  public SqlNode getNode() {
+  @Override public SqlNode getNode() {
     return labeledBlock;
   }
 }

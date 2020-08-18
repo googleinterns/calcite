@@ -48,8 +48,7 @@ public abstract class SqlLabeledBlock extends SqlScriptingNode {
 
   @Override public void validate(final SqlValidator validator,
       final SqlValidatorScope scope) {
-    SqlValidatorImpl validatorImpl = (SqlValidatorImpl) validator;
-    BlockScope bs = validatorImpl.getBlockScope(this);
+    BlockScope bs = validator.getBlockScope(this);
     validateStatementList(validator, bs, statements);
   }
 }

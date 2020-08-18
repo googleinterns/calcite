@@ -47,8 +47,8 @@ import org.apache.calcite.sql.SqlAggFunction;
 import org.apache.calcite.sql.SqlBasicCall;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCallBinding;
-import org.apache.calcite.sql.SqlCaseStmt;
 import org.apache.calcite.sql.SqlColumnAttribute;
+import org.apache.calcite.sql.SqlConditionalStmt;
 import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateProcedure;
 import org.apache.calcite.sql.SqlDataTypeSpec;
@@ -59,7 +59,6 @@ import org.apache.calcite.sql.SqlFunction;
 import org.apache.calcite.sql.SqlFunctionCategory;
 import org.apache.calcite.sql.SqlHostVariable;
 import org.apache.calcite.sql.SqlIdentifier;
-import org.apache.calcite.sql.SqlIfStmt;
 import org.apache.calcite.sql.SqlInsert;
 import org.apache.calcite.sql.SqlIntervalLiteral;
 import org.apache.calcite.sql.SqlIntervalQualifier;
@@ -1172,7 +1171,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     return scopes.get(stripAs(node));
   }
 
-  public BlockScope getBlockScope(SqlLabeledBlock block) {
+  @Override public BlockScope getBlockScope(SqlLabeledBlock block) {
     return (BlockScope) scopes.get(block);
   }
 
@@ -2907,25 +2906,19 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       LabeledBlockNamespace labeledBlockNs =
           new LabeledBlockNamespace(this, labeledBlock, enclosingNode);
       String blockAlias = deriveAlias(labeledBlock, nextGeneratedId++);
-      registerNamespace(blockScope, blockAlias, labeledBlockNs, false);
+      registerNamespace(blockScope, blockAlias, labeledBlockNs,
+          /*forceNullable=*/false);
       registerStatementList(blockScope, blockScope, blockAlias,
           labeledBlock.statements, labeledBlock);
       break;
 
     case IF_STATEMENT:
-      SqlIfStmt ifStmt = (SqlIfStmt) node;
-      registerStatementList(parentScope, usingScope, alias,
-          ifStmt.conditionalStmtListPairs, ifStmt);
-      registerStatementList(parentScope, usingScope, alias,
-          ifStmt.elseStmtList, ifStmt);
-      break;
-
     case CASE_STATEMENT:
-      SqlCaseStmt caseStmt = (SqlCaseStmt) node;
+      SqlConditionalStmt conditionalStmt = (SqlConditionalStmt) node;
       registerStatementList(parentScope, usingScope, alias,
-          caseStmt.conditionalStmtListPairs, caseStmt);
+          conditionalStmt.conditionalStmtListPairs, conditionalStmt);
       registerStatementList(parentScope, usingScope, alias,
-          caseStmt.elseStmtList, caseStmt);
+          conditionalStmt.elseStmtList, conditionalStmt);
       break;
 
     case CONDITION_STATEMENT_LIST_PAIR:
@@ -2952,7 +2945,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     for (SqlNode child : statements) {
       if (supportedKinds.contains(child.getKind())) {
         registerQuery(parentScope, usingScope, child,
-            enclosingNode, alias, false, false);
+            enclosingNode, alias, /*forceNullable=*/false,
+            /*checkUpdate=*/false);
       }
     }
   }
