@@ -105,9 +105,7 @@ public class SqlCreateProcedure extends SqlCreate {
 
   @Override public void validate(SqlValidator validator,
       SqlValidatorScope scope) {
-    if (validator.shouldValidateInCreateProcedure(statement)) {
-      statement.validate(validator, scope);
-    }
+    validator.validateScriptingStatement(statement, scope);
   }
 
   public enum CreateProcedureSecurity {

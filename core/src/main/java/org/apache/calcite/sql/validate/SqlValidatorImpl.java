@@ -1186,13 +1186,16 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     return scopes.get(node);
   }
 
-  @Override public boolean shouldValidateInCreateProcedure(SqlNode node) {
-    return (node instanceof SqlScriptingNode
+  @Override public void validateScriptingStatement(SqlNode node,
+      SqlValidatorScope scope) {
+    if (node instanceof SqlScriptingNode
         || node instanceof SqlSelect
         || node instanceof SqlDelete
         || node instanceof SqlInsert
         || node instanceof SqlMerge
-        || node instanceof SqlUpdate);
+        || node instanceof SqlUpdate) {
+      node.validate(this, scope);
+    }
   }
 
   private SqlValidatorNamespace getNamespace(SqlNode node,
