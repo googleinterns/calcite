@@ -140,16 +140,6 @@ public interface SqlValidator {
   SqlOperatorTable getOperatorTable();
 
   /**
-   * Returns an instance of {@code SqlUserdefiedFunction} by checking if
-   * the passed in {@code function} matches one that was added to the schema.
-   * Returns null if the function is not found.
-   *
-   * @param function The function to look for
-   * @return The function that was found, or null otherwise
-   */
-  SqlUserDefinedFunction getUserDefinedFunction(SqlFunction function);
-
-  /**
    * Validates an expression tree. You can call this method multiple times,
    * but not reentrantly.
    *

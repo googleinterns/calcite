@@ -136,18 +136,6 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + " `ISO-8859-1`))");
   }
 
-  @Test public void testCreateFunctionWrongNumberOfParametersFails() {
-    String ddl = "create function foo(x integer, y varchar) "
-        + "returns Integer "
-        + "language sql "
-        + "collation invoker inline type 1 "
-        + "return 1";
-    String query = "select ^foo(1)^";
-    sql(ddl).ok();
-    sql(query).fails("Invalid number of arguments to function 'FOO'\\. "
-        + "Was expecting 2 arguments");
-  }
-
   @Test public void testCreateFunctionOverloaded() {
     String ddl = "create function foo(x integer, y varchar) "
         + "returns Integer "
@@ -165,6 +153,17 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(ddl2).ok();
     sql(query).ok();
     sql(query2).ok();
+  }
+
+  @Test public void testCreateFunctionWrongNumberOfParametersFails() {
+    String ddl = "create function foo(x integer, y varchar) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select ^foo(1)^";
+    sql(ddl).ok();
+    sql(query).fails("No match found for function signature FOO\\(<NUMERIC>\\)");
   }
 
   @Test public void testCreateFunctionNonExistentFunctionFails() {

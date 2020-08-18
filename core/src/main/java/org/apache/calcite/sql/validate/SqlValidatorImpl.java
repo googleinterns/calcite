@@ -17,6 +17,7 @@
 package org.apache.calcite.sql.validate;
 
 import org.apache.calcite.config.NullCollation;
+import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.linq4j.Ord;
 import org.apache.calcite.linq4j.function.Function2;
 import org.apache.calcite.linq4j.function.Functions;
@@ -37,13 +38,12 @@ import org.apache.calcite.runtime.CalciteException;
 import org.apache.calcite.runtime.Feature;
 import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
-import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.Function;
-import org.apache.calcite.jdbc.CalciteSchema;
-import org.apache.calcite.schema.impl.UserDefinedFunction;
-import org.apache.calcite.schema.impl.FunctionParameterImpl;
 import org.apache.calcite.schema.FunctionParameter;
+import org.apache.calcite.schema.Table;
+import org.apache.calcite.schema.impl.FunctionParameterImpl;
 import org.apache.calcite.schema.impl.ModifiableViewTable;
+import org.apache.calcite.schema.impl.UserDefinedFunction;
 import org.apache.calcite.sql.JoinConditionType;
 import org.apache.calcite.sql.JoinType;
 import org.apache.calcite.sql.SqlAccessEnum;
@@ -53,6 +53,7 @@ import org.apache.calcite.sql.SqlBasicCall;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCallBinding;
 import org.apache.calcite.sql.SqlColumnAttribute;
+import org.apache.calcite.sql.SqlCreateFunctionSqlForm;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
@@ -66,7 +67,6 @@ import org.apache.calcite.sql.SqlIntervalLiteral;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlJoin;
 import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlCreateFunctionSqlForm;
 import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlMatchRecognize;
 import org.apache.calcite.sql.SqlMerge;
@@ -96,6 +96,7 @@ import org.apache.calcite.sql.type.SqlOperandTypeInference;
 import org.apache.calcite.sql.type.SqlTypeCoercionRule;
 import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.sql.type.SqlTypeUtil;
+import org.apache.calcite.sql.util.ChainedSqlOperatorTable;
 import org.apache.calcite.sql.util.SqlBasicVisitor;
 import org.apache.calcite.sql.util.SqlShuttle;
 import org.apache.calcite.sql.util.SqlVisitor;
@@ -306,8 +307,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       SqlValidatorCatalogReader catalogReader,
       RelDataTypeFactory typeFactory,
       Config config) {
-    this.opTab = Objects.requireNonNull(opTab);
     this.catalogReader = Objects.requireNonNull(catalogReader);
+    this.opTab = ChainedSqlOperatorTable.of(Objects.requireNonNull(opTab),
+        (SqlOperatorTable) catalogReader);
     this.typeFactory = Objects.requireNonNull(typeFactory);
     this.config = Objects.requireNonNull(config);
 
@@ -366,18 +368,6 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
   public RelDataType getUnknownType() {
     return unknownType;
-  }
-
-  @Override public SqlUserDefinedFunction getUserDefinedFunction(
-      SqlFunction function) {
-    List<SqlOperator> udfs = new ArrayList<>();
-    ((SqlOperatorTable) catalogReader)
-      .lookupOperatorOverloads(function.getNameAsId(),
-          function.getFunctionType(), SqlSyntax.FUNCTION, udfs, catalogReader.nameMatcher());
-    if (udfs.size() == 1) {
-      return (SqlUserDefinedFunction) udfs.get(0);
-    }
-    return null;
   }
 
   public SqlNodeList expandStar(
