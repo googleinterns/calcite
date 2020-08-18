@@ -917,6 +917,15 @@ public interface SqlValidator {
   Config config();
 
   /**
+   * Returns true if the provided node should be validated inside a CREATE
+   * PROCEDURE statement.
+   *
+   * @param node The node to be validated
+   * @return Whether this node should be validated
+   */
+  boolean shouldValidateInCreateProcedure(SqlNode node);
+
+  /**
    * Returns this SqlValidator, with the same state, applying
    * a transform to the config.
    *

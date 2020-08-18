@@ -105,12 +105,7 @@ public class SqlCreateProcedure extends SqlCreate {
 
   @Override public void validate(SqlValidator validator,
       SqlValidatorScope scope) {
-    if (statement instanceof SqlScriptingNode
-        || statement instanceof SqlSelect
-        || statement instanceof SqlDelete
-        || statement instanceof SqlInsert
-        || statement instanceof SqlMerge
-        || statement instanceof SqlUpdate) {
+    if (validator.shouldValidateInCreateProcedure(statement)) {
       statement.validate(validator, scope);
     }
   }

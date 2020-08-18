@@ -80,6 +80,7 @@ import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlOperatorTable;
 import org.apache.calcite.sql.SqlOrderBy;
 import org.apache.calcite.sql.SqlSampleSpec;
+import org.apache.calcite.sql.SqlScriptingNode;
 import org.apache.calcite.sql.SqlSelect;
 import org.apache.calcite.sql.SqlSelectKeyword;
 import org.apache.calcite.sql.SqlSnapshot;
@@ -1183,6 +1184,15 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
   public SqlValidatorScope getOverScope(SqlNode node) {
     return scopes.get(node);
+  }
+
+  @Override public boolean shouldValidateInCreateProcedure(SqlNode node) {
+    return (node instanceof SqlScriptingNode
+        || node instanceof SqlSelect
+        || node instanceof SqlDelete
+        || node instanceof SqlInsert
+        || node instanceof SqlMerge
+        || node instanceof SqlUpdate);
   }
 
   private SqlValidatorNamespace getNamespace(SqlNode node,
