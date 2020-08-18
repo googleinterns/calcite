@@ -17,6 +17,9 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.validate.BlockScope;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
@@ -30,8 +33,9 @@ public class SqlSignal extends SqlScriptingNode {
       new SqlSpecialOperator("SIGNAL", SqlKind.SIGNAL);
 
   public final SignalType signalType;
-  public final SqlNode conditionOrSqlState;
+  public final SqlIdentifier conditionOrSqlState;
   public final SqlSetStmt setStmt;
+  public SqlDeclareCondition conditionDeclaration;
 
   /**
    * Creates a {@code SqlSignal}.
@@ -42,7 +46,7 @@ public class SqlSignal extends SqlScriptingNode {
    * @param setStmt The optional SET clause
    */
   public SqlSignal(SqlParserPos pos, SignalType signalType,
-      SqlNode conditionOrSqlState, SqlSetStmt setStmt) {
+      SqlIdentifier conditionOrSqlState, SqlSetStmt setStmt) {
     super(pos);
     this.signalType = Objects.requireNonNull(signalType);
     this.conditionOrSqlState = conditionOrSqlState;
@@ -65,6 +69,12 @@ public class SqlSignal extends SqlScriptingNode {
     if (setStmt != null) {
       setStmt.unparse(writer, 0, 0);
     }
+  }
+
+  @Override public void validate(SqlValidator validator,
+      SqlValidatorScope scope) {
+    BlockScope bs = (BlockScope) scope;
+    conditionDeclaration = bs.findConditionDeclaration(conditionOrSqlState);
   }
 
   public enum SignalType {

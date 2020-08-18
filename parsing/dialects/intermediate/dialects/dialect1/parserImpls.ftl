@@ -5743,7 +5743,7 @@ SqlNode DiagnosticStmt() :
 SqlSignal SqlSignal() :
 {
     final SignalType signalType;
-    SqlNode conditionOrSqlState = null;
+    SqlIdentifier conditionOrSqlState = null;
     SqlSetStmt setStmt = null;
     final Span s = Span.of();
 }
@@ -5762,9 +5762,9 @@ SqlSignal SqlSignal() :
     }
 }
 
-SqlNode SignalConditionOrSqlState() :
+SqlIdentifier SignalConditionOrSqlState() :
 {
-    final SqlNode e;
+    final SqlIdentifier e;
 }
 {
     (

@@ -20,8 +20,10 @@ import org.apache.calcite.sql.SqlBeginEndCall;
 import org.apache.calcite.sql.SqlConditionalStmt;
 import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateProcedure;
+import org.apache.calcite.sql.SqlDeclareCondition;
 import org.apache.calcite.sql.SqlLeaveStmt;
 import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlSignal;
 import org.apache.calcite.sql.SqlWhileStmt;
 import org.apache.calcite.sql.parser.dialect1.Dialect1ParserImpl;
 import org.apache.calcite.sql.test.SqlTestFactory;
@@ -277,5 +279,19 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     String query = "insert into foo values (1, 'str', 1)";
     sql(ddl).ok();
     sql(query).fails("end index \\(3\\) must not be greater than size \\(2\\)");
+  }
+
+  @Test public void testCreateProcedureConditionSignal() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "declare bar condition;\n"
+        + "signal bar;"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlDeclareCondition declareCondition
+        = (SqlDeclareCondition) beginEnd.statements.get(0);
+    SqlSignal signal = (SqlSignal) beginEnd.statements.get(1);
+    assertThat(signal.conditionDeclaration, sameInstance(declareCondition));
   }
 }

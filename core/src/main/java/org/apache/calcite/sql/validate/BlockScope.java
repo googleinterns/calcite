@@ -17,12 +17,16 @@
 package org.apache.calcite.sql.validate;
 
 import org.apache.calcite.rel.type.StructKind;
+import org.apache.calcite.sql.SqlDeclareCondition;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlLabeledBlock;
 import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlScriptingNode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -32,6 +36,7 @@ import java.util.Objects;
 public class BlockScope extends ListScope {
 
   public final SqlLabeledBlock block;
+  public final Map<String, SqlDeclareCondition> conditionDeclarations;
 
   /**
    * Creates an instance of {@code BlockScope}.
@@ -44,6 +49,7 @@ public class BlockScope extends ListScope {
   public BlockScope(SqlValidatorScope parent, SqlLabeledBlock block) {
     super(parent);
     this.block = Objects.requireNonNull(block);
+    conditionDeclarations = new HashMap<>();
   }
 
   @Override public SqlNode getNode() {
@@ -52,12 +58,24 @@ public class BlockScope extends ListScope {
 
   @Override public void resolve(List<String> names, SqlNameMatcher nameMatcher,
       boolean deep, Resolved resolved) {
+    if (names.size() != 1) {
+      super.resolve(names, nameMatcher, deep, resolved);
+      return;
+    }
+    String name = names.get(0);
+    if (conditionDeclarations.containsKey(name)) {
+      SqlValidatorNamespace ns = validator.getNamespace(conditionDeclarations.get(name));
+      Step path = Path.EMPTY.plus(ns.getRowType(), 0, names.get(0),
+          StructKind.FULLY_QUALIFIED);
+      resolved.found(ns, false, this, path, null);
+      return;
+    }
     if (block.label == null) {
       super.resolve(names, nameMatcher, deep, resolved);
       return;
     }
     String label = block.label.getSimple();
-    if (names.size() == 1 && nameMatcher.matches(names.get(0), label)) {
+    if (nameMatcher.matches(names.get(0), label)) {
       SqlValidatorNamespace ns = validator.getNamespace(block);
       Step path = Path.EMPTY.plus(ns.getRowType(), 0, names.get(0),
           StructKind.FULLY_QUALIFIED);
@@ -68,26 +86,62 @@ public class BlockScope extends ListScope {
   }
 
   /**
+   * Searches this scope and parent scopes for a {@link SqlNode} that
+   * matches the provided name.
+   *
+   * @param name The name of the SqlNode's namespace to find
+   * @return The namespace for that SqlNode
+   */
+  private SqlValidatorNamespace findReferenceNamespace(SqlIdentifier name) {
+    SqlNameMatcher nameMatcher = validator.catalogReader.nameMatcher();
+    SqlValidatorScope.ResolvedImpl resolved =
+        new SqlValidatorScope.ResolvedImpl();
+    List<String> names = new ArrayList<>();
+    names.add(name.getSimple());
+    resolve(names, nameMatcher, true, resolved);
+    if (resolved.count() == 0) {
+      return null;
+    }
+    return resolved.only().namespace;
+  }
+
+  /**
    * Searches this scope and parent scopes for a {@link SqlLabeledBlock} that
    * matches the provided label.
    *
    * @param label The label of the block to find
    * @return The labeled block, returns null if label is not found
    */
-  public SqlLabeledBlock findLabeledBlockReference(SqlIdentifier label) {
-    SqlNameMatcher nameMatcher = validator.catalogReader.nameMatcher();
-    SqlValidatorScope.ResolvedImpl resolved =
-        new SqlValidatorScope.ResolvedImpl();
-    List<String> names = new ArrayList<>();
-    names.add(label.getSimple());
-    resolve(names, nameMatcher, true, resolved);
-    if (resolved.count() == 0) {
-      return null;
-    }
-    SqlValidatorNamespace ns = resolved.only().namespace;
+  public SqlLabeledBlock findLabeledBlock(SqlIdentifier label) {
+    SqlValidatorNamespace ns = findReferenceNamespace(label);
     if (ns instanceof LabeledBlockNamespace) {
       return (SqlLabeledBlock) ns.getNode();
     }
     return null;
+  }
+
+  /**
+   * Searches this scope and parent scopes for a {@link SqlDeclareCondition} that
+   * matches the provided label.
+   *
+   * @param label The label of the block to find
+   * @return The labeled block, returns null if label is not found
+   */
+  public SqlDeclareCondition findConditionDeclaration(SqlIdentifier label) {
+    SqlValidatorNamespace ns = findReferenceNamespace(label);
+    if (ns instanceof ConditionNamespace) {
+      return (SqlDeclareCondition) ns.getNode();
+    }
+    return null;
+  }
+
+  /**
+   *
+   *
+   * @param conditionDeclaration
+   */
+  public void addConditionDeclaration(SqlDeclareCondition conditionDeclaration) {
+    String name = conditionDeclaration.conditionName.getSimple();
+    conditionDeclarations.put(name, conditionDeclaration);
   }
 }

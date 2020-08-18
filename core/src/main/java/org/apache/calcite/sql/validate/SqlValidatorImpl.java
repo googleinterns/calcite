@@ -58,6 +58,7 @@ import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateProcedure;
 import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
+import org.apache.calcite.sql.SqlDeclareCondition;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
 import org.apache.calcite.sql.SqlExplain;
@@ -2935,6 +2936,15 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
           = (SqlConditionalStmtListPair) node;
       registerStatementList(parentScope, usingScope, alias,
           stmtListPair.stmtList, stmtListPair);
+      break;
+
+    case DECLARE_CONDITION:
+      SqlDeclareCondition condition = (SqlDeclareCondition) node;
+      ConditionNamespace ns = new ConditionNamespace(this, condition,
+          enclosingNode);
+      registerNamespace(usingScope, alias, ns, /*forceNullable=*/false);
+      BlockScope bs = (BlockScope) parentScope;
+      bs.addConditionDeclaration(condition);
       break;
 
     default:
