@@ -4487,8 +4487,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     final RelDataType targetRowTypeToValidate;
     if (logicalTargetRowType instanceof UnknownRecordType) {
       targetRowTypeToValidate = logicalSourceRowType;
-    } else if (logicalSourceRowType.getFieldCount() ==
-        logicalTargetRowType.getFieldCount()) {
+    } else if (logicalSourceRowType.getFieldCount()
+        == logicalTargetRowType.getFieldCount()) {
       targetRowTypeToValidate = logicalTargetRowType;
     } else {
       targetRowTypeToValidate = realTargetRowType;
@@ -4627,7 +4627,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       List<ColumnStrategy> strategies, RelDataType targetRowTypeToValidate,
       RelDataType realTargetRowType, SqlNode source,
       RelDataType logicalSourceRowType, RelDataType logicalTargetRowType) {
-    if (table.getRowType() instanceof UnknownRecordType) {
+    if (table.getRowType() instanceof UnknownRecordType
+        && logicalTargetRowType.getFieldCount() == 0) {
       return;
     }
     final int sourceFieldCount = logicalSourceRowType.getFieldCount();
