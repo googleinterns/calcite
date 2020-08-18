@@ -50,6 +50,7 @@ import org.apache.calcite.schema.impl.ViewTableMacro;
 import org.apache.calcite.sql.dialect.CalciteSqlDialect;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.sql2rel.InitializerContext;
 import org.apache.calcite.sql2rel.InitializerExpressionFactory;
 import org.apache.calcite.sql2rel.NullInitializerExpressionFactory;
@@ -113,6 +114,12 @@ public class SqlCreateTable extends SqlCreate
       writer.newlineAndIndent();
       query.unparse(writer, 0, 0);
     }
+  }
+
+  public void validate(
+      SqlValidator validator,
+      SqlValidatorScope scope) {
+    validator.validateCreateTable(this);
   }
 
   public void execute(CalcitePrepare.Context context) {
