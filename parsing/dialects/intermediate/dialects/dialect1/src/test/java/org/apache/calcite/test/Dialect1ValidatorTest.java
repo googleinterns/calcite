@@ -107,9 +107,54 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "returns Integer "
         + "language sql "
         + "collation invoker inline type 1 "
-        + "return current_date + 1";
+        + "return 1";
     String query = "select foo()";
     sql(ddl).ok();
-    sql(query).type("");
+    sql(query).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
+  }
+
+  @Test public void testCreateFunctionWithParams() {
+    String ddl = "create function foo(x integer, y varchar) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select foo(1, 'str')";
+    sql(ddl).ok();
+    sql(query).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
+  }
+
+  @Test public void testCreateFunctionWrongNumberOfParametersFails() {
+    String ddl = "create function foo(x integer, y varchar) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select ^foo(1)^";
+    sql(ddl).ok();
+    sql(query).fails("Invalid number of arguments to function 'FOO'\\. "
+        + "Was expecting 2 arguments");
+  }
+
+  @Test public void testCreateFunctionWrongTypeFails() {
+    String ddl = "create function foo(x varchar) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select foo(1)";
+    sql(ddl).ok();
+    sql(query).fails("");
+  }
+
+  @Test public void testCreateFunctionNonExistentFunctionFails() {
+    String ddl = "create function foo(x integer) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select ^bar(1)^";
+    sql(ddl).ok();
+    sql(query).fails("No match found for function signature BAR\\(<NUMERIC>\\)");
   }
 }

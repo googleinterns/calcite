@@ -242,8 +242,9 @@ public class SqlFunction extends SqlOperator {
             SqlSyntax.FUNCTION, getKind(),
             validator.getCatalogReader().nameMatcher(),
             false);
+    // Function may be a UDF.
     if (function == null) {
-      function = validator.getUserDefinedFunction(function);
+      function = validator.getUserDefinedFunction(this);
     }
     try {
       // if we have a match on function name and parameter count, but
