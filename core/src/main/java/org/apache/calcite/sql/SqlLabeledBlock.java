@@ -15,52 +15,39 @@
  * limitations under the License.
  */
 package org.apache.calcite.sql;
+
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.validate.BlockScope;
 import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
-import org.apache.calcite.util.ImmutableNullableList;
 
-import java.util.List;
+import java.util.Objects;
 
 /**
- * Parse tree for a {@code SqlLeaveStmt}.
+ * Parse tree for {@code SqlLabeledBlock} call.
  */
-public class SqlLeaveStmt extends SqlScriptingNode {
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("LEAVE", SqlKind.LEAVE_STATEMENT);
+public abstract class SqlLabeledBlock extends SqlScriptingNode {
 
   public final SqlIdentifier label;
-  public SqlLabeledBlock labeledBlock;
+  public final SqlStatementList statements;
 
   /**
-   * Creates a {@code SqlLeaveStmt}.
+   * Creates an instance of {@code SqlLabeledBlock}.
    *
-   * @param pos     Parser position, must not be null.
-   * @param label   Labeled statement to be terminated.
+   * @param pos SQL parser position
+   * @param label The label of the block
+   * @param statements A list of statements inside the block, must not be null
    */
-  public SqlLeaveStmt(final SqlParserPos pos, final SqlIdentifier label) {
+  protected SqlLabeledBlock(SqlParserPos pos, SqlIdentifier label,
+      SqlStatementList statements) {
     super(pos);
     this.label = label;
-  }
-
-  @Override public SqlOperator getOperator() {
-    return OPERATOR;
-  }
-
-  @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(label);
-  }
-
-  @Override public void unparse(final SqlWriter writer, final int leftPrec,
-      final int rightPrec) {
-    writer.keyword("LEAVE");
-    label.unparse(writer, leftPrec, rightPrec);
+    this.statements = Objects.requireNonNull(statements);
   }
 
   @Override public void validate(final SqlValidator validator,
       final SqlValidatorScope scope) {
-    BlockScope bs = (BlockScope) scope;
-    labeledBlock = bs.findLabeledBlockReference(label);
+    BlockScope bs = validator.getBlockScope(this);
+    validateSqlNodeList(validator, bs, statements);
   }
 }

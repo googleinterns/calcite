@@ -16,13 +16,25 @@
  */
 package org.apache.calcite.test;
 
+import org.apache.calcite.sql.SqlBeginEndCall;
+import org.apache.calcite.sql.SqlConditionalStmt;
+import org.apache.calcite.sql.SqlConditionalStmtListPair;
+import org.apache.calcite.sql.SqlCreateProcedure;
+import org.apache.calcite.sql.SqlLeaveStmt;
+import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlWhileStmt;
 import org.apache.calcite.sql.parser.dialect1.Dialect1ParserImpl;
 import org.apache.calcite.sql.test.SqlTestFactory;
 import org.apache.calcite.sql.test.SqlTester;
 import org.apache.calcite.sql.test.SqlValidatorTester;
 import org.apache.calcite.sql.validate.SqlConformanceEnum;
+import org.apache.calcite.sql.validate.SqlValidator;
 
 import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class Dialect1ValidatorTest extends SqlValidatorTestCase {
 
@@ -33,6 +45,11 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
             .with("conformance", SqlConformanceEnum.LENIENT)
             .with("identifierExpansion", true)
             .with("allowUnknownTables", true));
+  }
+
+  public SqlNode parseAndValidate(String sql) {
+    SqlValidator validator = getTester().getValidator();
+    return getTester().parseAndValidate(validator, sql);
   }
 
   @Test public void testSel() {
@@ -100,6 +117,123 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "FROM `DEF` AS `DEF`)))\n"
         + "FROM `GHI` AS `GHI`";
     sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureBeginEndLabel() {
+    String sql = "create procedure foo()\n"
+        + "label1: begin\n"
+        + "leave label1;\n"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlLeaveStmt leaveStmt = (SqlLeaveStmt) beginEnd.statements.get(0);
+    assertThat(beginEnd, sameInstance(leaveStmt.labeledBlock));
+  }
+
+  @Test public void testCreateProcedureBeginEndNestedOuterLabel() {
+    String sql = "create procedure foo()\n"
+        + "label1: begin\n"
+        + "label2: begin\n"
+        + "leave label1;\n"
+        + "end;\n"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlBeginEndCall nestedBeginEnd
+        = (SqlBeginEndCall) beginEnd.statements.get(0);
+    SqlLeaveStmt leaveStmt = (SqlLeaveStmt) nestedBeginEnd.statements.get(0);
+    assertThat(beginEnd, sameInstance(leaveStmt.labeledBlock));
+  }
+
+  @Test public void testCreateProcedureBeginEndNestedInnerLabel() {
+    String sql = "create procedure foo()\n"
+        + "label1: begin\n"
+        + "label2: begin\n"
+        + "leave label2;\n"
+        + "end;\n"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlBeginEndCall nestedBeginEnd
+        = (SqlBeginEndCall) beginEnd.statements.get(0);
+    SqlLeaveStmt leaveStmt = (SqlLeaveStmt) nestedBeginEnd.statements.get(0);
+    assertThat(nestedBeginEnd, sameInstance(leaveStmt.labeledBlock));
+  }
+
+  @Test public void testCreateProcedureBeginEndNestedSameNameLabel() {
+    String sql = "create procedure foo()\n"
+        + "label1: begin\n"
+        + "label1: begin\n"
+        + "leave label1;\n"
+        + "end;\n"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlBeginEndCall nestedBeginEnd
+        = (SqlBeginEndCall) beginEnd.statements.get(0);
+    SqlLeaveStmt leaveStmt = (SqlLeaveStmt) nestedBeginEnd.statements.get(0);
+    assertThat(nestedBeginEnd, sameInstance(leaveStmt.labeledBlock));
+  }
+
+  @Test public void testCreateProcedureBeginEndSameLevelLabel() {
+    String sql = "create procedure foo()\n"
+        + "label1: begin\n"
+        + "label1: begin\n"
+        + "select a from abc;\n"
+        + "end;\n"
+        + "label2: begin\n"
+        + "leave label1;\n"
+        + "end;\n"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlBeginEndCall nestedBeginEnd
+        = (SqlBeginEndCall) beginEnd.statements.get(1);
+    SqlLeaveStmt leaveStmt = (SqlLeaveStmt) nestedBeginEnd.statements.get(0);
+    assertThat(beginEnd, sameInstance(leaveStmt.labeledBlock));
+  }
+
+  @Test public void testCreateProcedureBeginEndNullLabel() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "leave label1;\n"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlLeaveStmt leaveStmt = (SqlLeaveStmt) beginEnd.statements.get(0);
+    assertThat(leaveStmt.labeledBlock, nullValue());
+  }
+
+  @Test public void testCreateProcedureIterationStatementLabel() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "label1: while bar = 1 do\n"
+        + "leave label1;\n"
+        + "end while label1;\n"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlWhileStmt whileLoop = (SqlWhileStmt) beginEnd.statements.get(0);
+    SqlLeaveStmt leaveStmt = (SqlLeaveStmt) whileLoop.statements.get(0);
+    assertThat(whileLoop, sameInstance(leaveStmt.labeledBlock));
+  }
+
+  @Test public void testCreateProcedureConditionalStatementLeaveCall() {
+    String sql = "create procedure foo()\n"
+        + "label1: begin\n"
+        + "if a = 3 then\n"
+        + "leave label1;\n"
+        + "end if;\n"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlConditionalStmt conditionalStmt
+        = (SqlConditionalStmt) beginEnd.statements.get(0);
+    SqlConditionalStmtListPair listPair
+        = (SqlConditionalStmtListPair) conditionalStmt
+        .conditionalStmtListPairs.get(0);
+    SqlLeaveStmt leaveStmt = (SqlLeaveStmt) listPair.stmtList.get(0);
+    assertThat(beginEnd, sameInstance(leaveStmt.labeledBlock));
   }
 
   @Test public void testCreateTableNoColumns() {
