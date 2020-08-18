@@ -17,6 +17,7 @@
 package org.apache.calcite.sql.validate;
 
 import org.apache.calcite.config.NullCollation;
+import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.rel.type.RelDataTypeField;
@@ -815,6 +816,8 @@ public interface SqlValidator {
   void validateSequenceValue(SqlValidatorScope scope, SqlIdentifier id);
 
   SqlValidatorScope getWithScope(SqlNode withItem);
+
+  CalciteSchema getOrCreateParentSchema(SqlIdentifier id);
 
   /**
    * Sets whether this validator should be lenient upon encountering an unknown

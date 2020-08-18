@@ -22,7 +22,6 @@ import org.apache.calcite.prepare.RelOptTableImpl;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeField;
 import org.apache.calcite.schema.Table;
-import org.apache.calcite.schema.impl.AbstractSchema;
 import org.apache.calcite.schema.impl.UnknownPlaceholderTable;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlIdentifier;
@@ -206,7 +205,7 @@ public class IdentifierNamespace extends AbstractNamespace {
    * @return    A placeholder {@code TableNamespace}.
    */
   private SqlValidatorNamespace getPlaceholderNamespace(SqlIdentifier id) {
-    CalciteSchema parentSchema = getOrCreateParentSchema(id);
+    CalciteSchema parentSchema = validator.getOrCreateParentSchema(id);
     SqlIdentifier tableId = id.getComponent(id.names.size() - 1);
     Table table = new UnknownPlaceholderTable(validator.getTypeFactory());
     SqlValidatorTable valTable = RelOptTableImpl.create(
@@ -214,34 +213,6 @@ public class IdentifierNamespace extends AbstractNamespace {
         table.getRowType(validator.getTypeFactory()), id.names, null);
     parentSchema.add(tableId.toString(), table);
     return new TableNamespace(validator, valTable);
-  }
-
-  /**
-   * Given an identifier, creates the schema chain corresponding to the prefix
-   * list of the identifier, and adds it to the root schema. Any pre-existing
-   * schemas will be retrieved rather than recreated. As an example, if the
-   * identifier is foo.bar.baz, foo will be added as a subschema to the root
-   * schema, bar will be added as a subschema to foo, and then bar will be
-   * returned as the parent schema of baz.
-   * @param id  the identifier for which the parent schema must be created or
-   *            retrieved.
-   * @return    the immediate parent of the object denoted by the identifer -
-   *            in other words, the schema corresponding to the second to last
-   *            component of the identifier. If the identifier consists of only
-   *            a single name, the root schema will be returned.
-   */
-  public CalciteSchema getOrCreateParentSchema(SqlIdentifier id) {
-    CalciteSchema parentSchema =
-        getValidator().getCatalogReader().getRootSchema();
-    //add chain of subschemas corresponding to identifier prefixes
-    for (int i = 0; i < id.names.size() - 1; i++) {
-      //check that subschema is not already present before adding
-      if (parentSchema.getSubSchema(id.names.get(i), false) == null) {
-        parentSchema.add(id.names.get(i), new AbstractSchema());
-      }
-      parentSchema = parentSchema.getSubSchema(id.names.get(i), false);
-    }
-    return parentSchema;
   }
 
   public RelDataType validateImpl(RelDataType targetRowType) {
