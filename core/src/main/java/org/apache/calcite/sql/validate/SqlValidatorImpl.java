@@ -3333,7 +3333,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
   @Override public void validateCreateMacro(SqlCreateMacro createMacro) {
     Preconditions.checkArgument(createMacro != null);
     nodeToTypeMap.put(createMacro, unknownType);
-    CalciteSchema schema = catalogReader.getRootSchema();
+    CalciteSchema schema = getOrCreateParentSchema(createMacro.macroName);
+    String name = Iterables.getLast(createMacro.macroName.names);
     List<FunctionParameter> parameters = new ArrayList<>();
     if (createMacro.attributes == null) {
       schema.add(createMacro.macroName.toString(), new Macro(parameters));
@@ -3345,7 +3346,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       parameters.add(new FunctionParameterImpl(i, attribute.name.toString(),
             attribute.dataType.deriveType(this), /*optional=*/ false));
     }
-    schema.add(createMacro.macroName.toString(), new Macro(parameters));
+    schema.add(name, new Macro(parameters));
   }
 
   @Override public void validateCreateTable(SqlCreateTable createTable) {
