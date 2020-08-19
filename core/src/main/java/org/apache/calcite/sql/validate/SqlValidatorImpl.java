@@ -3995,13 +3995,16 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
   @Override public CalciteSchema getOrCreateParentSchema(SqlIdentifier id) {
     CalciteSchema parentSchema =
         getCatalogReader().getRootSchema();
-    //add chain of subschemas corresponding to identifier prefixes
+    // Add chain of subschemas corresponding to identifier prefixes
     for (int i = 0; i < id.names.size() - 1; i++) {
-      //check that subschema is not already present before adding
-      if (parentSchema.getSubSchema(id.names.get(i), false) == null) {
-        parentSchema.add(id.names.get(i), new AbstractSchema());
+      String currentName = id.names.get(i);
+      // Check that subschema is not already present before adding
+      if (parentSchema.getSubSchema(currentName, /*caseSensitive=*/false)
+          == null) {
+        parentSchema.add(currentName, new AbstractSchema());
       }
-      parentSchema = parentSchema.getSubSchema(id.names.get(i), false);
+      parentSchema = parentSchema.getSubSchema(currentName,
+          /*caseSensitive=*/false);
     }
     return parentSchema;
   }
