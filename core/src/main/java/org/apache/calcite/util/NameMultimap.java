@@ -21,7 +21,7 @@ import org.apache.calcite.linq4j.function.Experimental;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -92,7 +92,7 @@ public class NameMultimap<V> {
     if (allowsDuplicates) {
       collection = map().computeIfAbsent(name, k -> new ArrayList<>());
     } else {
-      collection = map().computeIfAbsent(name, k -> new HashSet<>());
+      collection = map().computeIfAbsent(name, k -> new LinkedHashSet<>());
       // Remove old instance so it gets overridden.
       collection.remove(v);
     }
