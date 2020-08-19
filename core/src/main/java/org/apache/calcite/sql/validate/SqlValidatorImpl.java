@@ -30,6 +30,7 @@ import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.rel.type.RelDataTypeField;
 import org.apache.calcite.rel.type.RelDataTypeSystem;
 import org.apache.calcite.rel.type.RelRecordType;
+import org.apache.calcite.rel.type.UnknownRecordType;
 import org.apache.calcite.rex.RexNode;
 import org.apache.calcite.rex.RexPatternFieldRef;
 import org.apache.calcite.rex.RexVisitor;
@@ -39,6 +40,7 @@ import org.apache.calcite.runtime.Feature;
 import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.schema.Table;
+import org.apache.calcite.schema.impl.AbstractSchema;
 import org.apache.calcite.schema.impl.ExplicitRowTypeTable;
 import org.apache.calcite.schema.impl.ModifiableViewTable;
 import org.apache.calcite.sql.JoinConditionType;
@@ -52,6 +54,7 @@ import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCallBinding;
 import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlColumnDeclaration;
+import org.apache.calcite.sql.SqlConditionDeclaration;
 import org.apache.calcite.sql.SqlConditionalStmt;
 import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateProcedure;
@@ -2928,7 +2931,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
           new LabeledBlockNamespace(this, labeledBlock, enclosingNode);
       String blockAlias = deriveAlias(labeledBlock, nextGeneratedId++);
       registerNamespace(blockScope, blockAlias, labeledBlockNs,
-          /*forceNullable=*/false);
+          /*forceNullable=*/ false);
       registerStatementList(blockScope, blockScope, blockAlias,
           labeledBlock.statements, labeledBlock);
       break;
@@ -2947,6 +2950,20 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
           = (SqlConditionalStmtListPair) node;
       registerStatementList(parentScope, usingScope, alias,
           stmtListPair.stmtList, stmtListPair);
+      break;
+
+    case DECLARE_CONDITION:
+    case DECLARE_HANDLER:
+      SqlConditionDeclaration condition = (SqlConditionDeclaration) node;
+      if (condition.conditionName != null) {
+        ConditionDeclarationNamespace ns
+            = new ConditionDeclarationNamespace(this, condition,
+                enclosingNode);
+        registerNamespace(usingScope, alias, ns, /*forceNullable=*/ false);
+        BlockScope bs = (BlockScope) parentScope;
+        bs.conditionDeclarations.put(condition.conditionName.getSimple(),
+            condition);
+      }
       break;
 
     default:
@@ -3325,9 +3342,13 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       Preconditions.checkArgument(column instanceof SqlColumnDeclaration);
       SqlColumnDeclaration col = (SqlColumnDeclaration) column;
       SqlTypeNameSpec typeNameSpec = col.dataType.getTypeNameSpec();
-      // All data types that we initially plan to support (e.g. INTEGER, VARCHAR,
-      // BOOLEAN, DATE, etc) are of type SqlBasicTypeNameSpec.
-      Preconditions.checkArgument(typeNameSpec instanceof SqlBasicTypeNameSpec);
+      // All data types that we initially plan to support (e.g. INTEGER,
+      // VARCHAR, BOOLEAN, DATE, etc) are of type SqlBasicTypeNameSpec.
+      if (!(typeNameSpec instanceof SqlBasicTypeNameSpec)) {
+        throw newValidationError(
+            col, RESOURCE.disallowNonBasicTypes(
+            typeNameSpec.getTypeName().toString()));
+      }
       SqlBasicTypeNameSpec basicTypeNameSpec =
           (SqlBasicTypeNameSpec) typeNameSpec;
       builder.add(col.name.toString(), basicTypeNameSpec.sqlTypeName);
@@ -4094,6 +4115,37 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     return scopes.get(withItem);
   }
 
+  /**
+   * Given an identifier, creates the schema chain corresponding to the prefix
+   * list of the identifier, and adds it to the root schema. Any pre-existing
+   * schemas will be retrieved rather than recreated. As an example, if the
+   * identifier is foo.bar.baz, foo will be added as a subschema to the root
+   * schema, bar will be added as a subschema to foo, and then bar will be
+   * returned as the parent schema of baz.
+   * @param id  the identifier for which the parent schema must be created or
+   *            retrieved.
+   * @return    the immediate parent of the object denoted by the identifer -
+   *            in other words, the schema corresponding to the second to last
+   *            component of the identifier. If the identifier consists of only
+   *            a single name, the root schema will be returned.
+   */
+  @Override public CalciteSchema getOrCreateParentSchema(SqlIdentifier id) {
+    CalciteSchema parentSchema =
+        getCatalogReader().getRootSchema();
+    // Add chain of subschemas corresponding to identifier prefixes
+    for (int i = 0; i < id.names.size() - 1; i++) {
+      String currentName = id.names.get(i);
+      // Check that subschema is not already present before adding
+      if (parentSchema.getSubSchema(currentName, /*caseSensitive=*/false)
+          == null) {
+        parentSchema.add(currentName, new AbstractSchema());
+      }
+      parentSchema = parentSchema.getSubSchema(currentName,
+          /*caseSensitive=*/false);
+    }
+    return parentSchema;
+  }
+
   public SqlValidator setLenientOperatorLookup(boolean lenient) {
     this.config = this.config.withLenientOperatorLookup(lenient);
     return this;
@@ -4602,10 +4654,15 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
             .stream().filter(f -> strategies.get(f.getIndex()).canInsertInto())
             .collect(Collectors.toList()));
 
-    final RelDataType targetRowTypeToValidate =
-        logicalSourceRowType.getFieldCount() == logicalTargetRowType.getFieldCount()
-        ? logicalTargetRowType
-        : realTargetRowType;
+    final RelDataType targetRowTypeToValidate;
+    if (logicalTargetRowType instanceof UnknownRecordType) {
+      targetRowTypeToValidate = logicalSourceRowType;
+    } else if (logicalSourceRowType.getFieldCount()
+        == logicalTargetRowType.getFieldCount()) {
+      targetRowTypeToValidate = logicalTargetRowType;
+    } else {
+      targetRowTypeToValidate = realTargetRowType;
+    }
 
     checkFieldCount(insert.getTargetTable(), table, strategies,
         targetRowTypeToValidate, realTargetRowType,
@@ -4740,6 +4797,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       List<ColumnStrategy> strategies, RelDataType targetRowTypeToValidate,
       RelDataType realTargetRowType, SqlNode source,
       RelDataType logicalSourceRowType, RelDataType logicalTargetRowType) {
+    if (table.getRowType() instanceof UnknownRecordType
+        && logicalTargetRowType.getFieldCount() == 0) {
+      return;
+    }
     final int sourceFieldCount = logicalSourceRowType.getFieldCount();
     final int targetFieldCount = logicalTargetRowType.getFieldCount();
     final int targetRealFieldCount = realTargetRowType.getFieldCount();
