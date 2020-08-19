@@ -394,7 +394,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     String ddl = "create macro foo.bar as (select * from baz;)";
     String query = "execute foo.bar";
     sql(ddl).ok();
-    sql(query).rewritesTo("");
+    sql(query).ok();
   }
 
   @Test public void createMacroWithParams() {
