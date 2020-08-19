@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.apache.calcite.util.CaseInsensitiveComparator.COMPARATOR;
