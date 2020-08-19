@@ -104,7 +104,9 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
 
   @Test public void testColumnAtLocal() {
     String sql = "select hiredate at local from emp";
-    String expected = "RecordType(TIMESTAMP(0) NOT NULL EXPR$0) NOT NULL";
-    sql(sql).type(expected);
+    String expectedType = "RecordType(TIMESTAMP(0) NOT NULL EXPR$0) NOT NULL";
+    String expectedRewrite = "SELECT `EMP`.`HIREDATE` AT LOCAL\n"
+        + "FROM `CATALOG`.`SALES`.`EMP` AS `EMP`";
+    sql(sql).type(expectedType).rewritesTo(expectedRewrite);
   }
 }
