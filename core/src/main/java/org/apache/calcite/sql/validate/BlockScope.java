@@ -69,7 +69,7 @@ public class BlockScope extends ListScope {
       ns = validator.getNamespace(conditionDeclarations.get(name));
     }
     if (ns != null) {
-      Step path = Path.EMPTY.plus(ns.getRowType(), 0, names.get(0),
+      Step path = Path.EMPTY.plus(ns.getRowType(), 0, name,
           StructKind.FULLY_QUALIFIED);
       resolved.found(ns, false, this, path, null);
       return;
@@ -82,7 +82,7 @@ public class BlockScope extends ListScope {
    * matches the provided name.
    *
    * @param name The name of the SqlNode's namespace to find
-   * @return The namespace for that SqlNode, may be null if label is not found
+   * @return The namespace for that SqlNode, returns null if label is not found
    */
   private SqlValidatorNamespace findNamespace(SqlIdentifier name) {
     SqlNameMatcher nameMatcher = validator.catalogReader.nameMatcher();
