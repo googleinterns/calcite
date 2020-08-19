@@ -61,6 +61,6 @@ public class SqlLeaveStmt extends SqlScriptingNode {
   @Override public void validate(final SqlValidator validator,
       final SqlValidatorScope scope) {
     BlockScope bs = (BlockScope) scope;
-    labeledBlock = bs.findLabeledBlockReference(label);
+    labeledBlock = bs.findLabeledBlock(label);
   }
 }

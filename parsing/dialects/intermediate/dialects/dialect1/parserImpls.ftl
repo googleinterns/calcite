@@ -5000,11 +5000,11 @@ SqlBeginEndCall SqlBeginEndCall() :
     )*
     (
         // LOOKAHEAD ensures statement should not be parsed by
-        // SqlDeclareHandler() instead.
+        // SqlDeclareHandlerStmt() instead.
         LOOKAHEAD(3)
         e = SqlDeclareCursor() { statements.add(e); }
     )*
-    ( e = SqlDeclareHandler() { statements.add(e); } )*
+    ( e = SqlDeclareHandlerStmt() { statements.add(e); } )*
     [ CreateProcedureStmtList(statements) ]
     <END>
     [ endLabel = SimpleIdentifier() ]
@@ -5021,7 +5021,7 @@ SqlCall LocalDeclaration() :
 {
     (
         LOOKAHEAD(3)
-        e = SqlDeclareCondition()
+        e = SqlDeclareConditionStmt()
     |
         e = SqlDeclareVariable()
     )
@@ -5062,7 +5062,7 @@ SqlDeclareVariable SqlDeclareVariable() :
     }
 }
 
-SqlDeclareCondition SqlDeclareCondition() :
+SqlDeclareConditionStmt SqlDeclareConditionStmt() :
 {
     final SqlIdentifier conditionName;
     final SqlNode stateCode;
@@ -5077,7 +5077,7 @@ SqlDeclareCondition SqlDeclareCondition() :
     |
         { stateCode = null; }
     )
-    { return new SqlDeclareCondition(s.end(this), conditionName, stateCode); }
+    { return new SqlDeclareConditionStmt(s.end(this), conditionName, stateCode); }
 }
 
 SqlDrop SqlDropProcedure(Span s) :
@@ -5743,7 +5743,7 @@ SqlNode DiagnosticStmt() :
 SqlSignal SqlSignal() :
 {
     final SignalType signalType;
-    SqlNode conditionOrSqlState = null;
+    SqlIdentifier conditionOrSqlState = null;
     SqlSetStmt setStmt = null;
     final Span s = Span.of();
 }
@@ -5762,9 +5762,9 @@ SqlSignal SqlSignal() :
     }
 }
 
-SqlNode SignalConditionOrSqlState() :
+SqlIdentifier SignalConditionOrSqlState() :
 {
-    final SqlNode e;
+    final SqlIdentifier e;
 }
 {
     (
@@ -5810,7 +5810,7 @@ SqlGetDiagnosticsParam SqlGetDiagnosticsParam() :
     { return new SqlGetDiagnosticsParam(s.end(this), name, value); }
 }
 
-SqlDeclareHandler SqlDeclareHandler() :
+SqlDeclareHandlerStmt SqlDeclareHandlerStmt() :
 {
     final HandlerType handlerType;
     SqlIdentifier conditionName = null;
@@ -5847,7 +5847,7 @@ SqlDeclareHandler SqlDeclareHandler() :
     ]
     <SEMICOLON>
     {
-        return new SqlDeclareHandler(s.end(this), handlerType, conditionName,
+        return new SqlDeclareHandlerStmt(s.end(this), handlerType, conditionName,
             parameters, handlerStatement);
     }
 }

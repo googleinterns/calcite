@@ -920,6 +920,13 @@ public interface SqlValidator {
   Config config();
 
   /**
+   * Validates the node from a CREATE PROCEDURE statement.
+   *
+   * @param node The node to be validated
+   */
+  void validateScriptingStatement(SqlNode node, SqlValidatorScope scope);
+
+  /**
    * Returns this SqlValidator, with the same state, applying
    * a transform to the config.
    *
