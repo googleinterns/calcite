@@ -18,7 +18,6 @@ package org.apache.calcite.sql.validate;
 
 import org.apache.calcite.rel.type.StructKind;
 import org.apache.calcite.sql.SqlConditionDeclaration;
-import org.apache.calcite.sql.SqlDeclareCondition;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlLabeledBlock;
 import org.apache.calcite.sql.SqlNode;

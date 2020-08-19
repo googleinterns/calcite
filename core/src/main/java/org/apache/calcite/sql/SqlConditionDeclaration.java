@@ -17,11 +17,7 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.sql.validate.BlockScope;
-import org.apache.calcite.sql.validate.SqlValidator;
-import org.apache.calcite.sql.validate.SqlValidatorScope;
 
-import java.util.Objects;
 
 /**
  * Parse tree for {@code SqlConditionDeclaration} call. If the child is a
