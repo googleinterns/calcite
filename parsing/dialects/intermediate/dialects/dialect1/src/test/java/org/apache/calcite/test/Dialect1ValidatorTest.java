@@ -20,8 +20,8 @@ import org.apache.calcite.sql.SqlBeginEndCall;
 import org.apache.calcite.sql.SqlConditionalStmt;
 import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateProcedure;
-import org.apache.calcite.sql.SqlDeclareCondition;
-import org.apache.calcite.sql.SqlDeclareHandler;
+import org.apache.calcite.sql.SqlDeclareConditionStmt;
+import org.apache.calcite.sql.SqlDeclareHandlerStmt;
 import org.apache.calcite.sql.SqlLeaveStmt;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlSignal;
@@ -291,8 +291,8 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "end";
     SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
-    SqlDeclareCondition declareCondition
-        = (SqlDeclareCondition) beginEnd.statements.get(0);
+    SqlDeclareConditionStmt declareCondition
+        = (SqlDeclareConditionStmt) beginEnd.statements.get(0);
     SqlSignal signal = (SqlSignal) beginEnd.statements.get(1);
     assertThat(signal.conditionDeclaration, sameInstance(declareCondition));
   }
@@ -316,9 +316,10 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "end";
     SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
-    SqlDeclareCondition declareCondition
-        = (SqlDeclareCondition) beginEnd.statements.get(0);
-    SqlDeclareHandler handler = (SqlDeclareHandler) beginEnd.statements.get(1);
+    SqlDeclareConditionStmt declareCondition
+        = (SqlDeclareConditionStmt) beginEnd.statements.get(0);
+    SqlDeclareHandlerStmt handler
+        = (SqlDeclareHandlerStmt) beginEnd.statements.get(1);
     assertThat(handler.conditionDeclarations.contains(declareCondition),
         equalTo(true));
   }
@@ -331,7 +332,8 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "end";
     SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
-    SqlDeclareHandler handler = (SqlDeclareHandler) beginEnd.statements.get(1);
+    SqlDeclareHandlerStmt handler
+        = (SqlDeclareHandlerStmt) beginEnd.statements.get(1);
     assertThat(handler.conditionDeclarations.size(), equalTo(0));
   }
 
@@ -345,11 +347,12 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "end";
     SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
-    SqlDeclareHandler handler = (SqlDeclareHandler) beginEnd.statements.get(3);
+    SqlDeclareHandlerStmt handler
+        = (SqlDeclareHandlerStmt) beginEnd.statements.get(3);
     assertThat(handler.conditionDeclarations.size(), equalTo(3));
     for (int i = 0; i < 3; i++) {
-      SqlDeclareCondition declareCondition
-          = (SqlDeclareCondition) beginEnd.statements.get(i);
+      SqlDeclareConditionStmt declareCondition
+          = (SqlDeclareConditionStmt) beginEnd.statements.get(i);
       assertThat(handler.conditionDeclarations.contains(declareCondition),
           equalTo(true));
     }
@@ -364,8 +367,8 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "end";
     SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
-    SqlDeclareHandler handler
-        = (SqlDeclareHandler) beginEnd.statements.get(0);
+    SqlDeclareHandlerStmt handler
+        = (SqlDeclareHandlerStmt) beginEnd.statements.get(0);
     SqlSignal signal = (SqlSignal) beginEnd.statements.get(1);
     assertThat(handler.conditionDeclarations.contains(handler), equalTo(true));
     assertThat(signal.conditionDeclaration, sameInstance(handler));

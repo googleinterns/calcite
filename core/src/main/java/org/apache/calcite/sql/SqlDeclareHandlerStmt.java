@@ -28,9 +28,9 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Parse tree for {@code SqlDeclareHandler} call.
+ * Parse tree for {@code SqlDeclareHandlerStmt} call.
  */
-public class SqlDeclareHandler extends SqlConditionDeclaration {
+public class SqlDeclareHandlerStmt extends SqlConditionDeclaration {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("DECLARE_HANDLER", SqlKind.DECLARE_HANDLER);
 
@@ -40,7 +40,7 @@ public class SqlDeclareHandler extends SqlConditionDeclaration {
   public final Set<SqlConditionDeclaration> conditionDeclarations;
 
   /**
-   * Creates a {@code SqlDeclareHandler}.
+   * Creates a {@code SqlDeclareHandlerStmt}.
    *
    * @param pos Parser position, must not be null
    * @param handlerType The type of handler being declared, must not be null
@@ -50,7 +50,7 @@ public class SqlDeclareHandler extends SqlConditionDeclaration {
    *                   identifiers, must not be null
    * @param handlerStatement Handler action statement
    */
-  public SqlDeclareHandler(SqlParserPos pos, HandlerType handlerType,
+  public SqlDeclareHandlerStmt(SqlParserPos pos, HandlerType handlerType,
       SqlIdentifier conditionName, SqlNodeList parameters,
       SqlNode handlerStatement) {
     super(pos, conditionName);

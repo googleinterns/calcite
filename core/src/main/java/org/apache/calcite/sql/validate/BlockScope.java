@@ -57,6 +57,8 @@ public class BlockScope extends ListScope {
 
   @Override public void resolve(List<String> names, SqlNameMatcher nameMatcher,
       boolean deep, Resolved resolved) {
+    // Labels and condition names are only valid as a single name. The other
+    // cases, such as compound identifiers, will be handled by parent scopes.
     if (names.size() != 1) {
       super.resolve(names, nameMatcher, deep, resolved);
       return;

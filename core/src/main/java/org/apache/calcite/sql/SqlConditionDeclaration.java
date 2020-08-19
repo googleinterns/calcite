@@ -20,8 +20,8 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 
 /**
  * Parse tree for {@code SqlConditionDeclaration} call. If the child is a
- * {@link SqlDeclareHandler}, the {@code conditionName} may be null since the
- * name is not required in a handler statement.
+ * {@link SqlDeclareHandlerStmt}, the {@code conditionName} may be null since
+ * the name is not required in a handler statement.
  */
 public abstract class SqlConditionDeclaration extends SqlScriptingNode {
 
