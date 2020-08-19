@@ -239,6 +239,15 @@ public abstract class ReturnTypes {
    */
   public static final SqlReturnTypeInference TIME_NULLABLE =
       cascade(TIME, SqlTypeTransforms.TO_NULLABLE);
+
+  /**
+   * Type-inference strategy whereby the result type of a call is in DateTime
+   * Family.
+   */
+  public static final SqlReturnTypeInference DATETIME =
+      new MatchReturnTypeInference(0,
+          SqlTypeFamily.DATETIME.getTypeNames());
+
   /**
    * Type-inference strategy whereby the result type of a call is Double.
    */
