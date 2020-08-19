@@ -17,6 +17,8 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
@@ -99,6 +101,13 @@ public class SqlCreateProcedure extends SqlCreate {
     }
     writer.newlineAndIndent();
     statement.unparse(writer, 0, 0);
+  }
+
+  @Override public void validate(SqlValidator validator,
+      SqlValidatorScope scope) {
+    if (statement instanceof SqlScriptingNode) {
+      statement.validate(validator, scope);
+    }
   }
 
   public enum CreateProcedureSecurity {

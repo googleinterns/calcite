@@ -25,7 +25,7 @@ import org.apache.calcite.sql.validate.SqlValidatorScope;
  */
 public abstract class SqlScriptingNode extends SqlCall {
 
-  public SqlScriptingNode(SqlParserPos pos) {
+  protected SqlScriptingNode(SqlParserPos pos) {
     super(pos);
   }
 
@@ -33,5 +33,22 @@ public abstract class SqlScriptingNode extends SqlCall {
       SqlValidatorScope scope) {
     // Left empty so that scripting statements such as cursor calls are not
     // validated.
+  }
+
+  /**
+   * Validates a list of SqlNode objects only if validation is supported for its
+   * SqlNode type.
+   *
+   * @param validator The validator
+   * @param scope The current scope for this node
+   * @param nodes The list of SqlNode objects to validate
+   */
+  public void validateSqlNodeList(SqlValidator validator,
+      SqlValidatorScope scope, SqlNodeList nodes) {
+    for (SqlNode node : nodes) {
+      if (node instanceof SqlScriptingNode) {
+        node.validate(validator, scope);
+      }
+    }
   }
 }

@@ -1296,6 +1296,9 @@ public enum SqlKind {
   /** {@code IF STATEMENT} PL statement */
   IF_STATEMENT,
 
+  /** {@code CONDITION_STATEMENT_LIST_PAIR} PL statement */
+  CONDITION_STATEMENT_LIST_PAIR,
+
   /** {@code ITERATION STATEMENT} PL statement */
   ITERATION_STATEMENT,
 
@@ -1390,7 +1393,7 @@ public enum SqlKind {
           CREATE_SEQUENCE, ALTER_SEQUENCE, DROP_SEQUENCE,
           CREATE_INDEX, ALTER_INDEX, DROP_INDEX,
           CREATE_TYPE, DROP_TYPE,
-          SET_OPTION, OTHER_DDL);
+          SET_OPTION, CREATE_PROCEDURE, OTHER_DDL);
 
   /**
    * Category consisting of query node types.

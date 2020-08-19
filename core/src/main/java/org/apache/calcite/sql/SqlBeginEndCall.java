@@ -27,12 +27,9 @@ import static org.apache.calcite.util.Static.RESOURCE;
 /**
  * Parse tree for {@code SqlBeginEndCall} expression.
  */
-public class SqlBeginEndCall extends SqlScriptingNode {
+public class SqlBeginEndCall extends SqlLabeledBlock {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("BEGIN_END", SqlKind.BEGIN_END);
-
-  public final SqlIdentifier label;
-  public final SqlStatementList statements;
 
   /**
    * Creates an instance of {@code SqlBeginEndCall}.
@@ -44,9 +41,7 @@ public class SqlBeginEndCall extends SqlScriptingNode {
    */
   public SqlBeginEndCall(SqlParserPos pos, SqlIdentifier beginLabel,
       SqlIdentifier endLabel, SqlStatementList statements) {
-    super(pos);
-    this.label = beginLabel;
-    this.statements = statements;
+    super(pos, beginLabel, statements);
     if (endLabel != null && (
         beginLabel == null
         || !beginLabel.equalsDeep(endLabel, Litmus.IGNORE))) {
