@@ -126,6 +126,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -3306,9 +3307,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       SqlCreateFunctionSqlForm createFunction) {
     Preconditions.checkArgument(createFunction != null);
     nodeToTypeMap.put(createFunction, unknownType);
-    CalciteSchema schema = catalogReader.getRootSchema();
+    CalciteSchema schema = getOrCreateParentSchema(createFunction.functionName);
     List<FunctionParameter> parameters = new ArrayList<>();
-    String name = createFunction.functionName.toString();
+    String name = Iterables.getLast(createFunction.functionName.names);
     RelDataType returnType = createFunction.returnsDataType.deriveType(this);
     Preconditions.checkArgument(createFunction.fieldNames.size()
         == createFunction.fieldTypes.size());
