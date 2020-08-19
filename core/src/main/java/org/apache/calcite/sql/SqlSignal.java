@@ -73,6 +73,9 @@ public class SqlSignal extends SqlScriptingNode {
 
   @Override public void validate(SqlValidator validator,
       SqlValidatorScope scope) {
+    if (!(scope instanceof BlockScope)) {
+      return;
+    }
     BlockScope bs = (BlockScope) scope;
     conditionDeclaration = bs.findConditionDeclaration(conditionOrSqlState);
   }
