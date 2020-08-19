@@ -319,8 +319,8 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     SqlDeclareCondition declareCondition
         = (SqlDeclareCondition) beginEnd.statements.get(0);
     SqlDeclareHandler handler = (SqlDeclareHandler) beginEnd.statements.get(1);
-    assertThat(handler.conditionDeclarations.get(0),
-        sameInstance(declareCondition));
+    assertThat(handler.conditionDeclarations.contains(declareCondition),
+        equalTo(true));
   }
 
   @Test public void testCreateProcedureConditionHandlerNull() {
@@ -350,8 +350,8 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     for (int i = 0; i < 3; i++) {
       SqlDeclareCondition declareCondition
           = (SqlDeclareCondition) beginEnd.statements.get(i);
-      assertThat(handler.conditionDeclarations.get(i),
-          sameInstance(declareCondition));
+      assertThat(handler.conditionDeclarations.contains(declareCondition),
+          equalTo(true));
     }
   }
 
@@ -367,7 +367,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     SqlDeclareHandler handler
         = (SqlDeclareHandler) beginEnd.statements.get(0);
     SqlSignal signal = (SqlSignal) beginEnd.statements.get(1);
-    assertThat(handler.conditionDeclarations.get(0), sameInstance(handler));
+    assertThat(handler.conditionDeclarations.contains(handler), equalTo(true));
     assertThat(signal.conditionDeclaration, sameInstance(handler));
   }
 }
