@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlSelectAndConsume} call.
  */
-public class SqlSelectAndConsume extends SqlCall {
+public class SqlSelectAndConsume extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("SELECT AND CONSUME",
           SqlKind.SELECT_AND_CONSUME);

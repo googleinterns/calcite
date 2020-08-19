@@ -16,6 +16,9 @@
  */
 package org.apache.calcite.sql;
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.validate.BlockScope;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
@@ -23,11 +26,12 @@ import java.util.List;
 /**
  * Parse tree for a {@code SqlLeaveStmt}.
  */
-public class SqlLeaveStmt extends SqlCall {
+public class SqlLeaveStmt extends SqlScriptingNode {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("LEAVE", SqlKind.LEAVE_STATEMENT);
 
   public final SqlIdentifier label;
+  public SqlLabeledBlock labeledBlock;
 
   /**
    * Creates a {@code SqlLeaveStmt}.
@@ -52,5 +56,11 @@ public class SqlLeaveStmt extends SqlCall {
       final int rightPrec) {
     writer.keyword("LEAVE");
     label.unparse(writer, leftPrec, rightPrec);
+  }
+
+  @Override public void validate(final SqlValidator validator,
+      final SqlValidatorScope scope) {
+    BlockScope bs = (BlockScope) scope;
+    labeledBlock = bs.findLabeledBlockReference(label);
   }
 }

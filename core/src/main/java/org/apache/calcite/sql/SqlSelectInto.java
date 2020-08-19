@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlSelectInto} call.
  */
-public class SqlSelectInto extends SqlCall {
+public class SqlSelectInto extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("SELECT INTO", SqlKind.SELECT_INTO);
 

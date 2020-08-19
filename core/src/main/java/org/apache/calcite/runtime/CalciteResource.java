@@ -316,6 +316,9 @@ public interface CalciteResource {
   @BaseMessage("INNER, LEFT, RIGHT or FULL join requires a condition (NATURAL keyword or ON or USING clause)")
   ExInst<SqlValidatorException> joinRequiresCondition();
 
+  @BaseMessage("Non-basic types not supported ''{0}''")
+  ExInst<SqlValidatorException> disallowNonBasicTypes(String a0);
+
   @BaseMessage("Cannot qualify common column ''{0}''")
   ExInst<SqlValidatorException> disallowsQualifyingCommonColumn(String a0);
 

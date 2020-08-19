@@ -17,40 +17,37 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.util.ImmutableNullableList;
+import org.apache.calcite.sql.validate.BlockScope;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
 
-import java.util.List;
+import java.util.Objects;
 
 /**
- * Parse tree for a {@code SqlIterateStmt}.
+ * Parse tree for {@code SqlLabeledBlock} call.
  */
-public class SqlIterateStmt extends SqlScriptingNode {
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("ITERATE", SqlKind.ITERATE_STATEMENT);
+public abstract class SqlLabeledBlock extends SqlScriptingNode {
 
   public final SqlIdentifier label;
+  public final SqlStatementList statements;
 
   /**
-   * Creates a {@code SqlIterateStmt}.
+   * Creates an instance of {@code SqlLabeledBlock}.
    *
-   * @param pos     Parser position, must not be null.
-   * @param label   Labeled statement to be executed.
+   * @param pos SQL parser position
+   * @param label The label of the block
+   * @param statements A list of statements inside the block, must not be null
    */
-  public SqlIterateStmt(final SqlParserPos pos, final SqlIdentifier label) {
+  protected SqlLabeledBlock(SqlParserPos pos, SqlIdentifier label,
+      SqlStatementList statements) {
     super(pos);
     this.label = label;
+    this.statements = Objects.requireNonNull(statements);
   }
 
-  @Override public SqlOperator getOperator() {
-    return OPERATOR;
-  }
-
-  @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(label);
-  }
-
-  @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
-    writer.keyword("ITERATE");
-    label.unparse(writer, leftPrec, rightPrec);
+  @Override public void validate(final SqlValidator validator,
+      final SqlValidatorScope scope) {
+    BlockScope bs = validator.getBlockScope(this);
+    validateSqlNodeList(validator, bs, statements);
   }
 }

@@ -21,20 +21,17 @@ import org.apache.calcite.util.ImmutableNullableList;
 import org.apache.calcite.util.Litmus;
 
 import java.util.List;
-import java.util.Objects;
 
 import static org.apache.calcite.util.Static.RESOURCE;
 
 /**
  * Parse tree for a {@code SqlIterationStmt}.
  */
-public abstract class SqlIterationStmt extends SqlCall {
+public abstract class SqlIterationStmt extends SqlLabeledBlock {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("ITERATION", SqlKind.ITERATION_STATEMENT);
 
   public final SqlNode condition;
-  public final SqlStatementList statements;
-  public final SqlIdentifier label;
 
   /**
    * Creates a {@code SqlIterationStmt}.
@@ -48,7 +45,7 @@ public abstract class SqlIterationStmt extends SqlCall {
   protected SqlIterationStmt(final SqlParserPos pos, final SqlNode condition,
       final SqlStatementList statements, final SqlIdentifier beginLabel,
       final SqlIdentifier endLabel) {
-    super(pos);
+    super(pos, beginLabel, statements);
     if (endLabel != null && (beginLabel == null
             || !beginLabel.equalsDeep(endLabel, Litmus.IGNORE))) {
       throw SqlUtil.newContextException(endLabel.getParserPosition(),
@@ -59,8 +56,6 @@ public abstract class SqlIterationStmt extends SqlCall {
           RESOURCE.beginEndLabelMismatch());
     }
     this.condition = condition;
-    this.statements = Objects.requireNonNull(statements);
-    this.label = beginLabel;
   }
 
   @Override public SqlOperator getOperator() {

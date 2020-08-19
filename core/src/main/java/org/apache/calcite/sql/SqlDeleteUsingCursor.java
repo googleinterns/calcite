@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlDeleteUsingCursor} call.
  */
-public class SqlDeleteUsingCursor extends SqlCall {
+public class SqlDeleteUsingCursor extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("DELETE_USING_CURSOR",
           SqlKind.DELETE_USING_CURSOR);

@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlFetchCursor} call.
  */
-public class SqlFetchCursor extends SqlCall {
+public class SqlFetchCursor extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("FETCH_CURSOR", SqlKind.FETCH_CURSOR);
 

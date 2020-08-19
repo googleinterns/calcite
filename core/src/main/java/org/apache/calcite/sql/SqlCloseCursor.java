@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlCloseCursor} call.
  */
-public class SqlCloseCursor extends SqlCall {
+public class SqlCloseCursor extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("CLOSE CURSOR", SqlKind.CLOSE_CURSOR);
 
