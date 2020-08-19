@@ -8581,6 +8581,7 @@ class SqlValidatorTest extends SqlValidatorTestCase {
         + "SUBMULTISET OF left\n"
         + "SUCCEEDS left\n"
         + "\n"
+        + "AT LOCAL post\n"
         + "FORMAT JSON post\n"
         + "IS A SET post\n"
         + "IS EMPTY post\n"

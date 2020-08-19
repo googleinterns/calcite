@@ -283,6 +283,14 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(query).fails("end index \\(3\\) must not be greater than size \\(2\\)");
   }
 
+  @Test public void testColumnAtLocal() {
+    String sql = "select hiredate at local from emp";
+    String expectedType = "RecordType(TIMESTAMP(0) NOT NULL EXPR$0) NOT NULL";
+    String expectedRewrite = "SELECT `EMP`.`HIREDATE` AT LOCAL\n"
+        + "FROM `CATALOG`.`SALES`.`EMP` AS `EMP`";
+    sql(sql).type(expectedType).rewritesTo(expectedRewrite);
+  }
+
   @Test public void testCreateProcedureSelect() {
     String sql = "create procedure foo() select a from abc";
     String expected = "CREATE PROCEDURE `FOO` ()\n"
