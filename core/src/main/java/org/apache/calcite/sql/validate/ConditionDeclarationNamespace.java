@@ -31,7 +31,7 @@ public class ConditionDeclarationNamespace extends AbstractNamespace {
   private final SqlConditionDeclaration conditionDeclaration;
 
   /**
-   * Creates a {@code ConditionNamespace}.
+   * Creates a {@code ConditionDeclarationNamespace}.
    *
    * @param validator Validator
    * @param conditionDeclaration The condition declaration, must not be null

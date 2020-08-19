@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -292,7 +291,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     String sql = "create procedure foo()\n"
         + "begin\n"
         + "declare bar condition;\n"
-        + "signal bar;"
+        + "signal bar;\n"
         + "end";
     SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
@@ -300,7 +299,18 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         = (SqlDeclareCondition) beginEnd.statements.get(0);
     SqlSignal signal = (SqlSignal) beginEnd.statements.get(1);
     assertThat(signal.conditionDeclaration, sameInstance(declareCondition));
-  }// TODO null, multiple, nested
+  }
+
+  @Test public void testCreateProcedureConditionSignalNull() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "signal bar;\n"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlSignal signal = (SqlSignal) beginEnd.statements.get(0);
+    assertThat(signal.conditionDeclaration, nullValue());
+  }
 
   @Test public void testCreateProcedureConditionHandler() {
     String sql = "create procedure foo()\n"
@@ -313,9 +323,20 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     SqlDeclareCondition declareCondition
         = (SqlDeclareCondition) beginEnd.statements.get(0);
     SqlDeclareHandler handler = (SqlDeclareHandler) beginEnd.statements.get(1);
-    assertThat(handler.conditionDeclarations.size(), equalTo(1));
     assertThat(handler.conditionDeclarations.get(0),
         sameInstance(declareCondition));
+  }
+
+  @Test public void testCreateProcedureConditionHandlerNull() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "declare bar condition;"
+        + "declare continue handler for baz select baz;"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlDeclareHandler handler = (SqlDeclareHandler) beginEnd.statements.get(1);
+    assertThat(handler.conditionDeclarations.size(), equalTo(0));
   }
 
   @Test public void testCreateProcedureConditionHandlerMultipleConditions() {
@@ -328,13 +349,13 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "end";
     SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
-    List<SqlDeclareCondition> declareConditions = new ArrayList<>();
-    declareConditions.add((SqlDeclareCondition) beginEnd.statements.get(0));
-    declareConditions.add((SqlDeclareCondition) beginEnd.statements.get(1));
-    declareConditions.add((SqlDeclareCondition) beginEnd.statements.get(2));
+    List<SqlConditionDeclaration> declareConditions = new ArrayList<>();
+    for (int i = 0; i < 3; i++) {
+      declareConditions.add((SqlDeclareCondition) beginEnd.statements.get(i));
+    }
     SqlDeclareHandler handler = (SqlDeclareHandler) beginEnd.statements.get(3);
     assertThat(handler.conditionDeclarations.size(), equalTo(3));
-    for (int i = 0; i < handler.conditionDeclarations.size(); i++) {
+    for (int i = 0; i < 3; i++) {
       assertThat(handler.conditionDeclarations.get(i),
           sameInstance(declareConditions.get(i)));
     }
@@ -349,9 +370,10 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "end";
     SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
-    SqlDeclareCondition declareCondition
-        = (SqlDeclareCondition) beginEnd.statements.get(0);
+    SqlDeclareHandler handler
+        = (SqlDeclareHandler) beginEnd.statements.get(0);
     SqlSignal signal = (SqlSignal) beginEnd.statements.get(1);
-    assertThat(signal.conditionDeclaration, sameInstance(declareCondition));
+    assertThat(handler.conditionDeclarations.get(0), sameInstance(handler));
+    assertThat(signal.conditionDeclaration, sameInstance(handler));
   }
 }

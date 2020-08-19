@@ -90,8 +90,8 @@ public class SqlDeclareHandler extends SqlConditionDeclaration {
     }
   }
 
-  @Override public void validate(final SqlValidator validator,
-      final SqlValidatorScope scope) {
+  @Override public void validate(SqlValidator validator,
+      SqlValidatorScope scope) {
     BlockScope bs = (BlockScope) scope;
     for (SqlNode node : parameters) {
       if (!(node instanceof SqlIdentifier)) {
