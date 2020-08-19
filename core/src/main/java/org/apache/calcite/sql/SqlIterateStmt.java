@@ -58,9 +58,11 @@ public class SqlIterateStmt extends SqlScriptingNode {
     label.unparse(writer, leftPrec, rightPrec);
   }
 
-  @Override public void validate(final SqlValidator validator,
-      final SqlValidatorScope scope) {
-    BlockScope bs = (BlockScope) scope;
-    labeledBlock = bs.findLabeledBlock(label);
+  @Override public void validate(SqlValidator validator,
+      SqlValidatorScope scope) {
+    if (scope instanceof BlockScope) {
+      BlockScope bs = (BlockScope) scope;
+      labeledBlock = bs.findLabeledBlock(label);
+    }
   }
 }
