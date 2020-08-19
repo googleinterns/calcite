@@ -313,7 +313,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "b.x when matched then update set y = b.y when not matched then "
         + "insert (x,y) values (b.x, b.y)";
     String expected = "CREATE PROCEDURE `FOO` ()\n"
-        + "MERGE INTO `T1` AS `A`\n"
+        + "MERGE INTO `CATALOG`.`T1` AS `A`\n"
         + "USING `T2` AS `B`\n"
         + "ON `A`.`X` = `B`.`X`\n"
         + "WHEN MATCHED THEN UPDATE SET `Y` = `B`.`Y`\n"
@@ -399,6 +399,17 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
     SqlSignal signal = (SqlSignal) beginEnd.statements.get(0);
     assertThat(signal.conditionDeclaration, nullValue());
+  }
+
+  @Test public void testCreateProcedureConditionResignalNull() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "resignal;\n"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlSignal resignal = (SqlSignal) beginEnd.statements.get(0);
+    assertThat(resignal.conditionDeclaration, nullValue());
   }
 
   @Test public void testCreateProcedureConditionHandler() {
