@@ -21,9 +21,11 @@ import org.apache.calcite.linq4j.function.Experimental;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.apache.calcite.util.CaseInsensitiveComparator.COMPARATOR;
@@ -33,7 +35,7 @@ import static org.apache.calcite.util.CaseInsensitiveComparator.COMPARATOR;
  *
  * @param <V> Value type */
 public class NameMultimap<V> {
-  private final NameMap<List<V>> map;
+  private final NameMap<Collection<V>> map;
   private final boolean allowsDuplicates;
 
   /**
@@ -43,7 +45,7 @@ public class NameMultimap<V> {
    * @param allowsDuplicates Whether or not the value of a key can contain
    *                         duplicate entries
    */
-  private NameMultimap(NameMap<List<V>> map, boolean allowsDuplicates) {
+  private NameMultimap(NameMap<Collection<V>> map, boolean allowsDuplicates) {
     this.map = map;
     this.allowsDuplicates = allowsDuplicates;
     assert map.map().comparator() == COMPARATOR;
@@ -87,16 +89,15 @@ public class NameMultimap<V> {
    * existing entry will be overwritten.
    */
   public void put(String name, V v) {
-    List<V> list = map().computeIfAbsent(name, k -> new ArrayList<>());
-    int index = -1;
-    if (!allowsDuplicates) {
-      index = list.indexOf(v);
-    }
-    if (index >= 0) {
-      list.set(index, v);
+    Collection<V> collection = null;
+    if (allowsDuplicates) {
+      collection = map().computeIfAbsent(name, k -> new ArrayList<>());
     } else {
-      list.add(v);
+      collection = map().computeIfAbsent(name, k -> new HashSet<>());
+      // Remove old instance so it gets overridden.
+      collection.remove(v);
     }
+    collection.add(v);
   }
 
   /** Removes all entries that have the given case-sensitive key.
@@ -104,18 +105,18 @@ public class NameMultimap<V> {
    * @return Whether a value was removed */
   @Experimental
   public boolean remove(String key, V value) {
-    final List<V> list = map().get(key);
-    if (list == null) {
+    final Collection<V> collection = map().get(key);
+    if (collection == null) {
       return false;
     }
-    return list.remove(value);
+    return collection.remove(value);
   }
 
   /** Returns a map containing all the entries in this multimap that match the
    * given name. */
   public Collection<Map.Entry<String, V>> range(String name,
       boolean caseSensitive) {
-    NavigableMap<String, List<V>> range = map.range(name, caseSensitive);
+    NavigableMap<String, Collection<V>> range = map.range(name, caseSensitive);
     List<Pair<String, V>> result = range.entrySet().stream()
         .flatMap(e -> e.getValue().stream().map(v -> Pair.of(e.getKey(), v)))
         .collect(Collectors.toList());
@@ -130,7 +131,7 @@ public class NameMultimap<V> {
 
   /** Returns the underlying map.
    * Its size is the number of keys, not the number of values. */
-  public NavigableMap<String, List<V>> map() {
+  public NavigableMap<String, Collection<V>> map() {
     return map.map();
   }
 }

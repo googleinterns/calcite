@@ -36,8 +36,8 @@ public class UserDefinedFunction implements ScalarFunction {
   /**
    * Creates a {@code UserDefinedFunction}.
    *
-   * @param parameters The parameters of the created function
-   * @param returnType The return type of the created function
+   * @param parameters The parameters of the created function, must not be null
+   * @param returnType The return type of the created function, must not be null
    */
   public UserDefinedFunction(List<FunctionParameter> parameters,
       RelDataType returnType) {
