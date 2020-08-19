@@ -37,7 +37,7 @@ public class LabeledBlockNamespace extends AbstractNamespace {
    * @param labeledBlock The labeled block node, must not be null
    * @param enclosingNode Enclosing node
    */
-  LabeledBlockNamespace(SqlValidatorImpl validator,
+  public LabeledBlockNamespace(SqlValidatorImpl validator,
       SqlLabeledBlock labeledBlock,
       SqlNode enclosingNode) {
     super(validator, enclosingNode);
