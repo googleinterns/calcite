@@ -34,16 +34,38 @@ import static org.apache.calcite.util.CaseInsensitiveComparator.COMPARATOR;
  * @param <V> Value type */
 public class NameMultimap<V> {
   private final NameMap<List<V>> map;
+  private final boolean allowsDuplicates;
 
-  /** Creates a NameMultimap based on an existing map. */
-  private NameMultimap(NameMap<List<V>> map) {
+  /**
+   * Creates a NameMultimap based on an existing map.
+   *
+   * @param map The existing map
+   * @param allowsDuplicates Whether or not the value of a key can contain
+   *                         duplicate entries
+   */
+  private NameMultimap(NameMap<List<V>> map, boolean allowsDuplicates) {
     this.map = map;
+    this.allowsDuplicates = allowsDuplicates;
     assert map.map().comparator() == COMPARATOR;
   }
 
-  /** Creates a NameMultimap, initially empty. */
+  /**
+   * Creates a NameMultimap, initially empty. By default duplicates are
+   * allowed
+   */
   public NameMultimap() {
-    this(new NameMap<>());
+    this(new NameMap<>(), /*allowsDuplicates=*/ true);
+  }
+
+  /**
+   * Creates a NameMultimap, initially empty, and allows specification of if
+   * duplicates are allowed for a key's value.
+   *
+   * @param allowsDuplicates Whether or not the value of a key can contain
+   *                         duplicate entries
+   */
+  public NameMultimap(boolean allowsDuplicates) {
+    this(new NameMap<>(), allowsDuplicates);
   }
 
   @Override public String toString() {
@@ -60,10 +82,21 @@ public class NameMultimap<V> {
         && map.equals(((NameMultimap) obj).map);
   }
 
-  /** Adds an entry to this multimap. */
+  /**
+   * Adds an entry to this multimap. If allowsDuplicates is true, then the
+   * existing entry will be overwritten.
+   */
   public void put(String name, V v) {
     List<V> list = map().computeIfAbsent(name, k -> new ArrayList<>());
-    list.add(v);
+    int index = -1;
+    if (!allowsDuplicates) {
+      index = list.indexOf(v);
+    }
+    if (index >= 0) {
+      list.set(index, v);
+    } else {
+      list.add(v);
+    }
   }
 
   /** Removes all entries that have the given case-sensitive key.

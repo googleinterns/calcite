@@ -23,9 +23,12 @@ import org.apache.calcite.sql.SqlOperatorTable;
 import org.apache.calcite.sql.SqlSyntax;
 import org.apache.calcite.sql.validate.SqlNameMatcher;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * ChainedSqlOperatorTable implements the {@link SqlOperatorTable} interface by
@@ -42,15 +45,40 @@ public class ChainedSqlOperatorTable implements SqlOperatorTable {
    * Creates a table based on a given list.
    */
   public ChainedSqlOperatorTable(List<SqlOperatorTable> tableList) {
-    this.tableList = new ArrayList<>(tableList);
+    this.tableList = ImmutableList.copyOf(tableList);
   }
 
   /** Creates a {@code ChainedSqlOperatorTable}. */
   public static SqlOperatorTable of(SqlOperatorTable... tables) {
-    return new ChainedSqlOperatorTable(Arrays.asList(tables));
+    Set<SqlOperatorTable> operatorTables = new LinkedHashSet<>();
+    for (SqlOperatorTable table : tables) {
+      if (table instanceof ChainedSqlOperatorTable) {
+        ChainedSqlOperatorTable chainedTable = (ChainedSqlOperatorTable) table;
+        addAll(operatorTables, chainedTable);
+      } else if (!operatorTables.contains(table)){
+        operatorTables.add(table);
+      }
+    }
+    return new ChainedSqlOperatorTable(ImmutableList.copyOf(operatorTables));
   }
 
   //~ Methods ----------------------------------------------------------------
+
+  /**
+   * Adds all non-duplicate operator tables in {@code chainedTable.tableList}
+   * to {@code operatorTables}.
+   *
+   * @param operatorTables The operator tables to add to
+   * @param chainedTable The chained table to add from
+   */
+  private static void addAll(Set<SqlOperatorTable> operatorTables,
+      ChainedSqlOperatorTable chainedTable) {
+    for (SqlOperatorTable table : chainedTable.tableList) {
+      if (!operatorTables.contains(table)) {
+        operatorTables.add(table);
+      }
+    }
+  }
 
   /**
    * Adds an underlying table. The order in which tables are added is

@@ -97,7 +97,7 @@ public abstract class CalciteSchema {
       this.subSchemaMap = Objects.requireNonNull(subSchemaMap);
     }
     if (functionMap == null) {
-      this.functionMap = new NameMultimap<>();
+      this.functionMap = new NameMultimap<>(/*allowsDuplicates=*/ false);
       this.functionNames = new NameSet();
       this.nullaryFunctionMap = new NameMap<>();
     } else {
@@ -605,6 +605,15 @@ public abstract class CalciteSchema {
     /** Whether this represents a materialized view. (At a given point in time,
      * it may or may not be materialized as a table.) */
     public abstract boolean isMaterialization();
+
+    @Override public boolean equals(Object obj) {
+      if (!(obj instanceof FunctionEntry)) {
+        return false;
+      }
+      FunctionEntry other = (FunctionEntry) obj;
+      return name.equals(other.name)
+          && getFunction().equals(other.getFunction());
+    }
   }
 
   /** Membership of a lattice in a schema. */

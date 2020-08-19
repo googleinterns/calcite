@@ -124,6 +124,24 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(query).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
   }
 
+  @Test public void testCreateFunctionOverwrite() {
+    String ddl = "create function foo(x integer) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String ddl2 = "create function foo(x integer) "
+        + "returns varchar "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 'str'";
+    String query = "select foo(1)";
+    sql(ddl).ok();
+    sql(query).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
+    sql(ddl2).ok();
+    sql(query).type("RecordType(VARCHAR NOT NULL EXPR$0) NOT NULL");
+  }
+
   @Test public void testCreateFunctionWrongTypeGetsCasted() {
     String ddl = "create function foo(x varchar) "
         + "returns Integer "

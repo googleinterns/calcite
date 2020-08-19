@@ -22,13 +22,24 @@ import org.apache.calcite.schema.FunctionParameter;
 
 import java.util.Objects;
 
+/**
+ * Implementation of {@code FunctionParameter}.
+ */
 public class FunctionParameterImpl implements FunctionParameter {
 
   private final int ordinal;
   private final String name;
-  private final RelDataType type;
+  public final RelDataType type;
   private final boolean optional;
 
+  /**
+   * Creates a {@code FunctionParameterImpl}.
+   *
+   * @param ordinal The index of the parameter
+   * @param name The name of the parameter
+   * @param type The type of the parameter
+   * @param optional Whether or not the parameter is optional
+   */
   public FunctionParameterImpl(int ordinal, String name, RelDataType type,
       boolean optional) {
     this.ordinal = ordinal;
@@ -51,5 +62,17 @@ public class FunctionParameterImpl implements FunctionParameter {
 
   @Override public boolean isOptional() {
     return optional;
+  }
+
+  @Override public boolean equals(Object obj) {
+    if (!(obj instanceof FunctionParameterImpl)) {
+      return false;
+    }
+    FunctionParameterImpl other = (FunctionParameterImpl) obj;
+    // Name is intentionally not used to allow updating the name of an existing
+    // function parameter.
+    return ordinal == other.getOrdinal()
+        && type.getFullTypeString().equals(other.type.getFullTypeString())
+        && optional == other.isOptional();
   }
 }
