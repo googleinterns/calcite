@@ -17,6 +17,9 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.validate.BlockScope;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
@@ -29,6 +32,7 @@ public class SqlIterateStmt extends SqlScriptingNode {
       new SqlSpecialOperator("ITERATE", SqlKind.ITERATE_STATEMENT);
 
   public final SqlIdentifier label;
+  public SqlLabeledBlock labeledBlock;
 
   /**
    * Creates a {@code SqlIterateStmt}.
@@ -52,5 +56,11 @@ public class SqlIterateStmt extends SqlScriptingNode {
   @Override public void unparse(final SqlWriter writer, final int leftPrec, final int rightPrec) {
     writer.keyword("ITERATE");
     label.unparse(writer, leftPrec, rightPrec);
+  }
+
+  @Override public void validate(final SqlValidator validator,
+      final SqlValidatorScope scope) {
+    BlockScope bs = (BlockScope) scope;
+    labeledBlock = bs.findLabeledBlock(label);
   }
 }
