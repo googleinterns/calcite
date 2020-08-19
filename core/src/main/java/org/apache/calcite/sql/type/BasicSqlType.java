@@ -38,7 +38,7 @@ public class BasicSqlType extends AbstractSqlType {
 
   private final int precision;
   private final int scale;
-  private final RelDataTypeSystem typeSystem;
+  public final RelDataTypeSystem typeSystem;
   private final SqlCollation collation;
   private final SerializableCharset wrappedCharset;
 
@@ -96,7 +96,7 @@ public class BasicSqlType extends AbstractSqlType {
   }
 
   /** Internal constructor. */
-  private BasicSqlType(
+  public BasicSqlType(
       RelDataTypeSystem typeSystem,
       SqlTypeName typeName,
       boolean nullable,

@@ -115,7 +115,9 @@ public abstract class RelDataTypeImpl
         return new RelDataTypeFieldImpl(
             fieldName,
             field.getIndex(),
-            ((BasicSqlType) field.getValue()).relaxToAny());
+            new BasicSqlType(((BasicSqlType) field.getValue()).typeSystem, SqlTypeName.ANY,
+                /*nullable=*/true, /*precision=*/-1, /*scale=*/-1,
+                /*collation=*/null, /*wrappedCharset=*/null));
       }
     }
 
