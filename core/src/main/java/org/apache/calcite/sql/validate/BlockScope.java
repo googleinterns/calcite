@@ -83,7 +83,7 @@ public class BlockScope extends ListScope {
    * matches the provided name.
    *
    * @param name The name of the SqlNode's namespace to find
-   * @return The namespace for that SqlNode, may be null
+   * @return The namespace for that SqlNode, may be null if label is not found
    */
   private SqlValidatorNamespace findNamespace(SqlIdentifier name) {
     SqlNameMatcher nameMatcher = validator.catalogReader.nameMatcher();
