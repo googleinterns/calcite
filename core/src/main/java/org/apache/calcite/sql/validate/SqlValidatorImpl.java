@@ -83,6 +83,7 @@ import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlOperatorTable;
 import org.apache.calcite.sql.SqlOrderBy;
 import org.apache.calcite.sql.SqlSampleSpec;
+import org.apache.calcite.sql.SqlScriptingNode;
 import org.apache.calcite.sql.SqlSelect;
 import org.apache.calcite.sql.SqlSelectKeyword;
 import org.apache.calcite.sql.SqlSnapshot;
@@ -1186,6 +1187,18 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
   public SqlValidatorScope getOverScope(SqlNode node) {
     return scopes.get(node);
+  }
+
+  @Override public void validateScriptingStatement(SqlNode node,
+      SqlValidatorScope scope) {
+    if (node instanceof SqlScriptingNode
+        || node instanceof SqlSelect
+        || node instanceof SqlDelete
+        || node instanceof SqlInsert
+        || node instanceof SqlMerge
+        || node instanceof SqlUpdate) {
+      node.validate(this, scope);
+    }
   }
 
   private SqlValidatorNamespace getNamespace(SqlNode node,
@@ -2966,7 +2979,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
             SqlKind.FOR_STATEMENT, SqlKind.REPEAT_STATEMENT,
             SqlKind.LOOP_STATEMENT, SqlKind.DECLARE_CONDITION,
             SqlKind.DECLARE_HANDLER, SqlKind.IF_STATEMENT,
-            SqlKind.CASE_STATEMENT, SqlKind.CONDITION_STATEMENT_LIST_PAIR));
+            SqlKind.CASE_STATEMENT, SqlKind.CONDITION_STATEMENT_LIST_PAIR,
+            SqlKind.SELECT, SqlKind.INSERT, SqlKind.DELETE, SqlKind.MERGE,
+            SqlKind.UPDATE));
     for (SqlNode child : statements) {
       if (supportedKinds.contains(child.getKind())) {
         registerQuery(parentScope, usingScope, child,
