@@ -54,8 +54,8 @@ public class ChainedSqlOperatorTable implements SqlOperatorTable {
     for (SqlOperatorTable table : tables) {
       if (table instanceof ChainedSqlOperatorTable) {
         ChainedSqlOperatorTable chainedTable = (ChainedSqlOperatorTable) table;
-        addAll(operatorTables, chainedTable);
-      } else if (!operatorTables.contains(table)) {
+        operatorTables.addAll(chainedTable.tableList);
+      } else {
         operatorTables.add(table);
       }
     }
@@ -63,22 +63,6 @@ public class ChainedSqlOperatorTable implements SqlOperatorTable {
   }
 
   //~ Methods ----------------------------------------------------------------
-
-  /**
-   * Adds all non-duplicate operator tables in {@code chainedTable.tableList}
-   * to {@code operatorTables}.
-   *
-   * @param operatorTables The operator tables to add to
-   * @param chainedTable The chained table to add from
-   */
-  private static void addAll(Set<SqlOperatorTable> operatorTables,
-      ChainedSqlOperatorTable chainedTable) {
-    for (SqlOperatorTable table : chainedTable.tableList) {
-      if (!operatorTables.contains(table)) {
-        operatorTables.add(table);
-      }
-    }
-  }
 
   /**
    * Adds an underlying table. The order in which tables are added is
