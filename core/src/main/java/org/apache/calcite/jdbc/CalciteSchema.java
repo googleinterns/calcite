@@ -606,6 +606,10 @@ public abstract class CalciteSchema {
      * it may or may not be materialized as a table.) */
     public abstract boolean isMaterialization();
 
+    @Override public int hashCode() {
+      return name.hashCode() + getFunction().hashCode();
+    }
+
     @Override public boolean equals(Object obj) {
       if (!(obj instanceof FunctionEntry)) {
         return false;

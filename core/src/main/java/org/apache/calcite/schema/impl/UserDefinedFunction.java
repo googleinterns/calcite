@@ -53,6 +53,10 @@ public class UserDefinedFunction implements ScalarFunction {
     return parameters;
   }
 
+  @Override public int hashCode() {
+    return parameters.hashCode();
+  }
+
   @Override public boolean equals(Object obj) {
     if (!(obj instanceof UserDefinedFunction)) {
       return false;

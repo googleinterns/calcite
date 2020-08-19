@@ -55,7 +55,7 @@ public class ChainedSqlOperatorTable implements SqlOperatorTable {
       if (table instanceof ChainedSqlOperatorTable) {
         ChainedSqlOperatorTable chainedTable = (ChainedSqlOperatorTable) table;
         addAll(operatorTables, chainedTable);
-      } else if (!operatorTables.contains(table)){
+      } else if (!operatorTables.contains(table)) {
         operatorTables.add(table);
       }
     }

@@ -64,6 +64,14 @@ public class FunctionParameterImpl implements FunctionParameter {
     return optional;
   }
 
+  @Override public int hashCode() {
+    int hashcode = ordinal + type.hashCode();
+    if (optional) {
+      hashcode++;
+    }
+    return hashcode;
+  }
+
   @Override public boolean equals(Object obj) {
     if (!(obj instanceof FunctionParameterImpl)) {
       return false;
