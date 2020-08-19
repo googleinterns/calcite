@@ -18,7 +18,6 @@ package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
 
-
 /**
  * Parse tree for {@code SqlConditionDeclaration} call. If the child is a
  * {@link SqlDeclareHandler}, the {@code conditionName} may be null since the

@@ -2917,7 +2917,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
           new LabeledBlockNamespace(this, labeledBlock, enclosingNode);
       String blockAlias = deriveAlias(labeledBlock, nextGeneratedId++);
       registerNamespace(blockScope, blockAlias, labeledBlockNs,
-          /*forceNullable=*/false);
+          /*forceNullable=*/ false);
       registerStatementList(blockScope, blockScope, blockAlias,
           labeledBlock.statements, labeledBlock);
       break;
@@ -2945,7 +2945,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         ConditionDeclarationNamespace ns
             = new ConditionDeclarationNamespace(this, condition,
                 enclosingNode);
-        registerNamespace(usingScope, alias, ns, /*forceNullable=*/false);
+        registerNamespace(usingScope, alias, ns, /*forceNullable=*/ false);
         BlockScope bs = (BlockScope) parentScope;
         bs.conditionDeclarations.put(condition.conditionName.getSimple(),
             condition);
