@@ -25,6 +25,11 @@ import java.util.List;
 public class Macro {
   public final List<FunctionParameter> parameters;
 
+  /**
+   * Creates a {@code Macro}.
+   *
+   * @param parameters The macro parameters
+   */
   public Macro(List<FunctionParameter> parameters) {
     this.parameters = Objects.requireNonNull(parameters);
   }

@@ -411,6 +411,8 @@ public abstract class CalciteSchema {
    * Returns the macro with the given name.
    *
    * @param macroName The name of the macro
+   * @param caseSensitive Whether or not check is case sensitive or not
+   *
    * @return The found macro entry or null if it doesn't exist
    */
   public final Macro getMacro(String macroName, boolean caseSensitive) {
