@@ -29,8 +29,10 @@ import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
+import org.apache.calcite.sql.SqlCreateMacro;
 import org.apache.calcite.sql.SqlFunction;
 import org.apache.calcite.sql.SqlIdentifier;
+import org.apache.calcite.sql.SqlExecMacro;
 import org.apache.calcite.sql.SqlInsert;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlLabeledBlock;
@@ -234,11 +236,25 @@ public interface SqlValidator {
   void validateCreateFunctionSqlForm(SqlCreateFunctionSqlForm createFunction);
 
   /**
+   * Validates a {@link SqlCreateMacro}.
+   *
+   * @param createMacro The create macro statement
+   */
+  void validateCreateMacro(SqlCreateMacro createMacro);
+
+  /**
    * Validates a {@link SqlCreateTable}.
    *
    * @param createTable The create table statement
    */
   void validateCreateTable(SqlCreateTable createTable);
+
+  /**
+   * Validates a {@link SqlExecMacro}.
+   *
+   * @param execMacro the execute macro statement.
+   */
+  void validateExecuteMacro(SqlExecMacro execMacro);
 
   /**
    * Validates an INSERT statement.

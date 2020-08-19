@@ -18,6 +18,8 @@ package org.apache.calcite.sql;
 
 import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
@@ -72,6 +74,11 @@ public class SqlCreateMacro extends SqlCreate implements SqlExecutableStatement 
       writer.sep(";");
     }
     writer.endList(frame);
+  }
+
+  @Override public void validate(SqlValidator validator,
+      SqlValidatorScope scope) {
+    validator.validateCreateMacro(this);
   }
 
   // Intentionally left empty.
