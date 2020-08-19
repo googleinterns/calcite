@@ -20,17 +20,13 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Parse tree for a {@code SqlIfStmt}.
  */
-public class SqlIfStmt extends SqlCall {
+public class SqlIfStmt extends SqlConditionalStmt {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("IF", SqlKind.IF_STATEMENT);
-
-  public final SqlNodeList conditionalStmtListPairs;
-  public final SqlNodeList elseStmtList;
 
   /**
    * Creates a {@code SqlIfStmt}.
@@ -43,10 +39,7 @@ public class SqlIfStmt extends SqlCall {
   public SqlIfStmt(final SqlParserPos pos,
       final SqlNodeList conditionalStmtListPairs,
       final SqlNodeList elseStmtList) {
-    super(pos);
-    this.conditionalStmtListPairs =
-        Objects.requireNonNull(conditionalStmtListPairs);
-    this.elseStmtList = Objects.requireNonNull(elseStmtList);
+    super(pos, conditionalStmtListPairs, elseStmtList);
   }
 
   @Override public SqlOperator getOperator() {

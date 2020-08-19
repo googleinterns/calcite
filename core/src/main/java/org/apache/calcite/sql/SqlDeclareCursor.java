@@ -27,7 +27,7 @@ import static org.apache.calcite.util.Static.RESOURCE;
 /**
  * Parse tree for {@code SqlDeclareCursor} call.
  */
-public class SqlDeclareCursor extends SqlCall {
+public class SqlDeclareCursor extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("DECLARE CURSOR", SqlKind.DECLARE_CURSOR);
 

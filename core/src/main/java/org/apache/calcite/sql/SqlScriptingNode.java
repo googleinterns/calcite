@@ -17,36 +17,38 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.sql.util.SqlVisitor;
 import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
 
 /**
- * A {@code SqlHostVariable} is a host variable of the form ":name".
+ * Parse tree for {@code SqlScriptingNode} call.
  */
-public class SqlHostVariable extends SqlIdentifier {
+public abstract class SqlScriptingNode extends SqlCall {
+
+  protected SqlScriptingNode(SqlParserPos pos) {
+    super(pos);
+  }
+
+  @Override public void validate(SqlValidator validator,
+      SqlValidatorScope scope) {
+    // Left empty so that scripting statements such as cursor calls are not
+    // validated.
+  }
 
   /**
-   * Creates a {@code SqlHostVariable}.
+   * Validates a list of SqlNode objects only if validation is supported for its
+   * SqlNode type.
    *
-   * @param name  Name of the host variable
-   * @param pos  Parser position, must not be null
+   * @param validator The validator
+   * @param scope The current scope for this node
+   * @param nodes The list of SqlNode objects to validate
    */
-  public SqlHostVariable(String name, SqlParserPos pos) {
-    super(name, pos);
+  public void validateSqlNodeList(SqlValidator validator,
+      SqlValidatorScope scope, SqlNodeList nodes) {
+    for (SqlNode node : nodes) {
+      if (node instanceof SqlScriptingNode) {
+        node.validate(validator, scope);
+      }
+    }
   }
-
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.print(":" + names.get(0));
-    // Ensures whitespace is added before a separator such as "AS".
-    writer.setNeedWhitespace(true);
-  }
-
-  @Override public <R> R accept(SqlVisitor<R> visitor) {
-    return visitor.visit(this);
-  }
-
-  // Intentionally left blank.
-  @Override public void validateExpr(SqlValidator validator,
-      SqlValidatorScope scope) {}
 }

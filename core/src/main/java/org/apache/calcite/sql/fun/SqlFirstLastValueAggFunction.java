@@ -19,8 +19,10 @@ package org.apache.calcite.sql.fun;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.sql.SqlAggFunction;
+import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlFunctionCategory;
 import org.apache.calcite.sql.SqlKind;
+import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.type.OperandTypes;
 import org.apache.calcite.sql.type.ReturnTypes;
 import org.apache.calcite.sql.type.SqlTypeName;
@@ -46,7 +48,7 @@ public class SqlFirstLastValueAggFunction extends SqlAggFunction {
         kind,
         ReturnTypes.ARG0_NULLABLE_IF_EMPTY,
         null,
-        OperandTypes.ANY,
+        OperandTypes.ANY_OPTIONAL_ANY,
         SqlFunctionCategory.NUMERIC,
         false,
         true,
@@ -77,5 +79,18 @@ public class SqlFirstLastValueAggFunction extends SqlAggFunction {
 
   @Override public boolean allowsNullTreatment() {
     return true;
+  }
+
+  @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec,
+      int rightPrec) {
+    writer.keyword(getName());
+    final SqlWriter.Frame frame =
+        writer.startList(SqlWriter.FrameTypeEnum.FUN_CALL, "(", ")");
+    call.operand(0).unparse(writer, leftPrec, rightPrec);
+    // Case IGNORE/RESPECT NULLS was provided *inside* this function.
+    if (call.operandCount() == 2) {
+      call.operand(1).unparse(writer, leftPrec, rightPrec);
+    }
+    writer.endList(frame);
   }
 }

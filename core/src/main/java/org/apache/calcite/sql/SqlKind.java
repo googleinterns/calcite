@@ -843,6 +843,11 @@ public enum SqlKind {
   CAST,
 
   /**
+   * The "TRYCAST" operator.
+   */
+  TRYCAST,
+
+  /**
    * The "NEXT VALUE OF sequence" operator.
    */
   NEXT_VALUE,
@@ -1291,6 +1296,9 @@ public enum SqlKind {
   /** {@code IF STATEMENT} PL statement */
   IF_STATEMENT,
 
+  /** {@code CONDITION_STATEMENT_LIST_PAIR} PL statement */
+  CONDITION_STATEMENT_LIST_PAIR,
+
   /** {@code ITERATION STATEMENT} PL statement */
   ITERATION_STATEMENT,
 
@@ -1385,7 +1393,7 @@ public enum SqlKind {
           CREATE_SEQUENCE, ALTER_SEQUENCE, DROP_SEQUENCE,
           CREATE_INDEX, ALTER_INDEX, DROP_INDEX,
           CREATE_TYPE, DROP_TYPE,
-          SET_OPTION, OTHER_DDL);
+          SET_OPTION, CREATE_PROCEDURE, OTHER_DDL);
 
   /**
    * Category consisting of query node types.
@@ -1415,6 +1423,7 @@ public enum SqlKind {
    * {@link #JOIN},
    * {@link #OTHER_FUNCTION},
    * {@link #CAST},
+   * {@link #TRYCAST},
    * {@link #TRIM},
    * {@link #LITERAL_CHAIN},
    * {@link #JDBC_FN},
@@ -1432,8 +1441,8 @@ public enum SqlKind {
                   RUNNING, FINAL, LAST, FIRST, PREV, NEXT,
                   FILTER, WITHIN_GROUP, IGNORE_NULLS, RESPECT_NULLS,
                   DESCENDING, CUBE, ROLLUP, GROUPING_SETS, EXTEND, LATERAL,
-                  SELECT, JOIN, OTHER_FUNCTION, POSITION, CAST, TRIM, FLOOR, CEIL,
-                  TIMESTAMP_ADD, TIMESTAMP_DIFF, EXTRACT,
+                  SELECT, JOIN, OTHER_FUNCTION, POSITION, CAST, TRYCAST, TRIM,
+                  FLOOR, CEIL, TIMESTAMP_ADD, TIMESTAMP_DIFF, EXTRACT,
                   LITERAL_CHAIN, JDBC_FN, PRECEDING, FOLLOWING, ORDER_BY,
                   NULLS_FIRST, NULLS_LAST, COLLECTION_TABLE, TABLESAMPLE,
                   VALUES, WITH, WITH_ITEM, ITEM, SKIP_TO_FIRST, SKIP_TO_LAST,
@@ -1451,10 +1460,12 @@ public enum SqlKind {
    * Category consisting of regular and special functions.
    *
    * <p>Consists of regular functions {@link #OTHER_FUNCTION} and special
-   * functions {@link #ROW}, {@link #TRIM}, {@link #CAST}, {@link #REVERSE}, {@link #JDBC_FN}.
+   * functions {@link #ROW}, {@link #TRIM}, {@link #CAST}, {@link #TRYCAST},
+   * {@link #REVERSE}, {@link #JDBC_FN}.
    */
   public static final Set<SqlKind> FUNCTION =
-      EnumSet.of(OTHER_FUNCTION, ROW, TRIM, LTRIM, RTRIM, CAST, REVERSE, JDBC_FN, POSITION);
+      EnumSet.of(OTHER_FUNCTION, ROW, TRIM, LTRIM, RTRIM, CAST, TRYCAST,
+          REVERSE, JDBC_FN, POSITION);
 
   /**
    * Category of SqlAvgAggFunction.

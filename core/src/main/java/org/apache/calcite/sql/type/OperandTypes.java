@@ -438,6 +438,11 @@ public abstract class OperandTypes {
   public static final SqlSingleOperandTypeChecker ANY_NUMERIC =
       family(SqlTypeFamily.ANY, SqlTypeFamily.NUMERIC);
 
+  public static final SqlSingleOperandTypeChecker ANY_OPTIONAL_ANY =
+      family(ImmutableList.of(SqlTypeFamily.ANY, SqlTypeFamily.ANY),
+          // Second operand optional (operand index 0, 1)
+          number -> number == 1);
+
   /**
    * Parameter type-checking strategy type must a nullable time interval,
    * nullable time interval

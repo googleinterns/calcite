@@ -1940,7 +1940,13 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
    * <code>NOT NULL</code> constraint. When this expression is implemented, if
    * the value is NULL, an exception will be thrown.</p>
    */
-  public static final SqlFunction CAST = new SqlCastFunction();
+  public static final SqlFunction CAST = new SqlCastFunction(SqlKind.CAST);
+
+  /**
+   * The <code>TRYCAST</code> function.
+   */
+  public static final SqlFunction TRYCAST =
+      new SqlCastFunction(SqlKind.TRYCAST);
 
   /**
    * The SQL <code>EXTRACT</code> operator. Extracts a specified field value

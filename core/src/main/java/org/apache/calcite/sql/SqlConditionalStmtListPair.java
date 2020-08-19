@@ -17,6 +17,8 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
@@ -26,9 +28,10 @@ import java.util.Objects;
  * Parse tree representing a conditional expression or an operand
  * pairing with a list of statements.
  */
-public class SqlConditionalStmtListPair extends SqlCall {
+public class SqlConditionalStmtListPair extends SqlScriptingNode {
   public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("CONDITION_STATEMENT_LIST_PAIR", SqlKind.OTHER);
+      new SqlSpecialOperator("CONDITION_STATEMENT_LIST_PAIR",
+          SqlKind.CONDITION_STATEMENT_LIST_PAIR);
 
   public final SqlNode condition;
   public final SqlStatementList stmtList;
@@ -60,5 +63,10 @@ public class SqlConditionalStmtListPair extends SqlCall {
     condition.unparse(writer, leftPrec, rightPrec);
     writer.keyword("THEN");
     stmtList.unparse(writer, leftPrec, rightPrec);
+  }
+
+  @Override public void validate(SqlValidator validator,
+      SqlValidatorScope scope) {
+    validateSqlNodeList(validator, scope, stmtList);
   }
 }

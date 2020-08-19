@@ -107,6 +107,7 @@ import org.apache.calcite.sql.SqlDynamicParam;
 import org.apache.calcite.sql.SqlExplainFormat;
 import org.apache.calcite.sql.SqlExplainLevel;
 import org.apache.calcite.sql.SqlFunction;
+import org.apache.calcite.sql.SqlHostVariable;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlInsert;
 import org.apache.calcite.sql.SqlIntervalQualifier;
@@ -117,6 +118,7 @@ import org.apache.calcite.sql.SqlMatchRecognize;
 import org.apache.calcite.sql.SqlMerge;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlNullTreatmentModifier;
 import org.apache.calcite.sql.SqlNumericLiteral;
 import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlOperatorTable;
@@ -2328,6 +2330,15 @@ public class SqlToRelConverter {
             assert id.isSimple();
             patternVarsSet.add(id.getSimple());
             return rexBuilder.makeLiteral(id.getSimple());
+          }
+
+          @Override public RexNode visit(
+              SqlNullTreatmentModifier nullTreatmentModifier) {
+            return rexBuilder.makeFlag(nullTreatmentModifier.kind);
+          }
+
+          @Override public RexNode visit(SqlHostVariable hostVariable) {
+            return rexBuilder.makeLiteral(hostVariable.getSimple());
           }
 
           @Override public RexNode visit(SqlLiteral literal) {
@@ -5015,6 +5026,10 @@ public class SqlToRelConverter {
       return convertIdentifier(this, id);
     }
 
+    @Override public RexNode visit(SqlHostVariable hostVariable) {
+      return convertIdentifier(this, hostVariable);
+    }
+
     public RexNode visit(SqlDataTypeSpec type) {
       throw new UnsupportedOperationException();
     }
@@ -5025,6 +5040,12 @@ public class SqlToRelConverter {
 
     public RexNode visit(SqlIntervalQualifier intervalQualifier) {
       return convertInterval(intervalQualifier);
+    }
+
+    @Override public RexNode visit(
+        SqlNullTreatmentModifier nullTreatmentModifier) {
+      return exprConverter
+        .convertNullTreatmentModifier(this, nullTreatmentModifier);
     }
 
     @Override public RexNode visit(SqlColumnAttribute attribute) {
@@ -5228,6 +5249,10 @@ public class SqlToRelConverter {
       return null;
     }
 
+    @Override public Void visit(SqlHostVariable hostVariable) {
+      return null;
+    }
+
     public Void visit(SqlNodeList nodeList) {
       for (int i = 0; i < nodeList.size(); i++) {
         nodeList.get(i).accept(this);
@@ -5248,6 +5273,10 @@ public class SqlToRelConverter {
     }
 
     public Void visit(SqlIntervalQualifier intervalQualifier) {
+      return null;
+    }
+
+    @Override public Void visit(SqlNullTreatmentModifier nullTreatmentModifier) {
       return null;
     }
 

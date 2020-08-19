@@ -20,6 +20,9 @@ import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlPrefixOperator;
 import org.apache.calcite.sql.SqlWriter;
+import org.apache.calcite.sql.type.InferTypes;
+import org.apache.calcite.sql.type.OperandTypes;
+import org.apache.calcite.sql.type.ReturnTypes;
 
 /**
  * SqlCaretNegationOperator represents the "^" operator that occurs before a
@@ -29,8 +32,7 @@ public class SqlCaretNegationOperator extends SqlPrefixOperator {
 
   public SqlCaretNegationOperator() {
     super("^", SqlKind.CARET_NEGATION, /*prec=*/26,
-        /*returnTypeInference=*/null, /*operandTypeInference=*/null,
-        /*operandTypeChecker=*/null);
+        ReturnTypes.ARG0, InferTypes.BOOLEAN, OperandTypes.BOOLEAN);
   }
 
   @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec,

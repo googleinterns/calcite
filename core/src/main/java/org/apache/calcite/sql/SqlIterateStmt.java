@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Parse tree for a {@code SqlIterateStmt}.
  */
-public class SqlIterateStmt extends SqlCall {
+public class SqlIterateStmt extends SqlScriptingNode {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("ITERATE", SqlKind.ITERATE_STATEMENT);
 

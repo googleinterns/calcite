@@ -17,36 +17,37 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.sql.util.SqlVisitor;
+import org.apache.calcite.sql.validate.BlockScope;
 import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
 
+import java.util.Objects;
+
 /**
- * A {@code SqlHostVariable} is a host variable of the form ":name".
+ * Parse tree for {@code SqlLabeledBlock} call.
  */
-public class SqlHostVariable extends SqlIdentifier {
+public abstract class SqlLabeledBlock extends SqlScriptingNode {
+
+  public final SqlIdentifier label;
+  public final SqlStatementList statements;
 
   /**
-   * Creates a {@code SqlHostVariable}.
+   * Creates an instance of {@code SqlLabeledBlock}.
    *
-   * @param name  Name of the host variable
-   * @param pos  Parser position, must not be null
+   * @param pos SQL parser position
+   * @param label The label of the block
+   * @param statements A list of statements inside the block, must not be null
    */
-  public SqlHostVariable(String name, SqlParserPos pos) {
-    super(name, pos);
+  protected SqlLabeledBlock(SqlParserPos pos, SqlIdentifier label,
+      SqlStatementList statements) {
+    super(pos);
+    this.label = label;
+    this.statements = Objects.requireNonNull(statements);
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
-    writer.print(":" + names.get(0));
-    // Ensures whitespace is added before a separator such as "AS".
-    writer.setNeedWhitespace(true);
+  @Override public void validate(final SqlValidator validator,
+      final SqlValidatorScope scope) {
+    BlockScope bs = validator.getBlockScope(this);
+    validateSqlNodeList(validator, bs, statements);
   }
-
-  @Override public <R> R accept(SqlVisitor<R> visitor) {
-    return visitor.visit(this);
-  }
-
-  // Intentionally left blank.
-  @Override public void validateExpr(SqlValidator validator,
-      SqlValidatorScope scope) {}
 }

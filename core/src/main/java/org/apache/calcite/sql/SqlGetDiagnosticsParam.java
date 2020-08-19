@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlGetDiagnosticsParam} call.
  */
-public class SqlGetDiagnosticsParam extends SqlCall {
+public class SqlGetDiagnosticsParam extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("GET DIAGNOSTICS PARAM",
           SqlKind.OTHER);
