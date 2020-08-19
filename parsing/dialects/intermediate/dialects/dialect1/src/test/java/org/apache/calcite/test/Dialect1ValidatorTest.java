@@ -22,6 +22,8 @@ import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateProcedure;
 import org.apache.calcite.sql.SqlDeclareConditionStmt;
 import org.apache.calcite.sql.SqlDeclareHandlerStmt;
+import org.apache.calcite.sql.SqlIterateStmt;
+import org.apache.calcite.sql.SqlIterationStmt;
 import org.apache.calcite.sql.SqlLeaveStmt;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlSignal;
@@ -484,5 +486,20 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     SqlSignal signal = (SqlSignal) beginEnd.statements.get(1);
     assertThat(handler.conditionDeclarations.contains(handler), equalTo(true));
     assertThat(signal.conditionDeclaration, sameInstance(handler));
+  }
+
+  @Test public void testCreateProcedureConditionIterate() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "label1: while a < 1 do "
+        + "iterate label1;\n"
+        + "end while label1;"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlIterationStmt whileLoop
+        = (SqlIterationStmt) beginEnd.statements.get(0);
+    SqlIterateStmt iterate = (SqlIterateStmt) whileLoop.statements.get(0);
+    assertThat(iterate.labeledBlock, sameInstance(whileLoop));
   }
 }
