@@ -77,7 +77,9 @@ public class SqlSignal extends SqlScriptingNode {
       return;
     }
     BlockScope bs = (BlockScope) scope;
-    conditionDeclaration = bs.findConditionDeclaration(conditionOrSqlState);
+    if (conditionOrSqlState != null) {
+      conditionDeclaration = bs.findConditionDeclaration(conditionOrSqlState);
+    }
   }
 
   public enum SignalType {
