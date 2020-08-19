@@ -40,6 +40,7 @@ import org.apache.calcite.runtime.Feature;
 import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.schema.Table;
+import org.apache.calcite.schema.impl.AbstractSchema;
 import org.apache.calcite.schema.impl.ExplicitRowTypeTable;
 import org.apache.calcite.schema.impl.ModifiableViewTable;
 import org.apache.calcite.sql.JoinConditionType;
@@ -53,6 +54,7 @@ import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCallBinding;
 import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlColumnDeclaration;
+import org.apache.calcite.sql.SqlConditionDeclaration;
 import org.apache.calcite.sql.SqlConditionalStmt;
 import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateProcedure;
@@ -81,6 +83,7 @@ import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlOperatorTable;
 import org.apache.calcite.sql.SqlOrderBy;
 import org.apache.calcite.sql.SqlSampleSpec;
+import org.apache.calcite.sql.SqlScriptingNode;
 import org.apache.calcite.sql.SqlSelect;
 import org.apache.calcite.sql.SqlSelectKeyword;
 import org.apache.calcite.sql.SqlSnapshot;
@@ -1184,6 +1187,18 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
   public SqlValidatorScope getOverScope(SqlNode node) {
     return scopes.get(node);
+  }
+
+  @Override public void validateScriptingStatement(SqlNode node,
+      SqlValidatorScope scope) {
+    if (node instanceof SqlScriptingNode
+        || node instanceof SqlSelect
+        || node instanceof SqlDelete
+        || node instanceof SqlInsert
+        || node instanceof SqlMerge
+        || node instanceof SqlUpdate) {
+      node.validate(this, scope);
+    }
   }
 
   private SqlValidatorNamespace getNamespace(SqlNode node,
@@ -2916,7 +2931,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
           new LabeledBlockNamespace(this, labeledBlock, enclosingNode);
       String blockAlias = deriveAlias(labeledBlock, nextGeneratedId++);
       registerNamespace(blockScope, blockAlias, labeledBlockNs,
-          /*forceNullable=*/false);
+          /*forceNullable=*/ false);
       registerStatementList(blockScope, blockScope, blockAlias,
           labeledBlock.statements, labeledBlock);
       break;
@@ -2937,6 +2952,20 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
           stmtListPair.stmtList, stmtListPair);
       break;
 
+    case DECLARE_CONDITION:
+    case DECLARE_HANDLER:
+      SqlConditionDeclaration condition = (SqlConditionDeclaration) node;
+      if (condition.conditionName != null) {
+        ConditionDeclarationNamespace ns
+            = new ConditionDeclarationNamespace(this, condition,
+                enclosingNode);
+        registerNamespace(usingScope, alias, ns, /*forceNullable=*/ false);
+        BlockScope bs = (BlockScope) parentScope;
+        bs.conditionDeclarations.put(condition.conditionName.getSimple(),
+            condition);
+      }
+      break;
+
     default:
       throw Util.unexpected(node.getKind());
     }
@@ -2950,7 +2979,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
             SqlKind.FOR_STATEMENT, SqlKind.REPEAT_STATEMENT,
             SqlKind.LOOP_STATEMENT, SqlKind.DECLARE_CONDITION,
             SqlKind.DECLARE_HANDLER, SqlKind.IF_STATEMENT,
-            SqlKind.CASE_STATEMENT, SqlKind.CONDITION_STATEMENT_LIST_PAIR));
+            SqlKind.CASE_STATEMENT, SqlKind.CONDITION_STATEMENT_LIST_PAIR,
+            SqlKind.SELECT, SqlKind.INSERT, SqlKind.DELETE, SqlKind.MERGE,
+            SqlKind.UPDATE));
     for (SqlNode child : statements) {
       if (supportedKinds.contains(child.getKind())) {
         registerQuery(parentScope, usingScope, child,
@@ -4082,6 +4113,37 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
   public SqlValidatorScope getWithScope(SqlNode withItem) {
     assert withItem.getKind() == SqlKind.WITH_ITEM;
     return scopes.get(withItem);
+  }
+
+  /**
+   * Given an identifier, creates the schema chain corresponding to the prefix
+   * list of the identifier, and adds it to the root schema. Any pre-existing
+   * schemas will be retrieved rather than recreated. As an example, if the
+   * identifier is foo.bar.baz, foo will be added as a subschema to the root
+   * schema, bar will be added as a subschema to foo, and then bar will be
+   * returned as the parent schema of baz.
+   * @param id  the identifier for which the parent schema must be created or
+   *            retrieved.
+   * @return    the immediate parent of the object denoted by the identifer -
+   *            in other words, the schema corresponding to the second to last
+   *            component of the identifier. If the identifier consists of only
+   *            a single name, the root schema will be returned.
+   */
+  @Override public CalciteSchema getOrCreateParentSchema(SqlIdentifier id) {
+    CalciteSchema parentSchema =
+        getCatalogReader().getRootSchema();
+    // Add chain of subschemas corresponding to identifier prefixes
+    for (int i = 0; i < id.names.size() - 1; i++) {
+      String currentName = id.names.get(i);
+      // Check that subschema is not already present before adding
+      if (parentSchema.getSubSchema(currentName, /*caseSensitive=*/false)
+          == null) {
+        parentSchema.add(currentName, new AbstractSchema());
+      }
+      parentSchema = parentSchema.getSubSchema(currentName,
+          /*caseSensitive=*/false);
+    }
+    return parentSchema;
   }
 
   public SqlValidator setLenientOperatorLookup(boolean lenient) {

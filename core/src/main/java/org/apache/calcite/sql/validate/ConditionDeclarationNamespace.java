@@ -17,31 +17,31 @@
 package org.apache.calcite.sql.validate;
 
 import org.apache.calcite.rel.type.RelDataType;
-import org.apache.calcite.sql.SqlLabeledBlock;
+import org.apache.calcite.sql.SqlConditionDeclaration;
 import org.apache.calcite.sql.SqlNode;
 
 import java.util.Objects;
 
 /**
- * Namespace for a labeled block such as a BEGIN...END clause or an iteration
- * statement.
+ * Namespace for a condition declaration inside a DECLARE CONDITION statement or
+ * a condition handler declaration.
  */
-public class LabeledBlockNamespace extends AbstractNamespace {
+public class ConditionDeclarationNamespace extends AbstractNamespace {
 
-  private final SqlLabeledBlock labeledBlock;
+  private final SqlConditionDeclaration conditionDeclaration;
 
   /**
-   * Creates a LabeledBlockNamespace.
+   * Creates a {@code ConditionDeclarationNamespace}.
    *
    * @param validator Validator
-   * @param labeledBlock The labeled block node, must not be null
+   * @param conditionDeclaration The condition declaration, must not be null
    * @param enclosingNode Enclosing node
    */
-  public LabeledBlockNamespace(SqlValidatorImpl validator,
-      SqlLabeledBlock labeledBlock,
+  public ConditionDeclarationNamespace(SqlValidatorImpl validator,
+      SqlConditionDeclaration conditionDeclaration,
       SqlNode enclosingNode) {
     super(validator, enclosingNode);
-    this.labeledBlock = Objects.requireNonNull(labeledBlock);
+    this.conditionDeclaration = Objects.requireNonNull(conditionDeclaration);
   }
 
   @Override protected RelDataType validateImpl(RelDataType targetRowType) {
@@ -49,6 +49,6 @@ public class LabeledBlockNamespace extends AbstractNamespace {
   }
 
   @Override public SqlNode getNode() {
-    return labeledBlock;
+    return conditionDeclaration;
   }
 }
