@@ -53,12 +53,14 @@ import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCallBinding;
 import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlColumnDeclaration;
+import org.apache.calcite.sql.SqlConditionDeclaration;
 import org.apache.calcite.sql.SqlConditionalStmt;
 import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateProcedure;
 import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDeclareCondition;
+import org.apache.calcite.sql.SqlDeclareHandler;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
 import org.apache.calcite.sql.SqlExplain;
@@ -2939,12 +2941,17 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       break;
 
     case DECLARE_CONDITION:
-      SqlDeclareCondition condition = (SqlDeclareCondition) node;
-      ConditionNamespace ns = new ConditionNamespace(this, condition,
-          enclosingNode);
-      registerNamespace(usingScope, alias, ns, /*forceNullable=*/false);
-      BlockScope bs = (BlockScope) parentScope;
-      bs.addConditionDeclaration(condition);
+    case DECLARE_HANDLER:
+      SqlConditionDeclaration condition = (SqlConditionDeclaration) node;
+      if (condition.conditionName != null) {
+        ConditionDeclarationNamespace ns
+            = new ConditionDeclarationNamespace(this, condition,
+                enclosingNode);
+        registerNamespace(usingScope, alias, ns, /*forceNullable=*/false);
+        BlockScope bs = (BlockScope) parentScope;
+        bs.conditionDeclarations.put(condition.conditionName.getSimple(),
+            condition);
+      }
       break;
 
     default:

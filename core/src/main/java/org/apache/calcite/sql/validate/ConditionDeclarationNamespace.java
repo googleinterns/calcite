@@ -17,30 +17,31 @@
 package org.apache.calcite.sql.validate;
 
 import org.apache.calcite.rel.type.RelDataType;
-import org.apache.calcite.sql.SqlDeclareCondition;
+import org.apache.calcite.sql.SqlConditionDeclaration;
 import org.apache.calcite.sql.SqlNode;
 
 import java.util.Objects;
 
 /**
- * Namespace for a DECLARE CONDITION statement.
+ * Namespace for a condition declaration inside a DECLARE CONDITION statement or
+ * a condition handler declaration.
  */
-public class ConditionNamespace extends AbstractNamespace {
+public class ConditionDeclarationNamespace extends AbstractNamespace {
 
-  private final SqlDeclareCondition condition;
+  private final SqlConditionDeclaration conditionDeclaration;
 
   /**
    * Creates a {@code ConditionNamespace}.
    *
    * @param validator Validator
-   * @param condition The condition declaration, must not be null
+   * @param conditionDeclaration The condition declaration, must not be null
    * @param enclosingNode Enclosing node
    */
-  ConditionNamespace(SqlValidatorImpl validator,
-      SqlDeclareCondition condition,
+  ConditionDeclarationNamespace(SqlValidatorImpl validator,
+      SqlConditionDeclaration conditionDeclaration,
       SqlNode enclosingNode) {
     super(validator, enclosingNode);
-    this.condition = Objects.requireNonNull(condition);
+    this.conditionDeclaration = Objects.requireNonNull(conditionDeclaration);
   }
 
   @Override protected RelDataType validateImpl(RelDataType targetRowType) {
@@ -48,6 +49,6 @@ public class ConditionNamespace extends AbstractNamespace {
   }
 
   @Override public SqlNode getNode() {
-    return condition;
+    return conditionDeclaration;
   }
 }

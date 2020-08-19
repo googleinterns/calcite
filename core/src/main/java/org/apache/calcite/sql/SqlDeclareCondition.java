@@ -25,12 +25,11 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlDeclareCondition} expression.
  */
-public class SqlDeclareCondition extends SqlScriptingNode {
+public class SqlDeclareCondition extends SqlConditionDeclaration {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("DECLARE_CONDITION",
           SqlKind.DECLARE_CONDITION);
 
-  public final SqlIdentifier conditionName;
   public final SqlNode stateCode;
 
   /**
@@ -42,8 +41,7 @@ public class SqlDeclareCondition extends SqlScriptingNode {
    */
   public SqlDeclareCondition(SqlParserPos pos, SqlIdentifier conditionName,
       SqlNode stateCode) {
-    super(pos);
-    this.conditionName = Objects.requireNonNull(conditionName);
+    super(pos, Objects.requireNonNull(conditionName));
     this.stateCode = stateCode;
   }
 

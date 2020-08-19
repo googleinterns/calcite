@@ -35,7 +35,7 @@ public class SqlSignal extends SqlScriptingNode {
   public final SignalType signalType;
   public final SqlIdentifier conditionOrSqlState;
   public final SqlSetStmt setStmt;
-  public SqlDeclareCondition conditionDeclaration;
+  public SqlConditionDeclaration conditionDeclaration;
 
   /**
    * Creates a {@code SqlSignal}.

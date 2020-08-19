@@ -17,10 +17,12 @@
 package org.apache.calcite.test;
 
 import org.apache.calcite.sql.SqlBeginEndCall;
+import org.apache.calcite.sql.SqlConditionDeclaration;
 import org.apache.calcite.sql.SqlConditionalStmt;
 import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateProcedure;
 import org.apache.calcite.sql.SqlDeclareCondition;
+import org.apache.calcite.sql.SqlDeclareHandler;
 import org.apache.calcite.sql.SqlLeaveStmt;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlSignal;
@@ -34,6 +36,11 @@ import org.apache.calcite.sql.validate.SqlValidator;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -285,6 +292,59 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     String sql = "create procedure foo()\n"
         + "begin\n"
         + "declare bar condition;\n"
+        + "signal bar;"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlDeclareCondition declareCondition
+        = (SqlDeclareCondition) beginEnd.statements.get(0);
+    SqlSignal signal = (SqlSignal) beginEnd.statements.get(1);
+    assertThat(signal.conditionDeclaration, sameInstance(declareCondition));
+  }// TODO null, multiple, nested
+
+  @Test public void testCreateProcedureConditionHandler() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "declare bar condition;"
+        + "declare continue handler for bar select baz;"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlDeclareCondition declareCondition
+        = (SqlDeclareCondition) beginEnd.statements.get(0);
+    SqlDeclareHandler handler = (SqlDeclareHandler) beginEnd.statements.get(1);
+    assertThat(handler.conditionDeclarations.size(), equalTo(1));
+    assertThat(handler.conditionDeclarations.get(0),
+        sameInstance(declareCondition));
+  }
+
+  @Test public void testCreateProcedureConditionHandlerMultipleConditions() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "declare bar condition;"
+        + "declare baz condition;"
+        + "declare qux condition;"
+        + "declare continue handler for bar, baz, qux select abc;"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    List<SqlDeclareCondition> declareConditions = new ArrayList<>();
+    declareConditions.add((SqlDeclareCondition) beginEnd.statements.get(0));
+    declareConditions.add((SqlDeclareCondition) beginEnd.statements.get(1));
+    declareConditions.add((SqlDeclareCondition) beginEnd.statements.get(2));
+    SqlDeclareHandler handler = (SqlDeclareHandler) beginEnd.statements.get(3);
+    assertThat(handler.conditionDeclarations.size(), equalTo(3));
+    for (int i = 0; i < handler.conditionDeclarations.size(); i++) {
+      assertThat(handler.conditionDeclarations.get(i),
+          sameInstance(declareConditions.get(i)));
+    }
+  }
+
+  @Test public void testCreateProcedureConditionHandlerDeclaresCondition() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "declare bar condition for sqlwarning, sqlexception, not found, "
+        + "bar select baz;"
         + "signal bar;"
         + "end";
     SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);

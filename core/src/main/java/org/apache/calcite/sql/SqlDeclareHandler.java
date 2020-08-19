@@ -17,22 +17,26 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.validate.BlockScope;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 /**
  * Parse tree for {@code SqlDeclareHandler} call.
  */
-public class SqlDeclareHandler extends SqlScriptingNode {
+public class SqlDeclareHandler extends SqlConditionDeclaration {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("DECLARE_HANDLER", SqlKind.DECLARE_HANDLER);
 
   public final HandlerType handlerType;
-  public final SqlIdentifier conditionName;
   public final SqlNodeList parameters;
   public final SqlNode handlerStatement;
+  public List<SqlConditionDeclaration> conditionDeclarations;
 
   /**
    * Creates a {@code SqlDeclareHandler}.
@@ -48,11 +52,11 @@ public class SqlDeclareHandler extends SqlScriptingNode {
   public SqlDeclareHandler(SqlParserPos pos, HandlerType handlerType,
       SqlIdentifier conditionName, SqlNodeList parameters,
       SqlNode handlerStatement) {
-    super(pos);
+    super(pos, conditionName);
     this.handlerType = Objects.requireNonNull(handlerType);
-    this.conditionName = conditionName;
     this.parameters = Objects.requireNonNull(parameters);
     this.handlerStatement = handlerStatement;
+    conditionDeclarations = new ArrayList<>();
   }
 
   @Override public SqlOperator getOperator() {
@@ -83,6 +87,21 @@ public class SqlDeclareHandler extends SqlScriptingNode {
     parameters.unparse(writer, 0, 0);
     if (handlerStatement != null) {
       handlerStatement.unparse(writer, 0, 0);
+    }
+  }
+
+  @Override public void validate(final SqlValidator validator,
+      final SqlValidatorScope scope) {
+    BlockScope bs = (BlockScope) scope;
+    for (SqlNode node : parameters) {
+      if (!(node instanceof SqlIdentifier)) {
+        continue;
+      }
+      SqlConditionDeclaration declaration
+          = bs.findConditionDeclaration((SqlIdentifier) node);
+      if (declaration != null) {
+        conditionDeclarations.add(declaration);
+      }
     }
   }
 

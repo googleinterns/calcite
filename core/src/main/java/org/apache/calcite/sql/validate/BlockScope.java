@@ -17,11 +17,11 @@
 package org.apache.calcite.sql.validate;
 
 import org.apache.calcite.rel.type.StructKind;
+import org.apache.calcite.sql.SqlConditionDeclaration;
 import org.apache.calcite.sql.SqlDeclareCondition;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlLabeledBlock;
 import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlScriptingNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +36,7 @@ import java.util.Objects;
 public class BlockScope extends ListScope {
 
   public final SqlLabeledBlock block;
-  public final Map<String, SqlDeclareCondition> conditionDeclarations;
+  public final Map<String, SqlConditionDeclaration> conditionDeclarations;
 
   /**
    * Creates an instance of {@code BlockScope}.
@@ -121,27 +121,17 @@ public class BlockScope extends ListScope {
   }
 
   /**
-   * Searches this scope and parent scopes for a {@link SqlDeclareCondition} that
-   * matches the provided label.
+   * Searches this scope and parent scopes for a {@link SqlConditionDeclaration}
+   * that matches the provided label.
    *
    * @param label The label of the block to find
    * @return The labeled block, returns null if label is not found
    */
-  public SqlDeclareCondition findConditionDeclaration(SqlIdentifier label) {
+  public SqlConditionDeclaration findConditionDeclaration(SqlIdentifier label) {
     SqlValidatorNamespace ns = findReferenceNamespace(label);
-    if (ns instanceof ConditionNamespace) {
-      return (SqlDeclareCondition) ns.getNode();
+    if (ns instanceof ConditionDeclarationNamespace) {
+      return (SqlConditionDeclaration) ns.getNode();
     }
     return null;
-  }
-
-  /**
-   *
-   *
-   * @param conditionDeclaration
-   */
-  public void addConditionDeclaration(SqlDeclareCondition conditionDeclaration) {
-    String name = conditionDeclaration.conditionName.getSimple();
-    conditionDeclarations.put(name, conditionDeclaration);
   }
 }
