@@ -331,7 +331,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     String sql = "create procedure foo()\n"
         + "begin\n"
         + "declare bar condition;"
-        + "declare continue handler for baz select baz;"
+        + "declare continue handler for baz select qux;"
         + "end";
     SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
@@ -349,15 +349,13 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "end";
     SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
-    List<SqlConditionDeclaration> declareConditions = new ArrayList<>();
-    for (int i = 0; i < 3; i++) {
-      declareConditions.add((SqlDeclareCondition) beginEnd.statements.get(i));
-    }
     SqlDeclareHandler handler = (SqlDeclareHandler) beginEnd.statements.get(3);
     assertThat(handler.conditionDeclarations.size(), equalTo(3));
     for (int i = 0; i < 3; i++) {
+      SqlDeclareCondition declareCondition
+          = (SqlDeclareCondition) beginEnd.statements.get(i);
       assertThat(handler.conditionDeclarations.get(i),
-          sameInstance(declareConditions.get(i)));
+          sameInstance(declareCondition));
     }
   }
 

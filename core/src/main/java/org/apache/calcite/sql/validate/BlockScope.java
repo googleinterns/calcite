@@ -63,20 +63,13 @@ public class BlockScope extends ListScope {
       return;
     }
     String name = names.get(0);
-    if (conditionDeclarations.containsKey(name)) {
-      SqlValidatorNamespace ns = validator.getNamespace(conditionDeclarations.get(name));
-      Step path = Path.EMPTY.plus(ns.getRowType(), 0, names.get(0),
-          StructKind.FULLY_QUALIFIED);
-      resolved.found(ns, false, this, path, null);
-      return;
+    SqlValidatorNamespace ns = null;
+    if (block.label != null && nameMatcher.matches(name, block.label.getSimple())) {
+      ns = validator.getNamespace(block);
+    } else if (conditionDeclarations.containsKey(name)) {
+      ns = validator.getNamespace(conditionDeclarations.get(name));
     }
-    if (block.label == null) {
-      super.resolve(names, nameMatcher, deep, resolved);
-      return;
-    }
-    String label = block.label.getSimple();
-    if (nameMatcher.matches(names.get(0), label)) {
-      SqlValidatorNamespace ns = validator.getNamespace(block);
+    if (ns != null) {
       Step path = Path.EMPTY.plus(ns.getRowType(), 0, names.get(0),
           StructKind.FULLY_QUALIFIED);
       resolved.found(ns, false, this, path, null);
@@ -90,9 +83,9 @@ public class BlockScope extends ListScope {
    * matches the provided name.
    *
    * @param name The name of the SqlNode's namespace to find
-   * @return The namespace for that SqlNode
+   * @return The namespace for that SqlNode, may be null
    */
-  private SqlValidatorNamespace findReferenceNamespace(SqlIdentifier name) {
+  private SqlValidatorNamespace findNamespace(SqlIdentifier name) {
     SqlNameMatcher nameMatcher = validator.catalogReader.nameMatcher();
     SqlValidatorScope.ResolvedImpl resolved =
         new SqlValidatorScope.ResolvedImpl();
@@ -113,7 +106,7 @@ public class BlockScope extends ListScope {
    * @return The labeled block, returns null if label is not found
    */
   public SqlLabeledBlock findLabeledBlock(SqlIdentifier label) {
-    SqlValidatorNamespace ns = findReferenceNamespace(label);
+    SqlValidatorNamespace ns = findNamespace(label);
     if (ns instanceof LabeledBlockNamespace) {
       return (SqlLabeledBlock) ns.getNode();
     }
@@ -122,13 +115,13 @@ public class BlockScope extends ListScope {
 
   /**
    * Searches this scope and parent scopes for a {@link SqlConditionDeclaration}
-   * that matches the provided label.
+   * that matches the provided name.
    *
-   * @param label The label of the block to find
-   * @return The labeled block, returns null if label is not found
+   * @param name The name of the condition declaration to find
+   * @return The condition declaration, returns null if label is not found
    */
-  public SqlConditionDeclaration findConditionDeclaration(SqlIdentifier label) {
-    SqlValidatorNamespace ns = findReferenceNamespace(label);
+  public SqlConditionDeclaration findConditionDeclaration(SqlIdentifier name) {
+    SqlValidatorNamespace ns = findNamespace(name);
     if (ns instanceof ConditionDeclarationNamespace) {
       return (SqlConditionDeclaration) ns.getNode();
     }
