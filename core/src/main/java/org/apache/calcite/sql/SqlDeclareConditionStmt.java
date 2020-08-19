@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Parse tree for {@code SqlDeclareCondition} expression.
+ * Parse tree for {@code SqlDeclareConditionStmt} expression.
  */
-public class SqlDeclareCondition extends SqlConditionDeclaration {
+public class SqlDeclareConditionStmt extends SqlConditionDeclaration {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("DECLARE_CONDITION",
           SqlKind.DECLARE_CONDITION);
@@ -33,13 +33,13 @@ public class SqlDeclareCondition extends SqlConditionDeclaration {
   public final SqlNode stateCode;
 
   /**
-   * Creates an instance of {@code SqlDeclareCondition}.
+   * Creates an instance of {@code SqlDeclareConditionStmt}.
    *
    * @param pos SQL parser position
    * @param conditionName Name of the declared condition
    * @param stateCode SQLSTATE value assigned to condition, may be null
    */
-  public SqlDeclareCondition(SqlParserPos pos, SqlIdentifier conditionName,
+  public SqlDeclareConditionStmt(SqlParserPos pos, SqlIdentifier conditionName,
       SqlNode stateCode) {
     super(pos, Objects.requireNonNull(conditionName));
     this.stateCode = stateCode;

@@ -20,8 +20,8 @@ import org.apache.calcite.sql.SqlBeginEndCall;
 import org.apache.calcite.sql.SqlConditionalStmt;
 import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateProcedure;
-import org.apache.calcite.sql.SqlDeclareCondition;
-import org.apache.calcite.sql.SqlDeclareHandler;
+import org.apache.calcite.sql.SqlDeclareConditionStmt;
+import org.apache.calcite.sql.SqlDeclareHandlerStmt;
 import org.apache.calcite.sql.SqlIterateStmt;
 import org.apache.calcite.sql.SqlIterationStmt;
 import org.apache.calcite.sql.SqlLeaveStmt;
@@ -285,6 +285,99 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(query).fails("end index \\(3\\) must not be greater than size \\(2\\)");
   }
 
+  @Test public void testCreateProcedureSelect() {
+    String sql = "create procedure foo() select a from abc";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "SELECT `ABC`.`A`\n"
+        + "FROM `ABC` AS `ABC`";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureInsert() {
+    String sql = "create procedure foo() insert into empnullables "
+        + "(empno, ename) values (1, 'hello')";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "INSERT INTO `CATALOG`.`SALES`.`EMPNULLABLES` (`EMPNO`, `ENAME`)\n"
+        + "VALUES ROW(1, 'hello')";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureDelete() {
+    String sql = "create procedure foo() delete from emp where deptno = 10";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "DELETE FROM `CATALOG`.`SALES`.`EMP`\n"
+        + "WHERE `DEPTNO` = 10";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureMerge() {
+    String sql = "create procedure foo() merge into t1 a using t2 b on a.x = "
+        + "b.x when matched then update set y = b.y when not matched then "
+        + "insert (x,y) values (b.x, b.y)";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "MERGE INTO `T1` AS `A`\n"
+        + "USING `T2` AS `B`\n"
+        + "ON `A`.`X` = `B`.`X`\n"
+        + "WHEN MATCHED THEN UPDATE SET `Y` = `B`.`Y`\n"
+        + "WHEN NOT MATCHED THEN INSERT (`X`, `Y`) "
+        + "(VALUES ROW(`B`.`X`, `B`.`Y`))";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureUpdate() {
+    String sql = "create procedure foo() update emp set deptno = 10";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "UPDATE `CATALOG`.`SALES`.`EMP` SET `DEPTNO` = 10";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureSelectNestedBeginEnd() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "select a from abc;\n"
+        + "end";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT `ABC`.`A`\n"
+        + "FROM `ABC` AS `ABC`;\n"
+        + "END";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureSelectNestedIteration() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "loop\n"
+        + "select a from abc;\n"
+        + "end loop;\n"
+        + "end";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "LOOP "
+        + "SELECT `ABC`.`A`\n"
+        + "FROM `ABC` AS `ABC`;\n"
+        + "END LOOP;\n"
+        + "END";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureSelectNestedConditional() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "if a = 2 then\n"
+        + "select a from abc;\n"
+        + "end if;\n"
+        + "end";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "IF `A` = 2 THEN "
+        + "SELECT `ABC`.`A`\n"
+        + "FROM `ABC` AS `ABC`;\n"
+        + "END IF;\n"
+        + "END";
+    sql(sql).rewritesTo(expected);
+  }
+
   @Test public void testCreateProcedureConditionSignal() {
     String sql = "create procedure foo()\n"
         + "begin\n"
@@ -293,8 +386,8 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "end";
     SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
-    SqlDeclareCondition declareCondition
-        = (SqlDeclareCondition) beginEnd.statements.get(0);
+    SqlDeclareConditionStmt declareCondition
+        = (SqlDeclareConditionStmt) beginEnd.statements.get(0);
     SqlSignal signal = (SqlSignal) beginEnd.statements.get(1);
     assertThat(signal.conditionDeclaration, sameInstance(declareCondition));
   }
@@ -318,11 +411,12 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "end";
     SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
-    SqlDeclareCondition declareCondition
-        = (SqlDeclareCondition) beginEnd.statements.get(0);
-    SqlDeclareHandler handler = (SqlDeclareHandler) beginEnd.statements.get(1);
-    assertThat(handler.conditionDeclarations.get(0),
-        sameInstance(declareCondition));
+    SqlDeclareConditionStmt declareCondition
+        = (SqlDeclareConditionStmt) beginEnd.statements.get(0);
+    SqlDeclareHandlerStmt handler
+        = (SqlDeclareHandlerStmt) beginEnd.statements.get(1);
+    assertThat(handler.conditionDeclarations.contains(declareCondition),
+        equalTo(true));
   }
 
   @Test public void testCreateProcedureConditionHandlerNull() {
@@ -333,7 +427,8 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "end";
     SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
-    SqlDeclareHandler handler = (SqlDeclareHandler) beginEnd.statements.get(1);
+    SqlDeclareHandlerStmt handler
+        = (SqlDeclareHandlerStmt) beginEnd.statements.get(1);
     assertThat(handler.conditionDeclarations.size(), equalTo(0));
   }
 
@@ -347,13 +442,14 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "end";
     SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
-    SqlDeclareHandler handler = (SqlDeclareHandler) beginEnd.statements.get(3);
+    SqlDeclareHandlerStmt handler
+        = (SqlDeclareHandlerStmt) beginEnd.statements.get(3);
     assertThat(handler.conditionDeclarations.size(), equalTo(3));
     for (int i = 0; i < 3; i++) {
-      SqlDeclareCondition declareCondition
-          = (SqlDeclareCondition) beginEnd.statements.get(i);
-      assertThat(handler.conditionDeclarations.get(i),
-          sameInstance(declareCondition));
+      SqlDeclareConditionStmt declareCondition
+          = (SqlDeclareConditionStmt) beginEnd.statements.get(i);
+      assertThat(handler.conditionDeclarations.contains(declareCondition),
+          equalTo(true));
     }
   }
 
@@ -366,10 +462,10 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "end";
     SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
     SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
-    SqlDeclareHandler handler
-        = (SqlDeclareHandler) beginEnd.statements.get(0);
+    SqlDeclareHandlerStmt handler
+        = (SqlDeclareHandlerStmt) beginEnd.statements.get(0);
     SqlSignal signal = (SqlSignal) beginEnd.statements.get(1);
-    assertThat(handler.conditionDeclarations.get(0), sameInstance(handler));
+    assertThat(handler.conditionDeclarations.contains(handler), equalTo(true));
     assertThat(signal.conditionDeclaration, sameInstance(handler));
   }
 

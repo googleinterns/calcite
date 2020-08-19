@@ -14,28 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.calcite.sql;
+package org.apache.calcite.schema.impl;
 
-import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.rel.type.RelDataType;
+import org.apache.calcite.rel.type.RelDataTypeFactory;
+import org.apache.calcite.rel.type.UnknownRecordType;
 
 /**
- * Parse tree for {@code SqlConditionDeclaration} call. If the child is a
- * {@link SqlDeclareHandlerStmt}, the {@code conditionName} may be null since
- * the name is not required in a handler statement.
+ * Used to represent unknown tables when the {@code allowUnknownTables}
+ * validator config option is enabled.
  */
-public abstract class SqlConditionDeclaration extends SqlScriptingNode {
+public class UnknownPlaceholderTable extends AbstractTable {
+  private final UnknownRecordType rowType;
 
-  public final SqlIdentifier conditionName;
+  public UnknownPlaceholderTable(RelDataTypeFactory typeFactory) {
+    this.rowType = new UnknownRecordType(typeFactory);
+  }
 
-  /**
-   * Creates an instance of {@code SqlConditionDeclaration}.
-   *
-   * @param pos SQL parser position
-   * @param conditionName The label of the block, may be null
-   */
-  protected SqlConditionDeclaration(SqlParserPos pos,
-      SqlIdentifier conditionName) {
-    super(pos);
-    this.conditionName = conditionName;
+  @Override public RelDataType getRowType(RelDataTypeFactory typeFactory) {
+    return rowType;
   }
 }

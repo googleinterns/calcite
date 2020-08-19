@@ -37,7 +37,7 @@ public class ConditionDeclarationNamespace extends AbstractNamespace {
    * @param conditionDeclaration The condition declaration, must not be null
    * @param enclosingNode Enclosing node
    */
-  ConditionDeclarationNamespace(SqlValidatorImpl validator,
+  public ConditionDeclarationNamespace(SqlValidatorImpl validator,
       SqlConditionDeclaration conditionDeclaration,
       SqlNode enclosingNode) {
     super(validator, enclosingNode);

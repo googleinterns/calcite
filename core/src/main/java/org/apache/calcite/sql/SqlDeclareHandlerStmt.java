@@ -22,24 +22,25 @@ import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
- * Parse tree for {@code SqlDeclareHandler} call.
+ * Parse tree for {@code SqlDeclareHandlerStmt} call.
  */
-public class SqlDeclareHandler extends SqlConditionDeclaration {
+public class SqlDeclareHandlerStmt extends SqlConditionDeclaration {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("DECLARE_HANDLER", SqlKind.DECLARE_HANDLER);
 
   public final HandlerType handlerType;
   public final SqlNodeList parameters;
   public final SqlNode handlerStatement;
-  public List<SqlConditionDeclaration> conditionDeclarations;
+  public final Set<SqlConditionDeclaration> conditionDeclarations;
 
   /**
-   * Creates a {@code SqlDeclareHandler}.
+   * Creates a {@code SqlDeclareHandlerStmt}.
    *
    * @param pos Parser position, must not be null
    * @param handlerType The type of handler being declared, must not be null
@@ -49,14 +50,14 @@ public class SqlDeclareHandler extends SqlConditionDeclaration {
    *                   identifiers, must not be null
    * @param handlerStatement Handler action statement
    */
-  public SqlDeclareHandler(SqlParserPos pos, HandlerType handlerType,
+  public SqlDeclareHandlerStmt(SqlParserPos pos, HandlerType handlerType,
       SqlIdentifier conditionName, SqlNodeList parameters,
       SqlNode handlerStatement) {
     super(pos, conditionName);
     this.handlerType = Objects.requireNonNull(handlerType);
     this.parameters = Objects.requireNonNull(parameters);
     this.handlerStatement = handlerStatement;
-    conditionDeclarations = new ArrayList<>();
+    conditionDeclarations = new HashSet<>();
   }
 
   @Override public SqlOperator getOperator() {
@@ -90,8 +91,18 @@ public class SqlDeclareHandler extends SqlConditionDeclaration {
     }
   }
 
+  /**
+   * This validate function is used to find SqlConditionDeclaration references
+   * from a BlockScope and adds it to the class field conditionDeclarations.
+   *
+   * @param validator The validator
+   * @param scope The current scope
+   */
   @Override public void validate(SqlValidator validator,
       SqlValidatorScope scope) {
+    if (!(scope instanceof BlockScope)) {
+      return;
+    }
     BlockScope bs = (BlockScope) scope;
     for (SqlNode node : parameters) {
       if (!(node instanceof SqlIdentifier)) {
