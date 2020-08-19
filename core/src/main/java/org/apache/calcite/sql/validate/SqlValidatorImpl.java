@@ -41,6 +41,7 @@ import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.schema.FunctionParameter;
 import org.apache.calcite.schema.Table;
+import org.apache.calcite.schema.impl.AbstractSchema;
 import org.apache.calcite.schema.impl.ExplicitRowTypeTable;
 import org.apache.calcite.schema.impl.FunctionParameterImpl;
 import org.apache.calcite.schema.impl.ModifiableViewTable;
@@ -4111,6 +4112,37 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
   public SqlValidatorScope getWithScope(SqlNode withItem) {
     assert withItem.getKind() == SqlKind.WITH_ITEM;
     return scopes.get(withItem);
+  }
+
+  /**
+   * Given an identifier, creates the schema chain corresponding to the prefix
+   * list of the identifier, and adds it to the root schema. Any pre-existing
+   * schemas will be retrieved rather than recreated. As an example, if the
+   * identifier is foo.bar.baz, foo will be added as a subschema to the root
+   * schema, bar will be added as a subschema to foo, and then bar will be
+   * returned as the parent schema of baz.
+   * @param id  the identifier for which the parent schema must be created or
+   *            retrieved.
+   * @return    the immediate parent of the object denoted by the identifer -
+   *            in other words, the schema corresponding to the second to last
+   *            component of the identifier. If the identifier consists of only
+   *            a single name, the root schema will be returned.
+   */
+  @Override public CalciteSchema getOrCreateParentSchema(SqlIdentifier id) {
+    CalciteSchema parentSchema =
+        getCatalogReader().getRootSchema();
+    // Add chain of subschemas corresponding to identifier prefixes
+    for (int i = 0; i < id.names.size() - 1; i++) {
+      String currentName = id.names.get(i);
+      // Check that subschema is not already present before adding
+      if (parentSchema.getSubSchema(currentName, /*caseSensitive=*/false)
+          == null) {
+        parentSchema.add(currentName, new AbstractSchema());
+      }
+      parentSchema = parentSchema.getSubSchema(currentName,
+          /*caseSensitive=*/false);
+    }
+    return parentSchema;
   }
 
   public SqlValidator setLenientOperatorLookup(boolean lenient) {

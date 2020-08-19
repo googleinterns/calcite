@@ -91,20 +91,20 @@ public class SqlValidatorBestEffortTest extends SqlValidatorTestCase {
   @Test public void testUnknownTableMerge() {
     String sql = "MERGE INTO foo AS f USING dept AS b ON f.bar = b.name"
         + " WHEN MATCHED THEN UPDATE SET baz = b.deptno";
-    String expected = "(DynamicRecordRow[]) NOT NULL";
+    String expected = "(DynamicRecordRow[BAZ, BAR, **]) NOT NULL";
     sql(sql).type(expected);
   }
 
   @Test public void testUnknownTableMergeUsingUnknownTable() {
     String sql = "MERGE INTO bar AS b USING foo AS f ON f.x = b.y"
         + " WHEN MATCHED THEN UPDATE SET u = v";
-    String expected = "(DynamicRecordRow[]) NOT NULL";
+    String expected = "(DynamicRecordRow[U, Y, **]) NOT NULL";
     sql(sql).type(expected);
   }
 
   @Test public void testUnknownTableUpdate() {
     String sql = "UPDATE foo SET bar = 5 WHERE baz = 7";
-    String expected = "(DynamicRecordRow[BAR]) NOT NULL";
+    String expected = "(DynamicRecordRow[BAR, BAZ, **]) NOT NULL";
     sql(sql).type(expected);
   }
 
@@ -116,7 +116,7 @@ public class SqlValidatorBestEffortTest extends SqlValidatorTestCase {
 
   @Test public void testUnknownTableDelete() {
     String sql = "DELETE FROM foo WHERE bar = 5";
-    String expected = "(DynamicRecordRow[]) NOT NULL";
+    String expected = "(DynamicRecordRow[BAR, **]) NOT NULL";
     sql(sql).type(expected);
   }
 
@@ -230,10 +230,28 @@ public class SqlValidatorBestEffortTest extends SqlValidatorTestCase {
         .rewritesTo(expected);
   }
 
+  @Test public void testUnknownTableWithUnknownSchema() {
+    String sql = "select * from INFORMATION_SCHEMA.COLUMNS";
+    String expected = "SELECT *\n"
+        + "FROM `INFORMATION_SCHEMA`.`COLUMNS` AS `COLUMNS`";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
+
   @Test public void testUnknownTableInsertIntoUnspecifiedColumns() {
     String sql = "INSERT INTO foo VALUES(1, 'a', CURRENT_DATE)";
     String expected = "INSERT INTO `FOO`\n"
         + "VALUES ROW(1, 'a', CURRENT_DATE)";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
+
+  @Test public void testUnknownTableWithUnknownSchemaAndSubschema() {
+    String sql = "select * from foo.bar.baz";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`.`BAR`.`BAZ` AS `BAZ`";
     sql(sql)
         .withValidatorIdentifierExpansion(true)
         .rewritesTo(expected);
