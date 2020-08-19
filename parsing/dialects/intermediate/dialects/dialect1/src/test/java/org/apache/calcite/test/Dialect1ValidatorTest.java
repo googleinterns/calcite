@@ -130,6 +130,17 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(query).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
   }
 
+  @Test public void testCreateFunctionCompoundIdentifier() {
+    String ddl = "create function foo.bar() "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select foo.bar()";
+    sql(ddl).ok();
+    sql(query).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
+  }
+
   @Test public void testCreateFunctionWithParams() {
     String ddl = "create function foo(x integer, y varchar) "
         + "returns Integer "

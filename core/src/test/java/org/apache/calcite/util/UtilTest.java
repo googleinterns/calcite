@@ -2223,7 +2223,7 @@ class UtilTest {
 
     // Create a copy of NameMultimap, to avoid polluting further tests
     final NameMap<Integer> map2 = new NameMap<>();
-    for (Map.Entry<String, List<Integer>> entry : map.map().entrySet()) {
+    for (Map.Entry<String, Collection<Integer>> entry : map.map().entrySet()) {
       for (Integer integer : entry.getValue()) {
         map2.put(entry.getKey(), integer);
       }

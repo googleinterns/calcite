@@ -40,8 +40,9 @@ import org.apache.calcite.runtime.Feature;
 import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.schema.FunctionParameter;
-import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.Macro;
+import org.apache.calcite.schema.Table;
+import org.apache.calcite.schema.impl.AbstractSchema;
 import org.apache.calcite.schema.impl.ExplicitRowTypeTable;
 import org.apache.calcite.schema.impl.FunctionParameterImpl;
 import org.apache.calcite.schema.impl.ModifiableViewTable;
@@ -49,7 +50,6 @@ import org.apache.calcite.schema.impl.UserDefinedFunction;
 import org.apache.calcite.sql.JoinConditionType;
 import org.apache.calcite.sql.JoinType;
 import org.apache.calcite.sql.SqlAccessEnum;
-import org.apache.calcite.sql.SqlCreateMacro;
 import org.apache.calcite.sql.SqlAccessType;
 import org.apache.calcite.sql.SqlAggFunction;
 import org.apache.calcite.sql.SqlBasicCall;
@@ -57,16 +57,17 @@ import org.apache.calcite.sql.SqlBasicTypeNameSpec;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCallBinding;
 import org.apache.calcite.sql.SqlColumnAttribute;
-import org.apache.calcite.sql.SqlExecMacro;
 import org.apache.calcite.sql.SqlColumnDeclaration;
 import org.apache.calcite.sql.SqlConditionalStmt;
 import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateFunctionSqlForm;
+import org.apache.calcite.sql.SqlCreateMacro;
 import org.apache.calcite.sql.SqlCreateProcedure;
 import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
+import org.apache.calcite.sql.SqlExecMacro;
 import org.apache.calcite.sql.SqlExplain;
 import org.apache.calcite.sql.SqlFunction;
 import org.apache.calcite.sql.SqlFunctionCategory;
@@ -128,6 +129,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -3310,9 +3312,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       SqlCreateFunctionSqlForm createFunction) {
     Preconditions.checkArgument(createFunction != null);
     nodeToTypeMap.put(createFunction, unknownType);
-    CalciteSchema schema = catalogReader.getRootSchema();
+    CalciteSchema schema = getOrCreateParentSchema(createFunction.functionName);
     List<FunctionParameter> parameters = new ArrayList<>();
-    String name = createFunction.functionName.toString();
+    String name = Iterables.getLast(createFunction.functionName.names);
     RelDataType returnType = createFunction.returnsDataType.deriveType(this);
     Preconditions.checkArgument(createFunction.fieldNames.size()
         == createFunction.fieldTypes.size());
@@ -4148,6 +4150,37 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
   public SqlValidatorScope getWithScope(SqlNode withItem) {
     assert withItem.getKind() == SqlKind.WITH_ITEM;
     return scopes.get(withItem);
+  }
+
+  /**
+   * Given an identifier, creates the schema chain corresponding to the prefix
+   * list of the identifier, and adds it to the root schema. Any pre-existing
+   * schemas will be retrieved rather than recreated. As an example, if the
+   * identifier is foo.bar.baz, foo will be added as a subschema to the root
+   * schema, bar will be added as a subschema to foo, and then bar will be
+   * returned as the parent schema of baz.
+   * @param id  the identifier for which the parent schema must be created or
+   *            retrieved.
+   * @return    the immediate parent of the object denoted by the identifer -
+   *            in other words, the schema corresponding to the second to last
+   *            component of the identifier. If the identifier consists of only
+   *            a single name, the root schema will be returned.
+   */
+  @Override public CalciteSchema getOrCreateParentSchema(SqlIdentifier id) {
+    CalciteSchema parentSchema =
+        getCatalogReader().getRootSchema();
+    // Add chain of subschemas corresponding to identifier prefixes
+    for (int i = 0; i < id.names.size() - 1; i++) {
+      String currentName = id.names.get(i);
+      // Check that subschema is not already present before adding
+      if (parentSchema.getSubSchema(currentName, /*caseSensitive=*/false)
+          == null) {
+        parentSchema.add(currentName, new AbstractSchema());
+      }
+      parentSchema = parentSchema.getSubSchema(currentName,
+          /*caseSensitive=*/false);
+    }
+    return parentSchema;
   }
 
   public SqlValidator setLenientOperatorLookup(boolean lenient) {

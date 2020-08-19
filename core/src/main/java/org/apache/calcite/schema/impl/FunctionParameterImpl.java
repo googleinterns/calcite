@@ -36,8 +36,8 @@ public class FunctionParameterImpl implements FunctionParameter {
    * Creates a {@code FunctionParameterImpl}.
    *
    * @param ordinal The index of the parameter
-   * @param name The name of the parameter
-   * @param type The type of the parameter
+   * @param name The name of the parameter, must not be null
+   * @param type The type of the parameter, must not be null
    * @param optional Whether or not the parameter is optional
    */
   public FunctionParameterImpl(int ordinal, String name, RelDataType type,
