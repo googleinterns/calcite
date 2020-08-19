@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlDeallocatePrepare} call.
  */
-public class SqlDeallocatePrepare extends SqlCall {
+public class SqlDeallocatePrepare extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("DEALLOCATE PREPARE",
           SqlKind.DEALLOCATE_PREPARE);

@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlDeclareCondition} expression.
  */
-public class SqlDeclareCondition extends SqlCall {
+public class SqlDeclareCondition extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("DECLARE_CONDITION",
           SqlKind.DECLARE_CONDITION);

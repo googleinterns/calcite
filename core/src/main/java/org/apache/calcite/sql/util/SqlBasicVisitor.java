@@ -26,6 +26,7 @@ import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlNullTreatmentModifier;
 
 /**
  * Basic implementation of {@link SqlVisitor} which does nothing at each node.
@@ -73,6 +74,10 @@ public class SqlBasicVisitor<R> implements SqlVisitor<R> {
   }
 
   public R visit(SqlIntervalQualifier intervalQualifier) {
+    return null;
+  }
+
+  @Override public R visit(SqlNullTreatmentModifier nullTreatmentModifier) {
     return null;
   }
 

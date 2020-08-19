@@ -118,6 +118,7 @@ import org.apache.calcite.sql.SqlMatchRecognize;
 import org.apache.calcite.sql.SqlMerge;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlNullTreatmentModifier;
 import org.apache.calcite.sql.SqlNumericLiteral;
 import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlOperatorTable;
@@ -2329,6 +2330,11 @@ public class SqlToRelConverter {
             assert id.isSimple();
             patternVarsSet.add(id.getSimple());
             return rexBuilder.makeLiteral(id.getSimple());
+          }
+
+          @Override public RexNode visit(
+              SqlNullTreatmentModifier nullTreatmentModifier) {
+            return rexBuilder.makeFlag(nullTreatmentModifier.kind);
           }
 
           @Override public RexNode visit(SqlHostVariable hostVariable) {
@@ -5036,6 +5042,12 @@ public class SqlToRelConverter {
       return convertInterval(intervalQualifier);
     }
 
+    @Override public RexNode visit(
+        SqlNullTreatmentModifier nullTreatmentModifier) {
+      return exprConverter
+        .convertNullTreatmentModifier(this, nullTreatmentModifier);
+    }
+
     @Override public RexNode visit(SqlColumnAttribute attribute) {
       throw new UnsupportedOperationException();
     }
@@ -5261,6 +5273,10 @@ public class SqlToRelConverter {
     }
 
     public Void visit(SqlIntervalQualifier intervalQualifier) {
+      return null;
+    }
+
+    @Override public Void visit(SqlNullTreatmentModifier nullTreatmentModifier) {
       return null;
     }
 

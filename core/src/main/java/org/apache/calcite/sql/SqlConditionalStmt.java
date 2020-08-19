@@ -17,48 +17,38 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.util.ImmutableNullableList;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
 
-import java.util.List;
+import java.util.Objects;
+
 /**
- * Parse tree for a {@code SqlCaseStmt}.
+ * Parse tree for a {@code SqlConditionalStmt}.
  */
-public class SqlCaseStmt extends SqlConditionalStmt {
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("CASE", SqlKind.CASE_STATEMENT);
+public abstract class SqlConditionalStmt extends SqlScriptingNode {
+
+  public final SqlNodeList conditionalStmtListPairs;
+  public final SqlNodeList elseStmtList;
 
   /**
-   * Creates a {@code SqlCaseStmt}.
+   * Creates a {@code SqlConditionalStmt}.
    * @param pos                       Parser position, must not be null.
-   * @param conditionalStmtListPairs  List of SqlNode pairs
+   * @param conditionalStmtListPairs  List of conditional expression pairs
    *                                  with StatementList, must not be null.
    * @param elseStmtList              List of statements in the else clause,
    *                                  must not be null.
    */
-  public SqlCaseStmt(final SqlParserPos pos,
-      final SqlNodeList conditionalStmtListPairs,
-      final SqlNodeList elseStmtList) {
-    super(pos, conditionalStmtListPairs, elseStmtList);
+  protected SqlConditionalStmt(SqlParserPos pos,
+      SqlNodeList conditionalStmtListPairs, SqlNodeList elseStmtList) {
+    super(pos);
+    this.conditionalStmtListPairs =
+        Objects.requireNonNull(conditionalStmtListPairs);
+    this.elseStmtList = Objects.requireNonNull(elseStmtList);
   }
 
-  @Override public SqlOperator getOperator() {
-    return OPERATOR;
-  }
-
-  @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(conditionalStmtListPairs, elseStmtList);
-  }
-
-  @Override public void unparse(final SqlWriter writer, final int leftPrec,
-      final int rightPrec) {
-    for (SqlNode pair : conditionalStmtListPairs) {
-      writer.keyword("WHEN");
-      pair.unparse(writer, leftPrec, rightPrec);
-    }
-    if (!SqlNodeList.isEmptyList(elseStmtList)) {
-      writer.keyword("ELSE");
-      elseStmtList.unparse(writer, leftPrec, rightPrec);
-    }
-    writer.keyword("END CASE");
+  @Override public void validate(SqlValidator validator,
+      SqlValidatorScope scope) {
+    validateSqlNodeList(validator, scope, conditionalStmtListPairs);
+    validateSqlNodeList(validator, scope, elseStmtList);
   }
 }

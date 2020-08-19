@@ -49,13 +49,21 @@ public class SqlNullTreatmentModifier extends SqlNode {
     return null;
   }
 
-  @Override public void validate(
-      SqlValidator validator,
-      SqlValidatorScope scope) {
+  @Override public SqlKind getKind() {
+    return kind;
   }
 
+  // Intentionally left blank.
+  @Override public void validate(
+      SqlValidator validator,
+      SqlValidatorScope scope) {}
+
+  // Intentionally left blank.
+  @Override public void validateExpr(SqlValidator validator,
+      SqlValidatorScope scope) {}
+
   @Override public <R> R accept(SqlVisitor<R> visitor) {
-    throw new UnsupportedOperationException();
+    return visitor.visit(this);
   }
 
   @Override public boolean equalsDeep(SqlNode node, Litmus litmus) {

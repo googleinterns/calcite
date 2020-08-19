@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * Parse tree for {@code SqlDeclareHandler} call.
  */
-public class SqlDeclareHandler extends SqlCall {
+public class SqlDeclareHandler extends SqlScriptingNode {
   private static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("DECLARE_HANDLER", SqlKind.DECLARE_HANDLER);
 

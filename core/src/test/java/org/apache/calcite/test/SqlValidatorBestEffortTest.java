@@ -239,6 +239,15 @@ public class SqlValidatorBestEffortTest extends SqlValidatorTestCase {
         .rewritesTo(expected);
   }
 
+  @Test public void testUnknownTableInsertIntoUnspecifiedColumns() {
+    String sql = "INSERT INTO foo VALUES(1, 'a', CURRENT_DATE)";
+    String expected = "INSERT INTO `FOO`\n"
+        + "VALUES ROW(1, 'a', CURRENT_DATE)";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
+
   @Test public void testUnknownTableWithUnknownSchemaAndSubschema() {
     String sql = "select * from foo.bar.baz";
     String expected = "SELECT *\n"
@@ -246,5 +255,12 @@ public class SqlValidatorBestEffortTest extends SqlValidatorTestCase {
     sql(sql)
         .withValidatorIdentifierExpansion(true)
         .rewritesTo(expected);
+  }
+
+  @Test public void testUnknownTableInsertMismatch() {
+    String sql = "INSERT INTO ^foo^ (a, b, c) VALUES (1, 2, 3, 4)";
+    String expected = "Number of INSERT target columns \\(3\\) does not equal number of source "
+        + "items \\(4\\)";
+    sql(sql).fails(expected);
   }
 }

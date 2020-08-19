@@ -30,6 +30,7 @@ import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.rel.type.RelDataTypeField;
 import org.apache.calcite.rel.type.RelDataTypeSystem;
 import org.apache.calcite.rel.type.RelRecordType;
+import org.apache.calcite.rel.type.UnknownRecordType;
 import org.apache.calcite.rex.RexNode;
 import org.apache.calcite.rex.RexPatternFieldRef;
 import org.apache.calcite.rex.RexVisitor;
@@ -40,6 +41,7 @@ import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.impl.AbstractSchema;
+import org.apache.calcite.schema.impl.ExplicitRowTypeTable;
 import org.apache.calcite.schema.impl.ModifiableViewTable;
 import org.apache.calcite.sql.JoinConditionType;
 import org.apache.calcite.sql.JoinType;
@@ -47,9 +49,15 @@ import org.apache.calcite.sql.SqlAccessEnum;
 import org.apache.calcite.sql.SqlAccessType;
 import org.apache.calcite.sql.SqlAggFunction;
 import org.apache.calcite.sql.SqlBasicCall;
+import org.apache.calcite.sql.SqlBasicTypeNameSpec;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCallBinding;
 import org.apache.calcite.sql.SqlColumnAttribute;
+import org.apache.calcite.sql.SqlColumnDeclaration;
+import org.apache.calcite.sql.SqlConditionalStmt;
+import org.apache.calcite.sql.SqlConditionalStmtListPair;
+import org.apache.calcite.sql.SqlCreateProcedure;
+import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
@@ -63,11 +71,13 @@ import org.apache.calcite.sql.SqlIntervalLiteral;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.SqlJoin;
 import org.apache.calcite.sql.SqlKind;
+import org.apache.calcite.sql.SqlLabeledBlock;
 import org.apache.calcite.sql.SqlLiteral;
 import org.apache.calcite.sql.SqlMatchRecognize;
 import org.apache.calcite.sql.SqlMerge;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlNodeList;
+import org.apache.calcite.sql.SqlNullTreatmentModifier;
 import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlOperatorTable;
 import org.apache.calcite.sql.SqlOrderBy;
@@ -76,6 +86,7 @@ import org.apache.calcite.sql.SqlSelect;
 import org.apache.calcite.sql.SqlSelectKeyword;
 import org.apache.calcite.sql.SqlSnapshot;
 import org.apache.calcite.sql.SqlSyntax;
+import org.apache.calcite.sql.SqlTypeNameSpec;
 import org.apache.calcite.sql.SqlUnresolvedFunction;
 import org.apache.calcite.sql.SqlUpdate;
 import org.apache.calcite.sql.SqlUtil;
@@ -1166,6 +1177,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
   public SqlValidatorScope getJoinScope(SqlNode node) {
     return scopes.get(stripAs(node));
+  }
+
+  @Override public BlockScope getBlockScope(SqlLabeledBlock block) {
+    return (BlockScope) scopes.get(block);
   }
 
   public SqlValidatorScope getOverScope(SqlNode node) {
@@ -2586,6 +2601,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     SqlCall call;
     List<SqlNode> operands;
     switch (node.getKind()) {
+    case CREATE_TABLE:
+      return;
     case SELECT:
       final SqlSelect select = (SqlSelect) node;
       final SelectNamespace selectNs =
@@ -2881,8 +2898,66 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       }
       break;
 
+    case CREATE_PROCEDURE:
+      SqlCreateProcedure createProcedure = (SqlCreateProcedure) node;
+      nodeToTypeMap.put(createProcedure, getUnknownType());
+      registerQuery(parentScope, null, createProcedure.statement,
+          node, null, false, false);
+      break;
+
+    case BEGIN_END:
+    case FOR_STATEMENT:
+    case WHILE_STATEMENT:
+    case REPEAT_STATEMENT:
+    case LOOP_STATEMENT:
+      SqlLabeledBlock labeledBlock = (SqlLabeledBlock) node;
+      BlockScope blockScope = new BlockScope(parentScope, labeledBlock);
+      scopes.put(labeledBlock, blockScope);
+      LabeledBlockNamespace labeledBlockNs =
+          new LabeledBlockNamespace(this, labeledBlock, enclosingNode);
+      String blockAlias = deriveAlias(labeledBlock, nextGeneratedId++);
+      registerNamespace(blockScope, blockAlias, labeledBlockNs,
+          /*forceNullable=*/false);
+      registerStatementList(blockScope, blockScope, blockAlias,
+          labeledBlock.statements, labeledBlock);
+      break;
+
+    case IF_STATEMENT:
+    case CASE_STATEMENT:
+      SqlConditionalStmt conditionalStmt = (SqlConditionalStmt) node;
+      registerStatementList(parentScope, usingScope, alias,
+          conditionalStmt.conditionalStmtListPairs, conditionalStmt);
+      registerStatementList(parentScope, usingScope, alias,
+          conditionalStmt.elseStmtList, conditionalStmt);
+      break;
+
+    case CONDITION_STATEMENT_LIST_PAIR:
+      SqlConditionalStmtListPair stmtListPair
+          = (SqlConditionalStmtListPair) node;
+      registerStatementList(parentScope, usingScope, alias,
+          stmtListPair.stmtList, stmtListPair);
+      break;
+
     default:
       throw Util.unexpected(node.getKind());
+    }
+  }
+
+  private void registerStatementList(SqlValidatorScope parentScope,
+      SqlValidatorScope usingScope, String alias, SqlNodeList statements,
+      SqlNode enclosingNode) {
+    Set<SqlKind> supportedKinds = new HashSet<>(
+        Arrays.asList(SqlKind.BEGIN_END, SqlKind.WHILE_STATEMENT,
+            SqlKind.FOR_STATEMENT, SqlKind.REPEAT_STATEMENT,
+            SqlKind.LOOP_STATEMENT, SqlKind.DECLARE_CONDITION,
+            SqlKind.DECLARE_HANDLER, SqlKind.IF_STATEMENT,
+            SqlKind.CASE_STATEMENT, SqlKind.CONDITION_STATEMENT_LIST_PAIR));
+    for (SqlNode child : statements) {
+      if (supportedKinds.contains(child.getKind())) {
+        registerQuery(parentScope, usingScope, child,
+            enclosingNode, alias, /*forceNullable=*/false,
+            /*checkUpdate=*/false);
+      }
     }
   }
 
@@ -3218,6 +3293,38 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
               fracPrecision,
               "INTERVAL " + qualifier));
     }
+  }
+
+  @Override public void validateCreateTable(SqlCreateTable createTable) {
+    Preconditions.checkArgument(createTable != null);
+    // Type is not applicable for CREATE TABLE statements.
+    nodeToTypeMap.put(createTable, unknownType);
+    CalciteSchema schema = catalogReader.getRootSchema();
+    RelDataTypeFactory.Builder builder = typeFactory.builder();
+    if (createTable.columnList == null) {
+      schema.add(createTable.name.toString(),
+          new ExplicitRowTypeTable(builder.build()));
+      return;
+    }
+    for (SqlNode column : createTable.columnList) {
+      // This field is guaranteed to be of type SqlColumnDeclaration since this
+      // is a SqlCreateTable node type.
+      Preconditions.checkArgument(column instanceof SqlColumnDeclaration);
+      SqlColumnDeclaration col = (SqlColumnDeclaration) column;
+      SqlTypeNameSpec typeNameSpec = col.dataType.getTypeNameSpec();
+      // All data types that we initially plan to support (e.g. INTEGER,
+      // VARCHAR, BOOLEAN, DATE, etc) are of type SqlBasicTypeNameSpec.
+      if (!(typeNameSpec instanceof SqlBasicTypeNameSpec)) {
+        throw newValidationError(
+            col, RESOURCE.disallowNonBasicTypes(
+            typeNameSpec.getTypeName().toString()));
+      }
+      SqlBasicTypeNameSpec basicTypeNameSpec =
+          (SqlBasicTypeNameSpec) typeNameSpec;
+      builder.add(col.name.toString(), basicTypeNameSpec.sqlTypeName);
+    }
+    schema.add(createTable.name.toString(),
+        new ExplicitRowTypeTable(builder.build()));
   }
 
   /**
@@ -4517,10 +4624,15 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
             .stream().filter(f -> strategies.get(f.getIndex()).canInsertInto())
             .collect(Collectors.toList()));
 
-    final RelDataType targetRowTypeToValidate =
-        logicalSourceRowType.getFieldCount() == logicalTargetRowType.getFieldCount()
-        ? logicalTargetRowType
-        : realTargetRowType;
+    final RelDataType targetRowTypeToValidate;
+    if (logicalTargetRowType instanceof UnknownRecordType) {
+      targetRowTypeToValidate = logicalSourceRowType;
+    } else if (logicalSourceRowType.getFieldCount()
+        == logicalTargetRowType.getFieldCount()) {
+      targetRowTypeToValidate = logicalTargetRowType;
+    } else {
+      targetRowTypeToValidate = realTargetRowType;
+    }
 
     checkFieldCount(insert.getTargetTable(), table, strategies,
         targetRowTypeToValidate, realTargetRowType,
@@ -4655,6 +4767,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       List<ColumnStrategy> strategies, RelDataType targetRowTypeToValidate,
       RelDataType realTargetRowType, SqlNode source,
       RelDataType logicalSourceRowType, RelDataType logicalTargetRowType) {
+    if (table.getRowType() instanceof UnknownRecordType
+        && logicalTargetRowType.getFieldCount() == 0) {
+      return;
+    }
     final int sourceFieldCount = logicalSourceRowType.getFieldCount();
     final int targetFieldCount = logicalTargetRowType.getFieldCount();
     final int targetRealFieldCount = realTargetRowType.getFieldCount();
@@ -5907,6 +6023,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       throw Util.needToImplement(intervalQualifier);
     }
 
+    @Override public Void visit(SqlNullTreatmentModifier nullTreatmentModifier) {
+      throw Util.needToImplement(nullTreatmentModifier);
+    }
+
     @Override public Void visit(SqlColumnAttribute attribute) {
       throw Util.needToImplement(attribute);
     }
@@ -6048,6 +6168,11 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return typeFactory.createSqlIntervalType(intervalQualifier);
     }
 
+    @Override public RelDataType visit(
+        SqlNullTreatmentModifier nullTreatmentModifier) {
+      return unknownType;
+    }
+
     @Override public RelDataType visit(SqlColumnAttribute attribute) {
       return unknownType;
     }
@@ -6076,6 +6201,11 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       SqlNode expandedExpr = expandDynamicStar(id, fqId);
       validator.setOriginal(expandedExpr, id);
       return expandedExpr;
+    }
+
+    @Override public SqlNode visit(
+        SqlNullTreatmentModifier nullTreatmentModifier) {
+      return nullTreatmentModifier;
     }
 
     @Override public SqlNode visit(SqlHostVariable hostVariable) {
@@ -6165,6 +6295,44 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return super.visit(literal);
     }
 
+    public SqlNode visit(SqlIdentifier id) {
+      // Aliases, e.g. 'select a as x, b from t order by x'.
+      if (id.isSimple()
+          && config.sqlConformance().isSortByAlias()) {
+        String alias = id.getSimple();
+        final SqlValidatorNamespace selectNs = getNamespace(select);
+        final RelDataType rowType =
+            selectNs.getRowTypeSansSystemColumns();
+        final SqlNameMatcher nameMatcher = catalogReader.nameMatcher();
+        RelDataTypeField field = nameMatcher.field(rowType, alias);
+        if (field != null) {
+          return nthSelectItem(
+              field.getIndex(),
+              id.getParserPosition());
+        }
+      }
+
+      // No match. Return identifier unchanged.
+      return getScope().fullyQualify(id).identifier;
+    }
+
+    @Override public SqlNode visit(SqlNullTreatmentModifier nullTreatmentModifier) {
+      return nullTreatmentModifier;
+    }
+
+    @Override public SqlNode visit(SqlHostVariable hostVariable) {
+      return hostVariable;
+    }
+
+    protected SqlNode visitScoped(SqlCall call) {
+      // Don't attempt to expand sub-queries. We haven't implemented
+      // these yet.
+      if (call instanceof SqlSelect) {
+        return call;
+      }
+      return super.visitScoped(call);
+    }
+
     /**
      * Returns the <code>ordinal</code>th item in the select list.
      */
@@ -6187,40 +6355,6 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       // Create a copy of the expression with the position of the order
       // item.
       return expr.clone(pos);
-    }
-
-    public SqlNode visit(SqlIdentifier id) {
-      // Aliases, e.g. 'select a as x, b from t order by x'.
-      if (id.isSimple()
-          && config.sqlConformance().isSortByAlias()) {
-        String alias = id.getSimple();
-        final SqlValidatorNamespace selectNs = getNamespace(select);
-        final RelDataType rowType =
-            selectNs.getRowTypeSansSystemColumns();
-        final SqlNameMatcher nameMatcher = catalogReader.nameMatcher();
-        RelDataTypeField field = nameMatcher.field(rowType, alias);
-        if (field != null) {
-          return nthSelectItem(
-              field.getIndex(),
-              id.getParserPosition());
-        }
-      }
-
-      // No match. Return identifier unchanged.
-      return getScope().fullyQualify(id).identifier;
-    }
-
-    @Override public SqlNode visit(SqlHostVariable hostVariable) {
-      return hostVariable;
-    }
-
-    protected SqlNode visitScoped(SqlCall call) {
-      // Don't attempt to expand sub-queries. We haven't implemented
-      // these yet.
-      if (call instanceof SqlSelect) {
-        return call;
-      }
-      return super.visitScoped(call);
     }
   }
 
@@ -6312,6 +6446,11 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         }
       }
       return super.visit(id);
+    }
+
+    @Override public SqlNode visit(
+        SqlNullTreatmentModifier nullTreatmentModifier) {
+      return nullTreatmentModifier;
     }
 
     @Override public SqlNode visit(SqlHostVariable hostVariable) {
@@ -6678,6 +6817,11 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     }
 
     @Override public Set<String> visit(SqlIntervalQualifier qualifier) {
+      return ImmutableSet.of();
+    }
+
+    @Override public Set<String> visit(
+        SqlNullTreatmentModifier nullTreatmentModifier) {
       return ImmutableSet.of();
     }
 
