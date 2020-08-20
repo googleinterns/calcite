@@ -617,4 +617,13 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     SqlIterateStmt iterate = (SqlIterateStmt) whileLoop.statements.get(0);
     assertThat(iterate.labeledBlock, sameInstance(whileLoop));
   }
+
+  @Test public void testCastWithColumnAttributeFormat() {
+    String sql = "select deptno (format 'YYYYMMDD') from dept";
+    String expectedType = "RecordType(INTEGER NOT NULL EXPR$0) NOT NULL";
+    String expectedRewrite = "SELECT CAST(`DEPT`.`DEPTNO` AS FORMAT "
+        + "'YYYYMMDD')\n"
+        + "FROM `CATALOG`.`SALES`.`DEPT` AS `DEPT`";
+    sql(sql).type(expectedType).rewritesTo(expectedRewrite);
+  }
 }
