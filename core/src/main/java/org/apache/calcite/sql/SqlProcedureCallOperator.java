@@ -16,12 +16,6 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.sql.fun.SqlStdOperatorTable;
-import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.sql.validate.SqlValidator;
-
-import java.util.Collections;
-
 /**
  * SqlProcedureCallOperator represents the CALL statement. It takes a single
  * operand which is the real SqlCall.
@@ -35,28 +29,4 @@ public class SqlProcedureCallOperator extends SqlPrefixOperator {
 
   //~ Methods ----------------------------------------------------------------
 
-  // override SqlOperator
-  public SqlNode rewriteCall(SqlValidator validator, SqlCall call) {
-    // for now, rewrite "CALL f(x)" to "SELECT f(x) FROM VALUES(0)"
-    // TODO jvs 18-Jan-2005:  rewrite to SELECT * FROM TABLE f(x)
-    // once we support function calls as tables
-    return new SqlSelect(SqlParserPos.ZERO,
-        null,
-        new SqlNodeList(
-            Collections.singletonList(call.operand(0)),
-            SqlParserPos.ZERO),
-        SqlStdOperatorTable.VALUES.createCall(
-            SqlParserPos.ZERO,
-            SqlStdOperatorTable.ROW.createCall(
-                SqlParserPos.ZERO,
-                SqlLiteral.createExactNumeric("0", SqlParserPos.ZERO))),
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null);
-  }
 }
