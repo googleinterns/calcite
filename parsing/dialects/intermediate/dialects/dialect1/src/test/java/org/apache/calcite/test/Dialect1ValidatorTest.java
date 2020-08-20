@@ -382,4 +382,39 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(ddl).ok();
     sql(query).fails("end index \\(3\\) must not be greater than size \\(2\\)");
   }
+
+  @Test public void createMacro() {
+    String ddl = "create macro foo as (select * from bar;)";
+    String query = "execute foo";
+    sql(ddl).ok();
+    sql(query).ok();
+  }
+
+  @Test public void createMacroCompoundIdentifier() {
+    String ddl = "create macro foo.bar as (select * from baz;)";
+    String query = "execute foo.bar";
+    sql(ddl).ok();
+    sql(query).ok();
+  }
+
+  @Test public void createMacroWithParams() {
+    String ddl = "create macro foo(num int, val varchar) as (select * from bar;)";
+    String query = "execute foo(1, 'str')";
+    sql(ddl).ok();
+    sql(query).ok();
+  }
+
+  @Test public void createMacroInvalidNumberOfArgumentsFails() {
+    String ddl = "create macro foo(num int, val varchar) as (select * from bar;)";
+    String query = "execute foo(1)";
+    sql(ddl).ok();
+    sql(query).fails("Expected 2 arguments but instead got 1");
+  }
+
+  @Test public void createMacroNonExistentMacroFails() {
+    String ddl = "create macro foo as (select * from bar;)";
+    String query = "execute baz";
+    sql(ddl).ok();
+    sql(query).fails("Macro BAZ does not exist\\.");
+  }
 }

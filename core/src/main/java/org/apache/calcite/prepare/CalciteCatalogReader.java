@@ -33,6 +33,7 @@ import org.apache.calcite.schema.ScalarFunction;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.TableFunction;
 import org.apache.calcite.schema.TableMacro;
+import org.apache.calcite.schema.Macro;
 import org.apache.calcite.schema.Wrapper;
 import org.apache.calcite.schema.impl.ScalarFunctionImpl;
 import org.apache.calcite.sql.SqlFunctionCategory;
@@ -137,8 +138,41 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
     return config;
   }
 
+  public Macro getMacro(List<String> names) {
+    final List<List<String>> schemaNameList = computeSchemaNameList(names);
+    for (List<String> schemaNames : schemaNameList) {
+      CalciteSchema schema =
+          SqlValidatorUtil.getSchema(rootSchema,
+              Iterables.concat(schemaNames, Util.skipLast(names)), nameMatcher);
+      if (schema != null) {
+        final String name = Util.last(names);
+        boolean caseSensitive = nameMatcher.isCaseSensitive();
+        Macro macro = schema.getMacro(name, caseSensitive);
+        if (macro != null) {
+          return macro;
+        }
+      }
+    }
+    return null;
+  }
+
   private Collection<Function> getFunctionsFrom(List<String> names) {
     final List<Function> functions2 = new ArrayList<>();
+    final List<List<String>> schemaNameList = computeSchemaNameList(names);
+    for (List<String> schemaNames : schemaNameList) {
+      CalciteSchema schema =
+          SqlValidatorUtil.getSchema(rootSchema,
+              Iterables.concat(schemaNames, Util.skipLast(names)), nameMatcher);
+      if (schema != null) {
+        final String name = Util.last(names);
+        boolean caseSensitive = nameMatcher.isCaseSensitive();
+        functions2.addAll(schema.getFunctions(name, caseSensitive));
+      }
+    }
+    return functions2;
+  }
+
+  private List<List<String>> computeSchemaNameList(List<String> names) {
     final List<List<String>> schemaNameList = new ArrayList<>();
     if (names.size() > 1) {
       // Name qualified: ignore path. But we do look in "/catalog" and "/",
@@ -157,17 +191,7 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
         }
       }
     }
-    for (List<String> schemaNames : schemaNameList) {
-      CalciteSchema schema =
-          SqlValidatorUtil.getSchema(rootSchema,
-              Iterables.concat(schemaNames, Util.skipLast(names)), nameMatcher);
-      if (schema != null) {
-        final String name = Util.last(names);
-        boolean caseSensitive = nameMatcher.isCaseSensitive();
-        functions2.addAll(schema.getFunctions(name, caseSensitive));
-      }
-    }
-    return functions2;
+    return schemaNameList;
   }
 
   public RelDataType getNamedType(SqlIdentifier typeName) {

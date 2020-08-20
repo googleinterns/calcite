@@ -28,6 +28,7 @@ import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.SchemaVersion;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.TableMacro;
+import org.apache.calcite.schema.Macro;
 import org.apache.calcite.schema.impl.MaterializedViewTable;
 import org.apache.calcite.schema.impl.StarTable;
 import org.apache.calcite.util.NameMap;
@@ -65,6 +66,7 @@ public abstract class CalciteSchema {
    *  {@link #schema}. */
   protected final NameMap<TableEntry> tableMap;
   protected final NameMap<ProcedureEntry> procedureMap;
+  protected final NameMap<MacroEntry> macroMap;
   protected final NameMultimap<FunctionEntry> functionMap;
   protected final NameMap<TypeEntry> typeMap;
   protected final NameMap<LatticeEntry> latticeMap;
@@ -83,6 +85,7 @@ public abstract class CalciteSchema {
     this.schema = schema;
     this.name = name;
     this.procedureMap = new NameMap<>();
+    this.macroMap = new NameMap<>();
     if (tableMap == null) {
       this.tableMap = new NameMap<>();
     } else {
@@ -214,6 +217,12 @@ public abstract class CalciteSchema {
     if (function.getParameters().isEmpty()) {
       nullaryFunctionMap.put(name, entry);
     }
+    return entry;
+  }
+
+  public MacroEntry add(String name, Macro macro) {
+    final MacroEntryImpl entry = new MacroEntryImpl(this, name, macro);
+    macroMap.put(name, entry);
     return entry;
   }
 
@@ -398,6 +407,21 @@ public abstract class CalciteSchema {
     // Add implicit functions, case-sensitive.
     addImplicitFuncNamesToBuilder(builder);
     return builder.build();
+  }
+
+  /**
+   * Returns the macro with the given name.
+   *
+   * @param macroName The name of the macro
+   * @param caseSensitive Whether or not check is case sensitive or not
+   *
+   * @return The found macro entry or null if it doesn't exist
+   */
+  public final Macro getMacro(String macroName, boolean caseSensitive) {
+    if (macroMap.containsKey(macroName, caseSensitive)) {
+      return macroMap.map().get(macroName).getMacro();
+    }
+    return null;
   }
 
   /** Returns tables derived from explicit and implicit functions
@@ -631,6 +655,15 @@ public abstract class CalciteSchema {
     }
   }
 
+  /** Membership of a macro in a schema. */
+  public abstract static class MacroEntry extends Entry {
+    public MacroEntry(CalciteSchema schema, String name) {
+      super(schema, name);
+    }
+
+    public abstract Macro getMacro();
+  }
+
   /** Membership of a lattice in a schema. */
   public abstract static class LatticeEntry extends Entry {
     public LatticeEntry(CalciteSchema schema, String name) {
@@ -843,6 +876,31 @@ public abstract class CalciteSchema {
     public boolean isMaterialization() {
       return function
           instanceof MaterializedViewTable.MaterializedViewTableMacro;
+    }
+  }
+
+  /**
+   * Implementation of {@link MacroEntry}
+   * where all properties are held in fields.
+   */
+  public static class MacroEntryImpl extends MacroEntry {
+    private final Macro macro;
+
+    /**
+     * Creates a {@code MacroEntryImpl}.
+     *
+     * @param schema The schema
+     * @param name The name of the macro
+     * @param macro The underlying macro
+     */
+    public MacroEntryImpl(CalciteSchema schema, String name,
+        Macro macro) {
+      super(schema, name);
+      this.macro = macro;
+    }
+
+    public Macro getMacro() {
+      return macro;
     }
   }
 

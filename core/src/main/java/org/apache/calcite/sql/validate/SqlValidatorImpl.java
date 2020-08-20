@@ -40,6 +40,7 @@ import org.apache.calcite.runtime.Feature;
 import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.schema.FunctionParameter;
+import org.apache.calcite.schema.Macro;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.impl.AbstractSchema;
 import org.apache.calcite.schema.impl.ExplicitRowTypeTable;
@@ -60,11 +61,13 @@ import org.apache.calcite.sql.SqlColumnDeclaration;
 import org.apache.calcite.sql.SqlConditionalStmt;
 import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateFunctionSqlForm;
+import org.apache.calcite.sql.SqlCreateMacro;
 import org.apache.calcite.sql.SqlCreateProcedure;
 import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
+import org.apache.calcite.sql.SqlExecMacro;
 import org.apache.calcite.sql.SqlExplain;
 import org.apache.calcite.sql.SqlFunction;
 import org.apache.calcite.sql.SqlFunctionCategory;
@@ -2609,7 +2612,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     List<SqlNode> operands;
     switch (node.getKind()) {
     case CREATE_FUNCTION:
+    case CREATE_MACRO:
     case CREATE_TABLE:
+    case EXECUTE:
       return;
     case SELECT:
       final SqlSelect select = (SqlSelect) node;
@@ -3325,6 +3330,25 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     schema.add(name, new UserDefinedFunction(parameters, returnType));
   }
 
+  @Override public void validateCreateMacro(SqlCreateMacro createMacro) {
+    Preconditions.checkArgument(createMacro != null);
+    nodeToTypeMap.put(createMacro, unknownType);
+    CalciteSchema schema = getOrCreateParentSchema(createMacro.macroName);
+    String name = Iterables.getLast(createMacro.macroName.names);
+    List<FunctionParameter> parameters = new ArrayList<>();
+    if (createMacro.attributes == null) {
+      schema.add(name, new Macro(parameters));
+      return;
+    }
+    for (int i = 0; i < createMacro.attributes.size(); i++) {
+      SqlColumnDeclaration attribute =
+          (SqlColumnDeclaration) createMacro.attributes.get(i);
+      parameters.add(new FunctionParameterImpl(i, attribute.name.toString(),
+            attribute.dataType.deriveType(this), /*optional=*/ false));
+    }
+    schema.add(name, new Macro(parameters));
+  }
+
   @Override public void validateCreateTable(SqlCreateTable createTable) {
     Preconditions.checkArgument(createTable != null);
     // Type is not applicable for CREATE TABLE statements.
@@ -3355,6 +3379,20 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     }
     schema.add(createTable.name.toString(),
         new ExplicitRowTypeTable(builder.build()));
+  }
+
+  @Override public void validateExecuteMacro(SqlExecMacro execMacro) {
+    Preconditions.checkArgument(execMacro != null);
+    nodeToTypeMap.put(execMacro, unknownType);
+    Macro macro = catalogReader.getMacro(execMacro.name.names);
+    if (macro == null) {
+      throw new IllegalStateException("Macro " + execMacro.name.toString()
+          + " does not exist.");
+    }
+    if (execMacro.params.size() != macro.parameters.size()) {
+      throw new IllegalStateException("Expected " + macro.parameters.size()
+          + " arguments but instead got " + execMacro.params.size());
+    }
   }
 
   /**
