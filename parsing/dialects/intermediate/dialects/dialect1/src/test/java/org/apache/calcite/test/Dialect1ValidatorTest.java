@@ -641,4 +641,9 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     SqlIterateStmt iterate = (SqlIterateStmt) whileLoop.statements.get(0);
     assertThat(iterate.labeledBlock, sameInstance(whileLoop));
   }
+
+  @Test public void testFoo() {
+    String sql = "CALL foo(1, 1, 1)";
+    sql(sql).ok(expected);
+  }
 }

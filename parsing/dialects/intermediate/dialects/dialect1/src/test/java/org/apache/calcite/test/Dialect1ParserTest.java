@@ -6275,9 +6275,4 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "FROM `BAR`";
     sql(sql).ok(expected);
   }
-
-  @Test public void testFoo() {
-    String sql = "CALL foo(1, 1, 1)";
-    sql(sql).ok(expected);
-  }
 }
