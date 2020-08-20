@@ -138,6 +138,14 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
     return config;
   }
 
+  /**
+   * Gets the macro with the given name if it exists.
+   *
+   * @param names The name of the macro, list represents possibility of a
+   *              compound identifier
+   *
+   * @return The found macro, or null
+   */
   public Macro getMacro(List<String> names) {
     final List<List<String>> schemaNameList = computeSchemaNameList(names);
     for (List<String> schemaNames : schemaNameList) {
