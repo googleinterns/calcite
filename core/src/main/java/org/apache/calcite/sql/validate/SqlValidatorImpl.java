@@ -3373,7 +3373,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     for (int i = 0; i < createMacro.attributes.size(); i++) {
       SqlColumnDeclaration attribute =
           (SqlColumnDeclaration) createMacro.attributes.get(i);
-      parameters.add(new FunctionParameterImpl(i, attribute.name.toString(),
+      parameters.add(
+          new FunctionParameterImpl(i, attribute.name.toString(),
             attribute.dataType.deriveType(this), /*optional=*/ false));
     }
     schema.add(name, new Macro(parameters));

@@ -16,8 +16,8 @@
  */
 package org.apache.calcite.schema;
 
-import java.util.Objects;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Schema class for all user defined macros.
