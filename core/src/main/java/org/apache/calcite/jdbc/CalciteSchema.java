@@ -28,6 +28,7 @@ import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.SchemaVersion;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.TableMacro;
+import org.apache.calcite.schema.Procedure;
 import org.apache.calcite.schema.Macro;
 import org.apache.calcite.schema.impl.MaterializedViewTable;
 import org.apache.calcite.schema.impl.StarTable;
@@ -226,6 +227,12 @@ public abstract class CalciteSchema {
     return entry;
   }
 
+  public ProcedureEntry add(String name, Procedure procedure) {
+    final ProcedureEntryImpl entry = new ProcedureEntryImpl(this, name, procedure);
+    procedureMap.put(name, entry);
+    return entry;
+  }
+
   private LatticeEntry add(String name, Lattice lattice) {
     if (latticeMap.containsKey(name, false)) {
       throw new RuntimeException("Duplicate lattice '" + name + "'");
@@ -420,6 +427,21 @@ public abstract class CalciteSchema {
   public final Macro getMacro(String macroName, boolean caseSensitive) {
     if (macroMap.containsKey(macroName, caseSensitive)) {
       return macroMap.map().get(macroName).getMacro();
+    }
+    return null;
+  }
+
+  /**
+   * Returns the procedure with the given name.
+   *
+   * @param procedureName The name of the procedure
+   * @param caseSensitive Whether or not check is case sensitive
+   *
+   * @return The found procedure entry or null if it doesn't exist
+   */
+  public final Procedure getProcedure(String procedureName, boolean caseSensitive) {
+    if (procedureMap.containsKey(procedureName, caseSensitive)) {
+      return procedureMap.map().get(procedureName).getProcedure();
     }
     return null;
   }
@@ -622,7 +644,7 @@ public abstract class CalciteSchema {
 
   /** Membership of a procedure in a schema. */
   public abstract static class ProcedureEntry extends Entry {
-    public MacroEntry(CalciteSchema schema, String name) {
+    public ProcedureEntry(CalciteSchema schema, String name) {
       super(schema, name);
     }
 
@@ -835,7 +857,7 @@ public abstract class CalciteSchema {
    * in fields.
    */
   public static class ProcedureEntryImpl extends ProcedureEntry {
-    private final Procedure procedure
+    private final Procedure procedure;
 
     /**
      * Creates a {@code ProcedureEntryImpl}.

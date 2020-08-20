@@ -40,6 +40,7 @@ import org.apache.calcite.runtime.Feature;
 import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.schema.FunctionParameter;
+import org.apache.calcite.schema.Procedure;
 import org.apache.calcite.schema.Macro;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.impl.AbstractSchema;
@@ -64,6 +65,7 @@ import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateFunctionSqlForm;
 import org.apache.calcite.sql.SqlCreateMacro;
 import org.apache.calcite.sql.SqlCreateProcedure;
+import org.apache.calcite.sql.SqlCreateProcedureParameter;
 import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDelete;
@@ -1208,7 +1210,23 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         || node instanceof SqlMerge
         || node instanceof SqlUpdate) {
       node.validate(this, scope);
+    } else if (node instanceof SqlCreateProcedure) {
+      addProcedureToSchema((SqlCreateProcedure) node);
     }
+  }
+
+  private void addProcedureToSchema(SqlCreateProcedure createProcedure) {
+    Preconditions.checkArgument(createProcedure != null);
+    nodeToTypeMap.put(createProcedure, unknownType);
+    CalciteSchema schema = getOrCreateParentSchema(createProcedure.procedureName);
+    String name = Iterables.getLast(createProcedure.procedureName.names);
+    List<FunctionParameter> parameters = new ArrayList<>();
+    for (int i = 0; i < createProcedure.parameters.size(); i++) {
+      SqlCreateProcedureParameter param = createProcedure.parameters.get(i);
+      parameters.add(new FunctionParameterImpl(i, param.name.toString(),
+            param.dataTypeSpec.deriveType(this), /*optional=*/ false));
+    }
+    schema.add(name, new Procedure(parameters));
   }
 
   private SqlValidatorNamespace getNamespace(SqlNode node,

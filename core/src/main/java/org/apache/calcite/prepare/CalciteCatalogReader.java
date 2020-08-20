@@ -28,6 +28,7 @@ import org.apache.calcite.rel.type.RelDataTypeField;
 import org.apache.calcite.rel.type.RelDataTypeSystem;
 import org.apache.calcite.schema.AggregateFunction;
 import org.apache.calcite.schema.Function;
+import org.apache.calcite.schema.Procedure;
 import org.apache.calcite.schema.FunctionParameter;
 import org.apache.calcite.schema.ScalarFunction;
 import org.apache.calcite.schema.Table;
@@ -136,6 +137,24 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
 
   @Override public CalciteConnectionConfig getConfig() {
     return config;
+  }
+
+  public Procedure getProcedure(List<String> names) {
+    final List<List<String>> schemaNameList = computeSchemaNameList(names);
+    for (List<String> schemaNames : schemaNameList) {
+      CalciteSchema schema =
+          SqlValidatorUtil.getSchema(rootSchema,
+              Iterables.concat(schemaNames, Util.skipLast(names)), nameMatcher);
+      if (schema != null) {
+        final String name = Util.last(names);
+        boolean caseSensitive = nameMatcher.isCaseSensitive();
+        Procedure procedure = schema.getProcedure(name, caseSensitive);
+        if (procedure != null) {
+          return procedure;
+        }
+      }
+    }
+    return null;
   }
 
   public Macro getMacro(List<String> names) {
