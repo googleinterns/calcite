@@ -97,7 +97,7 @@ public abstract class CalciteSchema {
       this.subSchemaMap = Objects.requireNonNull(subSchemaMap);
     }
     if (functionMap == null) {
-      this.functionMap = new NameMultimap<>(/*allowsDuplicates=*/ false);
+      this.functionMap = new NameMultimap<>();
       this.functionNames = new NameSet();
       this.nullaryFunctionMap = new NameMap<>();
     } else {
@@ -207,6 +207,11 @@ public abstract class CalciteSchema {
   public FunctionEntry add(String name, Function function) {
     final FunctionEntryImpl entry =
         new FunctionEntryImpl(this, name, function);
+    Collection<Function> functions = getFunctions(name, false);
+    if (functions.contains(function)) {
+      throw new IllegalStateException("Error: a function of this name with "
+          + "the same parameters already exists");
+    }
     functionMap.put(name, entry);
     functionNames.add(name);
     if (function.getParameters().isEmpty()) {

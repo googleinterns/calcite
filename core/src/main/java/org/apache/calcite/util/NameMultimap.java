@@ -21,7 +21,6 @@ import org.apache.calcite.linq4j.function.Experimental;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -34,39 +33,17 @@ import static org.apache.calcite.util.CaseInsensitiveComparator.COMPARATOR;
  *
  * @param <V> Value type */
 public class NameMultimap<V> {
-  private final NameMap<Collection<V>> map;
-  private final boolean allowsDuplicates;
+  private final NameMap<List<V>> map;
 
-  /**
-   * Creates a NameMultimap based on an existing map.
-   *
-   * @param map The existing map
-   * @param allowsDuplicates Whether or not the value of a key can contain
-   *                         duplicate entries
-   */
-  private NameMultimap(NameMap<Collection<V>> map, boolean allowsDuplicates) {
+  /** Creates a NameMultimap based on an existing map. */
+  private NameMultimap(NameMap<List<V>> map) {
     this.map = map;
-    this.allowsDuplicates = allowsDuplicates;
     assert map.map().comparator() == COMPARATOR;
   }
 
-  /**
-   * Creates a NameMultimap, initially empty. By default duplicates are
-   * allowed
-   */
+  /** Creates a NameMultimap, initially empty. */
   public NameMultimap() {
-    this(new NameMap<>(), /*allowsDuplicates=*/ true);
-  }
-
-  /**
-   * Creates a NameMultimap, initially empty, and allows specification of if
-   * duplicates are allowed for a key's value.
-   *
-   * @param allowsDuplicates Whether or not the value of a key can contain
-   *                         duplicate entries
-   */
-  public NameMultimap(boolean allowsDuplicates) {
-    this(new NameMap<>(), allowsDuplicates);
+    this(new NameMap<>());
   }
 
   @Override public String toString() {
@@ -83,20 +60,10 @@ public class NameMultimap<V> {
         && map.equals(((NameMultimap) obj).map);
   }
 
-  /**
-   * Adds an entry to this multimap. If allowsDuplicates is true, then the
-   * existing entry will be overwritten.
-   */
+  /** Adds an entry to this multimap. */
   public void put(String name, V v) {
-    Collection<V> collection = null;
-    if (allowsDuplicates) {
-      collection = map().computeIfAbsent(name, k -> new ArrayList<>());
-    } else {
-      collection = map().computeIfAbsent(name, k -> new LinkedHashSet<>());
-      // Remove old instance so it gets overridden.
-      collection.remove(v);
-    }
-    collection.add(v);
+    List<V> list = map().computeIfAbsent(name, k -> new ArrayList<>());
+    list.add(v);
   }
 
   /** Removes all entries that have the given case-sensitive key.
@@ -104,18 +71,18 @@ public class NameMultimap<V> {
    * @return Whether a value was removed */
   @Experimental
   public boolean remove(String key, V value) {
-    final Collection<V> collection = map().get(key);
-    if (collection == null) {
+    final List<V> list = map().get(key);
+    if (list == null) {
       return false;
     }
-    return collection.remove(value);
+    return list.remove(value);
   }
 
   /** Returns a map containing all the entries in this multimap that match the
    * given name. */
   public Collection<Map.Entry<String, V>> range(String name,
       boolean caseSensitive) {
-    NavigableMap<String, Collection<V>> range = map.range(name, caseSensitive);
+    NavigableMap<String, List<V>> range = map.range(name, caseSensitive);
     List<Pair<String, V>> result = range.entrySet().stream()
         .flatMap(e -> e.getValue().stream().map(v -> Pair.of(e.getKey(), v)))
         .collect(Collectors.toList());
@@ -130,7 +97,7 @@ public class NameMultimap<V> {
 
   /** Returns the underlying map.
    * Its size is the number of keys, not the number of values. */
-  public NavigableMap<String, Collection<V>> map() {
+  public NavigableMap<String, List<V>> map() {
     return map.map();
   }
 }
