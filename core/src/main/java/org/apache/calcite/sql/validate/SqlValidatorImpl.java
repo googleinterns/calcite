@@ -2647,6 +2647,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     case CREATE_MACRO:
     case CREATE_TABLE:
     case EXECUTE:
+    case PROCEDURE_CALL:
       return;
     case SELECT:
       final SqlSelect select = (SqlSelect) node;
