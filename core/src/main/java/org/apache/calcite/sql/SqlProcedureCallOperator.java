@@ -16,12 +16,6 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.sql.fun.SqlStdOperatorTable;
-import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.sql.validate.SqlValidator;
-
-import java.util.Collections;
-
 /**
  * SqlProcedureCallOperator represents the CALL statement. It takes a single
  * operand which is the real SqlCall.
