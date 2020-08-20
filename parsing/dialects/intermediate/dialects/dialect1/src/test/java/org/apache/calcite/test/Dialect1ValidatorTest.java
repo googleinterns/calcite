@@ -644,6 +644,6 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
 
   @Test public void testFoo() {
     String sql = "CALL foo(1, 1, 1)";
-    sql(sql).ok(expected);
+    sql(sql).ok();
   }
 }
