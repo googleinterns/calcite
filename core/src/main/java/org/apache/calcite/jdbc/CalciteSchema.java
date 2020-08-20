@@ -64,6 +64,7 @@ public abstract class CalciteSchema {
   /** Tables explicitly defined in this schema. Does not include tables in
    *  {@link #schema}. */
   protected final NameMap<TableEntry> tableMap;
+  protected final NameMap<ProcedureEntry> procedureMap;
   protected final NameMultimap<FunctionEntry> functionMap;
   protected final NameMap<TypeEntry> typeMap;
   protected final NameMap<LatticeEntry> latticeMap;
@@ -81,6 +82,7 @@ public abstract class CalciteSchema {
     this.parent = parent;
     this.schema = schema;
     this.name = name;
+    this.procedureMap = new NameMap<>();
     if (tableMap == null) {
       this.tableMap = new NameMap<>();
     } else {
@@ -594,6 +596,15 @@ public abstract class CalciteSchema {
     public abstract RelProtoDataType getType();
   }
 
+  /** Membership of a procedure in a schema. */
+  public abstract static class ProcedureEntry extends Entry {
+    public MacroEntry(CalciteSchema schema, String name) {
+      super(schema, name);
+    }
+
+    public abstract Procedure getProcedure();
+  }
+
   /** Membership of a function in a schema. */
   public abstract static class FunctionEntry extends Entry {
     public FunctionEntry(CalciteSchema schema, String name) {
@@ -783,6 +794,31 @@ public abstract class CalciteSchema {
 
     public RelProtoDataType getType() {
       return protoDataType;
+    }
+  }
+
+  /**
+   * Implementation of {@link ProcedureEntry} where all properties are held
+   * in fields.
+   */
+  public static class ProcedureEntryImpl extends ProcedureEntry {
+    private final Procedure procedure
+
+    /**
+     * Creates a {@code ProcedureEntryImpl}.
+     *
+     * @param schema The schema
+     * @param name The name of the procedure
+     * @param procedure The underlying procedure
+     */
+    public ProcedureEntryImpl(CalciteSchema schema, String name,
+        Procedure procedure) {
+      super(schema, name);
+      this.procedure = procedure;
+    }
+
+    public Procedure getProcedure() {
+      return procedure;
     }
   }
 
