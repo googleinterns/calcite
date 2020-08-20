@@ -253,7 +253,7 @@ public interface SqlValidator {
   /**
    * Validates a {@link SqlExecMacro}.
    *
-   * @param execMacro the execute macro statement.
+   * @param execMacro The execute macro statement.
    */
   void validateExecuteMacro(SqlExecMacro execMacro);
 

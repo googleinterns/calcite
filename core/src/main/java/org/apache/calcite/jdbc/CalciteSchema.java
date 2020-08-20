@@ -416,7 +416,7 @@ public abstract class CalciteSchema {
    * Returns the macro with the given name.
    *
    * @param macroName The name of the macro
-   * @param caseSensitive Whether or not check is case sensitive or not
+   * @param caseSensitive Whether or not check is case sensitive
    *
    * @return The found macro entry or null if it doesn't exist
    */
@@ -849,8 +849,8 @@ public abstract class CalciteSchema {
   }
 
   /**
-   * Implementation of {@link MacroEntry}
-   * where all properties are held in fields.
+   * Implementation of {@link MacroEntry} where all properties are held in
+   * fields.
    */
   public static class MacroEntryImpl extends MacroEntry {
     private final Macro macro;
