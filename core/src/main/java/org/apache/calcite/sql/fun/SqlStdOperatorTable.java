@@ -22,6 +22,7 @@ import org.apache.calcite.sql.SqlAsOperator;
 import org.apache.calcite.sql.SqlBasicCall;
 import org.apache.calcite.sql.SqlBinaryOperator;
 import org.apache.calcite.sql.SqlCall;
+import org.apache.calcite.sql.SqlCaseSpecificOperator;
 import org.apache.calcite.sql.SqlDescriptorOperator;
 import org.apache.calcite.sql.SqlFilterOperator;
 import org.apache.calcite.sql.SqlFunction;
@@ -824,6 +825,27 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
           ReturnTypes.DATETIME,
           null,
           OperandTypes.DATETIME);
+
+  // CASE SPECIFIC operator is used in string comparison. The parameter
+  // includeNot will indicate if the NOT token is specified.
+  public static final SqlPostfixOperator CASE_SPECIFIC =
+      new SqlCaseSpecificOperator(
+          SqlKind.CASE_SPECIFIC,
+          80,
+          ReturnTypes.explicit(SqlTypeName.VARCHAR),
+          InferTypes.RETURN_TYPE,
+          OperandTypes.STRING,
+          false);
+
+  public static final SqlPostfixOperator NOT_CASE_SPECIFIC =
+      new SqlCaseSpecificOperator(
+          SqlKind.CASE_SPECIFIC,
+          80,
+          ReturnTypes.explicit(SqlTypeName.VARCHAR),
+          InferTypes.RETURN_TYPE,
+          OperandTypes.STRING,
+          true);
+
 
   //-------------------------------------------------------------
   //                   PREFIX OPERATORS
