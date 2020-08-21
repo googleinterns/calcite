@@ -57,16 +57,6 @@ public class BasicSqlType extends AbstractSqlType {
     checkPrecScale(typeName, false, false);
   }
 
-  /** Throws if {@code typeName} does not allow the given combination of
-   * precision and scale. */
-  protected static void checkPrecScale(SqlTypeName typeName,
-      boolean precisionSpecified, boolean scaleSpecified) {
-    if (!typeName.allowsPrecScale(precisionSpecified, scaleSpecified)) {
-      throw new AssertionError("typeName.allowsPrecScale("
-          + precisionSpecified + ", " + scaleSpecified + "): " + typeName);
-    }
-  }
-
   /**
    * Constructs a type with precision/length but no scale.
    *
@@ -114,6 +104,16 @@ public class BasicSqlType extends AbstractSqlType {
   }
 
   //~ Methods ----------------------------------------------------------------
+
+  /** Throws if {@code typeName} does not allow the given combination of
+   * precision and scale. */
+  protected static void checkPrecScale(SqlTypeName typeName,
+      boolean precisionSpecified, boolean scaleSpecified) {
+    if (!typeName.allowsPrecScale(precisionSpecified, scaleSpecified)) {
+      throw new AssertionError("typeName.allowsPrecScale("
+          + precisionSpecified + ", " + scaleSpecified + "): " + typeName);
+    }
+  }
 
   /**
    * Constructs a type with nullablity.
