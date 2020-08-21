@@ -438,7 +438,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "b.x when matched then update set y = b.y when not matched then "
         + "insert (x,y) values (b.x, b.y)";
     String expected = "CREATE PROCEDURE `FOO` ()\n"
-        + "MERGE INTO `CATALOG`.`T1` AS `A`\n"
+        + "MERGE INTO `T1` AS `A`\n"
         + "USING `T2` AS `B`\n"
         + "ON `A`.`X` = `B`.`X`\n"
         + "WHEN MATCHED THEN UPDATE SET `Y` = `B`.`Y`\n"
