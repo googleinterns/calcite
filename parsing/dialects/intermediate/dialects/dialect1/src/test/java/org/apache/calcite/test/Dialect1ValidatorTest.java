@@ -283,7 +283,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     String sql = "SELECT * FROM dept WHERE 'Hello' (CASESPECIFIC) = name (NOT CASESPECIFIC)";
     String expected = "SELECT `DEPT`.`DEPTNO`, `DEPT`.`NAME`\n"
         + "FROM `CATALOG`.`SALES`.`DEPT` AS `DEPT`\n"
-        + "WHERE 'Hello' (CASESPECIFIC) = `DEPT`.`NAME` (NOT CASESPECIFIC)";
+        + "WHERE ('Hello' (CASESPECIFIC)) = (`DEPT`.`NAME` (NOT CASESPECIFIC))";
     sql(sql).ok().rewritesTo(expected);
   }
 }

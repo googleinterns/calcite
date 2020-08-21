@@ -14,26 +14,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.type.SqlOperandTypeChecker;
 import org.apache.calcite.sql.type.SqlOperandTypeInference;
 import org.apache.calcite.sql.type.SqlReturnTypeInference;
 
+/**
+ * Operator for an inline CASESPECIFIC statement.
+ */
 public class SqlCaseSpecificOperator extends SqlPostfixOperator {
   final boolean includeNot;
-  public SqlCaseSpecificOperator(final String name, final SqlKind kind, final int prec,
+
+  /**
+   * Create an {@code SqlCaseSpecificOperator}.
+   *
+   * @param includeNot  Specifies if NOT was parsed before CASE SPECIFIC
+   */
+  public SqlCaseSpecificOperator(final String name, final SqlKind kind,
+      final int prec,
       final SqlReturnTypeInference returnTypeInference,
       final SqlOperandTypeInference operandTypeInference,
       final SqlOperandTypeChecker operandTypeChecker,
       final Boolean includeNot) {
-    super(name, kind, prec, returnTypeInference, operandTypeInference, operandTypeChecker);
+    super(name, kind, prec, returnTypeInference, operandTypeInference,
+        operandTypeChecker);
     this.includeNot = includeNot;
   }
 
-  @Override public void unparse(final SqlWriter writer, final SqlCall call, final int leftPrec,
-      final int rightPrec) {
+  @Override
+  public void unparse(final SqlWriter writer, final SqlCall call,
+      final int leftPrec, final int rightPrec) {
     call.getOperandList().get(0).unparse(writer, leftPrec, rightPrec);
     final SqlWriter.Frame frame =
         writer.startList(SqlWriter.FrameTypeEnum.SIMPLE, "(", ")");
