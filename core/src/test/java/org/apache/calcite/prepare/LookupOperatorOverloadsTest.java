@@ -49,6 +49,7 @@ import java.util.List;
 import static org.apache.calcite.sql.SqlFunctionCategory.MATCH_RECOGNIZE;
 import static org.apache.calcite.sql.SqlFunctionCategory.USER_DEFINED_CONSTRUCTOR;
 import static org.apache.calcite.sql.SqlFunctionCategory.USER_DEFINED_FUNCTION;
+import static org.apache.calcite.sql.SqlFunctionCategory.USER_DEFINED_MACRO;
 import static org.apache.calcite.sql.SqlFunctionCategory.USER_DEFINED_PROCEDURE;
 import static org.apache.calcite.sql.SqlFunctionCategory.USER_DEFINED_SPECIFIC_FUNCTION;
 import static org.apache.calcite.sql.SqlFunctionCategory.USER_DEFINED_TABLE_FUNCTION;
@@ -85,7 +86,7 @@ class LookupOperatorOverloadsTest {
         cats.add(c);
       }
     }
-    check(cats, USER_DEFINED_FUNCTION, USER_DEFINED_PROCEDURE,
+    check(cats, USER_DEFINED_MACRO, USER_DEFINED_FUNCTION, USER_DEFINED_PROCEDURE,
         USER_DEFINED_CONSTRUCTOR, USER_DEFINED_SPECIFIC_FUNCTION,
         USER_DEFINED_TABLE_FUNCTION, USER_DEFINED_TABLE_SPECIFIC_FUNCTION);
   }
