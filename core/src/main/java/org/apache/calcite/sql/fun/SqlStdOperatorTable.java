@@ -826,9 +826,10 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
           null,
           OperandTypes.DATETIME);
 
+  // CASE SPECIFIC operator is used in string comparison. The parameter
+  // includeNot will indicate if the NOT token is specified.
   public static final SqlPostfixOperator CASE_SPECIFIC =
       new SqlCaseSpecificOperator(
-          "CASESPECIFIC",
           SqlKind.CASE_SPECIFIC,
           28,
           ReturnTypes.explicit(SqlTypeName.VARCHAR),
@@ -838,7 +839,6 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
 
   public static final SqlPostfixOperator NOT_CASE_SPECIFIC =
       new SqlCaseSpecificOperator(
-          "NOT CASESPECIFIC",
           SqlKind.CASE_SPECIFIC,
           28,
           ReturnTypes.explicit(SqlTypeName.VARCHAR),

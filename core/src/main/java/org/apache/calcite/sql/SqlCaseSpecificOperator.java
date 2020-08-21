@@ -31,13 +31,14 @@ public class SqlCaseSpecificOperator extends SqlPostfixOperator {
    *
    * @param includeNot  Specifies if NOT was parsed before CASE SPECIFIC
    */
-  public SqlCaseSpecificOperator(final String name, final SqlKind kind,
-      final int prec,
-      final SqlReturnTypeInference returnTypeInference,
-      final SqlOperandTypeInference operandTypeInference,
-      final SqlOperandTypeChecker operandTypeChecker,
-      final Boolean includeNot) {
-    super(name, kind, prec, returnTypeInference, operandTypeInference,
+  public SqlCaseSpecificOperator(SqlKind kind,
+      int prec,
+      SqlReturnTypeInference returnTypeInference,
+      SqlOperandTypeInference operandTypeInference,
+      SqlOperandTypeChecker operandTypeChecker,
+      boolean includeNot) {
+    super( includeNot ? "NOT CASESPECIFIC" : "CASESPECIFIC",
+        kind, prec, returnTypeInference, operandTypeInference,
         operandTypeChecker);
     this.includeNot = includeNot;
   }
