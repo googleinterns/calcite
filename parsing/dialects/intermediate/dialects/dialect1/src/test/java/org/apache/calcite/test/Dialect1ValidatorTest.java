@@ -626,4 +626,13 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "FROM `CATALOG`.`SALES`.`DEPT` AS `DEPT`";
     sql(sql).type(expectedType).rewritesTo(expectedRewrite);
   }
+
+  @Test public void testUnknownTableInsertIntoUnspecifiedColumns() {
+    String sql = "INSERT INTO foo VALUES(1, 'a', CURRENT_DATE)";
+    String expected = "INSERT INTO `FOO`\n"
+        + "VALUES ROW(1, 'a', CURRENT_DATE)";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
 }
