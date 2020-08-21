@@ -80,8 +80,8 @@ public class SqlShuttle extends SqlBasicVisitor<SqlNode> {
     return dateTimeAtLocal;
   }
 
-  @Override public SqlNode visit(SqlDateTimeAtTimeZone atTimeZone) {
-    return atTimeZone;
+  @Override public SqlNode visit(SqlDateTimeAtTimeZone dateAtTimeZone) {
+    return dateAtTimeZone;
   }
 
   public SqlNode visit(final SqlCall call) {

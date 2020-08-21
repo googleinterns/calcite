@@ -5058,7 +5058,7 @@ public class SqlToRelConverter {
       throw new UnsupportedOperationException();
     }
 
-    @Override public RexNode visit(SqlDateTimeAtTimeZone timeZone) {
+    @Override public RexNode visit(SqlDateTimeAtTimeZone dateAtTimeZone) {
       throw new UnsupportedOperationException();
     }
 
@@ -5298,7 +5298,7 @@ public class SqlToRelConverter {
       return null;
     }
 
-    @Override public Void visit(SqlDateTimeAtTimeZone attribute) {
+    @Override public Void visit(SqlDateTimeAtTimeZone dateAtTimeZone) {
       return null;
     }
 

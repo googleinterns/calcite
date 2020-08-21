@@ -3767,10 +3767,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
   private void checkRollUp(SqlNode grandParent, SqlNode parent,
                            SqlNode current, SqlValidatorScope scope, String optionalClause) {
     current = stripAs(current);
-    if (current instanceof SqlDateTimeAtTimeZone) {
-      SqlNode child = ((SqlDateTimeAtTimeZone) current).getOperandList().get(0);
-      checkRollUp(parent, current, child, scope, optionalClause);
-    } else if (current instanceof SqlCall && !(current instanceof SqlSelect)) {
+    if (current instanceof SqlCall && !(current instanceof SqlSelect)) {
       // Validate OVER separately
       checkRollUpInWindow(getWindowInOver(current), scope);
       current = stripOver(current);
@@ -6108,8 +6105,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       throw Util.needToImplement(dateTimeAtLocal);
     }
 
-    @Override public Void visit(SqlDateTimeAtTimeZone timeZone) {
-      throw Util.needToImplement(timeZone);
+    @Override public Void visit(SqlDateTimeAtTimeZone dateAtTimeZone) {
+      throw Util.needToImplement(dateAtTimeZone);
     }
   }
 
@@ -6262,7 +6259,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return SqlValidatorImpl.this.deriveType(scope, dateTimeAtLocal.dateTimePrimary);
     }
 
-    @Override public RelDataType visit(SqlDateTimeAtTimeZone timeZone) {
+    @Override public RelDataType visit(SqlDateTimeAtTimeZone dateAtTimeZone) {
       return unknownType;
     }
   }
@@ -6918,7 +6915,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return ImmutableSet.of();
     }
 
-    @Override public Set<String> visit(SqlDateTimeAtTimeZone timeZone) {
+    @Override public Set<String> visit(SqlDateTimeAtTimeZone dateAtTimeZone) {
       return ImmutableSet.of();
     }
 

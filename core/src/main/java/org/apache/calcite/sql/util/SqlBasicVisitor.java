@@ -91,7 +91,7 @@ public class SqlBasicVisitor<R> implements SqlVisitor<R> {
     return null;
   }
 
-  @Override public R visit(SqlDateTimeAtTimeZone atTimeZone) {
+  @Override public R visit(SqlDateTimeAtTimeZone dateAtTimeZone) {
     return null;
   }
 

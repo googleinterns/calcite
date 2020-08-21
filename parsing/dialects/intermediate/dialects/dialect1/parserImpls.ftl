@@ -1616,7 +1616,7 @@ SqlNode DateTimeTerm() :
     |
         [<TIME> <ZONE>]
         (
-            displacement = SimpleIdentifier()
+            displacement = StringLiteral()
         |
             displacement = IntervalLiteral()
         |

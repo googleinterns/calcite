@@ -139,8 +139,8 @@ public interface SqlVisitor<R> {
   /**
    * Visits an AT TIME ZONE call.
    *
-   * @param atTimeZone Time zone call
+   * @param dateAtTimeZone Time zone call
    * @see SqlDateTimeAtTimeZone#accept(SqlVisitor)
    */
-  R visit(SqlDateTimeAtTimeZone atTimeZone);
+  R visit(SqlDateTimeAtTimeZone dateAtTimeZone);
 }
