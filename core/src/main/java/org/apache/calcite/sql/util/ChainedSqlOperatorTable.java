@@ -26,7 +26,9 @@ import org.apache.calcite.sql.validate.SqlNameMatcher;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * ChainedSqlOperatorTable implements the {@link SqlOperatorTable} interface by
@@ -48,7 +50,16 @@ public class ChainedSqlOperatorTable implements SqlOperatorTable {
 
   /** Creates a {@code ChainedSqlOperatorTable}. */
   public static SqlOperatorTable of(SqlOperatorTable... tables) {
-    return new ChainedSqlOperatorTable(ImmutableList.copyOf(tables));
+    Set<SqlOperatorTable> operatorTables = new LinkedHashSet<>();
+    for (SqlOperatorTable table : tables) {
+      if (table instanceof ChainedSqlOperatorTable) {
+        ChainedSqlOperatorTable chainedTable = (ChainedSqlOperatorTable) table;
+        operatorTables.addAll(chainedTable.tableList);
+      } else {
+        operatorTables.add(table);
+      }
+    }
+    return new ChainedSqlOperatorTable(ImmutableList.copyOf(operatorTables));
   }
 
   //~ Methods ----------------------------------------------------------------

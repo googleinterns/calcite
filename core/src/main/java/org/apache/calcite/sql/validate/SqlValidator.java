@@ -17,6 +17,7 @@
 package org.apache.calcite.sql.validate;
 
 import org.apache.calcite.config.NullCollation;
+import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.rel.type.RelDataTypeField;
@@ -24,6 +25,7 @@ import org.apache.calcite.runtime.CalciteContextException;
 import org.apache.calcite.runtime.CalciteException;
 import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.sql.SqlCall;
+import org.apache.calcite.sql.SqlCreateFunctionSqlForm;
 import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDelete;
@@ -224,6 +226,13 @@ public interface SqlValidator {
    * @param qualifier Interval qualifier
    */
   void validateIntervalQualifier(SqlIntervalQualifier qualifier);
+
+  /**
+   * Validates a {@link SqlCreateFunctionSqlForm}
+   *
+   * @param createFunction The create function statement
+   */
+  void validateCreateFunctionSqlForm(SqlCreateFunctionSqlForm createFunction);
 
   /**
    * Validates a {@link SqlCreateTable}.
@@ -834,6 +843,8 @@ public interface SqlValidator {
 
   SqlValidatorScope getWithScope(SqlNode withItem);
 
+  CalciteSchema getOrCreateParentSchema(SqlIdentifier id);
+
   /**
    * Sets whether this validator should be lenient upon encountering an unknown
    * function.
@@ -915,6 +926,13 @@ public interface SqlValidator {
 
   /** Returns the config of the validator. */
   Config config();
+
+  /**
+   * Validates the node from a CREATE PROCEDURE statement.
+   *
+   * @param node The node to be validated
+   */
+  void validateScriptingStatement(SqlNode node, SqlValidatorScope scope);
 
   /**
    * Returns this SqlValidator, with the same state, applying

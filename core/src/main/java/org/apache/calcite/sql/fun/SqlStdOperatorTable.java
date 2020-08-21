@@ -817,6 +817,14 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
   public static final SqlPostfixOperator JSON_VALUE_EXPRESSION =
       new SqlJsonValueExpressionOperator();
 
+  public static final SqlPostfixOperator DATE_TIME_AT_LOCAL =
+      new SqlPostfixOperator(
+          "AT LOCAL",
+          SqlKind.OTHER,
+          28,
+          ReturnTypes.DATETIME,
+          null,
+          OperandTypes.DATETIME);
   public static final SqlPostfixOperator CASE_SPECIFIC =
       new SqlCaseSpecificOperator(
           "CASESPECIFIC",

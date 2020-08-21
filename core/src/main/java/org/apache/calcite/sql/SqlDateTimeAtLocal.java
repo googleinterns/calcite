@@ -16,8 +16,9 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.jdbc.CalcitePrepare;
+import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.util.SqlVisitor;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
@@ -26,11 +27,10 @@ import java.util.List;
  * A {@code SqlDateTimeAtLocal} is an AST node that describes
  * the date time expression of At Local.
  */
-public class SqlDateTimeAtLocal extends SqlCall implements SqlExecutableStatement {
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("AT LOCAL", SqlKind.OTHER);
+public class SqlDateTimeAtLocal extends SqlCall {
 
-  private final SqlNode dateTimePrimary;
+
+  public final SqlNode dateTimePrimary;
 
   /**
    * Creates a {@code SqlDateTimeAtLocal}.
@@ -45,7 +45,7 @@ public class SqlDateTimeAtLocal extends SqlCall implements SqlExecutableStatemen
   }
 
   @Override public SqlOperator getOperator() {
-    return OPERATOR;
+    return SqlStdOperatorTable.DATE_TIME_AT_LOCAL;
   }
 
   @Override public List<SqlNode> getOperandList() {
@@ -58,6 +58,7 @@ public class SqlDateTimeAtLocal extends SqlCall implements SqlExecutableStatemen
     writer.keyword("AT LOCAL");
   }
 
-  // Intentionally left empty.
-  @Override public void execute(CalcitePrepare.Context context) {}
+  @Override public <R> R accept(SqlVisitor<R> visitor) {
+    return visitor.visit(this);
+  }
 }

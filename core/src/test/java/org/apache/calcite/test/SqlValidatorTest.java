@@ -8581,6 +8581,7 @@ class SqlValidatorTest extends SqlValidatorTestCase {
         + "SUBMULTISET OF left\n"
         + "SUCCEEDS left\n"
         + "\n"
+        + "AT LOCAL post\n"
         + "FORMAT JSON post\n"
         + "IS A SET post\n"
         + "IS EMPTY post\n"
@@ -11126,5 +11127,12 @@ class SqlValidatorTest extends SqlValidatorTestCase {
         .withValidatorIdentifierExpansion(true)
         .withConformance(SqlConformanceEnum.LENIENT)
         .rewritesTo(expected);
+  }
+
+  @Test public void testAliasedRankFailsWithoutOverClause() {
+    String sql = "select ^rank() as r^ from emp";
+    String expected = "OVER clause is necessary for window functions";
+    sql(sql)
+        .fails(expected);
   }
 }

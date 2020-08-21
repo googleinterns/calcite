@@ -204,9 +204,14 @@ public abstract class CalciteSchema {
     return entry;
   }
 
-  private FunctionEntry add(String name, Function function) {
+  public FunctionEntry add(String name, Function function) {
     final FunctionEntryImpl entry =
         new FunctionEntryImpl(this, name, function);
+    Collection<Function> functions = getFunctions(name, false);
+    if (functions.contains(function)) {
+      throw new IllegalStateException("Error: a function of this name with "
+          + "the same parameters already exists");
+    }
     functionMap.put(name, entry);
     functionNames.add(name);
     if (function.getParameters().isEmpty()) {
@@ -223,6 +228,9 @@ public abstract class CalciteSchema {
     latticeMap.put(name, entry);
     return entry;
   }
+
+  /** Adds a child schema of this schema. */
+  public abstract CalciteSchema add(String name, Schema schema);
 
   public CalciteSchema root() {
     for (CalciteSchema schema = this;;) {
@@ -264,9 +272,6 @@ public abstract class CalciteSchema {
     }
     return getImplicitSubSchema(schemaName, caseSensitive);
   }
-
-  /** Adds a child schema of this schema. */
-  public abstract CalciteSchema add(String name, Schema schema);
 
   /** Returns a table that materializes the given SQL statement. */
   public final TableEntry getTableBySql(String sql) {
@@ -605,6 +610,19 @@ public abstract class CalciteSchema {
     /** Whether this represents a materialized view. (At a given point in time,
      * it may or may not be materialized as a table.) */
     public abstract boolean isMaterialization();
+
+    @Override public int hashCode() {
+      return name.hashCode() + getFunction().hashCode();
+    }
+
+    @Override public boolean equals(Object obj) {
+      if (!(obj instanceof FunctionEntry)) {
+        return false;
+      }
+      FunctionEntry other = (FunctionEntry) obj;
+      return name.equals(other.name)
+          && getFunction().equals(other.getFunction());
+    }
   }
 
   /** Membership of a lattice in a schema. */

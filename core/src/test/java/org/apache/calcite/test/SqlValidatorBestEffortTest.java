@@ -230,10 +230,51 @@ public class SqlValidatorBestEffortTest extends SqlValidatorTestCase {
         .rewritesTo(expected);
   }
 
+  @Test public void testUnknownTableWithUnknownSchema() {
+    String sql = "select * from INFORMATION_SCHEMA.COLUMNS";
+    String expected = "SELECT *\n"
+        + "FROM `INFORMATION_SCHEMA`.`COLUMNS` AS `COLUMNS`";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
+
+  @Test public void testSelectWithUnknownSubquery() {
+    String sql = "with t AS (select * FROM foo) select "
+        + "(select 2 AS x from t where x = 1) from  foo";
+    String expected = "WITH `T` AS (SELECT *\n"
+        + "FROM `FOO` AS `FOO`) (SELECT (((SELECT 2 AS `X`\n"
+        + "FROM `T` AS `T`\n"
+        + "WHERE `T`.`X` = 1)))\n"
+        + "FROM `FOO` AS `FOO`)";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
+
+  @Test public void testSelectFromUnknownSubquery() {
+    String sql = "SELECT f.x FROM (SELECT * FROM foo) AS f";
+    String expected = "SELECT `F`.`X`\n"
+        + "FROM (SELECT *\n"
+        + "FROM `FOO` AS `FOO`) AS `F`";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
+
   @Test public void testUnknownTableInsertIntoUnspecifiedColumns() {
     String sql = "INSERT INTO foo VALUES(1, 'a', CURRENT_DATE)";
     String expected = "INSERT INTO `FOO`\n"
         + "VALUES ROW(1, 'a', CURRENT_DATE)";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
+
+  @Test public void testUnknownTableWithUnknownSchemaAndSubschema() {
+    String sql = "select * from foo.bar.baz";
+    String expected = "SELECT *\n"
+        + "FROM `FOO`.`BAR`.`BAZ` AS `BAZ`";
     sql(sql)
         .withValidatorIdentifierExpansion(true)
         .rewritesTo(expected);

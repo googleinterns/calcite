@@ -17,12 +17,15 @@
 package org.apache.calcite.sql.validate;
 
 import org.apache.calcite.rel.type.StructKind;
+import org.apache.calcite.sql.SqlConditionDeclaration;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlLabeledBlock;
 import org.apache.calcite.sql.SqlNode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -32,6 +35,7 @@ import java.util.Objects;
 public class BlockScope extends ListScope {
 
   public final SqlLabeledBlock block;
+  public final Map<String, SqlConditionDeclaration> conditionDeclarations;
 
   /**
    * Creates an instance of {@code BlockScope}.
@@ -44,6 +48,7 @@ public class BlockScope extends ListScope {
   public BlockScope(SqlValidatorScope parent, SqlLabeledBlock block) {
     super(parent);
     this.block = Objects.requireNonNull(block);
+    conditionDeclarations = new HashMap<>();
   }
 
   @Override public SqlNode getNode() {
@@ -52,19 +57,46 @@ public class BlockScope extends ListScope {
 
   @Override public void resolve(List<String> names, SqlNameMatcher nameMatcher,
       boolean deep, Resolved resolved) {
-    if (block.label == null) {
+    // Labels and condition names are only valid as a single name. The other
+    // cases, such as compound identifiers, will be handled by parent scopes.
+    if (names.size() != 1) {
       super.resolve(names, nameMatcher, deep, resolved);
       return;
     }
-    String label = block.label.getSimple();
-    if (names.size() == 1 && nameMatcher.matches(names.get(0), label)) {
-      SqlValidatorNamespace ns = validator.getNamespace(block);
-      Step path = Path.EMPTY.plus(ns.getRowType(), 0, names.get(0),
+    String name = names.get(0);
+    SqlValidatorNamespace ns = null;
+    if (block.label != null && nameMatcher.matches(name, block.label.getSimple())) {
+      ns = validator.getNamespace(block);
+    } else if (conditionDeclarations.containsKey(name)) {
+      ns = validator.getNamespace(conditionDeclarations.get(name));
+    }
+    if (ns != null) {
+      Step path = Path.EMPTY.plus(ns.getRowType(), 0, name,
           StructKind.FULLY_QUALIFIED);
       resolved.found(ns, false, this, path, null);
       return;
     }
     super.resolve(names, nameMatcher, deep, resolved);
+  }
+
+  /**
+   * Searches this scope and parent scopes for a {@link SqlNode} that
+   * matches the provided name.
+   *
+   * @param name The name of the SqlNode's namespace to find
+   * @return The namespace for that SqlNode, returns null if label is not found
+   */
+  private SqlValidatorNamespace findNamespace(SqlIdentifier name) {
+    SqlNameMatcher nameMatcher = validator.catalogReader.nameMatcher();
+    SqlValidatorScope.ResolvedImpl resolved =
+        new SqlValidatorScope.ResolvedImpl();
+    List<String> names = new ArrayList<>();
+    names.add(name.getSimple());
+    resolve(names, nameMatcher, true, resolved);
+    if (resolved.count() == 0) {
+      return null;
+    }
+    return resolved.only().namespace;
   }
 
   /**
@@ -74,19 +106,25 @@ public class BlockScope extends ListScope {
    * @param label The label of the block to find
    * @return The labeled block, returns null if label is not found
    */
-  public SqlLabeledBlock findLabeledBlockReference(SqlIdentifier label) {
-    SqlNameMatcher nameMatcher = validator.catalogReader.nameMatcher();
-    SqlValidatorScope.ResolvedImpl resolved =
-        new SqlValidatorScope.ResolvedImpl();
-    List<String> names = new ArrayList<>();
-    names.add(label.getSimple());
-    resolve(names, nameMatcher, true, resolved);
-    if (resolved.count() == 0) {
-      return null;
-    }
-    SqlValidatorNamespace ns = resolved.only().namespace;
+  public SqlLabeledBlock findLabeledBlock(SqlIdentifier label) {
+    SqlValidatorNamespace ns = findNamespace(label);
     if (ns instanceof LabeledBlockNamespace) {
       return (SqlLabeledBlock) ns.getNode();
+    }
+    return null;
+  }
+
+  /**
+   * Searches this scope and parent scopes for a {@link SqlConditionDeclaration}
+   * that matches the provided name.
+   *
+   * @param name The name of the condition declaration to find
+   * @return The condition declaration, returns null if label is not found
+   */
+  public SqlConditionDeclaration findConditionDeclaration(SqlIdentifier name) {
+    SqlValidatorNamespace ns = findNamespace(name);
+    if (ns instanceof ConditionDeclarationNamespace) {
+      return (SqlConditionDeclaration) ns.getNode();
     }
     return null;
   }

@@ -39,25 +39,33 @@ import org.apache.calcite.runtime.CalciteException;
 import org.apache.calcite.runtime.Feature;
 import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
+import org.apache.calcite.schema.FunctionParameter;
 import org.apache.calcite.schema.Table;
+import org.apache.calcite.schema.impl.AbstractSchema;
 import org.apache.calcite.schema.impl.ExplicitRowTypeTable;
+import org.apache.calcite.schema.impl.FunctionParameterImpl;
 import org.apache.calcite.schema.impl.ModifiableViewTable;
+import org.apache.calcite.schema.impl.UserDefinedFunction;
 import org.apache.calcite.sql.JoinConditionType;
 import org.apache.calcite.sql.JoinType;
 import org.apache.calcite.sql.SqlAccessEnum;
 import org.apache.calcite.sql.SqlAccessType;
 import org.apache.calcite.sql.SqlAggFunction;
+import org.apache.calcite.sql.SqlAsOperator;
 import org.apache.calcite.sql.SqlBasicCall;
 import org.apache.calcite.sql.SqlBasicTypeNameSpec;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCallBinding;
 import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlColumnDeclaration;
+import org.apache.calcite.sql.SqlConditionDeclaration;
 import org.apache.calcite.sql.SqlConditionalStmt;
 import org.apache.calcite.sql.SqlConditionalStmtListPair;
+import org.apache.calcite.sql.SqlCreateFunctionSqlForm;
 import org.apache.calcite.sql.SqlCreateProcedure;
 import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
+import org.apache.calcite.sql.SqlDateTimeAtLocal;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
 import org.apache.calcite.sql.SqlExplain;
@@ -81,6 +89,7 @@ import org.apache.calcite.sql.SqlOperator;
 import org.apache.calcite.sql.SqlOperatorTable;
 import org.apache.calcite.sql.SqlOrderBy;
 import org.apache.calcite.sql.SqlSampleSpec;
+import org.apache.calcite.sql.SqlScriptingNode;
 import org.apache.calcite.sql.SqlSelect;
 import org.apache.calcite.sql.SqlSelectKeyword;
 import org.apache.calcite.sql.SqlSnapshot;
@@ -101,6 +110,7 @@ import org.apache.calcite.sql.type.SqlOperandTypeInference;
 import org.apache.calcite.sql.type.SqlTypeCoercionRule;
 import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.sql.type.SqlTypeUtil;
+import org.apache.calcite.sql.util.ChainedSqlOperatorTable;
 import org.apache.calcite.sql.util.SqlBasicVisitor;
 import org.apache.calcite.sql.util.SqlShuttle;
 import org.apache.calcite.sql.util.SqlVisitor;
@@ -120,6 +130,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -311,8 +322,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       SqlValidatorCatalogReader catalogReader,
       RelDataTypeFactory typeFactory,
       Config config) {
-    this.opTab = Objects.requireNonNull(opTab);
     this.catalogReader = Objects.requireNonNull(catalogReader);
+    SqlOperatorTable readerTable = (SqlOperatorTable) catalogReader;
+    this.opTab = ChainedSqlOperatorTable.of(opTab, readerTable);
     this.typeFactory = Objects.requireNonNull(typeFactory);
     this.config = Objects.requireNonNull(config);
 
@@ -1184,6 +1196,18 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
   public SqlValidatorScope getOverScope(SqlNode node) {
     return scopes.get(node);
+  }
+
+  @Override public void validateScriptingStatement(SqlNode node,
+      SqlValidatorScope scope) {
+    if (node instanceof SqlScriptingNode
+        || node instanceof SqlSelect
+        || node instanceof SqlDelete
+        || node instanceof SqlInsert
+        || node instanceof SqlMerge
+        || node instanceof SqlUpdate) {
+      node.validate(this, scope);
+    }
   }
 
   private SqlValidatorNamespace getNamespace(SqlNode node,
@@ -2600,6 +2624,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     SqlCall call;
     List<SqlNode> operands;
     switch (node.getKind()) {
+    case CREATE_FUNCTION:
     case CREATE_TABLE:
       return;
     case SELECT:
@@ -2916,7 +2941,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
           new LabeledBlockNamespace(this, labeledBlock, enclosingNode);
       String blockAlias = deriveAlias(labeledBlock, nextGeneratedId++);
       registerNamespace(blockScope, blockAlias, labeledBlockNs,
-          /*forceNullable=*/false);
+          /*forceNullable=*/ false);
       registerStatementList(blockScope, blockScope, blockAlias,
           labeledBlock.statements, labeledBlock);
       break;
@@ -2937,6 +2962,20 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
           stmtListPair.stmtList, stmtListPair);
       break;
 
+    case DECLARE_CONDITION:
+    case DECLARE_HANDLER:
+      SqlConditionDeclaration condition = (SqlConditionDeclaration) node;
+      if (condition.conditionName != null) {
+        ConditionDeclarationNamespace ns
+            = new ConditionDeclarationNamespace(this, condition,
+                enclosingNode);
+        registerNamespace(usingScope, alias, ns, /*forceNullable=*/ false);
+        BlockScope bs = (BlockScope) parentScope;
+        bs.conditionDeclarations.put(condition.conditionName.getSimple(),
+            condition);
+      }
+      break;
+
     default:
       throw Util.unexpected(node.getKind());
     }
@@ -2950,7 +2989,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
             SqlKind.FOR_STATEMENT, SqlKind.REPEAT_STATEMENT,
             SqlKind.LOOP_STATEMENT, SqlKind.DECLARE_CONDITION,
             SqlKind.DECLARE_HANDLER, SqlKind.IF_STATEMENT,
-            SqlKind.CASE_STATEMENT, SqlKind.CONDITION_STATEMENT_LIST_PAIR));
+            SqlKind.CASE_STATEMENT, SqlKind.CONDITION_STATEMENT_LIST_PAIR,
+            SqlKind.SELECT, SqlKind.INSERT, SqlKind.DELETE, SqlKind.MERGE,
+            SqlKind.UPDATE));
     for (SqlNode child : statements) {
       if (supportedKinds.contains(child.getKind())) {
         registerQuery(parentScope, usingScope, child,
@@ -3292,6 +3333,28 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
               fracPrecision,
               "INTERVAL " + qualifier));
     }
+  }
+
+  @Override public void validateCreateFunctionSqlForm(
+      SqlCreateFunctionSqlForm createFunction) {
+    Preconditions.checkArgument(createFunction != null);
+    nodeToTypeMap.put(createFunction, unknownType);
+    CalciteSchema schema = getOrCreateParentSchema(createFunction.functionName);
+    List<FunctionParameter> parameters = new ArrayList<>();
+    String name = Iterables.getLast(createFunction.functionName.names);
+    RelDataType returnType = createFunction.returnsDataType.deriveType(this);
+    Preconditions.checkArgument(createFunction.fieldNames.size()
+        == createFunction.fieldTypes.size());
+    for (int i = 0; i < createFunction.fieldNames.size(); i++) {
+      SqlIdentifier paramName =
+          (SqlIdentifier) createFunction.fieldNames.get(i);
+      SqlDataTypeSpec paramType =
+          (SqlDataTypeSpec) createFunction.fieldTypes.get(i);
+      parameters.add(
+          new FunctionParameterImpl(i, paramName.toString(),
+            paramType.deriveType(this), /*optional=*/ false));
+    }
+    schema.add(name, new UserDefinedFunction(parameters, returnType));
   }
 
   @Override public void validateCreateTable(SqlCreateTable createTable) {
@@ -4084,6 +4147,37 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     return scopes.get(withItem);
   }
 
+  /**
+   * Given an identifier, creates the schema chain corresponding to the prefix
+   * list of the identifier, and adds it to the root schema. Any pre-existing
+   * schemas will be retrieved rather than recreated. As an example, if the
+   * identifier is foo.bar.baz, foo will be added as a subschema to the root
+   * schema, bar will be added as a subschema to foo, and then bar will be
+   * returned as the parent schema of baz.
+   * @param id  the identifier for which the parent schema must be created or
+   *            retrieved.
+   * @return    the immediate parent of the object denoted by the identifer -
+   *            in other words, the schema corresponding to the second to last
+   *            component of the identifier. If the identifier consists of only
+   *            a single name, the root schema will be returned.
+   */
+  @Override public CalciteSchema getOrCreateParentSchema(SqlIdentifier id) {
+    CalciteSchema parentSchema =
+        getCatalogReader().getRootSchema();
+    // Add chain of subschemas corresponding to identifier prefixes
+    for (int i = 0; i < id.names.size() - 1; i++) {
+      String currentName = id.names.get(i);
+      // Check that subschema is not already present before adding
+      if (parentSchema.getSubSchema(currentName, /*caseSensitive=*/false)
+          == null) {
+        parentSchema.add(currentName, new AbstractSchema());
+      }
+      parentSchema = parentSchema.getSubSchema(currentName,
+          /*caseSensitive=*/false);
+    }
+    return parentSchema;
+  }
+
   public SqlValidator setLenientOperatorLookup(boolean lenient) {
     this.config = this.config.withLenientOperatorLookup(lenient);
     return this;
@@ -4435,7 +4529,13 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
    */
   private void validateExpr(SqlNode expr, SqlValidatorScope scope) {
     if (expr instanceof SqlCall) {
-      final SqlOperator op = ((SqlCall) expr).getOperator();
+      SqlOperator op = ((SqlCall) expr).getOperator();
+      if (op instanceof SqlAsOperator) {
+        SqlNode aliasedNode = ((SqlCall) expr).getOperandList().get(0);
+        if (aliasedNode instanceof SqlCall) {
+          op = ((SqlCall) aliasedNode).getOperator();
+        }
+      }
       if (op.isAggregator() && op.requiresOver()) {
         throw newValidationError(expr,
             RESOURCE.absentOverClause());
@@ -4805,7 +4905,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       RelDataType targetRowType,
       SqlInsert insert) {
     if (insert.getTargetColumnList() == null
-        && this.config.sqlConformance().isInsertSubsetColumnsAllowed()) {
+        && this.config.sqlConformance().isInsertSubsetColumnsAllowed()
+        && !(targetRowType instanceof UnknownRecordType)) {
       // Target an implicit subset of columns.
       final SqlNode source = insert.getSource();
       final RelDataType sourceRowType = getNamespace(source).getRowType();
@@ -5998,6 +6099,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     @Override public Void visit(SqlColumnAttribute attribute) {
       throw Util.needToImplement(attribute);
     }
+
+    @Override public Void visit(SqlDateTimeAtLocal dateTimeAtLocal) {
+      throw Util.needToImplement(dateTimeAtLocal);
+    }
   }
 
   /**
@@ -6143,6 +6248,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
     @Override public RelDataType visit(SqlColumnAttribute attribute) {
       return unknownType;
+    }
+
+    @Override public RelDataType visit(SqlDateTimeAtLocal dateTimeAtLocal) {
+      return SqlValidatorImpl.this.deriveType(scope, dateTimeAtLocal.dateTimePrimary);
     }
   }
 

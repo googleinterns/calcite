@@ -20,6 +20,7 @@ import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFamily;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCallBinding;
+import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlDynamicParam;
 import org.apache.calcite.sql.SqlFunction;
 import org.apache.calcite.sql.SqlFunctionCategory;
@@ -99,6 +100,11 @@ public class SqlCastFunction extends SqlFunction {
     if (opBinding instanceof SqlCallBinding) {
       SqlCallBinding callBinding = (SqlCallBinding) opBinding;
       SqlNode operand0 = callBinding.operand(0);
+      // SqlColumnAttribute has no data type so it should return the type of the
+      // first operand.
+      if (callBinding.operand(1) instanceof SqlColumnAttribute) {
+        ret = firstType;
+      }
 
       // dynamic parameters and null constants need their types assigned
       // to them using the type they are casted to.
@@ -145,8 +151,13 @@ public class SqlCastFunction extends SqlFunction {
     }
     RelDataType validatedNodeType =
         callBinding.getValidator().getValidatedNodeType(left);
-    RelDataType returnType =
-        callBinding.getValidator().deriveType(callBinding.getScope(), right);
+    RelDataType returnType;
+    if (right instanceof SqlColumnAttribute) {
+      returnType = validatedNodeType;
+    } else {
+      returnType =
+          callBinding.getValidator().deriveType(callBinding.getScope(), right);
+    }
     if (!SqlTypeUtil.canCastFrom(returnType, validatedNodeType, true)) {
       if (throwOnFailure) {
         throw callBinding.newError(

@@ -20,8 +20,13 @@ import org.apache.calcite.sql.SqlBeginEndCall;
 import org.apache.calcite.sql.SqlConditionalStmt;
 import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateProcedure;
+import org.apache.calcite.sql.SqlDeclareConditionStmt;
+import org.apache.calcite.sql.SqlDeclareHandlerStmt;
+import org.apache.calcite.sql.SqlIterateStmt;
+import org.apache.calcite.sql.SqlIterationStmt;
 import org.apache.calcite.sql.SqlLeaveStmt;
 import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlSignal;
 import org.apache.calcite.sql.SqlWhileStmt;
 import org.apache.calcite.sql.parser.dialect1.Dialect1ParserImpl;
 import org.apache.calcite.sql.test.SqlTestFactory;
@@ -32,6 +37,7 @@ import org.apache.calcite.sql.validate.SqlValidator;
 
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -117,6 +123,121 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "FROM `DEF` AS `DEF`)))\n"
         + "FROM `GHI` AS `GHI`";
     sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateFunction() {
+    String ddl = "create function foo() "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select foo()";
+    sql(ddl).ok();
+    sql(query).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
+  }
+
+  @Test public void testCreateFunctionCompoundIdentifier() {
+    String ddl = "create function foo.bar() "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select foo.bar()";
+    sql(ddl).ok();
+    sql(query).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
+  }
+
+  @Test public void testCreateFunctionWithParams() {
+    String ddl = "create function foo(x integer, y varchar) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select foo(1, 'str')";
+    sql(ddl).ok();
+    sql(query).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
+  }
+
+  @Test public void testCreateFunctionOverwrite() {
+    String ddl = "create function foo(x integer) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String ddl2 = "create function foo(x integer) "
+        + "returns varchar "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 'str'";
+    String query = "select foo(1)";
+    sql(ddl).ok();
+    sql(query).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
+    sql(ddl2).fails("Error: a function of this name with the same parameters"
+        + " already exists");
+  }
+
+  @Test public void testCreateFunctionVarchar() {
+    String ddl = "create function foo(x integer) "
+        + "returns varchar "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 'str'";
+    String query = "select foo(1)";
+    sql(ddl).ok();
+    sql(query).type("RecordType(VARCHAR NOT NULL EXPR$0) NOT NULL");
+  }
+
+  @Test public void testCreateFunctionWrongTypeGetsCasted() {
+    String ddl = "create function foo(x varchar) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select foo(1)";
+    sql(ddl).ok();
+    sql(query).rewritesTo("SELECT `FOO`(CAST(1 AS VARCHAR CHARACTER SET"
+        + " `ISO-8859-1`))");
+  }
+
+  @Test public void testCreateFunctionOverloaded() {
+    String ddl = "create function foo(x integer, y varchar) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String ddl2 = "create function foo(x integer) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select foo(1)";
+    String query2 = "select foo(1, 'str')";
+    sql(ddl).ok();
+    sql(ddl2).ok();
+    sql(query).ok();
+    sql(query2).ok();
+  }
+
+  @Test public void testCreateFunctionWrongNumberOfParametersFails() {
+    String ddl = "create function foo(x integer, y varchar) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select ^foo(1)^";
+    sql(ddl).ok();
+    sql(query).fails("No match found for function signature FOO\\(<NUMERIC>\\)");
+  }
+
+  @Test public void testCreateFunctionNonExistentFunctionFails() {
+    String ddl = "create function foo(x integer) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select ^bar(1)^";
+    sql(ddl).ok();
+    sql(query).fails("No match found for function signature BAR\\(<NUMERIC>\\)");
   }
 
   @Test public void testCreateProcedureBeginEndLabel() {
@@ -277,6 +398,270 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     String query = "insert into foo values (1, 'str', 1)";
     sql(ddl).ok();
     sql(query).fails("end index \\(3\\) must not be greater than size \\(2\\)");
+  }
+
+  @Test public void testColumnAtLocal() {
+    String sql = "select hiredate at local from emp";
+    String expectedType = "RecordType(TIMESTAMP(0) NOT NULL EXPR$0) NOT NULL";
+    String expectedRewrite = "SELECT `EMP`.`HIREDATE` AT LOCAL\n"
+        + "FROM `CATALOG`.`SALES`.`EMP` AS `EMP`";
+    sql(sql).type(expectedType).rewritesTo(expectedRewrite);
+  }
+
+  @Test public void testUnknownTableAtLocal() {
+    String sql = "select a at local FROM abc";
+    String expected = "SELECT `ABC`.`A` AT LOCAL\n"
+        + "FROM `ABC` AS `ABC`";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureSelect() {
+    String sql = "create procedure foo() select a from abc";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "SELECT `ABC`.`A`\n"
+        + "FROM `ABC` AS `ABC`";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureInsert() {
+    String sql = "create procedure foo() insert into empnullables "
+        + "(empno, ename) values (1, 'hello')";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "INSERT INTO `CATALOG`.`SALES`.`EMPNULLABLES` (`EMPNO`, `ENAME`)\n"
+        + "VALUES ROW(1, 'hello')";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureDelete() {
+    String sql = "create procedure foo() delete from emp where deptno = 10";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "DELETE FROM `CATALOG`.`SALES`.`EMP`\n"
+        + "WHERE `DEPTNO` = 10";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureMerge() {
+    String sql = "create procedure foo() merge into t1 a using t2 b on a.x = "
+        + "b.x when matched then update set y = b.y when not matched then "
+        + "insert (x,y) values (b.x, b.y)";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "MERGE INTO `T1` AS `A`\n"
+        + "USING `T2` AS `B`\n"
+        + "ON `A`.`X` = `B`.`X`\n"
+        + "WHEN MATCHED THEN UPDATE SET `Y` = `B`.`Y`\n"
+        + "WHEN NOT MATCHED THEN INSERT (`X`, `Y`) "
+        + "(VALUES ROW(`B`.`X`, `B`.`Y`))";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureUpdate() {
+    String sql = "create procedure foo() update emp set deptno = 10";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "UPDATE `CATALOG`.`SALES`.`EMP` SET `DEPTNO` = 10";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureSelectNestedBeginEnd() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "select a from abc;\n"
+        + "end";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "SELECT `ABC`.`A`\n"
+        + "FROM `ABC` AS `ABC`;\n"
+        + "END";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureSelectNestedIteration() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "loop\n"
+        + "select a from abc;\n"
+        + "end loop;\n"
+        + "end";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "LOOP "
+        + "SELECT `ABC`.`A`\n"
+        + "FROM `ABC` AS `ABC`;\n"
+        + "END LOOP;\n"
+        + "END";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureSelectNestedConditional() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "if a = 2 then\n"
+        + "select a from abc;\n"
+        + "end if;\n"
+        + "end";
+    String expected = "CREATE PROCEDURE `FOO` ()\n"
+        + "BEGIN\n"
+        + "IF `A` = 2 THEN "
+        + "SELECT `ABC`.`A`\n"
+        + "FROM `ABC` AS `ABC`;\n"
+        + "END IF;\n"
+        + "END";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCreateProcedureConditionSignal() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "declare bar condition;\n"
+        + "signal bar;\n"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlDeclareConditionStmt declareCondition
+        = (SqlDeclareConditionStmt) beginEnd.statements.get(0);
+    SqlSignal signal = (SqlSignal) beginEnd.statements.get(1);
+    assertThat(signal.conditionDeclaration, sameInstance(declareCondition));
+  }
+
+  @Test public void testCreateProcedureConditionSignalNull() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "signal bar;\n"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlSignal signal = (SqlSignal) beginEnd.statements.get(0);
+    assertThat(signal.conditionDeclaration, nullValue());
+  }
+
+  @Test public void testCreateProcedureConditionResignalNull() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "resignal;\n"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlSignal resignal = (SqlSignal) beginEnd.statements.get(0);
+    assertThat(resignal.conditionDeclaration, nullValue());
+  }
+
+  @Test public void testCreateProcedureConditionHandler() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "declare bar condition;"
+        + "declare continue handler for bar select baz;"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlDeclareConditionStmt declareCondition
+        = (SqlDeclareConditionStmt) beginEnd.statements.get(0);
+    SqlDeclareHandlerStmt handler
+        = (SqlDeclareHandlerStmt) beginEnd.statements.get(1);
+    assertThat(handler.conditionDeclarations.contains(declareCondition),
+        equalTo(true));
+  }
+
+  @Test public void testCreateProcedureConditionHandlerNull() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "declare bar condition;"
+        + "declare continue handler for baz select qux;"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlDeclareHandlerStmt handler
+        = (SqlDeclareHandlerStmt) beginEnd.statements.get(1);
+    assertThat(handler.conditionDeclarations.size(), equalTo(0));
+  }
+
+  @Test public void testCreateProcedureConditionHandlerMultipleConditions() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "declare bar condition;"
+        + "declare baz condition;"
+        + "declare qux condition;"
+        + "declare continue handler for bar, baz, qux select abc;"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlDeclareHandlerStmt handler
+        = (SqlDeclareHandlerStmt) beginEnd.statements.get(3);
+    assertThat(handler.conditionDeclarations.size(), equalTo(3));
+    for (int i = 0; i < 3; i++) {
+      SqlDeclareConditionStmt declareCondition
+          = (SqlDeclareConditionStmt) beginEnd.statements.get(i);
+      assertThat(handler.conditionDeclarations.contains(declareCondition),
+          equalTo(true));
+    }
+  }
+
+  @Test public void testCreateProcedureConditionHandlerDeclaresCondition() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "declare bar condition for sqlwarning, sqlexception, not found, "
+        + "bar select baz;"
+        + "signal bar;"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlDeclareHandlerStmt handler
+        = (SqlDeclareHandlerStmt) beginEnd.statements.get(0);
+    SqlSignal signal = (SqlSignal) beginEnd.statements.get(1);
+    assertThat(handler.conditionDeclarations.contains(handler), equalTo(true));
+    assertThat(signal.conditionDeclaration, sameInstance(handler));
+  }
+
+  @Test public void testCreateProcedureConditionIterate() {
+    String sql = "create procedure foo()\n"
+        + "begin\n"
+        + "label1: while a < 1 do "
+        + "iterate label1;\n"
+        + "end while label1;"
+        + "end";
+    SqlCreateProcedure node = (SqlCreateProcedure) parseAndValidate(sql);
+    SqlBeginEndCall beginEnd = (SqlBeginEndCall) node.statement;
+    SqlIterationStmt whileLoop
+        = (SqlIterationStmt) beginEnd.statements.get(0);
+    SqlIterateStmt iterate = (SqlIterateStmt) whileLoop.statements.get(0);
+    assertThat(iterate.labeledBlock, sameInstance(whileLoop));
+  }
+
+  @Test public void testCastWithColumnAttributeFormat() {
+    String sql = "select deptno (format 'YYYYMMDD') from dept";
+    String expectedType = "RecordType(INTEGER NOT NULL EXPR$0) NOT NULL";
+    String expectedRewrite = "SELECT CAST(`DEPT`.`DEPTNO` AS FORMAT "
+        + "'YYYYMMDD')\n"
+        + "FROM `CATALOG`.`SALES`.`DEPT` AS `DEPT`";
+    sql(sql).type(expectedType).rewritesTo(expectedRewrite);
+  }
+
+  @Test public void testUnknownTableInsertIntoUnspecifiedColumns() {
+    String sql = "INSERT INTO foo VALUES(1, 'a', CURRENT_DATE)";
+    String expected = "INSERT INTO `FOO`\n"
+        + "VALUES ROW(1, 'a', CURRENT_DATE)";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testSelectWithUnknownSubquery() {
+    String sql = "with t AS (select * FROM foo) select "
+        + "(select 2 AS x from t where x = 1) from  foo";
+    String expected = "WITH `T` AS (SELECT *\n"
+        + "FROM `FOO` AS `FOO`) (SELECT (((SELECT 2 AS `X`\n"
+        + "FROM `T` AS `T`\n"
+        + "WHERE `T`.`X` = 1)))\n"
+        + "FROM `FOO` AS `FOO`)";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
+
+  @Test public void testSelectFromUnknownSubquery() {
+    String sql = "SELECT f.x FROM (SELECT * FROM foo) AS f";
+    String expected = "SELECT `F`.`X`\n"
+        + "FROM (SELECT *\n"
+        + "FROM `FOO` AS `FOO`) AS `F`";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
   }
 
   @Test public void testCaseSpecific() {
