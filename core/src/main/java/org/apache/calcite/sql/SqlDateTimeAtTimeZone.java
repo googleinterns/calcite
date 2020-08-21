@@ -71,6 +71,6 @@ public class SqlDateTimeAtTimeZone extends SqlCall {
 
   @Override public void validate(SqlValidator validator,
       SqlValidatorScope scope) {
-      dateTimePrimary.validate(validator, scope);
+    dateTimePrimary.validate(validator, scope);
   }
 }
