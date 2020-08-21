@@ -2597,7 +2597,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "select * from foo where a (not cs) = 'Hello' (cs)";
     final String expected = "SELECT *\n"
         + "FROM `FOO`\n"
-        + "WHERE ((`A` (NOT CASESPECIFIC)) = ('Hello' (CASESPECIFIC)))";
+        + "WHERE (`A` (NOT CASESPECIFIC) = 'Hello' (CASESPECIFIC))";
     sql(sql).ok(expected);
   }
 
@@ -2605,7 +2605,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "select * from foo where a = 'Hello' (casespecific)";
     final String expected = "SELECT *\n"
         + "FROM `FOO`\n"
-        + "WHERE (`A` = ('Hello' (CASESPECIFIC)))";
+        + "WHERE (`A` = 'Hello' (CASESPECIFIC))";
     sql(sql).ok(expected);
   }
 
@@ -2614,7 +2614,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + " (not casespecific)";
     final String expected = "SELECT *\n"
         + "FROM `FOO`\n"
-        + "WHERE ((`A` (NOT CASESPECIFIC)) = ('Hello' (NOT CASESPECIFIC)))";
+        + "WHERE (`A` (NOT CASESPECIFIC) = 'Hello' (NOT CASESPECIFIC))";
     sql(sql).ok(expected);
   }
 
@@ -2622,7 +2622,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "select * from foo where a (NOT CASESPECIFIC) = 'Hello' (casespecific)";
     final String expected = "SELECT *\n"
         + "FROM `FOO`\n"
-        + "WHERE ((`A` (NOT CASESPECIFIC)) = ('Hello' (CASESPECIFIC)))";
+        + "WHERE (`A` (NOT CASESPECIFIC) = 'Hello' (CASESPECIFIC))";
     sql(sql).ok(expected);
   }
 
@@ -2630,7 +2630,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "select * from foo where MY_FUN(a) (CASESPECIFIC) = 'Hello'";
     final String expected = "SELECT *\n"
         + "FROM `FOO`\n"
-        + "WHERE ((`MY_FUN`(`A`) (CASESPECIFIC)) = 'Hello')";
+        + "WHERE (`MY_FUN`(`A`) (CASESPECIFIC) = 'Hello')";
     sql(sql).ok(expected);
   }
 
@@ -2638,7 +2638,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     final String sql = "select * from foo as f where f.a (casespecific) = 'Hello'";
     final String expected = "SELECT *\n"
         + "FROM `FOO` AS `F`\n"
-        + "WHERE ((`F`.`A` (CASESPECIFIC)) = 'Hello')";
+        + "WHERE (`F`.`A` (CASESPECIFIC) = 'Hello')";
     sql(sql).ok(expected);
   }
 
@@ -4359,7 +4359,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "= 'Hello'";
     final String expected = "SELECT *\n"
         + "FROM `FOO`\n"
-        + "WHERE ((CAST(`A` AS DATE) (CASESPECIFIC)) = 'Hello')";
+        + "WHERE (CAST(`A` AS DATE) (CASESPECIFIC) = 'Hello')";
     sql(sql).ok(expected);
   }
 

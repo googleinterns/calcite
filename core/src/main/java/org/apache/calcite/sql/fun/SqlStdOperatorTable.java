@@ -831,7 +831,7 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
   public static final SqlPostfixOperator CASE_SPECIFIC =
       new SqlCaseSpecificOperator(
           SqlKind.CASE_SPECIFIC,
-          28,
+          80,
           ReturnTypes.explicit(SqlTypeName.VARCHAR),
           InferTypes.RETURN_TYPE,
           OperandTypes.STRING,
@@ -840,7 +840,7 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
   public static final SqlPostfixOperator NOT_CASE_SPECIFIC =
       new SqlCaseSpecificOperator(
           SqlKind.CASE_SPECIFIC,
-          28,
+          80,
           ReturnTypes.explicit(SqlTypeName.VARCHAR),
           InferTypes.RETURN_TYPE,
           OperandTypes.STRING,

@@ -683,8 +683,8 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "= name (NOT CASESPECIFIC)";
     String expected = "SELECT `DEPT`.`DEPTNO`, `DEPT`.`NAME`\n"
         + "FROM `CATALOG`.`SALES`.`DEPT` AS `DEPT`\n"
-        + "WHERE ('Hello' (CASESPECIFIC)) "
-        + "= (`DEPT`.`NAME` (NOT CASESPECIFIC))";
+        + "WHERE 'Hello' (CASESPECIFIC) "
+        + "= `DEPT`.`NAME` (NOT CASESPECIFIC)";
     sql(sql).ok().rewritesTo(expected);
   }
 
@@ -693,8 +693,8 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "= name (NOT CASESPECIFIC)";
     String expected = "SELECT `ABC`.`A`\n"
         + "FROM `ABC` AS `ABC`\n"
-        + "WHERE ('Hello' (CASESPECIFIC)) "
-        + "= (`ABC`.`NAME` (NOT CASESPECIFIC))";
+        + "WHERE 'Hello' (CASESPECIFIC) "
+        + "= `ABC`.`NAME` (NOT CASESPECIFIC)";
     sql(sql).ok().rewritesTo(expected);
   }
 }
