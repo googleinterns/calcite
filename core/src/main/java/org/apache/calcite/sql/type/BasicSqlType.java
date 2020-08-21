@@ -38,7 +38,7 @@ public class BasicSqlType extends AbstractSqlType {
 
   private final int precision;
   private final int scale;
-  private final RelDataTypeSystem typeSystem;
+  public final RelDataTypeSystem typeSystem;
   private final SqlCollation collation;
   private final SerializableCharset wrappedCharset;
 
@@ -55,16 +55,6 @@ public class BasicSqlType extends AbstractSqlType {
     this(typeSystem, typeName, false, PRECISION_NOT_SPECIFIED,
         SCALE_NOT_SPECIFIED, null, null);
     checkPrecScale(typeName, false, false);
-  }
-
-  /** Throws if {@code typeName} does not allow the given combination of
-   * precision and scale. */
-  protected static void checkPrecScale(SqlTypeName typeName,
-      boolean precisionSpecified, boolean scaleSpecified) {
-    if (!typeName.allowsPrecScale(precisionSpecified, scaleSpecified)) {
-      throw new AssertionError("typeName.allowsPrecScale("
-          + precisionSpecified + ", " + scaleSpecified + "): " + typeName);
-    }
   }
 
   /**
@@ -96,7 +86,7 @@ public class BasicSqlType extends AbstractSqlType {
   }
 
   /** Internal constructor. */
-  private BasicSqlType(
+  public BasicSqlType(
       RelDataTypeSystem typeSystem,
       SqlTypeName typeName,
       boolean nullable,
@@ -114,6 +104,16 @@ public class BasicSqlType extends AbstractSqlType {
   }
 
   //~ Methods ----------------------------------------------------------------
+
+  /** Throws if {@code typeName} does not allow the given combination of
+   * precision and scale. */
+  protected static void checkPrecScale(SqlTypeName typeName,
+      boolean precisionSpecified, boolean scaleSpecified) {
+    if (!typeName.allowsPrecScale(precisionSpecified, scaleSpecified)) {
+      throw new AssertionError("typeName.allowsPrecScale("
+          + precisionSpecified + ", " + scaleSpecified + "): " + typeName);
+    }
+  }
 
   /**
    * Constructs a type with nullablity.
