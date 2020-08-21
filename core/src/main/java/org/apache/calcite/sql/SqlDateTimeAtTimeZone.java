@@ -16,8 +16,10 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.jdbc.CalcitePrepare;
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.util.SqlVisitor;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
@@ -26,7 +28,7 @@ import java.util.List;
  * A {@code SqlDateTimeAtTimeZone} is an AST node that describes
  * the date time expression of At Time Zone.
  */
-public class SqlDateTimeAtTimeZone extends SqlCall implements SqlExecutableStatement {
+public class SqlDateTimeAtTimeZone extends SqlCall {
   public static final SqlSpecialOperator OPERATOR =
       new SqlSpecialOperator("AT TIME ZONE", SqlKind.OTHER);
 
@@ -57,13 +59,18 @@ public class SqlDateTimeAtTimeZone extends SqlCall implements SqlExecutableState
     return ImmutableNullableList.of(dateTimePrimary, displacementValue);
   }
 
-  @Override public void unparse(SqlWriter writer, int leftPrec,
-      int rightPrec) {
+  @Override public void unparse(SqlWriter writer, int leftPrec, int rightPrec) {
     dateTimePrimary.unparse(writer, leftPrec, rightPrec);
     writer.keyword("AT TIME ZONE");
     displacementValue.unparse(writer, leftPrec, rightPrec);
   }
 
-  // Intentionally left empty.
-  @Override public void execute(final CalcitePrepare.Context context) {}
+  @Override public <R> R accept(SqlVisitor<R> visitor) {
+    return visitor.visit(this);
+  }
+
+  @Override public void validate(SqlValidator validator,
+      SqlValidatorScope scope) {
+    dateTimePrimary.validate(validator, scope);
+  }
 }

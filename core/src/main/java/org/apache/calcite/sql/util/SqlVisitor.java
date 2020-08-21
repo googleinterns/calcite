@@ -20,6 +20,7 @@ import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDateTimeAtLocal;
+import org.apache.calcite.sql.SqlDateTimeAtTimeZone;
 import org.apache.calcite.sql.SqlDynamicParam;
 import org.apache.calcite.sql.SqlHostVariable;
 import org.apache.calcite.sql.SqlIdentifier;
@@ -134,4 +135,12 @@ public interface SqlVisitor<R> {
    * @see SqlDateTimeAtLocal#accept(SqlVisitor)
    */
   R visit(SqlDateTimeAtLocal dateTimeAtLocal);
+
+  /**
+   * Visits an AT TIME ZONE call.
+   *
+   * @param dateAtTimeZone Time zone call
+   * @see SqlDateTimeAtTimeZone#accept(SqlVisitor)
+   */
+  R visit(SqlDateTimeAtTimeZone dateAtTimeZone);
 }
