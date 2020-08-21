@@ -4897,7 +4897,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       RelDataType targetRowType,
       SqlInsert insert) {
     if (insert.getTargetColumnList() == null
-        && this.config.sqlConformance().isInsertSubsetColumnsAllowed()) {
+        && this.config.sqlConformance().isInsertSubsetColumnsAllowed()
+        && !(targetRowType instanceof UnknownRecordType)) {
       // Target an implicit subset of columns.
       final SqlNode source = insert.getSource();
       final RelDataType sourceRowType = getNamespace(source).getRowType();
