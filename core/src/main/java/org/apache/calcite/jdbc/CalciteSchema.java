@@ -225,6 +225,10 @@ public abstract class CalciteSchema {
 
   public MacroEntry add(String name, Macro macro) {
     final MacroEntryImpl entry = new MacroEntryImpl(this, name, macro);
+    if (macroMap.containsKey(name, false)) {
+      throw new IllegalStateException("Error: a macro called " + name
+          + " already exists");
+    }
     macroMap.put(name, entry);
     return entry;
   }

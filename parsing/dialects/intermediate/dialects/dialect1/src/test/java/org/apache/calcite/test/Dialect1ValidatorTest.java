@@ -435,6 +435,13 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(query).fails("Macro BAZ does not exist\\.");
   }
 
+  @Test public void createMacroDuplicateFails() {
+    String ddl = "create macro foo as (select * from bar;)";
+    String ddl2 = "create macro foo as (select * from baz)";
+    sql(ddl).ok();
+    sql(ddl2).fails("Error: a macro called FOO already exists");
+  }
+
   @Test public void testColumnAtLocal() {
     String sql = "select hiredate at local from emp";
     String expectedType = "RecordType(TIMESTAMP(0) NOT NULL EXPR$0) NOT NULL";
