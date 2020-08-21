@@ -37,7 +37,7 @@ public class SqlCaseSpecificOperator extends SqlPostfixOperator {
       SqlOperandTypeInference operandTypeInference,
       SqlOperandTypeChecker operandTypeChecker,
       boolean includeNot) {
-    super( includeNot ? "NOT CASESPECIFIC" : "CASESPECIFIC",
+    super (includeNot ? "NOT CASESPECIFIC" : "CASESPECIFIC",
         kind, prec, returnTypeInference, operandTypeInference,
         operandTypeChecker);
     this.includeNot = includeNot;
