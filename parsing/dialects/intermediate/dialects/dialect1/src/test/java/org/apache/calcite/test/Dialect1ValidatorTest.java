@@ -667,11 +667,6 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     assertThat(iterate.labeledBlock, sameInstance(whileLoop));
   }
 
-  /*@Test public void testFoo() {
-    String sql = "CALL foo(1, 1, 1)";
-    sql(sql).ok();
-  }*/
-
   @Test public void testCastWithColumnAttributeFormat() {
     String sql = "select deptno (format 'YYYYMMDD') from dept";
     String expectedType = "RecordType(INTEGER NOT NULL EXPR$0) NOT NULL";
