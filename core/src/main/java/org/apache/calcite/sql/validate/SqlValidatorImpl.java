@@ -53,6 +53,7 @@ import org.apache.calcite.sql.JoinType;
 import org.apache.calcite.sql.SqlAccessEnum;
 import org.apache.calcite.sql.SqlAccessType;
 import org.apache.calcite.sql.SqlAggFunction;
+import org.apache.calcite.sql.SqlAsOperator;
 import org.apache.calcite.sql.SqlBasicCall;
 import org.apache.calcite.sql.SqlBasicTypeNameSpec;
 import org.apache.calcite.sql.SqlCall;
@@ -68,6 +69,7 @@ import org.apache.calcite.sql.SqlCreateProcedure;
 import org.apache.calcite.sql.SqlCreateProcedureParameter;
 import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
+import org.apache.calcite.sql.SqlDateTimeAtLocal;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
 import org.apache.calcite.sql.SqlExecMacro;
@@ -3392,7 +3394,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     for (int i = 0; i < createMacro.attributes.size(); i++) {
       SqlColumnDeclaration attribute =
           (SqlColumnDeclaration) createMacro.attributes.get(i);
-      parameters.add(new FunctionParameterImpl(i, attribute.name.toString(),
+      parameters.add(
+          new FunctionParameterImpl(i, attribute.name.toString(),
             attribute.dataType.deriveType(this), /*optional=*/ false));
     }
     schema.add(name, new Macro(parameters));
@@ -4584,7 +4587,13 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
    */
   private void validateExpr(SqlNode expr, SqlValidatorScope scope) {
     if (expr instanceof SqlCall) {
-      final SqlOperator op = ((SqlCall) expr).getOperator();
+      SqlOperator op = ((SqlCall) expr).getOperator();
+      if (op instanceof SqlAsOperator) {
+        SqlNode aliasedNode = ((SqlCall) expr).getOperandList().get(0);
+        if (aliasedNode instanceof SqlCall) {
+          op = ((SqlCall) aliasedNode).getOperator();
+        }
+      }
       if (op.isAggregator() && op.requiresOver()) {
         throw newValidationError(expr,
             RESOURCE.absentOverClause());
@@ -4954,7 +4963,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       RelDataType targetRowType,
       SqlInsert insert) {
     if (insert.getTargetColumnList() == null
-        && this.config.sqlConformance().isInsertSubsetColumnsAllowed()) {
+        && this.config.sqlConformance().isInsertSubsetColumnsAllowed()
+        && !(targetRowType instanceof UnknownRecordType)) {
       // Target an implicit subset of columns.
       final SqlNode source = insert.getSource();
       final RelDataType sourceRowType = getNamespace(source).getRowType();
@@ -6147,6 +6157,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     @Override public Void visit(SqlColumnAttribute attribute) {
       throw Util.needToImplement(attribute);
     }
+
+    @Override public Void visit(SqlDateTimeAtLocal dateTimeAtLocal) {
+      throw Util.needToImplement(dateTimeAtLocal);
+    }
   }
 
   /**
@@ -6292,6 +6306,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
     @Override public RelDataType visit(SqlColumnAttribute attribute) {
       return unknownType;
+    }
+
+    @Override public RelDataType visit(SqlDateTimeAtLocal dateTimeAtLocal) {
+      return SqlValidatorImpl.this.deriveType(scope, dateTimeAtLocal.dateTimePrimary);
     }
   }
 

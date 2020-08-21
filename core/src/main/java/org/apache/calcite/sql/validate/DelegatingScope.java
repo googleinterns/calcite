@@ -536,7 +536,8 @@ public abstract class DelegatingScope implements SqlValidatorScope {
           identifier = identifier.add(k, fieldName, SqlParserPos.ZERO);
           break;
         default:
-          if (!fieldName.equals(name)) {
+          if (!fieldName.equals(name) && !(field0.isDynamicStar()
+              && validator.config().allowUnknownTables())) {
             identifier = identifier.setName(k, fieldName);
           }
           if (hasAmbiguousField(step.rowType, field0, name, nameMatcher)) {

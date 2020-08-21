@@ -20,8 +20,8 @@ import org.apache.calcite.config.CalciteConnectionConfig;
 import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeField;
-import org.apache.calcite.schema.Wrapper;
 import org.apache.calcite.schema.Macro;
+import org.apache.calcite.schema.Wrapper;
 import org.apache.calcite.sql.SqlIdentifier;
 
 import java.util.List;

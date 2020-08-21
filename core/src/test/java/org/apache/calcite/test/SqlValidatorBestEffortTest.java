@@ -91,20 +91,20 @@ public class SqlValidatorBestEffortTest extends SqlValidatorTestCase {
   @Test public void testUnknownTableMerge() {
     String sql = "MERGE INTO foo AS f USING dept AS b ON f.bar = b.name"
         + " WHEN MATCHED THEN UPDATE SET baz = b.deptno";
-    String expected = "(DynamicRecordRow[BAZ, BAR, **]) NOT NULL";
+    String expected = "(DynamicRecordRow[]) NOT NULL";
     sql(sql).type(expected);
   }
 
   @Test public void testUnknownTableMergeUsingUnknownTable() {
     String sql = "MERGE INTO bar AS b USING foo AS f ON f.x = b.y"
         + " WHEN MATCHED THEN UPDATE SET u = v";
-    String expected = "(DynamicRecordRow[U, Y, **]) NOT NULL";
+    String expected = "(DynamicRecordRow[]) NOT NULL";
     sql(sql).type(expected);
   }
 
   @Test public void testUnknownTableUpdate() {
     String sql = "UPDATE foo SET bar = 5 WHERE baz = 7";
-    String expected = "(DynamicRecordRow[BAR, BAZ, **]) NOT NULL";
+    String expected = "(DynamicRecordRow[BAR]) NOT NULL";
     sql(sql).type(expected);
   }
 
@@ -116,7 +116,7 @@ public class SqlValidatorBestEffortTest extends SqlValidatorTestCase {
 
   @Test public void testUnknownTableDelete() {
     String sql = "DELETE FROM foo WHERE bar = 5";
-    String expected = "(DynamicRecordRow[BAR, **]) NOT NULL";
+    String expected = "(DynamicRecordRow[]) NOT NULL";
     sql(sql).type(expected);
   }
 
@@ -234,6 +234,29 @@ public class SqlValidatorBestEffortTest extends SqlValidatorTestCase {
     String sql = "select * from INFORMATION_SCHEMA.COLUMNS";
     String expected = "SELECT *\n"
         + "FROM `INFORMATION_SCHEMA`.`COLUMNS` AS `COLUMNS`";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
+
+  @Test public void testSelectWithUnknownSubquery() {
+    String sql = "with t AS (select * FROM foo) select "
+        + "(select 2 AS x from t where x = 1) from  foo";
+    String expected = "WITH `T` AS (SELECT *\n"
+        + "FROM `FOO` AS `FOO`) (SELECT (((SELECT 2 AS `X`\n"
+        + "FROM `T` AS `T`\n"
+        + "WHERE `T`.`X` = 1)))\n"
+        + "FROM `FOO` AS `FOO`)";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
+
+  @Test public void testSelectFromUnknownSubquery() {
+    String sql = "SELECT f.x FROM (SELECT * FROM foo) AS f";
+    String expected = "SELECT `F`.`X`\n"
+        + "FROM (SELECT *\n"
+        + "FROM `FOO` AS `FOO`) AS `F`";
     sql(sql)
         .withValidatorIdentifierExpansion(true)
         .rewritesTo(expected);

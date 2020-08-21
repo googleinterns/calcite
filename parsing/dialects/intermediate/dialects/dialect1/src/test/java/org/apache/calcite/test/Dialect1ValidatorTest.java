@@ -172,7 +172,18 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     String query = "select foo(1)";
     sql(ddl).ok();
     sql(query).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
-    sql(ddl2).ok();
+    sql(ddl2).fails("Error: a function of this name with the same parameters"
+        + " already exists");
+  }
+
+  @Test public void testCreateFunctionVarchar() {
+    String ddl = "create function foo(x integer) "
+        + "returns varchar "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 'str'";
+    String query = "select foo(1)";
+    sql(ddl).ok();
     sql(query).type("RecordType(VARCHAR NOT NULL EXPR$0) NOT NULL");
   }
 
@@ -424,12 +435,26 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(query).fails("Macro BAZ does not exist\\.");
   }
 
+  @Test public void createMacroDuplicateFails() {
+    String ddl = "create macro foo as (select * from bar;)";
+    String ddl2 = "create macro foo as (select * from baz)";
+    sql(ddl).ok();
+    sql(ddl2).fails("Error: a macro called FOO already exists");
+  }
+
   @Test public void testColumnAtLocal() {
     String sql = "select hiredate at local from emp";
     String expectedType = "RecordType(TIMESTAMP(0) NOT NULL EXPR$0) NOT NULL";
     String expectedRewrite = "SELECT `EMP`.`HIREDATE` AT LOCAL\n"
         + "FROM `CATALOG`.`SALES`.`EMP` AS `EMP`";
     sql(sql).type(expectedType).rewritesTo(expectedRewrite);
+  }
+
+  @Test public void testUnknownTableAtLocal() {
+    String sql = "select a at local FROM abc";
+    String expected = "SELECT `ABC`.`A` AT LOCAL\n"
+        + "FROM `ABC` AS `ABC`";
+    sql(sql).rewritesTo(expected);
   }
 
   @Test public void testCreateProcedureSelect() {
@@ -462,7 +487,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "b.x when matched then update set y = b.y when not matched then "
         + "insert (x,y) values (b.x, b.y)";
     String expected = "CREATE PROCEDURE `FOO` ()\n"
-        + "MERGE INTO `CATALOG`.`T1` AS `A`\n"
+        + "MERGE INTO `T1` AS `A`\n"
         + "USING `T2` AS `B`\n"
         + "ON `A`.`X` = `B`.`X`\n"
         + "WHEN MATCHED THEN UPDATE SET `Y` = `B`.`Y`\n"
@@ -642,8 +667,47 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     assertThat(iterate.labeledBlock, sameInstance(whileLoop));
   }
 
-  @Test public void testFoo() {
+  /*@Test public void testFoo() {
     String sql = "CALL foo(1, 1, 1)";
     sql(sql).ok();
+  }*/
+
+  @Test public void testCastWithColumnAttributeFormat() {
+    String sql = "select deptno (format 'YYYYMMDD') from dept";
+    String expectedType = "RecordType(INTEGER NOT NULL EXPR$0) NOT NULL";
+    String expectedRewrite = "SELECT CAST(`DEPT`.`DEPTNO` AS FORMAT "
+        + "'YYYYMMDD')\n"
+        + "FROM `CATALOG`.`SALES`.`DEPT` AS `DEPT`";
+    sql(sql).type(expectedType).rewritesTo(expectedRewrite);
+  }
+
+  @Test public void testUnknownTableInsertIntoUnspecifiedColumns() {
+    String sql = "INSERT INTO foo VALUES(1, 'a', CURRENT_DATE)";
+    String expected = "INSERT INTO `FOO`\n"
+        + "VALUES ROW(1, 'a', CURRENT_DATE)";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testSelectWithUnknownSubquery() {
+    String sql = "with t AS (select * FROM foo) select "
+        + "(select 2 AS x from t where x = 1) from  foo";
+    String expected = "WITH `T` AS (SELECT *\n"
+        + "FROM `FOO` AS `FOO`) (SELECT (((SELECT 2 AS `X`\n"
+        + "FROM `T` AS `T`\n"
+        + "WHERE `T`.`X` = 1)))\n"
+        + "FROM `FOO` AS `FOO`)";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
+
+  @Test public void testSelectFromUnknownSubquery() {
+    String sql = "SELECT f.x FROM (SELECT * FROM foo) AS f";
+    String expected = "SELECT `F`.`X`\n"
+        + "FROM (SELECT *\n"
+        + "FROM `FOO` AS `FOO`) AS `F`";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
   }
 }

@@ -23,13 +23,14 @@ import org.apache.calcite.linq4j.tree.Expression;
 import org.apache.calcite.materialize.Lattice;
 import org.apache.calcite.rel.type.RelProtoDataType;
 import org.apache.calcite.schema.Function;
+import org.apache.calcite.schema.Macro;
+import org.apache.calcite.schema.Macro;
+import org.apache.calcite.schema.Procedure;
 import org.apache.calcite.schema.Schema;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.SchemaVersion;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.TableMacro;
-import org.apache.calcite.schema.Procedure;
-import org.apache.calcite.schema.Macro;
 import org.apache.calcite.schema.impl.MaterializedViewTable;
 import org.apache.calcite.schema.impl.StarTable;
 import org.apache.calcite.util.NameMap;
@@ -103,7 +104,7 @@ public abstract class CalciteSchema {
       this.subSchemaMap = Objects.requireNonNull(subSchemaMap);
     }
     if (functionMap == null) {
-      this.functionMap = new NameMultimap<>(/*allowsDuplicates=*/ false);
+      this.functionMap = new NameMultimap<>();
       this.functionNames = new NameSet();
       this.nullaryFunctionMap = new NameMap<>();
     } else {
@@ -213,6 +214,11 @@ public abstract class CalciteSchema {
   public FunctionEntry add(String name, Function function) {
     final FunctionEntryImpl entry =
         new FunctionEntryImpl(this, name, function);
+    Collection<Function> functions = getFunctions(name, false);
+    if (functions.contains(function)) {
+      throw new IllegalStateException("Error: a function of this name with "
+          + "the same parameters already exists");
+    }
     functionMap.put(name, entry);
     functionNames.add(name);
     if (function.getParameters().isEmpty()) {
@@ -223,6 +229,10 @@ public abstract class CalciteSchema {
 
   public MacroEntry add(String name, Macro macro) {
     final MacroEntryImpl entry = new MacroEntryImpl(this, name, macro);
+    if (macroMap.containsKey(name, false)) {
+      throw new IllegalStateException("Error: a macro called " + name
+          + " already exists");
+    }
     macroMap.put(name, entry);
     return entry;
   }
@@ -241,6 +251,9 @@ public abstract class CalciteSchema {
     latticeMap.put(name, entry);
     return entry;
   }
+
+  /** Adds a child schema of this schema. */
+  public abstract CalciteSchema add(String name, Schema schema);
 
   public CalciteSchema root() {
     for (CalciteSchema schema = this;;) {
@@ -282,9 +295,6 @@ public abstract class CalciteSchema {
     }
     return getImplicitSubSchema(schemaName, caseSensitive);
   }
-
-  /** Adds a child schema of this schema. */
-  public abstract CalciteSchema add(String name, Schema schema);
 
   /** Returns a table that materializes the given SQL statement. */
   public final TableEntry getTableBySql(String sql) {
@@ -420,7 +430,7 @@ public abstract class CalciteSchema {
    * Returns the macro with the given name.
    *
    * @param macroName The name of the macro
-   * @param caseSensitive Whether or not check is case sensitive or not
+   * @param caseSensitive Whether or not check is case sensitive
    *
    * @return The found macro entry or null if it doesn't exist
    */
@@ -902,8 +912,8 @@ public abstract class CalciteSchema {
   }
 
   /**
-   * Implementation of {@link MacroEntry}
-   * where all properties are held in fields.
+   * Implementation of {@link MacroEntry} where all properties are held in
+   * fields.
    */
   public static class MacroEntryImpl extends MacroEntry {
     private final Macro macro;

@@ -30,11 +30,11 @@ import org.apache.calcite.schema.AggregateFunction;
 import org.apache.calcite.schema.Function;
 import org.apache.calcite.schema.Procedure;
 import org.apache.calcite.schema.FunctionParameter;
+import org.apache.calcite.schema.Macro;
 import org.apache.calcite.schema.ScalarFunction;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.TableFunction;
 import org.apache.calcite.schema.TableMacro;
-import org.apache.calcite.schema.Macro;
 import org.apache.calcite.schema.Wrapper;
 import org.apache.calcite.schema.impl.ScalarFunctionImpl;
 import org.apache.calcite.sql.SqlFunctionCategory;
@@ -157,6 +157,14 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
     return null;
   }
 
+  /**
+   * Gets the macro with the given name if it exists.
+   *
+   * @param names The name of the macro, list represents possibility of a
+   *              compound identifier
+   *
+   * @return The found macro, or null
+   */
   public Macro getMacro(List<String> names) {
     final List<List<String>> schemaNameList = computeSchemaNameList(names);
     for (List<String> schemaNames : schemaNameList) {
