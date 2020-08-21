@@ -18,6 +18,7 @@ package org.apache.calcite.sql;
 
 import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.util.SqlVisitor;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
@@ -29,7 +30,7 @@ import java.util.List;
 public class SqlDateTimeAtLocal extends SqlCall {
 
 
-  private final SqlNode dateTimePrimary;
+  public final SqlNode dateTimePrimary;
 
   /**
    * Creates a {@code SqlDateTimeAtLocal}.
@@ -55,5 +56,9 @@ public class SqlDateTimeAtLocal extends SqlCall {
       int rightPrec) {
     dateTimePrimary.unparse(writer, leftPrec, rightPrec);
     writer.keyword("AT LOCAL");
+  }
+
+  @Override public <R> R accept(SqlVisitor<R> visitor) {
+    return visitor.visit(this);
   }
 }
