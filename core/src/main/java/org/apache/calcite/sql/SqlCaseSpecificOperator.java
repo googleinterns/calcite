@@ -29,7 +29,12 @@ public class SqlCaseSpecificOperator extends SqlPostfixOperator {
   /**
    * Create an {@code SqlCaseSpecificOperator}.
    *
-   * @param includeNot  Specifies if NOT was parsed before CASE SPECIFIC
+   * @param kind        The SqlKind of the Operator.
+   * @param prec        Precedence.
+   * @param returnTypeInference   Inferred return type.
+   * @param operandTypeInference  Inferred operand type.
+   * @param operandTypeChecker    Operand type checker.
+   * @param includeNot  Specifies if NOT was parsed before CASE SPECIFIC.
    */
   public SqlCaseSpecificOperator(SqlKind kind,
       int prec,
