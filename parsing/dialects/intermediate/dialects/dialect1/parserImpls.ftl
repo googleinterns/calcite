@@ -1310,19 +1310,12 @@ SqlIndex SqlCreateTableIndex(Span s) :
    )
 }
 
-
-/**
-    Reason for having this is to be able to return the SqlExecMacro class since
-    Parser.jj does not have it as a reference.
-
-    This can also likely be extended to accomodate optional parameters later if
-    need be.
-*/
 SqlNode SqlExecMacro() :
 {
-    SqlIdentifier macro;
-    SqlNodeList params = new SqlNodeList(getPos());
-    Span s;
+    final SqlIdentifier macro;
+    final SqlNodeList params = new SqlNodeList(getPos());
+    final SqlNode macroCall;
+    final Span s;
 }
 {
     macro = CompoundIdentifier() { s = span(); }
@@ -1330,7 +1323,10 @@ SqlNode SqlExecMacro() :
         SqlExecMacroArgument(params)
     ]
     {
-        return new SqlExecMacro(s.end(this), macro, params);
+        macroCall = createCall(macro, s.end(this),
+            SqlFunctionCategory.USER_DEFINED_MACRO, null, params);
+        return SqlStdOperatorTable.EXEC_MACRO.createCall(s.end(this),
+            macroCall);
     }
 }
 

@@ -23,6 +23,7 @@ import org.apache.calcite.sql.SqlBasicCall;
 import org.apache.calcite.sql.SqlBinaryOperator;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlDescriptorOperator;
+import org.apache.calcite.sql.SqlExecMacroOperator;
 import org.apache.calcite.sql.SqlFilterOperator;
 import org.apache.calcite.sql.SqlFunction;
 import org.apache.calcite.sql.SqlFunctionCategory;
@@ -1426,6 +1427,9 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
 
   public static final SqlOperator PROCEDURE_CALL =
       new SqlProcedureCallOperator();
+
+  public static final SqlOperator EXEC_MACRO =
+      new SqlExecMacroOperator();
 
   public static final SqlOperator NEW = new SqlNewOperator();
 
