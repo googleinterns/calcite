@@ -130,8 +130,8 @@ public interface SqlVisitor<R> {
   /**
    * Visits a DATETIME AT LOCAL instance.
    *
-   * @param dateTypeAtLocal DATETIME AT LOCAL instance
+   * @param dateTimeAtLocal DATETIME AT LOCAL instance
    * @see SqlDateTimeAtLocal#accept(SqlVisitor)
    */
-  R visit(SqlDateTimeAtLocal attribute);
+  R visit(SqlDateTimeAtLocal dateTimeAtLocal);
 }
