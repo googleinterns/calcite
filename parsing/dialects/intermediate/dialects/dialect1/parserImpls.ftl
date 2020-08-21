@@ -2157,8 +2157,8 @@ SqlCall CaseSpecific(SqlNode value) :
     )
     <RPAREN>
     {
-        return includeNot ?
-            SqlStdOperatorTable.NOT_CASE_SPECIFIC.createCall(getPos(), value)
+        return includeNot
+            ? SqlStdOperatorTable.NOT_CASE_SPECIFIC.createCall(getPos(), value)
             : SqlStdOperatorTable.CASE_SPECIFIC.createCall(getPos(), value);
     }
 }
