@@ -51,6 +51,7 @@ import org.apache.calcite.sql.JoinType;
 import org.apache.calcite.sql.SqlAccessEnum;
 import org.apache.calcite.sql.SqlAccessType;
 import org.apache.calcite.sql.SqlAggFunction;
+import org.apache.calcite.sql.SqlAsOperator;
 import org.apache.calcite.sql.SqlBasicCall;
 import org.apache.calcite.sql.SqlBasicTypeNameSpec;
 import org.apache.calcite.sql.SqlCall;
@@ -4527,7 +4528,13 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
    */
   private void validateExpr(SqlNode expr, SqlValidatorScope scope) {
     if (expr instanceof SqlCall) {
-      final SqlOperator op = ((SqlCall) expr).getOperator();
+      SqlOperator op = ((SqlCall) expr).getOperator();
+      if (op instanceof SqlAsOperator) {
+        SqlNode aliasedNode = ((SqlCall) expr).getOperandList().get(0);
+        if (aliasedNode instanceof SqlCall) {
+          op = ((SqlCall) aliasedNode).getOperator();
+        }
+      }
       if (op.isAggregator() && op.requiresOver()) {
         throw newValidationError(expr,
             RESOURCE.absentOverClause());

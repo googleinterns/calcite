@@ -11128,4 +11128,11 @@ class SqlValidatorTest extends SqlValidatorTestCase {
         .withConformance(SqlConformanceEnum.LENIENT)
         .rewritesTo(expected);
   }
+
+  @Test public void testAliasedRankFailsWithoutOverClause() {
+    String sql = "select ^rank() as r^ from emp";
+    String expected = "OVER clause is necessary for window functions";
+    sql(sql)
+        .fails(expected);
+  }
 }
