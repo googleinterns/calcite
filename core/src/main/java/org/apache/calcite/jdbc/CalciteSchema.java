@@ -229,6 +229,9 @@ public abstract class CalciteSchema {
     return entry;
   }
 
+  /** Adds a child schema of this schema. */
+  public abstract CalciteSchema add(String name, Schema schema);
+
   public CalciteSchema root() {
     for (CalciteSchema schema = this;;) {
       if (schema.parent == null) {
@@ -269,9 +272,6 @@ public abstract class CalciteSchema {
     }
     return getImplicitSubSchema(schemaName, caseSensitive);
   }
-
-  /** Adds a child schema of this schema. */
-  public abstract CalciteSchema add(String name, Schema schema);
 
   /** Returns a table that materializes the given SQL statement. */
   public final TableEntry getTableBySql(String sql) {
