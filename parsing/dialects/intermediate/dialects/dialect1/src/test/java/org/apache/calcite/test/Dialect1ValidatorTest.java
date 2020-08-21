@@ -278,4 +278,12 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(ddl).ok();
     sql(query).fails("end index \\(3\\) must not be greater than size \\(2\\)");
   }
+
+  @Test public void testCaseSpecific() {
+    String sql = "SELECT * FROM dept WHERE 'Hello' (CASESPECIFIC) = name (NOT CASESPECIFIC)";
+    String expected = "SELECT `DEPT`.`DEPTNO`, `DEPT`.`NAME`\n"
+        + "FROM `CATALOG`.`SALES`.`DEPT` AS `DEPT`\n"
+        + "WHERE 'Hello' (CASESPECIFIC) = `DEPT`.`NAME` (NOT CASESPECIFIC)";
+    sql(sql).ok().rewritesTo(expected);
+  }
 }

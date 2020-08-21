@@ -2128,7 +2128,7 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
 SqlNode InlineCaseSpecific() :
 {
     final SqlNode value;
-    final SqlCaseSpecific caseSpecific;
+    final SqlNode caseSpecific;
 }
 {
     (
@@ -2143,7 +2143,7 @@ SqlNode InlineCaseSpecific() :
     }
 }
 
-SqlCaseSpecific CaseSpecific(SqlNode value) :
+SqlNode CaseSpecific(SqlNode value) :
 {
     boolean not = false;
 }
@@ -2157,7 +2157,11 @@ SqlCaseSpecific CaseSpecific(SqlNode value) :
     )
     <RPAREN>
     {
-        return new SqlCaseSpecific(getPos(), not, value);
+        if (not) {
+            return SqlStdOperatorTable.NOT_CASE_SPECIFIC.createCall(getPos(),
+                value);
+        }
+        return SqlStdOperatorTable.CASE_SPECIFIC.createCall(getPos(), value);
     }
 }
 

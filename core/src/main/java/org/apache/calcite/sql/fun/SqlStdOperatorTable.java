@@ -22,6 +22,7 @@ import org.apache.calcite.sql.SqlAsOperator;
 import org.apache.calcite.sql.SqlBasicCall;
 import org.apache.calcite.sql.SqlBinaryOperator;
 import org.apache.calcite.sql.SqlCall;
+import org.apache.calcite.sql.SqlCaseSpecificOperator;
 import org.apache.calcite.sql.SqlDescriptorOperator;
 import org.apache.calcite.sql.SqlFilterOperator;
 import org.apache.calcite.sql.SqlFunction;
@@ -815,6 +816,26 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
 
   public static final SqlPostfixOperator JSON_VALUE_EXPRESSION =
       new SqlJsonValueExpressionOperator();
+
+  public static final SqlPostfixOperator CASE_SPECIFIC =
+      new SqlCaseSpecificOperator(
+          "CASESPECIFIC",
+          SqlKind.CASE_SPECIFIC,
+          80,
+          ReturnTypes.explicit(SqlTypeName.VARCHAR),
+          InferTypes.RETURN_TYPE,
+          OperandTypes.STRING,
+          false);
+
+  public static final SqlPostfixOperator NOT_CASE_SPECIFIC =
+      new SqlCaseSpecificOperator(
+          "NOT CASESPECIFIC",
+          SqlKind.CASE_SPECIFIC,
+          80,
+          ReturnTypes.explicit(SqlTypeName.VARCHAR),
+          InferTypes.RETURN_TYPE,
+          OperandTypes.STRING,
+          true);
 
 
   //-------------------------------------------------------------

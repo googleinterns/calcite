@@ -17,7 +17,9 @@
 package org.apache.calcite.sql;
 
 import org.apache.calcite.jdbc.CalcitePrepare;
+import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 import org.apache.calcite.sql.parser.SqlParserPos;
+import org.apache.calcite.sql.util.SqlVisitor;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
@@ -28,9 +30,6 @@ import java.util.Objects;
  */
 public class SqlCaseSpecific extends SqlCall
     implements SqlExecutableStatement {
-  public static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("CASE_SPECIFIC",
-          SqlKind.CASE_SPECIFIC);
 
   private final boolean not;
   private final SqlNode value;
@@ -49,7 +48,7 @@ public class SqlCaseSpecific extends SqlCall
   }
 
   @Override public SqlOperator getOperator() {
-    return OPERATOR;
+    return SqlStdOperatorTable.CASE_SPECIFIC;
   }
 
   @Override public List<SqlNode> getOperandList() {
@@ -69,4 +68,8 @@ public class SqlCaseSpecific extends SqlCall
 
   // Intentionally left empty.
   @Override public void execute(CalcitePrepare.Context context) {}
+//
+//  public <R> R accept(SqlVisitor<R> visitor) {
+//    return visitor.visit(this);
+//  }
 }
