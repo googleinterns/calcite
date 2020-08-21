@@ -37,6 +37,6 @@ public class SqlExecMacroOperator extends SqlPrefixOperator {
 
   @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec,
       int rightPrec) {
-    super(writer, call, leftPrec, rightPrec);
+    super.unparse(writer, call, leftPrec, rightPrec);
   }
 }
