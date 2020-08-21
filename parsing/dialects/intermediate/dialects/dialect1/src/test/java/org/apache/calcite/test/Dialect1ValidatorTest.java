@@ -631,7 +631,6 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     String sql = "INSERT INTO foo VALUES(1, 'a', CURRENT_DATE)";
     String expected = "INSERT INTO `FOO`\n"
         + "VALUES ROW(1, 'a', CURRENT_DATE)";
-    sql(sql)
-        .rewritesTo(expected);
+    sql(sql).rewritesTo(expected);
   }
 }
