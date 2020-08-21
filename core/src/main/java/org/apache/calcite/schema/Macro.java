@@ -28,7 +28,7 @@ public class Macro {
   /**
    * Creates a {@code Macro}.
    *
-   * @param parameters The macro parameters
+   * @param parameters The macro parameters, can not be null
    */
   public Macro(List<FunctionParameter> parameters) {
     this.parameters = Objects.requireNonNull(parameters);
