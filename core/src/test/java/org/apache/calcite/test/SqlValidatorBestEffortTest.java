@@ -91,20 +91,20 @@ public class SqlValidatorBestEffortTest extends SqlValidatorTestCase {
   @Test public void testUnknownTableMerge() {
     String sql = "MERGE INTO foo AS f USING dept AS b ON f.bar = b.name"
         + " WHEN MATCHED THEN UPDATE SET baz = b.deptno";
-    String expected = "(DynamicRecordRow[BAZ, BAR, **]) NOT NULL";
+    String expected = "(DynamicRecordRow[]) NOT NULL";
     sql(sql).type(expected);
   }
 
   @Test public void testUnknownTableMergeUsingUnknownTable() {
     String sql = "MERGE INTO bar AS b USING foo AS f ON f.x = b.y"
         + " WHEN MATCHED THEN UPDATE SET u = v";
-    String expected = "(DynamicRecordRow[U, Y, **]) NOT NULL";
+    String expected = "(DynamicRecordRow[]) NOT NULL";
     sql(sql).type(expected);
   }
 
   @Test public void testUnknownTableUpdate() {
     String sql = "UPDATE foo SET bar = 5 WHERE baz = 7";
-    String expected = "(DynamicRecordRow[BAR, BAZ, **]) NOT NULL";
+    String expected = "(DynamicRecordRow[BAR]) NOT NULL";
     sql(sql).type(expected);
   }
 
@@ -116,7 +116,7 @@ public class SqlValidatorBestEffortTest extends SqlValidatorTestCase {
 
   @Test public void testUnknownTableDelete() {
     String sql = "DELETE FROM foo WHERE bar = 5";
-    String expected = "(DynamicRecordRow[BAR, **]) NOT NULL";
+    String expected = "(DynamicRecordRow[]) NOT NULL";
     sql(sql).type(expected);
   }
 

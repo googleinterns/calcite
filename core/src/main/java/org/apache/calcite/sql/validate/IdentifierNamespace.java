@@ -205,13 +205,10 @@ public class IdentifierNamespace extends AbstractNamespace {
    * @return    A placeholder {@code TableNamespace}.
    */
   private SqlValidatorNamespace getPlaceholderNamespace(SqlIdentifier id) {
-    CalciteSchema parentSchema = validator.getOrCreateParentSchema(id);
-    SqlIdentifier tableId = id.getComponent(id.names.size() - 1);
     Table table = new UnknownPlaceholderTable(validator.getTypeFactory());
     SqlValidatorTable valTable = RelOptTableImpl.create(
         (RelOptSchema) validator.getCatalogReader(),
         table.getRowType(validator.getTypeFactory()), id.names, null);
-    parentSchema.add(tableId.toString(), table);
     return new TableNamespace(validator, valTable);
   }
 
