@@ -37,6 +37,14 @@ public class SqlExecMacroOperator extends SqlPrefixOperator {
 
   @Override public void unparse(SqlWriter writer, SqlCall call, int leftPrec,
       int rightPrec) {
-    super.unparse(writer, call, leftPrec, rightPrec);
+    SqlBasicCall execCall = (SqlBasicCall) call.getOperandList().get(0);
+    SqlUnresolvedFunction function = (SqlUnresolvedFunction) execCall.getOperator();
+    // If a macro has no parameters it should be unparsed without parentheses.
+    if (execCall.operandCount() == 0) {
+      writer.keyword(getName());
+      function.getNameAsId().unparse(writer, leftPrec, rightPrec);
+    } else {
+      super.unparse(writer, call, leftPrec, rightPrec);
+    }
   }
 }
