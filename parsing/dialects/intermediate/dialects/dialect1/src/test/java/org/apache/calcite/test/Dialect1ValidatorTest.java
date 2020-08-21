@@ -408,6 +408,13 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(sql).type(expectedType).rewritesTo(expectedRewrite);
   }
 
+  @Test public void testUnknownTableAtLocal() {
+    String sql = "select a at local FROM abc";
+    String expected = "SELECT `ABC`.`A` AT LOCAL\n"
+        + "FROM `ABC` AS `ABC`";
+    sql(sql).rewritesTo(expected);
+  }
+
   @Test public void testCreateProcedureSelect() {
     String sql = "create procedure foo() select a from abc";
     String expected = "CREATE PROCEDURE `FOO` ()\n"
