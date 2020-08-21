@@ -112,7 +112,12 @@ public abstract class RelDataTypeImpl
     for (RelDataTypeField field : fieldList) {
       if (field.isDynamicStar()) {
         // the requested field could be in the unresolved star
-        return field;
+        return new RelDataTypeFieldImpl(
+            fieldName,
+            field.getIndex(),
+            new BasicSqlType(((BasicSqlType) field.getValue()).typeSystem,
+                SqlTypeName.ANY, /*nullable=*/ true, /*precision=*/ -1,
+                /*scale=*/ -1, /*collation=*/ null, /*wrappedCharset=*/ null));
       }
     }
 
