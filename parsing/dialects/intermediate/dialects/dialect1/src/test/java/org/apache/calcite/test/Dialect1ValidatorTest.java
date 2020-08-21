@@ -125,6 +125,121 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(sql).rewritesTo(expected);
   }
 
+  @Test public void testCreateFunction() {
+    String ddl = "create function foo() "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select foo()";
+    sql(ddl).ok();
+    sql(query).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
+  }
+
+  @Test public void testCreateFunctionCompoundIdentifier() {
+    String ddl = "create function foo.bar() "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select foo.bar()";
+    sql(ddl).ok();
+    sql(query).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
+  }
+
+  @Test public void testCreateFunctionWithParams() {
+    String ddl = "create function foo(x integer, y varchar) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select foo(1, 'str')";
+    sql(ddl).ok();
+    sql(query).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
+  }
+
+  @Test public void testCreateFunctionOverwrite() {
+    String ddl = "create function foo(x integer) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String ddl2 = "create function foo(x integer) "
+        + "returns varchar "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 'str'";
+    String query = "select foo(1)";
+    sql(ddl).ok();
+    sql(query).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
+    sql(ddl2).fails("Error: a function of this name with the same parameters"
+        + " already exists");
+  }
+
+  @Test public void testCreateFunctionVarchar() {
+    String ddl = "create function foo(x integer) "
+        + "returns varchar "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 'str'";
+    String query = "select foo(1)";
+    sql(ddl).ok();
+    sql(query).type("RecordType(VARCHAR NOT NULL EXPR$0) NOT NULL");
+  }
+
+  @Test public void testCreateFunctionWrongTypeGetsCasted() {
+    String ddl = "create function foo(x varchar) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select foo(1)";
+    sql(ddl).ok();
+    sql(query).rewritesTo("SELECT `FOO`(CAST(1 AS VARCHAR CHARACTER SET"
+        + " `ISO-8859-1`))");
+  }
+
+  @Test public void testCreateFunctionOverloaded() {
+    String ddl = "create function foo(x integer, y varchar) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String ddl2 = "create function foo(x integer) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select foo(1)";
+    String query2 = "select foo(1, 'str')";
+    sql(ddl).ok();
+    sql(ddl2).ok();
+    sql(query).ok();
+    sql(query2).ok();
+  }
+
+  @Test public void testCreateFunctionWrongNumberOfParametersFails() {
+    String ddl = "create function foo(x integer, y varchar) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select ^foo(1)^";
+    sql(ddl).ok();
+    sql(query).fails("No match found for function signature FOO\\(<NUMERIC>\\)");
+  }
+
+  @Test public void testCreateFunctionNonExistentFunctionFails() {
+    String ddl = "create function foo(x integer) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "select ^bar(1)^";
+    sql(ddl).ok();
+    sql(query).fails("No match found for function signature BAR\\(<NUMERIC>\\)");
+  }
+
   @Test public void testCreateProcedureBeginEndLabel() {
     String sql = "create procedure foo()\n"
         + "label1: begin\n"
@@ -501,5 +616,14 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         = (SqlIterationStmt) beginEnd.statements.get(0);
     SqlIterateStmt iterate = (SqlIterateStmt) whileLoop.statements.get(0);
     assertThat(iterate.labeledBlock, sameInstance(whileLoop));
+  }
+
+  @Test public void testCastWithColumnAttributeFormat() {
+    String sql = "select deptno (format 'YYYYMMDD') from dept";
+    String expectedType = "RecordType(INTEGER NOT NULL EXPR$0) NOT NULL";
+    String expectedRewrite = "SELECT CAST(`DEPT`.`DEPTNO` AS FORMAT "
+        + "'YYYYMMDD')\n"
+        + "FROM `CATALOG`.`SALES`.`DEPT` AS `DEPT`";
+    sql(sql).type(expectedType).rewritesTo(expectedRewrite);
   }
 }

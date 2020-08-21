@@ -39,10 +39,13 @@ import org.apache.calcite.runtime.CalciteException;
 import org.apache.calcite.runtime.Feature;
 import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
+import org.apache.calcite.schema.FunctionParameter;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.impl.AbstractSchema;
 import org.apache.calcite.schema.impl.ExplicitRowTypeTable;
+import org.apache.calcite.schema.impl.FunctionParameterImpl;
 import org.apache.calcite.schema.impl.ModifiableViewTable;
+import org.apache.calcite.schema.impl.UserDefinedFunction;
 import org.apache.calcite.sql.JoinConditionType;
 import org.apache.calcite.sql.JoinType;
 import org.apache.calcite.sql.SqlAccessEnum;
@@ -57,6 +60,7 @@ import org.apache.calcite.sql.SqlColumnDeclaration;
 import org.apache.calcite.sql.SqlConditionDeclaration;
 import org.apache.calcite.sql.SqlConditionalStmt;
 import org.apache.calcite.sql.SqlConditionalStmtListPair;
+import org.apache.calcite.sql.SqlCreateFunctionSqlForm;
 import org.apache.calcite.sql.SqlCreateProcedure;
 import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
@@ -104,6 +108,7 @@ import org.apache.calcite.sql.type.SqlOperandTypeInference;
 import org.apache.calcite.sql.type.SqlTypeCoercionRule;
 import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.sql.type.SqlTypeUtil;
+import org.apache.calcite.sql.util.ChainedSqlOperatorTable;
 import org.apache.calcite.sql.util.SqlBasicVisitor;
 import org.apache.calcite.sql.util.SqlShuttle;
 import org.apache.calcite.sql.util.SqlVisitor;
@@ -123,6 +128,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -314,8 +320,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       SqlValidatorCatalogReader catalogReader,
       RelDataTypeFactory typeFactory,
       Config config) {
-    this.opTab = Objects.requireNonNull(opTab);
     this.catalogReader = Objects.requireNonNull(catalogReader);
+    SqlOperatorTable readerTable = (SqlOperatorTable) catalogReader;
+    this.opTab = ChainedSqlOperatorTable.of(opTab, readerTable);
     this.typeFactory = Objects.requireNonNull(typeFactory);
     this.config = Objects.requireNonNull(config);
 
@@ -2615,6 +2622,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     SqlCall call;
     List<SqlNode> operands;
     switch (node.getKind()) {
+    case CREATE_FUNCTION:
     case CREATE_TABLE:
       return;
     case SELECT:
@@ -3323,6 +3331,28 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
               fracPrecision,
               "INTERVAL " + qualifier));
     }
+  }
+
+  @Override public void validateCreateFunctionSqlForm(
+      SqlCreateFunctionSqlForm createFunction) {
+    Preconditions.checkArgument(createFunction != null);
+    nodeToTypeMap.put(createFunction, unknownType);
+    CalciteSchema schema = getOrCreateParentSchema(createFunction.functionName);
+    List<FunctionParameter> parameters = new ArrayList<>();
+    String name = Iterables.getLast(createFunction.functionName.names);
+    RelDataType returnType = createFunction.returnsDataType.deriveType(this);
+    Preconditions.checkArgument(createFunction.fieldNames.size()
+        == createFunction.fieldTypes.size());
+    for (int i = 0; i < createFunction.fieldNames.size(); i++) {
+      SqlIdentifier paramName =
+          (SqlIdentifier) createFunction.fieldNames.get(i);
+      SqlDataTypeSpec paramType =
+          (SqlDataTypeSpec) createFunction.fieldTypes.get(i);
+      parameters.add(
+          new FunctionParameterImpl(i, paramName.toString(),
+            paramType.deriveType(this), /*optional=*/ false));
+    }
+    schema.add(name, new UserDefinedFunction(parameters, returnType));
   }
 
   @Override public void validateCreateTable(SqlCreateTable createTable) {
