@@ -646,4 +646,14 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         .withValidatorIdentifierExpansion(true)
         .rewritesTo(expected);
   }
+
+  @Test public void testSelectFromUnknownSubquery() {
+    String sql = "SELECT f.x FROM (SELECT * FROM foo) AS f";
+    String expected = "SELECT `F`.`X`\n"
+        + "FROM (SELECT *\n"
+        + "FROM `FOO` AS `FOO`) AS `F`";
+    sql(sql)
+        .withValidatorIdentifierExpansion(true)
+        .rewritesTo(expected);
+  }
 }
