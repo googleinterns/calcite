@@ -2145,11 +2145,11 @@ SqlNode InlineCaseSpecific() :
 
 SqlNode CaseSpecific(SqlNode value) :
 {
-    boolean not = false;
+    boolean includeNot = false;
 }
 {
     <LPAREN>
-    [ <NOT> { not = true; } ]
+    [ <NOT> { includeNot = true; } ]
     (
         <CASESPECIFIC>
     |
@@ -2157,7 +2157,7 @@ SqlNode CaseSpecific(SqlNode value) :
     )
     <RPAREN>
     {
-        if (not) {
+        if (includeNot) {
             return SqlStdOperatorTable.NOT_CASE_SPECIFIC.createCall(getPos(),
                 value);
         }

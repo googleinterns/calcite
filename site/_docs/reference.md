@@ -1268,6 +1268,7 @@ comp:
 | SUBSTRING(string FROM integer)  | Returns a substring of a character string starting at a given point
 | SUBSTRING(string FROM integer FOR integer) | Returns a substring of a character string starting at a given point with a given length
 | INITCAP(string)            | Returns *string* with the first letter of each word converter to upper case and the rest to lower case. Words are sequences of alphanumeric characters separated by non-alphanumeric characters.
+| CASESPECIFIC()             | Compare two string either in CASE SPECIFIC or NOT CASE SPECIFIC
 
 Not implemented:
 

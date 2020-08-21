@@ -825,6 +825,7 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
           ReturnTypes.DATETIME,
           null,
           OperandTypes.DATETIME);
+
   public static final SqlPostfixOperator CASE_SPECIFIC =
       new SqlCaseSpecificOperator(
           "CASESPECIFIC",

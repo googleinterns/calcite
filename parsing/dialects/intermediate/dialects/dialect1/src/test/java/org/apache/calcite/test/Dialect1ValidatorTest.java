@@ -674,7 +674,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(sql).ok().rewritesTo(expected);
   }
 
-  @Test public void testCaseSpecificOnUnknwonTable() {
+  @Test public void testCaseSpecificOnUnknownTable() {
     String sql = "SELECT a FROM abc WHERE 'Hello' (CASESPECIFIC) "
         + "= name (NOT CASESPECIFIC)";
     String expected = "SELECT `ABC`.`A`\n"
