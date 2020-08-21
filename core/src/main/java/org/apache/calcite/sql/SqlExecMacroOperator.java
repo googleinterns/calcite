@@ -16,15 +16,6 @@
  */
 package org.apache.calcite.sql;
 
-import org.apache.calcite.jdbc.CalcitePrepare;
-import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.sql.validate.SqlValidator;
-import org.apache.calcite.sql.validate.SqlValidatorScope;
-import org.apache.calcite.util.ImmutableNullableList;
-
-import java.util.List;
-import java.util.Objects;
-
 /**
  * SqlExecMacroOperator represents the EXECUTE statement. It takes a single
  * operand which is the real SqlCall.
