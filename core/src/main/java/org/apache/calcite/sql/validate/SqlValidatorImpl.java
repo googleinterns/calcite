@@ -6021,12 +6021,6 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       final SqlOperator operator = call.getOperator();
       return operator.deriveType(SqlValidatorImpl.this, scope, call);
     }
-//
-//    public RelDataType visit(SqlCaseSpecific call) {
-//      final SqlOperator operator = call.getOperator();
-//      final SqlBasicCall newCall =
-//      return operator.
-//    }
 
     public RelDataType visit(SqlNodeList nodeList) {
       // Operand is of a type that we can't derive a type for. If the
