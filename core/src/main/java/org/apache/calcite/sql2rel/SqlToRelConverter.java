@@ -102,6 +102,7 @@ import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCallBinding;
 import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlDataTypeSpec;
+import org.apache.calcite.sql.SqlDateTimeAtTimeZone;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
 import org.apache.calcite.sql.SqlExplainFormat;
@@ -5052,6 +5053,10 @@ public class SqlToRelConverter {
       throw new UnsupportedOperationException();
     }
 
+    @Override public RexNode visit(SqlDateTimeAtTimeZone timeZone) {
+      throw new UnsupportedOperationException();
+    }
+
     public List<SqlMonotonicity> getColumnMonotonicities() {
       return columnMonotonicities;
     }
@@ -5281,6 +5286,10 @@ public class SqlToRelConverter {
     }
 
     @Override public Void visit(SqlColumnAttribute attribute) {
+      return null;
+    }
+
+    @Override public Void visit(SqlDateTimeAtTimeZone attribute) {
       return null;
     }
 

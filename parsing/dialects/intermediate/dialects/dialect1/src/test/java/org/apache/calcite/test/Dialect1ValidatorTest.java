@@ -626,4 +626,11 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "FROM `CATALOG`.`SALES`.`DEPT` AS `DEPT`";
     sql(sql).type(expectedType).rewritesTo(expectedRewrite);
   }
+
+  @Test public void testAtTimeZone() {
+    String sql = "select hiredate at time zone \"GMT+10\" FROM emp";
+    String expected = "SELECT `EMP`.`HIREDATE` AT TIME ZONE `GMT+10`\n"
+        + "FROM `CATALOG`.`SALES`.`EMP` AS `EMP`";
+    sql(sql).rewritesTo(expected);
+  }
 }
