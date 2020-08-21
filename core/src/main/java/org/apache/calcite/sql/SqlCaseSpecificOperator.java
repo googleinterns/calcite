@@ -42,8 +42,7 @@ public class SqlCaseSpecificOperator extends SqlPostfixOperator {
     this.includeNot = includeNot;
   }
 
-  @Override
-  public void unparse(final SqlWriter writer, final SqlCall call,
+  @Override public void unparse(final SqlWriter writer, final SqlCall call,
       final int leftPrec, final int rightPrec) {
     call.getOperandList().get(0).unparse(writer, leftPrec, rightPrec);
     final SqlWriter.Frame frame =
