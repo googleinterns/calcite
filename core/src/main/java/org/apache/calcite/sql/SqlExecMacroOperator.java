@@ -17,8 +17,8 @@
 package org.apache.calcite.sql;
 
 /**
- * SqlExecMacroOperator represents the EXECUTE statement. It takes a single
- * operand which is the real SqlCall.
+ * {@code SqlExecMacroOperator} represents the EXECUTE statement. It takes a
+ * single operand which is the real {@code SqlCall}.
  */
 public class SqlExecMacroOperator extends SqlPrefixOperator {
 
