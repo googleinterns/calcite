@@ -16,14 +16,12 @@
  */
 package org.apache.calcite.sql;
 
+import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.util.SqlVisitor;
 import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorScope;
 import org.apache.calcite.util.Litmus;
-import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.util.ImmutableNullableList;
 
-import java.util.List;
 
 /**
  * Parse tree for {@code SqlExecMacroParam} SqlNode.
@@ -60,7 +58,7 @@ public class SqlExecMacroParam extends SqlNode {
     return null;
   }
 
-  // Intetionally return false.
+  // Intentionally eturn false.
   @Override public boolean equalsDeep(SqlNode node, Litmus litmus) {
     return false;
   }
