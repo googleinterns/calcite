@@ -1341,6 +1341,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         final SqlUnresolvedFunction function =
             (SqlUnresolvedFunction) call.getOperator();
         SqlFunctionCategory category = function.getFunctionType();
+        // Don't want to overwrite macros since they lose their identifiable
+        // category.
         if (category == null || !category.isUserDefinedMacro()) {
           // This function hasn't been resolved yet.  Perform
           // a half-hearted resolution now in case it's a
