@@ -424,10 +424,10 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
   @Test public void testCreateMacroAndFunctionExecFunctionFails() {
     String macroDdl = "create macro foo(num int, val varchar) as (select * from bar;)";
     String functionDdl = "create function foo(x int) "
-      + "returns Integer "
-      + "language sql "
-      + "collation invoker inline type 1 "
-      + "return 1";
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
     String query = "execute ^foo(1)^";
     sql(macroDdl).ok();
     sql(functionDdl).ok();
