@@ -66,7 +66,6 @@ public abstract class CalciteSchema {
   /** Tables explicitly defined in this schema. Does not include tables in
    *  {@link #schema}. */
   protected final NameMap<TableEntry> tableMap;
-
   protected final NameMap<FunctionEntry> macroMap;
   protected final NameMultimap<FunctionEntry> functionMap;
   protected final NameMap<TypeEntry> typeMap;
