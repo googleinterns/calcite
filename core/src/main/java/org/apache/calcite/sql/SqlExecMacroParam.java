@@ -16,18 +16,19 @@
  */
 package org.apache.calcite.sql;
 
+import org.apache.calcite.sql.util.SqlVisitor;
+import org.apache.calcite.sql.validate.SqlValidator;
+import org.apache.calcite.sql.validate.SqlValidatorScope;
+import org.apache.calcite.util.Litmus;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.util.ImmutableNullableList;
 
 import java.util.List;
 
 /**
- * Parse tree for {@code SqlExecMacroParam} SqlCall.
+ * Parse tree for {@code SqlExecMacroParam} SqlNode.
  */
-public class SqlExecMacroParam extends SqlCall {
-  private static final SqlSpecialOperator OPERATOR =
-      new SqlSpecialOperator("PARAM EQUAL", SqlKind.OTHER);
-
+public class SqlExecMacroParam extends SqlNode {
   private final SqlIdentifier name;
   private final SqlNode value;
 
@@ -54,12 +55,24 @@ public class SqlExecMacroParam extends SqlCall {
     this.value = value;
   }
 
-  @Override public SqlOperator getOperator() {
-    return OPERATOR;
+  // Intentionally return null.
+  @Override public SqlNode clone(SqlParserPos pos) {
+    return null;
   }
 
-  @Override public List<SqlNode> getOperandList() {
-    return ImmutableNullableList.of(name, value);
+  // Intetionally return false.
+  @Override public boolean equalsDeep(SqlNode node, Litmus litmus) {
+    return false;
+  }
+
+  @Override public void validate(
+      SqlValidator validator,
+      SqlValidatorScope scope) {
+    value.validate(validator, scope);
+  }
+
+  @Override public <R> R accept(SqlVisitor<R> visitor) {
+    return value.accept(visitor);
   }
 
   @Override public void unparse(final SqlWriter writer, final int leftPrec,
