@@ -363,7 +363,7 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
             function.getParameters().get(i).isOptional());
     final List<RelDataType> paramTypes = toSql(typeFactory, argTypes);
     if (function instanceof Macro) {
-      return new SqlUserDefinedFunction(name, infer((Macro) function),
+      return new SqlUserDefinedFunction(name, getAnyType(),
           InferTypes.explicit(argTypes), typeChecker, paramTypes, function);
     } else if (function instanceof ScalarFunction) {
       return new SqlUserDefinedFunction(name, infer((ScalarFunction) function),
@@ -386,7 +386,7 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
     }
   }
 
-  private static SqlReturnTypeInference infer(final Macro macro) {
+  private static SqlReturnTypeInference getAnyType() {
     return opBinding -> {
       final RelDataTypeFactory typeFactory = opBinding.getTypeFactory();
       final RelDataType type = typeFactory.createSqlType(SqlTypeName.ANY);
