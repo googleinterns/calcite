@@ -1340,7 +1340,6 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         assert call instanceof SqlBasicCall;
         final SqlUnresolvedFunction function =
             (SqlUnresolvedFunction) call.getOperator();
-        SqlFunctionCategory category = function.getFunctionType();
         // This function hasn't been resolved yet.  Perform
         // a half-hearted resolution now in case it's a
         // builtin function requiring special casing.  If it's
