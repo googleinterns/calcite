@@ -40,7 +40,7 @@ import org.apache.calcite.runtime.Feature;
 import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.schema.FunctionParameter;
-import org.apache.calcite.schema.Macro;
+import org.apache.calcite.schema.impl.Macro;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.impl.AbstractSchema;
 import org.apache.calcite.schema.impl.ExplicitRowTypeTable;
@@ -71,7 +71,6 @@ import org.apache.calcite.sql.SqlDateTimeAtLocal;
 import org.apache.calcite.sql.SqlDateTimeAtTimeZone;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
-import org.apache.calcite.sql.SqlExecMacro;
 import org.apache.calcite.sql.SqlExplain;
 import org.apache.calcite.sql.SqlFunction;
 import org.apache.calcite.sql.SqlFunctionCategory;
@@ -1341,16 +1340,19 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         assert call instanceof SqlBasicCall;
         final SqlUnresolvedFunction function =
             (SqlUnresolvedFunction) call.getOperator();
-        // This function hasn't been resolved yet.  Perform
-        // a half-hearted resolution now in case it's a
-        // builtin function requiring special casing.  If it's
-        // not, we'll handle it later during overload resolution.
-        final List<SqlOperator> overloads = new ArrayList<>();
-        opTab.lookupOperatorOverloads(function.getNameAsId(),
-            function.getFunctionType(), SqlSyntax.FUNCTION, overloads,
-            catalogReader.nameMatcher());
-        if (overloads.size() == 1) {
-          ((SqlBasicCall) call).setOperator(overloads.get(0));
+        SqlFunctionCategory category = function.getFunctionType();
+        if (category == null || !category.isUserDefinedMacro()) {
+          // This function hasn't been resolved yet.  Perform
+          // a half-hearted resolution now in case it's a
+          // builtin function requiring special casing.  If it's
+          // not, we'll handle it later during overload resolution.
+          final List<SqlOperator> overloads = new ArrayList<>();
+          opTab.lookupOperatorOverloads(function.getNameAsId(),
+              function.getFunctionType(), SqlSyntax.FUNCTION, overloads,
+              catalogReader.nameMatcher());
+          if (overloads.size() == 1) {
+            ((SqlBasicCall) call).setOperator(overloads.get(0));
+          }
         }
       }
       if (config.callRewrite()) {
@@ -1764,6 +1766,12 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     }
     if (node instanceof SqlIdentifier) {
       return getCatalogReader().getNamedType((SqlIdentifier) node);
+    } else if (node instanceof SqlBasicCall) {
+      SqlBasicCall call = (SqlBasicCall) node;
+      if (call.getOperator().kind == SqlKind.EXECUTE) {
+        Preconditions.checkArgument(call.operandCount() == 1);
+        return getValidatedNodeType(call.operands[0]);
+      }
     }
     return null;
   }
@@ -3413,20 +3421,6 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     }
     schema.add(createTable.name.toString(),
         new ExplicitRowTypeTable(builder.build()));
-  }
-
-  @Override public void validateExecuteMacro(SqlExecMacro execMacro) {
-    Preconditions.checkArgument(execMacro != null);
-    nodeToTypeMap.put(execMacro, unknownType);
-    Macro macro = catalogReader.getMacro(execMacro.name.names);
-    if (macro == null) {
-      throw new IllegalStateException("Macro " + execMacro.name.toString()
-          + " does not exist.");
-    }
-    if (execMacro.params.size() != macro.parameters.size()) {
-      throw new IllegalStateException("Expected " + macro.parameters.size()
-          + " arguments but instead got " + execMacro.params.size());
-    }
   }
 
   /**
