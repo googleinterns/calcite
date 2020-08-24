@@ -23,7 +23,6 @@ import org.apache.calcite.linq4j.tree.Expression;
 import org.apache.calcite.materialize.Lattice;
 import org.apache.calcite.rel.type.RelProtoDataType;
 import org.apache.calcite.schema.Function;
-import org.apache.calcite.schema.Macro;
 import org.apache.calcite.schema.Schema;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.SchemaVersion;
@@ -654,15 +653,6 @@ public abstract class CalciteSchema {
     }
   }
 
-  /** Membership of a macro in a schema. */
-  public abstract static class MacroEntry extends Entry {
-    public MacroEntry(CalciteSchema schema, String name) {
-      super(schema, name);
-    }
-
-    public abstract Macro getMacro();
-  }
-
   /** Membership of a lattice in a schema. */
   public abstract static class LatticeEntry extends Entry {
     public LatticeEntry(CalciteSchema schema, String name) {
@@ -850,31 +840,6 @@ public abstract class CalciteSchema {
     public boolean isMaterialization() {
       return function
           instanceof MaterializedViewTable.MaterializedViewTableMacro;
-    }
-  }
-
-  /**
-   * Implementation of {@link MacroEntry} where all properties are held in
-   * fields.
-   */
-  public static class MacroEntryImpl extends MacroEntry {
-    private final Macro macro;
-
-    /**
-     * Creates a {@code MacroEntryImpl}.
-     *
-     * @param schema The schema
-     * @param name The name of the macro
-     * @param macro The underlying macro
-     */
-    public MacroEntryImpl(CalciteSchema schema, String name,
-        Macro macro) {
-      super(schema, name);
-      this.macro = macro;
-    }
-
-    public Macro getMacro() {
-      return macro;
     }
   }
 

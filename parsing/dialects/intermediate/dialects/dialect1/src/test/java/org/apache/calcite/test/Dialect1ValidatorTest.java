@@ -448,13 +448,6 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(query).fails("No match found for function signature BAZ\\(\\)");
   }
 
-  @Test public void testCreateMacroNonExistentMacroFails() {
-    String ddl = "create macro foo as (select * from bar;)";
-    String query = "execute baz";
-    sql(ddl).ok();
-    sql(query).fails("Macro BAZ does not exist\\.");
-  }
-
   @Test public void testCreateMacroDuplicateFails() {
     String ddl = "create macro foo as (select * from bar;)";
     String ddl2 = "create macro foo as (select * from baz)";
