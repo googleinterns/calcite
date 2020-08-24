@@ -58,7 +58,7 @@ public class SqlExecMacroParam extends SqlNode {
     return null;
   }
 
-  // Intentionally eturn false.
+  // Intentionally return false.
   @Override public boolean equalsDeep(SqlNode node, Litmus litmus) {
     return false;
   }
