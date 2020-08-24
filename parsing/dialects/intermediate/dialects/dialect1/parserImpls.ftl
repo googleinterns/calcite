@@ -1616,7 +1616,7 @@ SqlNode DateTimeTerm() :
     |
         [<TIME> <ZONE>]
         (
-            displacement = SimpleIdentifier()
+            displacement = StringLiteral()
         |
             displacement = IntervalLiteral()
         |
@@ -2128,7 +2128,7 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
 SqlNode InlineCaseSpecific() :
 {
     final SqlNode value;
-    final SqlCaseSpecific caseSpecific;
+    final SqlCall caseSpecific;
 }
 {
     (
@@ -2143,13 +2143,13 @@ SqlNode InlineCaseSpecific() :
     }
 }
 
-SqlCaseSpecific CaseSpecific(SqlNode value) :
+SqlCall CaseSpecific(SqlNode value) :
 {
-    boolean not = false;
+    boolean includeNot = false;
 }
 {
     <LPAREN>
-    [ <NOT> { not = true; } ]
+    [ <NOT> { includeNot = true; } ]
     (
         <CASESPECIFIC>
     |
@@ -2157,7 +2157,9 @@ SqlCaseSpecific CaseSpecific(SqlNode value) :
     )
     <RPAREN>
     {
-        return new SqlCaseSpecific(getPos(), not, value);
+        return includeNot
+            ? SqlStdOperatorTable.NOT_CASE_SPECIFIC.createCall(getPos(), value)
+            : SqlStdOperatorTable.CASE_SPECIFIC.createCall(getPos(), value);
     }
 }
 

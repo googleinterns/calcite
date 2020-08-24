@@ -44,7 +44,6 @@ data: {
       "org.apache.calcite.sql.SqlBeginRequestCall",
       "org.apache.calcite.sql.SqlBlobTypeNameSpec",
       "org.apache.calcite.sql.SqlCaseN",
-      "org.apache.calcite.sql.SqlCaseSpecific",
       "org.apache.calcite.sql.SqlCaseStmt",
       "org.apache.calcite.sql.SqlCaseStmtWithConditionalExpression",
       "org.apache.calcite.sql.SqlCaseStmtWithOperand",

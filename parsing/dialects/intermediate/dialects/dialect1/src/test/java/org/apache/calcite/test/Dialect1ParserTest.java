@@ -1214,20 +1214,20 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   }
 
   @Test public void testDateTimePrimaryLiteralAtTimeZone() {
-    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone \"GMT+10\"";
-    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT TIME ZONE `GMT+10`";
+    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone 'GMT+10'";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT TIME ZONE 'GMT+10'";
     sql(sql).ok(expected);
   }
 
   @Test public void testDateTimePrimaryColumnAtTimeZone() {
-    final String sql = "select foo at time zone \"Europe Moscow\"";
-    final String expected = "SELECT `FOO` AT TIME ZONE `Europe Moscow`";
+    final String sql = "select foo at time zone 'Europe Moscow'";
+    final String expected = "SELECT `FOO` AT TIME ZONE 'Europe Moscow'";
     sql(sql).ok(expected);
   }
 
   @Test public void testDateTimePrimaryBuiltInFunctionAtTimeZone() {
-    final String sql = "select current_date at time zone \"GMT-5\"";
-    final String expected = "SELECT CURRENT_DATE AT TIME ZONE `GMT-5`";
+    final String sql = "select current_date at time zone 'GMT-5'";
+    final String expected = "SELECT CURRENT_DATE AT TIME ZONE 'GMT-5'";
     sql(sql).ok(expected);
   }
 
@@ -1280,12 +1280,6 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "1.5";
     final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
         + "TIME ZONE 1.5";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testAtTimeZoneDisplacementNonUnicodeString() {
-    final String sql = "select foo at time zone \"Hădrĭa\"";
-    final String expected = "SELECT `FOO` AT TIME ZONE `Hădrĭa`";
     sql(sql).ok(expected);
   }
 

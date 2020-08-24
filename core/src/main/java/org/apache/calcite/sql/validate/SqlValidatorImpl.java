@@ -68,6 +68,7 @@ import org.apache.calcite.sql.SqlCreateProcedure;
 import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDateTimeAtLocal;
+import org.apache.calcite.sql.SqlDateTimeAtTimeZone;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
 import org.apache.calcite.sql.SqlExecMacro;
@@ -6142,6 +6143,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     @Override public Void visit(SqlDateTimeAtLocal dateTimeAtLocal) {
       throw Util.needToImplement(dateTimeAtLocal);
     }
+
+    @Override public Void visit(SqlDateTimeAtTimeZone dateAtTimeZone) {
+      throw Util.needToImplement(dateAtTimeZone);
+    }
   }
 
   /**
@@ -6291,6 +6296,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
     @Override public RelDataType visit(SqlDateTimeAtLocal dateTimeAtLocal) {
       return SqlValidatorImpl.this.deriveType(scope, dateTimeAtLocal.dateTimePrimary);
+    }
+
+    @Override public RelDataType visit(SqlDateTimeAtTimeZone dateAtTimeZone) {
+      return unknownType;
     }
   }
 
@@ -6942,6 +6951,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     }
 
     @Override public Set<String> visit(SqlColumnAttribute attribute) {
+      return ImmutableSet.of();
+    }
+
+    @Override public Set<String> visit(SqlDateTimeAtTimeZone dateAtTimeZone) {
       return ImmutableSet.of();
     }
 
