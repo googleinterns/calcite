@@ -65,6 +65,14 @@ public enum SqlFunctionCategory {
     return properties.contains(USER_DEFINED);
   }
 
+  public boolean isUserDefinedFunction() {
+    return isUserDefined() && isFunction();
+  }
+
+  public boolean isUserDefinedMacro() {
+    return isUserDefined() && properties.contains(MACRO);
+  }
+
   public boolean isTableFunction() {
     return properties.contains(TABLE_FUNCTION);
   }

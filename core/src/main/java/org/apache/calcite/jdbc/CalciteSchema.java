@@ -28,6 +28,7 @@ import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.SchemaVersion;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.TableMacro;
+import org.apache.calcite.schema.impl.Macro;
 import org.apache.calcite.schema.impl.MaterializedViewTable;
 import org.apache.calcite.schema.impl.StarTable;
 import org.apache.calcite.util.NameMap;
@@ -64,6 +65,7 @@ public abstract class CalciteSchema {
   /** Tables explicitly defined in this schema. Does not include tables in
    *  {@link #schema}. */
   protected final NameMap<TableEntry> tableMap;
+  protected final NameMap<FunctionEntry> macroMap;
   protected final NameMultimap<FunctionEntry> functionMap;
   protected final NameMap<TypeEntry> typeMap;
   protected final NameMap<LatticeEntry> latticeMap;
@@ -81,6 +83,7 @@ public abstract class CalciteSchema {
     this.parent = parent;
     this.schema = schema;
     this.name = name;
+    this.macroMap = new NameMap<>();
     if (tableMap == null) {
       this.tableMap = new NameMap<>();
     } else {
@@ -217,6 +220,16 @@ public abstract class CalciteSchema {
     if (function.getParameters().isEmpty()) {
       nullaryFunctionMap.put(name, entry);
     }
+    return entry;
+  }
+
+  public FunctionEntry add(String name, Macro macro) {
+    final FunctionEntryImpl entry = new FunctionEntryImpl(this, name, macro);
+    if (macroMap.containsKey(name, false)) {
+      throw new IllegalStateException("Error: a macro called " + name
+          + " already exists");
+    }
+    macroMap.put(name, entry);
     return entry;
   }
 
@@ -401,6 +414,21 @@ public abstract class CalciteSchema {
     // Add implicit functions, case-sensitive.
     addImplicitFuncNamesToBuilder(builder);
     return builder.build();
+  }
+
+  /**
+   * Returns the macro with the given name.
+   *
+   * @param macroName The name of the macro
+   * @param caseSensitive Whether or not check is case sensitive
+   *
+   * @return The found macro entry or null if it doesn't exist
+   */
+  public final Macro getMacro(String macroName, boolean caseSensitive) {
+    if (macroMap.containsKey(macroName, caseSensitive)) {
+      return (Macro) macroMap.map().get(macroName).getFunction();
+    }
+    return null;
   }
 
   /** Returns tables derived from explicit and implicit functions

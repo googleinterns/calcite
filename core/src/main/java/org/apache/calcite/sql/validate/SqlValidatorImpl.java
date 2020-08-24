@@ -44,6 +44,7 @@ import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.impl.AbstractSchema;
 import org.apache.calcite.schema.impl.ExplicitRowTypeTable;
 import org.apache.calcite.schema.impl.FunctionParameterImpl;
+import org.apache.calcite.schema.impl.Macro;
 import org.apache.calcite.schema.impl.ModifiableViewTable;
 import org.apache.calcite.schema.impl.UserDefinedFunction;
 import org.apache.calcite.sql.JoinConditionType;
@@ -62,6 +63,7 @@ import org.apache.calcite.sql.SqlConditionDeclaration;
 import org.apache.calcite.sql.SqlConditionalStmt;
 import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateFunctionSqlForm;
+import org.apache.calcite.sql.SqlCreateMacro;
 import org.apache.calcite.sql.SqlCreateProcedure;
 import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
@@ -1761,6 +1763,12 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     }
     if (node instanceof SqlIdentifier) {
       return getCatalogReader().getNamedType((SqlIdentifier) node);
+    } else if (node instanceof SqlBasicCall) {
+      SqlBasicCall call = (SqlBasicCall) node;
+      if (call.getOperator().kind == SqlKind.EXECUTE) {
+        Preconditions.checkArgument(call.operandCount() == 1);
+        return getValidatedNodeType(call.operands[0]);
+      }
     }
     return null;
   }
@@ -2626,7 +2634,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     List<SqlNode> operands;
     switch (node.getKind()) {
     case CREATE_FUNCTION:
+    case CREATE_MACRO:
     case CREATE_TABLE:
+    case EXECUTE:
       return;
     case SELECT:
       final SqlSelect select = (SqlSelect) node;
@@ -3356,6 +3366,26 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
             paramType.deriveType(this), /*optional=*/ false));
     }
     schema.add(name, new UserDefinedFunction(parameters, returnType));
+  }
+
+  @Override public void validateCreateMacro(SqlCreateMacro createMacro) {
+    Preconditions.checkArgument(createMacro != null);
+    nodeToTypeMap.put(createMacro, unknownType);
+    CalciteSchema schema = getOrCreateParentSchema(createMacro.macroName);
+    String name = Iterables.getLast(createMacro.macroName.names);
+    List<FunctionParameter> parameters = new ArrayList<>();
+    if (createMacro.attributes == null) {
+      schema.add(name, new Macro(parameters));
+      return;
+    }
+    for (int i = 0; i < createMacro.attributes.size(); i++) {
+      SqlColumnDeclaration attribute =
+          (SqlColumnDeclaration) createMacro.attributes.get(i);
+      parameters.add(
+          new FunctionParameterImpl(i, attribute.name.toString(),
+            attribute.dataType.deriveType(this), /*optional=*/ false));
+    }
+    schema.add(name, new Macro(parameters));
   }
 
   @Override public void validateCreateTable(SqlCreateTable createTable) {

@@ -400,6 +400,61 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(query).fails("end index \\(3\\) must not be greater than size \\(2\\)");
   }
 
+  @Test public void testCreateMacro() {
+    String ddl = "create macro foo as (select * from bar;)";
+    String query = "execute foo";
+    sql(ddl).ok();
+    sql(query).ok();
+  }
+
+  @Test public void testCreateMacroCompoundIdentifier() {
+    String ddl = "create macro foo.bar as (select * from baz;)";
+    String query = "execute foo.bar";
+    sql(ddl).ok();
+    sql(query).ok();
+  }
+
+  @Test public void testCreateMacroWithParams() {
+    String ddl = "create macro foo(num int, val varchar) as (select * from bar;)";
+    String query = "execute foo(1, 'str')";
+    sql(ddl).ok();
+    sql(query).ok();
+  }
+
+  @Test public void testCreateMacroAndFunctionExecFunctionFails() {
+    String macroDdl = "create macro foo(num int, val varchar) as (select * from bar;)";
+    String functionDdl = "create function foo(x int) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "execute ^foo(1)^";
+    sql(macroDdl).ok();
+    sql(functionDdl).ok();
+    sql(query).fails("No match found for function signature FOO\\(<NUMERIC>\\)");
+  }
+
+  @Test public void testCreateMacroInvalidNumberOfArgumentsFails() {
+    String ddl = "create macro foo(num int, val varchar) as (select * from bar;)";
+    String query = "execute ^foo(1)^";
+    sql(ddl).ok();
+    sql(query).fails("No match found for function signature FOO\\(<NUMERIC>\\)");
+  }
+
+  @Test public void testCreateMacroNonExistentMacroFails() {
+    String ddl = "create macro foo as (select * from bar;)";
+    String query = "execute ^baz^";
+    sql(ddl).ok();
+    sql(query).fails("No match found for function signature BAZ\\(\\)");
+  }
+
+  @Test public void testCreateMacroDuplicateFails() {
+    String ddl = "create macro foo as (select * from bar;)";
+    String ddl2 = "create macro foo as (select * from baz)";
+    sql(ddl).ok();
+    sql(ddl2).fails("Error: a macro called FOO already exists");
+  }
+
   @Test public void testColumnAtLocal() {
     String sql = "select hiredate at local from emp";
     String expectedType = "RecordType(TIMESTAMP(0) NOT NULL EXPR$0) NOT NULL";

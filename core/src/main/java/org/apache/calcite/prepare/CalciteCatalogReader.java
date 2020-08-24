@@ -34,6 +34,7 @@ import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.TableFunction;
 import org.apache.calcite.schema.TableMacro;
 import org.apache.calcite.schema.Wrapper;
+import org.apache.calcite.schema.impl.Macro;
 import org.apache.calcite.schema.impl.ScalarFunctionImpl;
 import org.apache.calcite.sql.SqlFunctionCategory;
 import org.apache.calcite.sql.SqlIdentifier;
@@ -137,8 +138,52 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
     return config;
   }
 
+  /**
+   * Gets the macro with the given name if it exists.
+   *
+   * @param names The name of the macro, list represents possibility of a
+   *              compound identifier
+   *
+   * @return The found macro, or null
+   */
+  private Macro getMacro(List<String> names) {
+    final List<List<String>> schemaNameList = computeSchemaNameList(names);
+    for (List<String> schemaNames : schemaNameList) {
+      CalciteSchema schema = getSchema(schemaNames, names);
+      if (schema == null) {
+        continue;
+      }
+      final String name = Util.last(names);
+      boolean caseSensitive = nameMatcher.isCaseSensitive();
+      Macro macro = schema.getMacro(name, caseSensitive);
+      if (macro != null) {
+        return macro;
+      }
+    }
+    return null;
+  }
+
   private Collection<Function> getFunctionsFrom(List<String> names) {
     final List<Function> functions2 = new ArrayList<>();
+    final List<List<String>> schemaNameList = computeSchemaNameList(names);
+    for (List<String> schemaNames : schemaNameList) {
+      CalciteSchema schema = getSchema(schemaNames, names);
+      if (schema == null) {
+        continue;
+      }
+      final String name = Util.last(names);
+      boolean caseSensitive = nameMatcher.isCaseSensitive();
+      functions2.addAll(schema.getFunctions(name, caseSensitive));
+    }
+    return functions2;
+  }
+
+  private CalciteSchema getSchema(List<String> schemaNames, List<String> names) {
+    return SqlValidatorUtil.getSchema(rootSchema,
+              Iterables.concat(schemaNames, Util.skipLast(names)), nameMatcher);
+  }
+
+  private List<List<String>> computeSchemaNameList(List<String> names) {
     final List<List<String>> schemaNameList = new ArrayList<>();
     if (names.size() > 1) {
       // Name qualified: ignore path. But we do look in "/catalog" and "/",
@@ -157,17 +202,7 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
         }
       }
     }
-    for (List<String> schemaNames : schemaNameList) {
-      CalciteSchema schema =
-          SqlValidatorUtil.getSchema(rootSchema,
-              Iterables.concat(schemaNames, Util.skipLast(names)), nameMatcher);
-      if (schema != null) {
-        final String name = Util.last(names);
-        boolean caseSensitive = nameMatcher.isCaseSensitive();
-        functions2.addAll(schema.getFunctions(name, caseSensitive));
-      }
-    }
-    return functions2;
+    return schemaNameList;
   }
 
   public RelDataType getNamedType(SqlIdentifier typeName) {
@@ -260,10 +295,17 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
       predicate = function ->
           function instanceof TableMacro
               || function instanceof TableFunction;
+    } else if (category.isUserDefinedMacro()) {
+      predicate = function -> function instanceof Macro;
+      Macro macro = getMacro(opName.names);
+      if (macro != null) {
+        operatorList.add(toOp(opName, macro));
+      }
     } else {
       predicate = function ->
           !(function instanceof TableMacro
-              || function instanceof TableFunction);
+              || function instanceof TableFunction
+              || function instanceof Macro);
     }
     getFunctionsFrom(opName.names)
         .stream()
@@ -321,7 +363,11 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
         OperandTypes.family(typeFamilies, i ->
             function.getParameters().get(i).isOptional());
     final List<RelDataType> paramTypes = toSql(typeFactory, argTypes);
-    if (function instanceof ScalarFunction) {
+    if (function instanceof Macro) {
+      return new SqlUserDefinedFunction(name, getAnyType(),
+          InferTypes.explicit(argTypes), typeChecker, paramTypes, function,
+          SqlFunctionCategory.USER_DEFINED_MACRO);
+    } else if (function instanceof ScalarFunction) {
       return new SqlUserDefinedFunction(name, infer((ScalarFunction) function),
           InferTypes.explicit(argTypes), typeChecker, paramTypes, function);
     } else if (function instanceof AggregateFunction) {
@@ -340,6 +386,14 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
     } else {
       throw new AssertionError("unknown function type " + function);
     }
+  }
+
+  private static SqlReturnTypeInference getAnyType() {
+    return opBinding -> {
+      final RelDataTypeFactory typeFactory = opBinding.getTypeFactory();
+      final RelDataType type = typeFactory.createSqlType(SqlTypeName.ANY);
+      return toSql(typeFactory, type);
+    };
   }
 
   private static SqlReturnTypeInference infer(final ScalarFunction function) {
