@@ -54,15 +54,6 @@ public interface SqlValidatorCatalogReader extends Wrapper {
   SqlValidatorTable getTable(List<String> names);
 
   /**
-   * Finds a macro with the given name.
-   *
-   * @param names Name of the macro
-   *
-   * @return Macro with the given name, or null
-   */
-  Macro getMacro(List<String> names);
-
-  /**
    * Finds a user-defined type with the given name, possibly qualified.
    *
    * <p>NOTE jvs 12-Feb-2005: the reason this method is defined here instead
