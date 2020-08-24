@@ -89,7 +89,9 @@ public abstract class ReflectiveSqlOperatorTable implements SqlOperatorTable {
       SqlFunctionCategory category, SqlSyntax syntax,
       List<SqlOperator> operatorList, SqlNameMatcher nameMatcher) {
     // NOTE jvs 3-Mar-2005:  ignore category until someone cares
-
+    if (category != null && category.isUserDefinedMacro()) {
+      return;
+    }
     String simpleName;
     if (opName.names.size() > 1) {
       if (opName.names.get(opName.names.size() - 2).equals(IS_NAME)) {

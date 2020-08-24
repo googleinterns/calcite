@@ -29,6 +29,7 @@ import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.SchemaVersion;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.TableMacro;
+import org.apache.calcite.schema.impl.Macro;
 import org.apache.calcite.schema.impl.MaterializedViewTable;
 import org.apache.calcite.schema.impl.StarTable;
 import org.apache.calcite.util.NameMap;
@@ -65,7 +66,7 @@ public abstract class CalciteSchema {
   /** Tables explicitly defined in this schema. Does not include tables in
    *  {@link #schema}. */
   protected final NameMap<TableEntry> tableMap;
-  protected final NameMap<MacroEntry> macroMap;
+  protected final NameMap<FunctionEntry> macroMap;
   protected final NameMultimap<FunctionEntry> functionMap;
   protected final NameMap<TypeEntry> typeMap;
   protected final NameMap<LatticeEntry> latticeMap;
@@ -223,8 +224,8 @@ public abstract class CalciteSchema {
     return entry;
   }
 
-  public MacroEntry add(String name, Macro macro) {
-    final MacroEntryImpl entry = new MacroEntryImpl(this, name, macro);
+  public FunctionEntry add(String name, Macro macro) {
+    final FunctionEntryImpl entry = new FunctionEntryImpl(this, name, macro);
     if (macroMap.containsKey(name, false)) {
       throw new IllegalStateException("Error: a macro called " + name
           + " already exists");
@@ -426,7 +427,7 @@ public abstract class CalciteSchema {
    */
   public final Macro getMacro(String macroName, boolean caseSensitive) {
     if (macroMap.containsKey(macroName, caseSensitive)) {
-      return macroMap.map().get(macroName).getMacro();
+      return (Macro) macroMap.map().get(macroName).getFunction();
     }
     return null;
   }

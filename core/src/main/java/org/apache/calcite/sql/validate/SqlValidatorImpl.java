@@ -45,6 +45,7 @@ import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.impl.AbstractSchema;
 import org.apache.calcite.schema.impl.ExplicitRowTypeTable;
 import org.apache.calcite.schema.impl.FunctionParameterImpl;
+import org.apache.calcite.schema.impl.Macro;
 import org.apache.calcite.schema.impl.ModifiableViewTable;
 import org.apache.calcite.schema.impl.UserDefinedFunction;
 import org.apache.calcite.sql.JoinConditionType;
@@ -1341,16 +1342,21 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         assert call instanceof SqlBasicCall;
         final SqlUnresolvedFunction function =
             (SqlUnresolvedFunction) call.getOperator();
-        // This function hasn't been resolved yet.  Perform
-        // a half-hearted resolution now in case it's a
-        // builtin function requiring special casing.  If it's
-        // not, we'll handle it later during overload resolution.
-        final List<SqlOperator> overloads = new ArrayList<>();
-        opTab.lookupOperatorOverloads(function.getNameAsId(),
-            function.getFunctionType(), SqlSyntax.FUNCTION, overloads,
-            catalogReader.nameMatcher());
-        if (overloads.size() == 1) {
-          ((SqlBasicCall) call).setOperator(overloads.get(0));
+        SqlFunctionCategory category = function.getFunctionType();
+        // Don't want to overwrite macros since they lose their identifiable
+        // category.
+        if (category == null || !category.isUserDefinedMacro()) {
+          // This function hasn't been resolved yet.  Perform
+          // a half-hearted resolution now in case it's a
+          // builtin function requiring special casing.  If it's
+          // not, we'll handle it later during overload resolution.
+          final List<SqlOperator> overloads = new ArrayList<>();
+          opTab.lookupOperatorOverloads(function.getNameAsId(),
+              function.getFunctionType(), SqlSyntax.FUNCTION, overloads,
+              catalogReader.nameMatcher());
+          if (overloads.size() == 1) {
+            ((SqlBasicCall) call).setOperator(overloads.get(0));
+          }
         }
       }
       if (config.callRewrite()) {
@@ -1764,6 +1770,12 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     }
     if (node instanceof SqlIdentifier) {
       return getCatalogReader().getNamedType((SqlIdentifier) node);
+    } else if (node instanceof SqlBasicCall) {
+      SqlBasicCall call = (SqlBasicCall) node;
+      if (call.getOperator().kind == SqlKind.EXECUTE) {
+        Preconditions.checkArgument(call.operandCount() == 1);
+        return getValidatedNodeType(call.operands[0]);
+      }
     }
     return null;
   }
