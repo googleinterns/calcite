@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 
 import static org.apache.calcite.sql.SqlFunctionCategory.Property.FUNCTION;
+import static org.apache.calcite.sql.SqlFunctionCategory.Property.MACRO;
 import static org.apache.calcite.sql.SqlFunctionCategory.Property.SPECIFIC;
 import static org.apache.calcite.sql.SqlFunctionCategory.Property.TABLE_FUNCTION;
 import static org.apache.calcite.sql.SqlFunctionCategory.Property.USER_DEFINED;
@@ -35,6 +36,8 @@ public enum SqlFunctionCategory {
   NUMERIC("NUMERIC", "Numeric function", FUNCTION),
   TIMEDATE("TIMEDATE", "Time and date function", FUNCTION),
   SYSTEM("SYSTEM", "System function", FUNCTION),
+  USER_DEFINED_MACRO("UDM", "User-defined macro", USER_DEFINED,
+      MACRO),
   USER_DEFINED_FUNCTION("UDF", "User-defined function", USER_DEFINED,
       FUNCTION),
   USER_DEFINED_PROCEDURE("UDP", "User-defined procedure", USER_DEFINED),
@@ -84,6 +87,6 @@ public enum SqlFunctionCategory {
    * Property of a SqlFunctionCategory.
    */
   enum Property {
-    USER_DEFINED, TABLE_FUNCTION, SPECIFIC, FUNCTION
+    USER_DEFINED, TABLE_FUNCTION, SPECIFIC, FUNCTION, MACRO
   }
 }

@@ -31,6 +31,7 @@ here to appease testAllFunctionsAreDocumented:
 | CUME_DIST()    | In SqlStdOperatorTable, but not fully implemented
 | DESC           | Described as part of ORDER BY syntax
 | EQUALS         | Documented as an period operator
+| EXECUTE        | TODO: document
 | FILTER         | Documented as part of aggregateCall syntax
 | FINAL          | TODO: Document with MATCH_RECOGNIZE
 | FIRST()        | TODO: Documented with MATCH_RECOGNIZE
