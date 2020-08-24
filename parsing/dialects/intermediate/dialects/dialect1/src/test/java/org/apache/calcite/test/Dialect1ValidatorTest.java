@@ -705,4 +705,18 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         .withValidatorIdentifierExpansion(true)
         .rewritesTo(expected);
   }
+
+  @Test public void testAtTimeZone() {
+    String sql = "select hiredate at time zone 'GMT+10' FROM emp";
+    String expected = "SELECT `EMP`.`HIREDATE` AT TIME ZONE 'GMT+10'\n"
+        + "FROM `CATALOG`.`SALES`.`EMP` AS `EMP`";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testAtTimeZoneUnknownTable() {
+    String sql = "select a at time zone 'GMT+10' FROM abc";
+    String expected = "SELECT `ABC`.`A` AT TIME ZONE 'GMT+10'\n"
+        + "FROM `ABC` AS `ABC`";
+    sql(sql).rewritesTo(expected);
+  }
 }

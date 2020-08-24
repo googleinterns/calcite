@@ -8643,6 +8643,7 @@ class SqlValidatorTest extends SqlValidatorTestCase {
         + "\n"
         + "CALL pre\n"
         + "ESCAPE -\n"
+        + "EXECUTE pre\n"
         + "NEW pre\n";
     assertThat(b.toString(), is(expected));
   }
