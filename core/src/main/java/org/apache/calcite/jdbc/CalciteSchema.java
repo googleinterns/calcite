@@ -238,6 +238,10 @@ public abstract class CalciteSchema {
 
   public FunctionEntry add(String name, Procedure procedure) {
     final FunctionEntryImpl entry = new FunctionEntryImpl(this, name, procedure);
+    if (procedureMap.containsKey(name, false)) {
+      throw new IllegalStateException("Error: a procedure called " + name
+          + " already exists");
+    }
     procedureMap.put(name, entry);
     return entry;
   }

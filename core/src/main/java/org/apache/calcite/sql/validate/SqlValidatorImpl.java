@@ -1212,12 +1212,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         || node instanceof SqlMerge
         || node instanceof SqlUpdate) {
       node.validate(this, scope);
-    } else if (node instanceof SqlCreateProcedure) {
-      addProcedureToSchema((SqlCreateProcedure) node);
     }
   }
 
-  private void addProcedureToSchema(SqlCreateProcedure createProcedure) {
+  @Override public void addProcedureToSchema(SqlCreateProcedure createProcedure) {
     Preconditions.checkArgument(createProcedure != null);
     nodeToTypeMap.put(createProcedure, unknownType);
     CalciteSchema schema = getOrCreateParentSchema(createProcedure.procedureName);

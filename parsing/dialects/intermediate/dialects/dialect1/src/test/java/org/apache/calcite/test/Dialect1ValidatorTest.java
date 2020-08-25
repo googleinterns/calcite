@@ -277,6 +277,13 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + " <NUMERIC>\\)");
   }
 
+  @Test public void testCreateProcedureSchemaDuplicateFails() {
+    String ddl = "CREATE PROCEDURE foo(x int) select a from abc";
+    String ddl2 = "CREATE PROCEDURE foo(x int, y varchar) select a from abc";
+    sql(ddl).ok();
+    sql(ddl2).fails("Error: a procedure called FOO already exists");
+  }
+
   @Test public void testCreateProcedureBeginEndLabel() {
     String sql = "create procedure foo()\n"
         + "label1: begin\n"
