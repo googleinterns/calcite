@@ -41,11 +41,11 @@ import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.schema.FunctionParameter;
 import org.apache.calcite.schema.Procedure;
-import org.apache.calcite.schema.Macro;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.impl.AbstractSchema;
 import org.apache.calcite.schema.impl.ExplicitRowTypeTable;
 import org.apache.calcite.schema.impl.FunctionParameterImpl;
+import org.apache.calcite.schema.impl.Macro;
 import org.apache.calcite.schema.impl.ModifiableViewTable;
 import org.apache.calcite.schema.impl.UserDefinedFunction;
 import org.apache.calcite.sql.JoinConditionType;
@@ -70,9 +70,9 @@ import org.apache.calcite.sql.SqlCreateProcedureParameter;
 import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDateTimeAtLocal;
+import org.apache.calcite.sql.SqlDateTimeAtTimeZone;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
-import org.apache.calcite.sql.SqlExecMacro;
 import org.apache.calcite.sql.SqlExplain;
 import org.apache.calcite.sql.SqlFunction;
 import org.apache.calcite.sql.SqlFunctionCategory;
@@ -1781,6 +1781,12 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     }
     if (node instanceof SqlIdentifier) {
       return getCatalogReader().getNamedType((SqlIdentifier) node);
+    } else if (node instanceof SqlBasicCall) {
+      SqlBasicCall call = (SqlBasicCall) node;
+      if (call.getOperator().kind == SqlKind.EXECUTE) {
+        Preconditions.checkArgument(call.operandCount() == 1);
+        return getValidatedNodeType(call.operands[0]);
+      }
     }
     return null;
   }
@@ -3431,20 +3437,6 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     }
     schema.add(createTable.name.toString(),
         new ExplicitRowTypeTable(builder.build()));
-  }
-
-  @Override public void validateExecuteMacro(SqlExecMacro execMacro) {
-    Preconditions.checkArgument(execMacro != null);
-    nodeToTypeMap.put(execMacro, unknownType);
-    Macro macro = catalogReader.getMacro(execMacro.name.names);
-    if (macro == null) {
-      throw new IllegalStateException("Macro " + execMacro.name.toString()
-          + " does not exist.");
-    }
-    if (execMacro.params.size() != macro.parameters.size()) {
-      throw new IllegalStateException("Expected " + macro.parameters.size()
-          + " arguments but instead got " + execMacro.params.size());
-    }
   }
 
   /**
@@ -6161,6 +6153,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     @Override public Void visit(SqlDateTimeAtLocal dateTimeAtLocal) {
       throw Util.needToImplement(dateTimeAtLocal);
     }
+
+    @Override public Void visit(SqlDateTimeAtTimeZone dateAtTimeZone) {
+      throw Util.needToImplement(dateAtTimeZone);
+    }
   }
 
   /**
@@ -6310,6 +6306,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
 
     @Override public RelDataType visit(SqlDateTimeAtLocal dateTimeAtLocal) {
       return SqlValidatorImpl.this.deriveType(scope, dateTimeAtLocal.dateTimePrimary);
+    }
+
+    @Override public RelDataType visit(SqlDateTimeAtTimeZone dateAtTimeZone) {
+      return unknownType;
     }
   }
 
@@ -6961,6 +6961,10 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     }
 
     @Override public Set<String> visit(SqlColumnAttribute attribute) {
+      return ImmutableSet.of();
+    }
+
+    @Override public Set<String> visit(SqlDateTimeAtTimeZone dateAtTimeZone) {
       return ImmutableSet.of();
     }
 

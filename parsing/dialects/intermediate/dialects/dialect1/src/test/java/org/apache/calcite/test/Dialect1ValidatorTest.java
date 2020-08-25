@@ -400,42 +400,55 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(query).fails("end index \\(3\\) must not be greater than size \\(2\\)");
   }
 
-  @Test public void createMacro() {
+  @Test public void testCreateMacro() {
     String ddl = "create macro foo as (select * from bar;)";
     String query = "execute foo";
     sql(ddl).ok();
     sql(query).ok();
   }
 
-  @Test public void createMacroCompoundIdentifier() {
+  @Test public void testCreateMacroCompoundIdentifier() {
     String ddl = "create macro foo.bar as (select * from baz;)";
     String query = "execute foo.bar";
     sql(ddl).ok();
     sql(query).ok();
   }
 
-  @Test public void createMacroWithParams() {
+  @Test public void testCreateMacroWithParams() {
     String ddl = "create macro foo(num int, val varchar) as (select * from bar;)";
     String query = "execute foo(1, 'str')";
     sql(ddl).ok();
     sql(query).ok();
   }
 
-  @Test public void createMacroInvalidNumberOfArgumentsFails() {
+  @Test public void testCreateMacroAndFunctionExecFunctionFails() {
+    String macroDdl = "create macro foo(num int, val varchar) as (select * from bar;)";
+    String functionDdl = "create function foo(x int) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "execute ^foo(1)^";
+    sql(macroDdl).ok();
+    sql(functionDdl).ok();
+    sql(query).fails("No match found for function signature FOO\\(<NUMERIC>\\)");
+  }
+
+  @Test public void testCreateMacroInvalidNumberOfArgumentsFails() {
     String ddl = "create macro foo(num int, val varchar) as (select * from bar;)";
-    String query = "execute foo(1)";
+    String query = "execute ^foo(1)^";
     sql(ddl).ok();
-    sql(query).fails("Expected 2 arguments but instead got 1");
+    sql(query).fails("No match found for function signature FOO\\(<NUMERIC>\\)");
   }
 
-  @Test public void createMacroNonExistentMacroFails() {
+  @Test public void testCreateMacroNonExistentMacroFails() {
     String ddl = "create macro foo as (select * from bar;)";
-    String query = "execute baz";
+    String query = "execute ^baz^";
     sql(ddl).ok();
-    sql(query).fails("Macro BAZ does not exist\\.");
+    sql(query).fails("No match found for function signature BAZ\\(\\)");
   }
 
-  @Test public void createMacroDuplicateFails() {
+  @Test public void testCreateMacroDuplicateFails() {
     String ddl = "create macro foo as (select * from bar;)";
     String ddl2 = "create macro foo as (select * from baz)";
     sql(ddl).ok();
@@ -704,5 +717,39 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(sql)
         .withValidatorIdentifierExpansion(true)
         .rewritesTo(expected);
+  }
+
+  @Test public void testAtTimeZone() {
+    String sql = "select hiredate at time zone 'GMT+10' FROM emp";
+    String expected = "SELECT `EMP`.`HIREDATE` AT TIME ZONE 'GMT+10'\n"
+        + "FROM `CATALOG`.`SALES`.`EMP` AS `EMP`";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testAtTimeZoneUnknownTable() {
+    String sql = "select a at time zone 'GMT+10' FROM abc";
+    String expected = "SELECT `ABC`.`A` AT TIME ZONE 'GMT+10'\n"
+        + "FROM `ABC` AS `ABC`";
+    sql(sql).rewritesTo(expected);
+  }
+
+  @Test public void testCaseSpecific() {
+    String sql = "SELECT * FROM dept WHERE 'Hello' (CASESPECIFIC) "
+        + "= name (NOT CASESPECIFIC)";
+    String expected = "SELECT `DEPT`.`DEPTNO`, `DEPT`.`NAME`\n"
+        + "FROM `CATALOG`.`SALES`.`DEPT` AS `DEPT`\n"
+        + "WHERE 'Hello' (CASESPECIFIC) "
+        + "= `DEPT`.`NAME` (NOT CASESPECIFIC)";
+    sql(sql).ok().rewritesTo(expected);
+  }
+
+  @Test public void testCaseSpecificOnUnknownTable() {
+    String sql = "SELECT a FROM abc WHERE 'Hello' (CASESPECIFIC) "
+        + "= name (NOT CASESPECIFIC)";
+    String expected = "SELECT `ABC`.`A`\n"
+        + "FROM `ABC` AS `ABC`\n"
+        + "WHERE 'Hello' (CASESPECIFIC) "
+        + "= `ABC`.`NAME` (NOT CASESPECIFIC)";
+    sql(sql).ok().rewritesTo(expected);
   }
 }

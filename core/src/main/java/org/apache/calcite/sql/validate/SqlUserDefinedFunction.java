@@ -52,8 +52,8 @@ public class SqlUserDefinedFunction extends SqlFunction {
         paramTypes, function, SqlFunctionCategory.USER_DEFINED_FUNCTION);
   }
 
-  /** Constructor used internally and by derived classes. */
-  protected SqlUserDefinedFunction(SqlIdentifier opName,
+  /** Creates a {@link SqlUserDefinedFunction}. */
+  public SqlUserDefinedFunction(SqlIdentifier opName,
       SqlReturnTypeInference returnTypeInference,
       SqlOperandTypeInference operandTypeInference,
       SqlOperandTypeChecker operandTypeChecker,

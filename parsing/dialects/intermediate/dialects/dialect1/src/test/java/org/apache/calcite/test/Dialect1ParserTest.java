@@ -1141,33 +1141,33 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testExecuteMacroWithOneParamValue() {
     final String sql = "execute foo (1)";
-    final String expected = "EXECUTE `FOO` (1)";
+    final String expected = "EXECUTE `FOO`(1)";
     sql(sql).ok(expected);
   }
 
   @Test public void testExecuteMacroWithOneParamNameWithValue() {
     final String sql = "execute foo (bar = 1)";
-    final String expected = "EXECUTE `FOO` (`BAR` = 1)";
+    final String expected = "EXECUTE `FOO`(`BAR` = 1)";
     sql(sql).ok(expected);
   }
 
   @Test public void testExecuteMacroWithMoreThanOneParamValue() {
     final String sql = "execute foo (1, 'Hello')";
-    final String expected = "EXECUTE `FOO` (1, 'Hello')";
+    final String expected = "EXECUTE `FOO`(1, 'Hello')";
     sql(sql).ok(expected);
   }
 
   @Test public void testExecuteMacroWithMoreThanOneParamNameWithValue() {
     final String sql = "execute foo (bar = 1.3, "
         + "goo = timestamp '2020-05-30 13:20:00')";
-    final String expected = "EXECUTE `FOO` (`BAR` = 1.3, "
+    final String expected = "EXECUTE `FOO`(`BAR` = 1.3, "
         + "`GOO` = TIMESTAMP '2020-05-30 13:20:00')";
     sql(sql).ok(expected);
   }
 
   @Test public void testExecuteMacroWithMoreThanOneParamValueWithNull() {
     final String sql = "execute foo (1, null, 3)";
-    final String expected = "EXECUTE `FOO` (1, NULL, 3)";
+    final String expected = "EXECUTE `FOO`(1, NULL, 3)";
     sql(sql).ok(expected);
   }
 
@@ -1179,7 +1179,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testExecuteMacroWithOmittedValues() {
     final String sql = "execute foo (,,3)";
-    final String expected = "EXECUTE `FOO` (NULL, NULL, 3)";
+    final String expected = "EXECUTE `FOO`(NULL, NULL, 3)";
     sql(sql).ok(expected);
   }
 
@@ -1214,20 +1214,20 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   }
 
   @Test public void testDateTimePrimaryLiteralAtTimeZone() {
-    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone \"GMT+10\"";
-    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT TIME ZONE `GMT+10`";
+    final String sql = "select timestamp '2020-05-30 13:20:00' at time zone 'GMT+10'";
+    final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT TIME ZONE 'GMT+10'";
     sql(sql).ok(expected);
   }
 
   @Test public void testDateTimePrimaryColumnAtTimeZone() {
-    final String sql = "select foo at time zone \"Europe Moscow\"";
-    final String expected = "SELECT `FOO` AT TIME ZONE `Europe Moscow`";
+    final String sql = "select foo at time zone 'Europe Moscow'";
+    final String expected = "SELECT `FOO` AT TIME ZONE 'Europe Moscow'";
     sql(sql).ok(expected);
   }
 
   @Test public void testDateTimePrimaryBuiltInFunctionAtTimeZone() {
-    final String sql = "select current_date at time zone \"GMT-5\"";
-    final String expected = "SELECT CURRENT_DATE AT TIME ZONE `GMT-5`";
+    final String sql = "select current_date at time zone 'GMT-5'";
+    final String expected = "SELECT CURRENT_DATE AT TIME ZONE 'GMT-5'";
     sql(sql).ok(expected);
   }
 
@@ -1280,12 +1280,6 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "1.5";
     final String expected = "SELECT TIMESTAMP '2020-05-30 13:20:00' AT "
         + "TIME ZONE 1.5";
-    sql(sql).ok(expected);
-  }
-
-  @Test public void testAtTimeZoneDisplacementNonUnicodeString() {
-    final String sql = "select foo at time zone \"Hădrĭa\"";
-    final String expected = "SELECT `FOO` AT TIME ZONE `Hădrĭa`";
     sql(sql).ok(expected);
   }
 
@@ -2650,13 +2644,13 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testHostVariableExecPositionalParams() {
     final String sql = "exec foo (:bar, :baz, :qux)";
-    final String expected = "EXECUTE `FOO` (:BAR, :BAZ, :QUX)";
+    final String expected = "EXECUTE `FOO`(:BAR, :BAZ, :QUX)";
     sql(sql).ok(expected);
   }
 
   @Test public void testHostVariableExecNamedParams() {
     final String sql = "exec foo (bar=:bar, baz=:baz, qux=:qux)";
-    final String expected = "EXECUTE `FOO` (`BAR` = :BAR, `BAZ` = :BAZ,"
+    final String expected = "EXECUTE `FOO`(`BAR` = :BAR, `BAZ` = :BAZ,"
         + " `QUX` = :QUX)";
     sql(sql).ok(expected);
   }
@@ -5473,7 +5467,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "end";
     final String expected = "CREATE PROCEDURE `FOO` ()\n"
         + "BEGIN\n"
-        + "EXECUTE `FOO` (1);\n"
+        + "EXECUTE `FOO`(1);\n"
         + "END";
     sql(sql).ok(expected);
   }

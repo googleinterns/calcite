@@ -8517,7 +8517,9 @@ class SqlValidatorTest extends SqlValidatorTestCase {
         + "$LiteralChain -\n"
         + "+ pre\n"
         + "- pre\n"
+        + "CASESPECIFIC post\n"
         + "FINAL pre\n"
+        + "NOT CASESPECIFIC post\n"
         + "RUNNING pre\n"
         + "\n"
         + "| left\n"
@@ -8643,6 +8645,7 @@ class SqlValidatorTest extends SqlValidatorTestCase {
         + "\n"
         + "CALL pre\n"
         + "ESCAPE -\n"
+        + "EXECUTE pre\n"
         + "NEW pre\n";
     assertThat(b.toString(), is(expected));
   }

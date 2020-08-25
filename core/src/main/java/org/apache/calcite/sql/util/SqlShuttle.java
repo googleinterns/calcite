@@ -20,6 +20,7 @@ import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDateTimeAtLocal;
+import org.apache.calcite.sql.SqlDateTimeAtTimeZone;
 import org.apache.calcite.sql.SqlDynamicParam;
 import org.apache.calcite.sql.SqlHostVariable;
 import org.apache.calcite.sql.SqlIdentifier;
@@ -77,6 +78,10 @@ public class SqlShuttle extends SqlBasicVisitor<SqlNode> {
 
   @Override public SqlNode visit(SqlDateTimeAtLocal dateTimeAtLocal) {
     return dateTimeAtLocal;
+  }
+
+  @Override public SqlNode visit(SqlDateTimeAtTimeZone dateAtTimeZone) {
+    return dateAtTimeZone;
   }
 
   public SqlNode visit(final SqlCall call) {

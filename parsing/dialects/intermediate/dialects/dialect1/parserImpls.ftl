@@ -1310,19 +1310,12 @@ SqlIndex SqlCreateTableIndex(Span s) :
    )
 }
 
-
-/**
-    Reason for having this is to be able to return the SqlExecMacro class since
-    Parser.jj does not have it as a reference.
-
-    This can also likely be extended to accomodate optional parameters later if
-    need be.
-*/
 SqlNode SqlExecMacro() :
 {
-    SqlIdentifier macro;
-    SqlNodeList params = new SqlNodeList(getPos());
-    Span s;
+    final SqlIdentifier macro;
+    final SqlNodeList params = new SqlNodeList(getPos());
+    final SqlNode macroCall;
+    final Span s;
 }
 {
     macro = CompoundIdentifier() { s = span(); }
@@ -1330,7 +1323,10 @@ SqlNode SqlExecMacro() :
         SqlExecMacroArgument(params)
     ]
     {
-        return new SqlExecMacro(s.end(this), macro, params);
+        macroCall = createCall(macro, s.end(this),
+            SqlFunctionCategory.USER_DEFINED_MACRO, null, params);
+        return SqlStdOperatorTable.EXEC_MACRO.createCall(s.end(this),
+            macroCall);
     }
 }
 
@@ -1616,7 +1612,7 @@ SqlNode DateTimeTerm() :
     |
         [<TIME> <ZONE>]
         (
-            displacement = SimpleIdentifier()
+            displacement = StringLiteral()
         |
             displacement = IntervalLiteral()
         |
@@ -2128,7 +2124,7 @@ SqlNode SqlSelectTopN(SqlParserPos pos) :
 SqlNode InlineCaseSpecific() :
 {
     final SqlNode value;
-    final SqlCaseSpecific caseSpecific;
+    final SqlCall caseSpecific;
 }
 {
     (
@@ -2143,13 +2139,13 @@ SqlNode InlineCaseSpecific() :
     }
 }
 
-SqlCaseSpecific CaseSpecific(SqlNode value) :
+SqlCall CaseSpecific(SqlNode value) :
 {
-    boolean not = false;
+    boolean includeNot = false;
 }
 {
     <LPAREN>
-    [ <NOT> { not = true; } ]
+    [ <NOT> { includeNot = true; } ]
     (
         <CASESPECIFIC>
     |
@@ -2157,7 +2153,9 @@ SqlCaseSpecific CaseSpecific(SqlNode value) :
     )
     <RPAREN>
     {
-        return new SqlCaseSpecific(getPos(), not, value);
+        return includeNot
+            ? SqlStdOperatorTable.NOT_CASE_SPECIFIC.createCall(getPos(), value)
+            : SqlStdOperatorTable.CASE_SPECIFIC.createCall(getPos(), value);
     }
 }
 

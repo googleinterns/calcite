@@ -20,7 +20,6 @@ import org.apache.calcite.config.CalciteConnectionConfig;
 import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeField;
-import org.apache.calcite.schema.Macro;
 import org.apache.calcite.schema.Wrapper;
 import org.apache.calcite.sql.SqlIdentifier;
 
@@ -52,15 +51,6 @@ public interface SqlValidatorCatalogReader extends Wrapper {
    * @return Table with the given name, or null
    */
   SqlValidatorTable getTable(List<String> names);
-
-  /**
-   * Finds a macro with the given name.
-   *
-   * @param names Name of the macro
-   *
-   * @return Macro with the given name, or null
-   */
-  Macro getMacro(List<String> names);
 
   /**
    * Finds a user-defined type with the given name, possibly qualified.
