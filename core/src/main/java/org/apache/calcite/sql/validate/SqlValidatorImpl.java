@@ -46,6 +46,7 @@ import org.apache.calcite.schema.impl.ExplicitRowTypeTable;
 import org.apache.calcite.schema.impl.FunctionParameterImpl;
 import org.apache.calcite.schema.impl.Macro;
 import org.apache.calcite.schema.impl.ModifiableViewTable;
+import org.apache.calcite.schema.impl.Procedure;
 import org.apache.calcite.schema.impl.UserDefinedFunction;
 import org.apache.calcite.sql.JoinConditionType;
 import org.apache.calcite.sql.JoinType;
@@ -65,6 +66,7 @@ import org.apache.calcite.sql.SqlConditionalStmtListPair;
 import org.apache.calcite.sql.SqlCreateFunctionSqlForm;
 import org.apache.calcite.sql.SqlCreateMacro;
 import org.apache.calcite.sql.SqlCreateProcedure;
+import org.apache.calcite.sql.SqlCreateProcedureParameter;
 import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDateTimeAtLocal;
@@ -1201,6 +1203,13 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     return scopes.get(node);
   }
 
+  @Override public void validateCreateProcedure(
+      SqlCreateProcedure createProcedure,
+      SqlValidatorScope scope) {
+    addProcedureToSchema(createProcedure);
+    validateScriptingStatement(createProcedure.statement, scope);
+  }
+
   @Override public void validateScriptingStatement(SqlNode node,
       SqlValidatorScope scope) {
     if (node instanceof SqlScriptingNode
@@ -1211,6 +1220,21 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         || node instanceof SqlUpdate) {
       node.validate(this, scope);
     }
+  }
+
+  private void addProcedureToSchema(SqlCreateProcedure createProcedure) {
+    Preconditions.checkArgument(createProcedure != null);
+    nodeToTypeMap.put(createProcedure, unknownType);
+    CalciteSchema schema = getOrCreateParentSchema(createProcedure.procedureName);
+    String name = Iterables.getLast(createProcedure.procedureName.names);
+    List<FunctionParameter> parameters = new ArrayList<>();
+    for (int i = 0; i < createProcedure.parameters.size(); i++) {
+      SqlCreateProcedureParameter param = createProcedure.parameters.get(i);
+      parameters.add(
+          new FunctionParameterImpl(i, param.name.toString(),
+            param.dataTypeSpec.deriveType(this), /*optional=*/ false));
+    }
+    schema.add(name, new Procedure(parameters));
   }
 
   private SqlValidatorNamespace getNamespace(SqlNode node,
@@ -1765,7 +1789,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return getCatalogReader().getNamedType((SqlIdentifier) node);
     } else if (node instanceof SqlBasicCall) {
       SqlBasicCall call = (SqlBasicCall) node;
-      if (call.getOperator().kind == SqlKind.EXECUTE) {
+      SqlKind kind = call.getOperator().kind;
+      if (kind == SqlKind.EXECUTE || kind == SqlKind.PROCEDURE_CALL) {
         Preconditions.checkArgument(call.operandCount() == 1);
         return getValidatedNodeType(call.operands[0]);
       }
@@ -2637,6 +2662,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     case CREATE_MACRO:
     case CREATE_TABLE:
     case EXECUTE:
+    case PROCEDURE_CALL:
       return;
     case SELECT:
       final SqlSelect select = (SqlSelect) node;

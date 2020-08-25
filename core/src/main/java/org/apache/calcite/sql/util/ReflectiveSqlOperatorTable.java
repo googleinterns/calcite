@@ -88,9 +88,10 @@ public abstract class ReflectiveSqlOperatorTable implements SqlOperatorTable {
   public void lookupOperatorOverloads(SqlIdentifier opName,
       SqlFunctionCategory category, SqlSyntax syntax,
       List<SqlOperator> operatorList, SqlNameMatcher nameMatcher) {
-    // If we are dealing with a user defined macro, no operators acquired
-    // with reflection are valid.
-    if (category != null && category.isUserDefinedMacro()) {
+    // If we are dealing with a user defined macro or procedure, no operators
+    // acquired with reflection are valid.
+    if (category != null && (category.isUserDefinedMacro()
+          || category.isUserDefinedProcedure())) {
       return;
     }
     String simpleName;

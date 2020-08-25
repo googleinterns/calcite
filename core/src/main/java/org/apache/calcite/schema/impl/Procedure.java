@@ -14,19 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.calcite.sql;
+package org.apache.calcite.schema.impl;
+
+import org.apache.calcite.schema.Function;
+import org.apache.calcite.schema.FunctionParameter;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
- * SqlProcedureCallOperator represents the CALL statement. It takes a single
- * operand which is the real SqlCall.
+ * Schema class for all user defined procedures.
  */
-public class SqlProcedureCallOperator extends SqlPrefixOperator {
-  //~ Constructors -----------------------------------------------------------
+public class Procedure implements Function {
+  private final List<FunctionParameter> parameters;
 
-  public SqlProcedureCallOperator() {
-    super("CALL", SqlKind.PROCEDURE_CALL, 0, null, null, null);
+  /**
+   * Creates a {@code Procedure}.
+   *
+   * @param parameters The procedure parameters, may not be null
+   */
+  public Procedure(List<FunctionParameter> parameters) {
+    this.parameters = Objects.requireNonNull(parameters);
   }
 
-  //~ Methods ----------------------------------------------------------------
-
+  @Override public List<FunctionParameter> getParameters() {
+    return parameters;
+  }
 }

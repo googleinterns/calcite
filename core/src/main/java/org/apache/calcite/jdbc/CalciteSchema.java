@@ -30,6 +30,7 @@ import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.TableMacro;
 import org.apache.calcite.schema.impl.Macro;
 import org.apache.calcite.schema.impl.MaterializedViewTable;
+import org.apache.calcite.schema.impl.Procedure;
 import org.apache.calcite.schema.impl.StarTable;
 import org.apache.calcite.util.NameMap;
 import org.apache.calcite.util.NameMultimap;
@@ -65,6 +66,7 @@ public abstract class CalciteSchema {
   /** Tables explicitly defined in this schema. Does not include tables in
    *  {@link #schema}. */
   protected final NameMap<TableEntry> tableMap;
+  protected final NameMap<FunctionEntry> procedureMap;
   protected final NameMap<FunctionEntry> macroMap;
   protected final NameMultimap<FunctionEntry> functionMap;
   protected final NameMap<TypeEntry> typeMap;
@@ -83,6 +85,7 @@ public abstract class CalciteSchema {
     this.parent = parent;
     this.schema = schema;
     this.name = name;
+    this.procedureMap = new NameMap<>();
     this.macroMap = new NameMap<>();
     if (tableMap == null) {
       this.tableMap = new NameMap<>();
@@ -230,6 +233,16 @@ public abstract class CalciteSchema {
           + " already exists");
     }
     macroMap.put(name, entry);
+    return entry;
+  }
+
+  public FunctionEntry add(String name, Procedure procedure) {
+    final FunctionEntryImpl entry = new FunctionEntryImpl(this, name, procedure);
+    if (procedureMap.containsKey(name, false)) {
+      throw new IllegalStateException("Error: a procedure called " + name
+          + " already exists");
+    }
+    procedureMap.put(name, entry);
     return entry;
   }
 
@@ -427,6 +440,21 @@ public abstract class CalciteSchema {
   public final Macro getMacro(String macroName, boolean caseSensitive) {
     if (macroMap.containsKey(macroName, caseSensitive)) {
       return (Macro) macroMap.map().get(macroName).getFunction();
+    }
+    return null;
+  }
+
+  /**
+   * Returns the procedure with the given name.
+   *
+   * @param procedureName The name of the procedure
+   * @param caseSensitive Whether or not check is case sensitive
+   *
+   * @return The found procedure or null if it doesn't exist
+   */
+  public final Procedure getProcedure(String procedureName, boolean caseSensitive) {
+    if (procedureMap.containsKey(procedureName, caseSensitive)) {
+      return (Procedure) procedureMap.map().get(procedureName).getFunction();
     }
     return null;
   }

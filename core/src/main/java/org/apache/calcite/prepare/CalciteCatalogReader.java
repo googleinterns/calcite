@@ -35,6 +35,7 @@ import org.apache.calcite.schema.TableFunction;
 import org.apache.calcite.schema.TableMacro;
 import org.apache.calcite.schema.Wrapper;
 import org.apache.calcite.schema.impl.Macro;
+import org.apache.calcite.schema.impl.Procedure;
 import org.apache.calcite.schema.impl.ScalarFunctionImpl;
 import org.apache.calcite.sql.SqlFunctionCategory;
 import org.apache.calcite.sql.SqlIdentifier;
@@ -139,14 +140,29 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
   }
 
   /**
-   * Gets the macro with the given name if it exists.
+   * Gets the procedure with the given name if it exists.
    *
-   * @param names The name of the macro, list represents possibility of a
+   * @param names The name of the procedure, list represents possibility of a
    *              compound identifier
    *
-   * @return The found macro, or null
+   * @return The found procedure, or null
    */
-  private Macro getMacro(List<String> names) {
+  private Procedure getProcedure(List<String> names) {
+    return (Procedure) getSingleFunction(names,
+        SqlFunctionCategory.USER_DEFINED_PROCEDURE);
+  }
+
+  /**
+   * Returns either a {@code Procedure} or {@code Macro} depending on the
+   * {@code category}.
+   *
+   * @param names The name of the function
+   * @param category The category
+   *
+   * @return The found function, or null
+   */
+  private Function getSingleFunction(List<String> names,
+      SqlFunctionCategory category) {
     final List<List<String>> schemaNameList = computeSchemaNameList(names);
     for (List<String> schemaNames : schemaNameList) {
       CalciteSchema schema = getSchema(schemaNames, names);
@@ -155,12 +171,33 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
       }
       final String name = Util.last(names);
       boolean caseSensitive = nameMatcher.isCaseSensitive();
-      Macro macro = schema.getMacro(name, caseSensitive);
-      if (macro != null) {
-        return macro;
+      Function function = null;
+      switch (category) {
+      case USER_DEFINED_PROCEDURE:
+        function = schema.getProcedure(name, caseSensitive);
+        break;
+      case USER_DEFINED_MACRO:
+        function = schema.getMacro(name, caseSensitive);
+        break;
+      }
+      if (function != null) {
+        return function;
       }
     }
     return null;
+  }
+
+  /**
+   * Gets the macro with the given name if it exists.
+   *
+   * @param names The name of the macro, list represents possibility of a
+   *              compound identifier
+   *
+   * @return The found macro, or null
+   */
+  private Macro getMacro(List<String> names) {
+    return (Macro) getSingleFunction(names,
+        SqlFunctionCategory.USER_DEFINED_MACRO);
   }
 
   private Collection<Function> getFunctionsFrom(List<String> names) {
@@ -301,11 +338,18 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
       if (macro != null) {
         operatorList.add(toOp(opName, macro));
       }
+    } else if (category.isUserDefinedProcedure()) {
+      predicate = function -> function instanceof Procedure;
+      Procedure procedure = getProcedure(opName.names);
+      if (procedure != null) {
+        operatorList.add(toOp(opName, procedure));
+      }
     } else {
       predicate = function ->
           !(function instanceof TableMacro
               || function instanceof TableFunction
-              || function instanceof Macro);
+              || function instanceof Macro
+              || function instanceof Procedure);
     }
     getFunctionsFrom(opName.names)
         .stream()
@@ -363,7 +407,11 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
         OperandTypes.family(typeFamilies, i ->
             function.getParameters().get(i).isOptional());
     final List<RelDataType> paramTypes = toSql(typeFactory, argTypes);
-    if (function instanceof Macro) {
+    if (function instanceof Procedure) {
+      return new SqlUserDefinedFunction(name, getAnyType(),
+          InferTypes.explicit(argTypes), typeChecker, paramTypes, function,
+          SqlFunctionCategory.USER_DEFINED_PROCEDURE);
+    } else if (function instanceof Macro) {
       return new SqlUserDefinedFunction(name, getAnyType(),
           InferTypes.explicit(argTypes), typeChecker, paramTypes, function,
           SqlFunctionCategory.USER_DEFINED_MACRO);

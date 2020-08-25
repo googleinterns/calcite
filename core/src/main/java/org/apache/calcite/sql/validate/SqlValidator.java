@@ -27,6 +27,7 @@ import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCreateFunctionSqlForm;
 import org.apache.calcite.sql.SqlCreateMacro;
+import org.apache.calcite.sql.SqlCreateProcedure;
 import org.apache.calcite.sql.SqlCreateTable;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDelete;
@@ -941,6 +942,15 @@ public interface SqlValidator {
    * @param node The node to be validated
    */
   void validateScriptingStatement(SqlNode node, SqlValidatorScope scope);
+
+  /**
+   * Validates a CREATE PROCEDURE statement.
+   *
+   * @param createProcedure The create procedure to be validated
+   * @param scope The scope
+   */
+  void validateCreateProcedure(SqlCreateProcedure createProcedure,
+      SqlValidatorScope scope);
 
   /**
    * Returns this SqlValidator, with the same state, applying
