@@ -14,7 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.calcite.schema;
+package org.apache.calcite.schema.impl;
+
+import org.apache.calcite.schema.Function;
+import org.apache.calcite.schema.FunctionParameter;
 
 import java.util.Objects;
 import java.util.List;
@@ -22,8 +25,8 @@ import java.util.List;
 /**
  * Schema class for all user defined procedures.
  */
-public class Procedure {
-  public final List<FunctionParameter> parameters;
+public class Procedure implements Function {
+  private final List<FunctionParameter> parameters;
 
   /**
    * Creates a {@code Procedure}.
@@ -32,5 +35,9 @@ public class Procedure {
    */
   public Procedure(List<FunctionParameter> parameters) {
     this.parameters = Objects.requireNonNull(parameters);
+  }
+
+  @Override public List<FunctionParameter> getParameters() {
+    return parameters;
   }
 }

@@ -23,7 +23,7 @@ import org.apache.calcite.linq4j.tree.Expression;
 import org.apache.calcite.materialize.Lattice;
 import org.apache.calcite.rel.type.RelProtoDataType;
 import org.apache.calcite.schema.Function;
-import org.apache.calcite.schema.Procedure;
+import org.apache.calcite.schema.impl.Procedure;
 import org.apache.calcite.schema.Schema;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.SchemaVersion;
@@ -66,7 +66,7 @@ public abstract class CalciteSchema {
   /** Tables explicitly defined in this schema. Does not include tables in
    *  {@link #schema}. */
   protected final NameMap<TableEntry> tableMap;
-  protected final NameMap<ProcedureEntry> procedureMap;
+  protected final NameMap<FunctionEntry> procedureMap;
   protected final NameMap<FunctionEntry> macroMap;
   protected final NameMultimap<FunctionEntry> functionMap;
   protected final NameMap<TypeEntry> typeMap;
@@ -236,8 +236,8 @@ public abstract class CalciteSchema {
     return entry;
   }
 
-  public ProcedureEntry add(String name, Procedure procedure) {
-    final ProcedureEntryImpl entry = new ProcedureEntryImpl(this, name, procedure);
+  public FunctionEntry add(String name, Procedure procedure) {
+    final FunctionEntryImpl entry = new FunctionEntryImpl(this, name, procedure);
     procedureMap.put(name, entry);
     return entry;
   }
@@ -450,7 +450,7 @@ public abstract class CalciteSchema {
    */
   public final Procedure getProcedure(String procedureName, boolean caseSensitive) {
     if (procedureMap.containsKey(procedureName, caseSensitive)) {
-      return procedureMap.map().get(procedureName).getProcedure();
+      return (Procedure) procedureMap.map().get(procedureName).getFunction();
     }
     return null;
   }
@@ -651,15 +651,6 @@ public abstract class CalciteSchema {
     public abstract RelProtoDataType getType();
   }
 
-  /** Membership of a procedure in a schema. */
-  public abstract static class ProcedureEntry extends Entry {
-    public ProcedureEntry(CalciteSchema schema, String name) {
-      super(schema, name);
-    }
-
-    public abstract Procedure getProcedure();
-  }
-
   /** Membership of a function in a schema. */
   public abstract static class FunctionEntry extends Entry {
     public FunctionEntry(CalciteSchema schema, String name) {
@@ -849,31 +840,6 @@ public abstract class CalciteSchema {
 
     public RelProtoDataType getType() {
       return protoDataType;
-    }
-  }
-
-  /**
-   * Implementation of {@link ProcedureEntry} where all properties are held
-   * in fields.
-   */
-  public static class ProcedureEntryImpl extends ProcedureEntry {
-    private final Procedure procedure;
-
-    /**
-     * Creates a {@code ProcedureEntryImpl}.
-     *
-     * @param schema The schema
-     * @param name The name of the procedure
-     * @param procedure The underlying procedure
-     */
-    public ProcedureEntryImpl(CalciteSchema schema, String name,
-        Procedure procedure) {
-      super(schema, name);
-      this.procedure = procedure;
-    }
-
-    public Procedure getProcedure() {
-      return procedure;
     }
   }
 

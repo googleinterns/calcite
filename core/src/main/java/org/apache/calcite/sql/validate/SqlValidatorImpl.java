@@ -40,7 +40,7 @@ import org.apache.calcite.runtime.Feature;
 import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.schema.FunctionParameter;
-import org.apache.calcite.schema.Procedure;
+import org.apache.calcite.schema.impl.Procedure;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.impl.AbstractSchema;
 import org.apache.calcite.schema.impl.ExplicitRowTypeTable;
@@ -1783,7 +1783,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       return getCatalogReader().getNamedType((SqlIdentifier) node);
     } else if (node instanceof SqlBasicCall) {
       SqlBasicCall call = (SqlBasicCall) node;
-      if (call.getOperator().kind == SqlKind.EXECUTE) {
+      SqlKind kind = call.getOperator().kind;
+      if (kind == SqlKind.EXECUTE || kind == SqlKind.PROCEDURE_CALL) {
         Preconditions.checkArgument(call.operandCount() == 1);
         return getValidatedNodeType(call.operands[0]);
       }

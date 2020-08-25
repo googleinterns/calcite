@@ -28,7 +28,7 @@ import org.apache.calcite.rel.type.RelDataTypeField;
 import org.apache.calcite.rel.type.RelDataTypeSystem;
 import org.apache.calcite.schema.AggregateFunction;
 import org.apache.calcite.schema.Function;
-import org.apache.calcite.schema.Procedure;
+import org.apache.calcite.schema.impl.Procedure;
 import org.apache.calcite.schema.FunctionParameter;
 import org.apache.calcite.schema.ScalarFunction;
 import org.apache.calcite.schema.Table;
@@ -139,19 +139,26 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
     return config;
   }
 
-  public Procedure getProcedure(List<String> names) {
+  /**
+   * Gets the procedure with the given name if it exists.
+   *
+   * @param names The name of the procedure, list represents possibility of a
+   *              compound identifier
+   *
+   * @return The found procedure, or null
+   */
+  private Procedure getProcedure(List<String> names) {
     final List<List<String>> schemaNameList = computeSchemaNameList(names);
     for (List<String> schemaNames : schemaNameList) {
-      CalciteSchema schema =
-          SqlValidatorUtil.getSchema(rootSchema,
-              Iterables.concat(schemaNames, Util.skipLast(names)), nameMatcher);
-      if (schema != null) {
-        final String name = Util.last(names);
-        boolean caseSensitive = nameMatcher.isCaseSensitive();
-        Procedure procedure = schema.getProcedure(name, caseSensitive);
-        if (procedure != null) {
-          return procedure;
-        }
+      CalciteSchema schema = getSchema(schemaNames, names);
+      if (schema == null) {
+        continue;
+      }
+      final String name = Util.last(names);
+      boolean caseSensitive = nameMatcher.isCaseSensitive();
+      Procedure procedure = schema.getProcedure(name, caseSensitive);
+      if (procedure != null) {
+        return procedure;
       }
     }
     return null;
@@ -320,11 +327,18 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
       if (macro != null) {
         operatorList.add(toOp(opName, macro));
       }
+    } else if (category.isUserDefinedProcedure()) {
+      predicate = function -> function instanceof Procedure;
+      Procedure procedure = getProcedure(opName.names);
+      if (procedure != null) {
+        operatorList.add(toOp(opName, procedure));
+      }
     } else {
       predicate = function ->
           !(function instanceof TableMacro
               || function instanceof TableFunction
-              || function instanceof Macro);
+              || function instanceof Macro
+              || function instanceof Procedure);
     }
     getFunctionsFrom(opName.names)
         .stream()
@@ -382,7 +396,11 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
         OperandTypes.family(typeFamilies, i ->
             function.getParameters().get(i).isOptional());
     final List<RelDataType> paramTypes = toSql(typeFactory, argTypes);
-    if (function instanceof Macro) {
+    if (function instanceof Procedure) {
+      return new SqlUserDefinedFunction(name, getAnyType(),
+          InferTypes.explicit(argTypes), typeChecker, paramTypes, function,
+          SqlFunctionCategory.USER_DEFINED_PROCEDURE);
+    } else if (function instanceof Macro) {
       return new SqlUserDefinedFunction(name, getAnyType(),
           InferTypes.explicit(argTypes), typeChecker, paramTypes, function,
           SqlFunctionCategory.USER_DEFINED_MACRO);

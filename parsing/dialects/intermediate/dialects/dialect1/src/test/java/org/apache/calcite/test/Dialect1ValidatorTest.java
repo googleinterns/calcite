@@ -240,6 +240,43 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(query).fails("No match found for function signature BAR\\(<NUMERIC>\\)");
   }
 
+  @Test public void testCreateProcedureSchema() {
+    String ddl = "CREATE PROCEDURE foo() select a from abc";
+    String query = "CALL foo()";
+    sql(ddl).ok();
+    sql(query).ok();
+  }
+
+  @Test public void testCreateProcedureSchemaWithParams() {
+    String ddl = "CREATE PROCEDURE foo(x int) select a from abc";
+    String query = "CALL foo(1)";
+    sql(ddl).ok();
+    sql(query).ok();
+  }
+
+  @Test public void testCreateProcedureSchemaAndFunction() {
+    String procedureDdl = "CREATE PROCEDURE foo(x int) select a from abc";
+    String functionDdl = "create function foo(x int) "
+        + "returns Integer "
+        + "language sql "
+        + "collation invoker inline type 1 "
+        + "return 1";
+    String query = "CALL foo(1)";
+    String query2 = "SELECT foo(1)";
+    sql(procedureDdl).ok();
+    sql(functionDdl).ok();
+    sql(query).type("ANY NOT NULL");
+    sql(query2).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
+  }
+
+  @Test public void testCreateProcedureSchemaInvalidNumberFails() {
+    String ddl = "CREATE PROCEDURE foo(x int) select a from abc";
+    String query = "CALL ^foo(1, 2)^";
+    sql(ddl).ok();
+    sql(query).fails("No match found for function signature FOO\\(<NUMERIC>,"
+        + " <NUMERIC>\\)");
+  }
+
   @Test public void testCreateProcedureBeginEndLabel() {
     String sql = "create procedure foo()\n"
         + "label1: begin\n"
