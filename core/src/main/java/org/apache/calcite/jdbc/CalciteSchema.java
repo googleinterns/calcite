@@ -23,7 +23,6 @@ import org.apache.calcite.linq4j.tree.Expression;
 import org.apache.calcite.materialize.Lattice;
 import org.apache.calcite.rel.type.RelProtoDataType;
 import org.apache.calcite.schema.Function;
-import org.apache.calcite.schema.impl.Procedure;
 import org.apache.calcite.schema.Schema;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.SchemaVersion;
@@ -31,6 +30,7 @@ import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.TableMacro;
 import org.apache.calcite.schema.impl.Macro;
 import org.apache.calcite.schema.impl.MaterializedViewTable;
+import org.apache.calcite.schema.impl.Procedure;
 import org.apache.calcite.schema.impl.StarTable;
 import org.apache.calcite.util.NameMap;
 import org.apache.calcite.util.NameMultimap;
@@ -450,7 +450,7 @@ public abstract class CalciteSchema {
    * @param procedureName The name of the procedure
    * @param caseSensitive Whether or not check is case sensitive
    *
-   * @return The found procedure entry or null if it doesn't exist
+   * @return The found procedure or null if it doesn't exist
    */
   public final Procedure getProcedure(String procedureName, boolean caseSensitive) {
     if (procedureMap.containsKey(procedureName, caseSensitive)) {

@@ -40,13 +40,13 @@ import org.apache.calcite.runtime.Feature;
 import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.schema.FunctionParameter;
-import org.apache.calcite.schema.impl.Procedure;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.impl.AbstractSchema;
 import org.apache.calcite.schema.impl.ExplicitRowTypeTable;
 import org.apache.calcite.schema.impl.FunctionParameterImpl;
 import org.apache.calcite.schema.impl.Macro;
 import org.apache.calcite.schema.impl.ModifiableViewTable;
+import org.apache.calcite.schema.impl.Procedure;
 import org.apache.calcite.schema.impl.UserDefinedFunction;
 import org.apache.calcite.sql.JoinConditionType;
 import org.apache.calcite.sql.JoinType;
@@ -1223,7 +1223,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     List<FunctionParameter> parameters = new ArrayList<>();
     for (int i = 0; i < createProcedure.parameters.size(); i++) {
       SqlCreateProcedureParameter param = createProcedure.parameters.get(i);
-      parameters.add(new FunctionParameterImpl(i, param.name.toString(),
+      parameters.add(
+          new FunctionParameterImpl(i, param.name.toString(),
             param.dataTypeSpec.deriveType(this), /*optional=*/ false));
     }
     schema.add(name, new Procedure(parameters));

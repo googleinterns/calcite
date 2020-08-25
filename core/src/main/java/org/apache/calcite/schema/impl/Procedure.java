@@ -19,8 +19,8 @@ package org.apache.calcite.schema.impl;
 import org.apache.calcite.schema.Function;
 import org.apache.calcite.schema.FunctionParameter;
 
-import java.util.Objects;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Schema class for all user defined procedures.
