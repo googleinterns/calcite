@@ -3699,7 +3699,7 @@ SqlNode SqlExec() :
     |
         <EXECUTE>
     )
-    source =  SqlExecMacro()
+    source = SqlExecMacro()
     {
         return source;
     }
