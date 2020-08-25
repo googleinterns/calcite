@@ -31,7 +31,7 @@ public class Procedure implements Function {
   /**
    * Creates a {@code Procedure}.
    *
-   * @param parameters The procedure parameters
+   * @param parameters The procedure parameters, may not be null
    */
   public Procedure(List<FunctionParameter> parameters) {
     this.parameters = Objects.requireNonNull(parameters);

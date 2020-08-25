@@ -251,13 +251,6 @@ public interface SqlValidator {
   void validateCreateTable(SqlCreateTable createTable);
 
   /**
-   * Adds the signature of a {@link SqlCreateProcedure} to the schema.
-   *
-   * @param createProcedure The create procedure statement
-   */
-  void addProcedureToSchema(SqlCreateProcedure createProcedure);
-
-  /**
    * Validates an INSERT statement.
    *
    * @param insert INSERT statement
@@ -949,6 +942,15 @@ public interface SqlValidator {
    * @param node The node to be validated
    */
   void validateScriptingStatement(SqlNode node, SqlValidatorScope scope);
+
+  /**
+   * Validates a CREATE PROCEDURE statement.
+   *
+   * @param createProcedure The create procedure to be validated
+   * @param scope The scope
+   */
+  void validateCreateProcedure(SqlCreateProcedure createProcedure,
+      SqlValidatorScope scope);
 
   /**
    * Returns this SqlValidator, with the same state, applying

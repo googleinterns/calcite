@@ -269,7 +269,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(query2).type("RecordType(INTEGER NOT NULL EXPR$0) NOT NULL");
   }
 
-  @Test public void testCreateProcedureSchemaInvalidNumberFails() {
+  @Test public void testCreateProcedureSchemaInvalidNumberOfParamsFails() {
     String ddl = "CREATE PROCEDURE foo(x int) select a from abc";
     String query = "CALL ^foo(1, 2)^";
     sql(ddl).ok();

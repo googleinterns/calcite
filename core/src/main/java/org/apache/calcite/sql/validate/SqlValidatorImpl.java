@@ -1203,6 +1203,13 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     return scopes.get(node);
   }
 
+  @Override public void validateCreateProcedure(
+      SqlCreateProcedure createProcedure,
+      SqlValidatorScope scope) {
+    addProcedureToSchema(createProcedure);
+    validateScriptingStatement(createProcedure.statement, scope);
+  }
+
   @Override public void validateScriptingStatement(SqlNode node,
       SqlValidatorScope scope) {
     if (node instanceof SqlScriptingNode
@@ -1215,7 +1222,7 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     }
   }
 
-  @Override public void addProcedureToSchema(SqlCreateProcedure createProcedure) {
+  private void addProcedureToSchema(SqlCreateProcedure createProcedure) {
     Preconditions.checkArgument(createProcedure != null);
     nodeToTypeMap.put(createProcedure, unknownType);
     CalciteSchema schema = getOrCreateParentSchema(createProcedure.procedureName);

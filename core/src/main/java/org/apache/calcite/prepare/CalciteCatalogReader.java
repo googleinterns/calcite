@@ -148,6 +148,21 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
    * @return The found procedure, or null
    */
   private Procedure getProcedure(List<String> names) {
+    return (Procedure) getSingleFunction(names,
+        SqlFunctionCategory.USER_DEFINED_PROCEDURE);
+  }
+
+  /**
+   * Returns either a {@code Procedure} or {@code Macro} depending on the
+   * {@code category}.
+   *
+   * @param names The name of the function
+   * @param category The category
+   *
+   * @return The found function, or null
+   */
+  private Function getSingleFunction(List<String> names,
+      SqlFunctionCategory category) {
     final List<List<String>> schemaNameList = computeSchemaNameList(names);
     for (List<String> schemaNames : schemaNameList) {
       CalciteSchema schema = getSchema(schemaNames, names);
@@ -156,9 +171,17 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
       }
       final String name = Util.last(names);
       boolean caseSensitive = nameMatcher.isCaseSensitive();
-      Procedure procedure = schema.getProcedure(name, caseSensitive);
-      if (procedure != null) {
-        return procedure;
+      Function function = null;
+      switch (category) {
+        case USER_DEFINED_PROCEDURE:
+          function = schema.getProcedure(name, caseSensitive);
+          break;
+        case USER_DEFINED_MACRO:
+          function = schema.getMacro(name, caseSensitive);
+          break;
+      }
+      if (function != null) {
+        return function;
       }
     }
     return null;
@@ -173,20 +196,8 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
    * @return The found macro, or null
    */
   private Macro getMacro(List<String> names) {
-    final List<List<String>> schemaNameList = computeSchemaNameList(names);
-    for (List<String> schemaNames : schemaNameList) {
-      CalciteSchema schema = getSchema(schemaNames, names);
-      if (schema == null) {
-        continue;
-      }
-      final String name = Util.last(names);
-      boolean caseSensitive = nameMatcher.isCaseSensitive();
-      Macro macro = schema.getMacro(name, caseSensitive);
-      if (macro != null) {
-        return macro;
-      }
-    }
-    return null;
+    return (Macro) getSingleFunction(names,
+        SqlFunctionCategory.USER_DEFINED_MACRO);
   }
 
   private Collection<Function> getFunctionsFrom(List<String> names) {
