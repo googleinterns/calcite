@@ -173,12 +173,12 @@ public class CalciteCatalogReader implements Prepare.CatalogReader {
       boolean caseSensitive = nameMatcher.isCaseSensitive();
       Function function = null;
       switch (category) {
-        case USER_DEFINED_PROCEDURE:
-          function = schema.getProcedure(name, caseSensitive);
-          break;
-        case USER_DEFINED_MACRO:
-          function = schema.getMacro(name, caseSensitive);
-          break;
+      case USER_DEFINED_PROCEDURE:
+        function = schema.getProcedure(name, caseSensitive);
+        break;
+      case USER_DEFINED_MACRO:
+        function = schema.getMacro(name, caseSensitive);
+        break;
       }
       if (function != null) {
         return function;
