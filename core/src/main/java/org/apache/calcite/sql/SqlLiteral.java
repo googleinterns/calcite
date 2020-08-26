@@ -220,6 +220,7 @@ public class SqlLiteral extends SqlNode {
     case BINARY:
       return value instanceof BitString;
     case CHAR:
+    case BYTE:
       return value instanceof NlsString;
     case SYMBOL:
       return (value instanceof Enum)

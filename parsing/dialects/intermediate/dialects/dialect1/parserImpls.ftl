@@ -2247,13 +2247,16 @@ SqlTypeNameSpec SqlJsonDataType() :
 SqlNode SqlByteStringLiteral() :
 {
     final String hex;
+    final String formatString;
 }
 {
     <BYTE_STRING>
     {
         String[] tokens = token.image.split("'");
         hex = tokens[1];
-        return new SqlLiteral(hex, SqlTypeName.BYTE, getPos());
+        formatString = tokens[2];
+        return new SqlHexCharStringLiteral(hex, getPos(), /*charSet=*/ null,
+            formatString, SqlTypeName.BYTE);
     }
 }
 
@@ -3781,7 +3784,6 @@ SqlNode Literal() :
     (
         e = NumericLiteral()
     |
-        LOOKAHEAD(SqlByteStringLiteral())
         e = SqlByteStringLiteral()
     |
         e = StringLiteral()
@@ -4369,7 +4371,7 @@ SqlLiteral JoinType() :
 |
     < QUOTED_HEX_STRING : <QUOTE> (<HEXDIGIT>)+ <QUOTE> (("XC") | ("XCV") | ("XCF"))>
 |
-    < BYTE_STRING : <QUOTED_HEX_STRING> (("XB") | ("XBF"))>
+    < BYTE_STRING : <QUOTE> (<HEXDIGIT>)+ <QUOTE> (("XB") | ("XBF"))>
 }
 
 /**
