@@ -139,7 +139,7 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * </tr>
  * </table>
  */
-public class SqlLiteral extends SqlNode {
+private class SqlLiteral extends SqlNode {
   //~ Instance fields --------------------------------------------------------
 
   /**

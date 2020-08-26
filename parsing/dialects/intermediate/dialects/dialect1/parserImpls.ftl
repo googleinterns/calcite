@@ -3797,8 +3797,6 @@ SqlNode Literal() :
     {
         return e;
     }
-
-
 }
 /**
  * Parses a string literal. The literal may be continued onto several
