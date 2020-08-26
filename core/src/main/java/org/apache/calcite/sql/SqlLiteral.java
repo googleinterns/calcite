@@ -139,7 +139,7 @@ import static org.apache.calcite.util.Static.RESOURCE;
  * </tr>
  * </table>
  */
-private class SqlLiteral extends SqlNode {
+public class SqlLiteral extends SqlNode {
   //~ Instance fields --------------------------------------------------------
 
   /**
@@ -162,7 +162,7 @@ private class SqlLiteral extends SqlNode {
   /**
    * Creates a <code>SqlLiteral</code>.
    */
-  public SqlLiteral(
+  protected SqlLiteral(
       Object value,
       SqlTypeName typeName,
       SqlParserPos pos) {
@@ -726,6 +726,7 @@ private class SqlLiteral extends SqlNode {
 
   public RelDataType createSqlType(RelDataTypeFactory typeFactory) {
     BitString bitString;
+    NlsString string;
     switch (typeName) {
     case NULL:
     case BOOLEAN:
@@ -736,8 +737,11 @@ private class SqlLiteral extends SqlNode {
       bitString = (BitString) value;
       int bitCount = bitString.getBitCount();
       return typeFactory.createSqlType(SqlTypeName.BINARY, bitCount / 8);
+    case BYTE:
+      string = (NlsString) value;
+      return typeFactory.createSqlType(SqlTypeName.BYTE);
     case CHAR:
-      NlsString string = (NlsString) value;
+      string = (NlsString) value;
       Charset charset = string.getCharset();
       if (null == charset) {
         charset = typeFactory.getDefaultCharset();

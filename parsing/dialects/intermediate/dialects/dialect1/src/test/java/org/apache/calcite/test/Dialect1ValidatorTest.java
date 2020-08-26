@@ -796,4 +796,9 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
         + "= `ABC`.`NAME` (NOT CASESPECIFIC)";
     sql(sql).ok().rewritesTo(expected);
   }
+
+  @Test public void testTrimWithByte() {
+    String sql = "SELECT TRIM('ABC'XB) from abc";
+    sql(sql).ok();
+  }
 }

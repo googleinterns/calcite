@@ -139,6 +139,8 @@ public abstract class SqlTypeTransforms {
             return SqlTypeName.ANY;
           case NULL:
             return SqlTypeName.NULL;
+          case BYTE:
+            return SqlTypeName.VARBYTE;
           default:
             throw Util.unexpected(sqlTypeName);
           }
