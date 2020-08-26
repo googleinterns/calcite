@@ -18,10 +18,10 @@ package org.apache.calcite.rel.type;
 
 import org.apache.calcite.avatica.util.TimeUnit;
 import org.apache.calcite.sql.SqlCollation;
+import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.type.SqlTypeName;
-import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.validate.SqlValidatorUtil;
 
 import java.nio.charset.Charset;

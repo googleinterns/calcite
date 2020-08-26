@@ -18,8 +18,8 @@ package org.apache.calcite.sql.type;
 
 import org.apache.calcite.rel.type.RelDataTypeSystem;
 import org.apache.calcite.sql.SqlCollation;
-import org.apache.calcite.sql.pretty.SqlPrettyWriter;
 import org.apache.calcite.sql.SqlColumnAttribute;
+import org.apache.calcite.sql.pretty.SqlPrettyWriter;
 import org.apache.calcite.util.SerializableCharset;
 
 import com.google.common.base.Preconditions;

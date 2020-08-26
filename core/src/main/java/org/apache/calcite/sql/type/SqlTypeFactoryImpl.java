@@ -27,8 +27,8 @@ import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.util.Util;
 
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * SqlTypeFactoryImpl provides a default implementation of
@@ -50,7 +50,8 @@ public class SqlTypeFactoryImpl extends RelDataTypeFactoryImpl {
   public RelDataType createSqlType(SqlTypeName typeName,
       List<SqlColumnAttribute> attributes) {
     if (typeName.allowsPrec()) {
-      return createSqlType(typeName, typeSystem.getDefaultPrecision(typeName));
+      return createSqlType(typeName, typeSystem.getDefaultPrecision(typeName),
+          attributes);
     }
     assertBasic(typeName);
     RelDataType newType = new BasicSqlType(typeSystem, typeName, attributes);

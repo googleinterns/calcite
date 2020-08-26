@@ -408,6 +408,14 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
     sql(query).type("RecordType(VARCHAR CASESPECIFIC NOT NULL Y) NOT NULL");
   }
 
+  @Test public void testCreateTableMultipleColumnAttributes() {
+    String ddl = "create table foo(y varchar casespecific default 'str')";
+    String query = "select y from foo";
+    sql(ddl).ok();
+    sql(query).type("RecordType(VARCHAR CASESPECIFIC DEFAULT 'str' NOT NULL Y)"
+        + " NOT NULL");
+  }
+
   @Test public void testCreateTableNoColumns() {
     String ddl = "create table foo";
     String query = "select * from foo";
