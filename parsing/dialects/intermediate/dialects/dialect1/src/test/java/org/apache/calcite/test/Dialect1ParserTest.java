@@ -33,6 +33,7 @@ import java.util.Objects;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests the Dialect1 SQL parser.
@@ -268,7 +269,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
     return new TesterImpl() {
       @Override protected void checkEx(String expectedMsgPattern,
           SqlParserUtil.StringAndPos sap, Throwable thrown) {
-        if (thrownByDialect1Test(thrown)) {
+        if (thrown != null && thrownByDialect1Test(thrown)) {
           super.checkEx(expectedMsgPattern, sap, thrown);
         } else {
           checkExNotNull(sap, thrown);
@@ -295,6 +296,12 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         }
       }
     };
+  }
+
+  @Test public void testUnsuccessfulFailingTest() {
+    final String sql = "select * from ^foo^";
+    final String expected = "Some error that never happens";
+    assertThrows(AssertionError.class, () -> sql(sql).fails(expected));
   }
 
   @Test public void testCompoundIdentifierWithColonSeparator() {
