@@ -80,6 +80,10 @@ public abstract class SqlTypeUtil {
       RelDataType t0 = pair.left;
       RelDataType t1 = pair.right;
 
+      if (t0.getFamily() == SqlTypeFamily.BINARY
+          && t1.getFamily() == SqlTypeFamily.BINARY) {
+        return true;
+      }
       if (!inCharFamily(t0) || !inCharFamily(t1)) {
         return false;
       }

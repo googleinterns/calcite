@@ -22,6 +22,7 @@ import org.apache.calcite.sql.SqlFunction;
 import org.apache.calcite.sql.SqlFunctionCategory;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlLiteral;
+import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlWriter;
 import org.apache.calcite.sql.parser.SqlParserPos;
@@ -130,13 +131,20 @@ public class SqlTrimFunction extends SqlFunction {
       SqlParserPos pos,
       SqlNode... operands) {
     assert functionQualifier == null;
+    SqlLiteral nullLiteral = SqlLiteral.createCharString(" ", pos);
     switch (operands.length) {
     case 1:
       // This variant occurs when someone writes TRIM(string)
       // as opposed to the sugared syntax TRIM(string FROM string).
+      if (operands[0] instanceof SqlLiteral) {
+        SqlLiteral literal = (SqlLiteral) operands[0];
+        if (literal.getTypeName() == SqlTypeName.BYTE) {
+          nullLiteral = SqlLiteral.createByteLiteral(" ", pos);
+        }
+      }
       operands = new SqlNode[]{
         Flag.BOTH.symbol(SqlParserPos.ZERO),
-        SqlLiteral.createCharString(" ", pos),
+        nullLiteral,
         operands[0]
       };
       break;
@@ -144,7 +152,13 @@ public class SqlTrimFunction extends SqlFunction {
       assert operands[0] instanceof SqlLiteral
           && ((SqlLiteral) operands[0]).getValue() instanceof Flag;
       if (operands[1] == null) {
-        operands[1] = SqlLiteral.createCharString(" ", pos);
+        if (operands[2] != null && operands[2] instanceof SqlLiteral) {
+          SqlLiteral literal = (SqlLiteral) operands[2];
+          if (literal.getTypeName() == SqlTypeName.BYTE) {
+            nullLiteral = SqlLiteral.createByteLiteral(" ", pos);
+          }
+        }
+        operands[1] = nullLiteral;
       }
       break;
     default:

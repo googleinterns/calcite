@@ -951,6 +951,17 @@ public class SqlLiteral extends SqlNode {
   }
 
   /**
+   * Creates a byte literal.
+   *
+   * @param s   a string (without the sql single quotes)
+   * @param pos Parser position
+   */
+  public static SqlLiteral createByteLiteral(
+      String s,
+      SqlParserPos pos) {
+    return new SqlLiteral(s, SqlTypeName.BYTE, pos);
+  }
+  /**
    * Creates a string literal, with optional character-set.
    *
    * @param s       a string (without the sql single quotes)
