@@ -22,7 +22,11 @@ import org.apache.calcite.sql.parser.redshift.RedshiftParserImpl;
 
 import com.google.common.base.Throwables;
 
+import org.junit.jupiter.api.Test;
+
 import java.util.Objects;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests the "Redshift" SQL parser.
@@ -46,7 +50,7 @@ final class RedshiftParserTest extends PostgreSQLBaseParserTest {
     return new TesterImpl() {
       @Override protected void checkEx(String expectedMsgPattern,
           SqlParserUtil.StringAndPos sap, Throwable thrown) {
-        if (thrownByRedshiftTest(thrown)) {
+        if (thrown != null && thrownByRedshiftTest(thrown)) {
           super.checkEx(expectedMsgPattern, sap, thrown);
         } else {
           checkExNotNull(sap, thrown);
@@ -74,5 +78,11 @@ final class RedshiftParserTest extends PostgreSQLBaseParserTest {
         }
       }
     };
+  }
+
+  @Test public void testUnsuccessfulFailingTest() {
+    final String sql = "select * from ^foo^";
+    final String expected = "Some error that never happens";
+    assertThrows(AssertionError.class, () -> sql(sql).fails(expected));
   }
 }
