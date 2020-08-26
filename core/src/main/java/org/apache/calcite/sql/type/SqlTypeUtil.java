@@ -1448,6 +1448,7 @@ public abstract class SqlTypeUtil {
       case EXACT_NUMERIC:
       case INTEGER:
       case BOOLEAN:
+      case BINARY:
         return true;
       }
     }
