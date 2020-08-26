@@ -120,7 +120,7 @@ public class BasicSqlType extends AbstractSqlType {
   }
 
   /**
-   * Constructs a type with precision/length and scale.
+   * Constructs a type with precision/length, scale and attributes.
    *
    * @param typeSystem Type system
    * @param typeName Type name

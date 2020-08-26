@@ -284,7 +284,7 @@ public interface RelDataTypeFactory {
       int scale);
 
   /**
-   * Creates a SQL type with precision, scale and column attributes .
+   * Creates a SQL type with precision, scale and column attributes.
    *
    * @param typeName  Name of the type, for example {@link SqlTypeName#DECIMAL}.
    *                  Never null.
