@@ -162,7 +162,7 @@ public class SqlLiteral extends SqlNode {
   /**
    * Creates a <code>SqlLiteral</code>.
    */
-  protected SqlLiteral(
+  public SqlLiteral(
       Object value,
       SqlTypeName typeName,
       SqlParserPos pos) {

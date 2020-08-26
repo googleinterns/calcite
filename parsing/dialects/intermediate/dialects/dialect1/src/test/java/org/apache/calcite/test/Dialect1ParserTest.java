@@ -6276,4 +6276,10 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
         + "FROM `BAR`";
     sql(sql).ok(expected);
   }
+
+  @Test public void testTrimWithByte() {
+    final String sql = "SELECT TRIM('ABC'XB) FROM abc";
+    final String expected = "SELECT TRIM('ABC'XB) FROM `ABC`";
+    sql(sql).ok(expected);
+  }
 }
