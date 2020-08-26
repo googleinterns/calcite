@@ -21,6 +21,7 @@ import org.apache.calcite.sql.SqlCollation;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.type.SqlTypeName;
+import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.validate.SqlValidatorUtil;
 
 import java.nio.charset.Charset;
@@ -210,6 +211,18 @@ public interface RelDataTypeFactory {
   RelDataType createSqlType(SqlTypeName typeName);
 
   /**
+   * Creates a SQL type with no precision or scale and the given column
+   * attributes.
+   *
+   * @param typeName Name of the type, for example {@link SqlTypeName#BOOLEAN},
+   *   never null
+   * @param attributes The column attributes
+   * @return canonical type descriptor
+   */
+  RelDataType createSqlType(SqlTypeName typeName,
+      List<SqlColumnAttribute> attributes);
+
+  /**
    * Creates a SQL type that represents the "unknown" type.
    * It is only equal to itself, and is distinct from the NULL type.
 
@@ -218,7 +231,8 @@ public interface RelDataTypeFactory {
   RelDataType createUnknownType();
 
   /**
-   * Creates a SQL type with length (precision) but no scale.
+   * Creates a SQL type with length (precision) but no scale or column
+   * attributes.
    *
    * @param typeName  Name of the type, for example {@link SqlTypeName#VARCHAR}.
    *                  Never null.
@@ -231,6 +245,24 @@ public interface RelDataTypeFactory {
   RelDataType createSqlType(
       SqlTypeName typeName,
       int precision);
+
+  /**
+   * Creates a SQL type with length (precision) and column attributes but no
+   * scale.
+   *
+   * @param typeName  Name of the type, for example {@link SqlTypeName#VARCHAR}.
+   *                  Never null.
+   * @param precision Maximum length of the value (non-numeric types) or the
+   *                  precision of the value (numeric/datetime types).
+   *                  Must be non-negative or
+   *                  {@link RelDataType#PRECISION_NOT_SPECIFIED}.
+   * @param attributes The column attributes
+   * @return canonical type descriptor
+   */
+  RelDataType createSqlType(
+      SqlTypeName typeName,
+      int precision,
+      List<SqlColumnAttribute> attributes);
 
   /**
    * Creates a SQL type with precision and scale.
@@ -250,6 +282,27 @@ public interface RelDataTypeFactory {
       SqlTypeName typeName,
       int precision,
       int scale);
+
+  /**
+   * Creates a SQL type with precision, scale and column attributes .
+   *
+   * @param typeName  Name of the type, for example {@link SqlTypeName#DECIMAL}.
+   *                  Never null.
+   * @param precision Precision of the value.
+   *                  Must be non-negative or
+   *                  {@link RelDataType#PRECISION_NOT_SPECIFIED}.
+   * @param scale     scale of the values, i.e. the number of decimal places to
+   *                  shift the value. For example, a NUMBER(10,3) value of
+   *                  "123.45" is represented "123450" (that is, multiplied by
+   *                  10^3). A negative scale <em>is</em> valid.
+   * @param attributes The column attributes
+   * @return canonical type descriptor
+   */
+  RelDataType createSqlType(
+      SqlTypeName typeName,
+      int precision,
+      int scale,
+      List<SqlColumnAttribute> attributes);
 
   /**
    * Creates a SQL interval type.

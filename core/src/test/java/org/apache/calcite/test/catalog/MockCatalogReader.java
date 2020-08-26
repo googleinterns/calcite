@@ -57,6 +57,7 @@ import org.apache.calcite.rex.RexNode;
 import org.apache.calcite.schema.CustomColumnResolvingTable;
 import org.apache.calcite.schema.ExtensibleTable;
 import org.apache.calcite.schema.Path;
+import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.schema.Schema;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.Schemas;
@@ -992,6 +993,10 @@ public abstract class MockCatalogReader extends CalciteCatalogReader {
 
     public SqlIntervalQualifier getIntervalQualifier() {
       return delegate.getIntervalQualifier();
+    }
+
+    public List<SqlColumnAttribute> getAttributes() {
+      return delegate.getAttributes();
     }
 
     public int getPrecision() {
