@@ -45,7 +45,7 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
    * @param pos           Parser position, must not be null
    * @param charSetString Character set string, can be null
    * @param formatString  Format of the hex char literal
-   * @param typeName The type, must be either CHAR or BYTE
+   * @param typeName The type, must be either CHAR or BYTE, can not be null
    */
   public SqlHexCharStringLiteral(final String hex, final SqlParserPos pos,
       final String charSetString, final String formatString,
