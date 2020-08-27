@@ -131,20 +131,13 @@ public class SqlTrimFunction extends SqlFunction {
       SqlParserPos pos,
       SqlNode... operands) {
     assert functionQualifier == null;
-    SqlLiteral nullLiteral = SqlLiteral.createCharString(" ", pos);
     switch (operands.length) {
     case 1:
       // This variant occurs when someone writes TRIM(string)
       // as opposed to the sugared syntax TRIM(string FROM string).
-      if (operands[0] instanceof SqlLiteral) {
-        SqlLiteral literal = (SqlLiteral) operands[0];
-        if (literal.getTypeName() == SqlTypeName.BYTE) {
-          nullLiteral = SqlLiteral.createByteLiteral(" ", pos);
-        }
-      }
       operands = new SqlNode[]{
         Flag.BOTH.symbol(SqlParserPos.ZERO),
-        nullLiteral,
+        getNullLiteral(operands[0], pos),
         operands[0]
       };
       break;
@@ -152,13 +145,7 @@ public class SqlTrimFunction extends SqlFunction {
       assert operands[0] instanceof SqlLiteral
           && ((SqlLiteral) operands[0]).getValue() instanceof Flag;
       if (operands[1] == null) {
-        if (operands[2] instanceof SqlLiteral) {
-          SqlLiteral literal = (SqlLiteral) operands[2];
-          if (literal.getTypeName() == SqlTypeName.BYTE) {
-            nullLiteral = SqlLiteral.createByteLiteral(" ", pos);
-          }
-        }
-        operands[1] = nullLiteral;
+        operands[1] = getNullLiteral(operands[2], pos);
       }
       break;
     default:
@@ -166,6 +153,25 @@ public class SqlTrimFunction extends SqlFunction {
           "invalid operand count " + Arrays.toString(operands));
     }
     return super.createCall(functionQualifier, pos, operands);
+  }
+
+  /**
+   * Returns either an empty char literal or an empty byte literal depending
+   * on the type of {@code node} passed in.
+   *
+   * @param node The node whose type is checked
+   * @param pos The parser position
+   *
+   * @return The null literal
+   */
+  private static SqlLiteral getNullLiteral(SqlNode node, SqlParserPos pos) {
+    if (node instanceof SqlLiteral) {
+      SqlLiteral literal = (SqlLiteral) node;
+      if (literal.getTypeName() == SqlTypeName.BYTE) {
+        return SqlLiteral.createByteLiteral(" ", pos);
+      }
+    }
+    return SqlLiteral.createCharString(" ", pos);
   }
 
   public boolean checkOperandTypes(
@@ -176,7 +182,7 @@ public class SqlTrimFunction extends SqlFunction {
     }
     switch (kind) {
     case TRIM:
-      return SqlTypeUtil.isCharTypeComparable(callBinding,
+      return SqlTypeUtil.isCharOrByteTypeComparable(callBinding,
           ImmutableList.of(callBinding.operand(1), callBinding.operand(2)),
           throwOnFailure);
     default:
