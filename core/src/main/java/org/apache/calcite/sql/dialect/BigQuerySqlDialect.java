@@ -151,6 +151,8 @@ public class BigQuerySqlDialect extends SqlDialect {
       String suffix, int leftPrec, int rightPrec) {
     StringBuilder sb = new StringBuilder();
     sb.append("b'");
+    // Start at 1 and end at length - 1 to remove surrounding single quotes.
+    // It is also assumed that there is an even number of hex digits.
     for (int i = 1; i < hexString.length() - 1; i += 2) {
       sb.append("\\x").append(hexString.charAt(i)).append(hexString.charAt(i+1));
     }

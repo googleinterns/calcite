@@ -519,6 +519,7 @@ public class SqlLiteral extends SqlNode {
     }
     switch (typeName) {
     case CHAR:
+    case BYTE:
 
       // We want 'It''s superman!', not _ISO-8859-1'It''s superman!'
       return ((NlsString) value).getValue();
