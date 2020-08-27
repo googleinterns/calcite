@@ -24,6 +24,7 @@ import org.apache.calcite.rel.type.RelDataTypeSystem;
 import org.apache.calcite.rex.RexCall;
 import org.apache.calcite.rex.RexUtil;
 import org.apache.calcite.sql.SqlAlienSystemTypeNameSpec;
+import org.apache.calcite.sql.SqlByteLiteral;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDialect;
@@ -147,10 +148,11 @@ public class BigQuerySqlDialect extends SqlDialect {
     unparseFetchUsingLimit(writer, offset, fetch);
   }
 
-  @Override public void unparseByteLiteral(SqlWriter writer, String hexString,
-      String suffix, int leftPrec, int rightPrec) {
+  @Override public void unparseByteLiteral(SqlWriter writer,
+      SqlByteLiteral literal, int leftPrec, int rightPrec) {
     StringBuilder sb = new StringBuilder();
     sb.append("b'");
+    String hexString = literal.getValue().toString();
     // Start at 1 and end at length - 1 to remove surrounding single quotes.
     // It is also assumed that there is an even number of hex digits.
     for (int i = 1; i < hexString.length() - 1; i += 2) {
@@ -304,7 +306,7 @@ public class BigQuerySqlDialect extends SqlDialect {
     // If the trimmed character is a non-space character, add it to the target SQL.
     // eg: TRIM(BOTH 'A' from 'ABCD'
     // Output Query: TRIM('ABC', 'A')
-    if (!valueToTrim.toValue().matches("\\s+")) {
+    if (!valueToTrim.toValue().matches("\\s*")) {
       writer.literal(",");
       call.operand(1).unparse(writer, leftPrec, rightPrec);
     }

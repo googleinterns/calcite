@@ -2255,8 +2255,7 @@ SqlNode SqlByteStringLiteral() :
         String[] tokens = token.image.split("'");
         hex = tokens[1];
         formatString = tokens[2];
-        return new SqlHexCharStringLiteral(hex, getPos(), /*charSet=*/ null,
-            formatString, SqlTypeName.BYTE);
+        return new SqlByteLiteral(hex, getPos(), formatString);
     }
 }
 

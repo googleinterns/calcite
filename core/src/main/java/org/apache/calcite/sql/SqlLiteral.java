@@ -727,7 +727,6 @@ public class SqlLiteral extends SqlNode {
 
   public RelDataType createSqlType(RelDataTypeFactory typeFactory) {
     BitString bitString;
-    NlsString string;
     switch (typeName) {
     case NULL:
     case BOOLEAN:
@@ -739,10 +738,9 @@ public class SqlLiteral extends SqlNode {
       int bitCount = bitString.getBitCount();
       return typeFactory.createSqlType(SqlTypeName.BINARY, bitCount / 8);
     case BYTE:
-      string = (NlsString) value;
       return typeFactory.createSqlType(SqlTypeName.BYTE);
     case CHAR:
-      string = (NlsString) value;
+      NlsString string = (NlsString) value;
       Charset charset = string.getCharset();
       if (null == charset) {
         charset = typeFactory.getDefaultCharset();
@@ -960,7 +958,7 @@ public class SqlLiteral extends SqlNode {
   public static SqlLiteral createByteLiteral(
       String s,
       SqlParserPos pos) {
-    return new SqlLiteral(new NlsString(s, null, null), SqlTypeName.BYTE, pos);
+    return new SqlByteLiteral(s, pos, "XB");
   }
 
   /**

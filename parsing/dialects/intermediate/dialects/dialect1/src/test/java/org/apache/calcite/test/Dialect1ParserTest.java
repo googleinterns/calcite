@@ -6279,14 +6279,14 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
 
   @Test public void testTrimWithByteXb() {
     final String sql = "SELECT TRIM('ABCD'XB) FROM abc";
-    final String expected = "SELECT TRIM(BOTH ' ' FROM 'ABCD' XB)\n"
+    final String expected = "SELECT TRIM(BOTH '' XB FROM 'ABCD' XB)\n"
         + "FROM `ABC`";
     sql(sql).ok(expected);
   }
 
   @Test public void testTrimWithByteXbf() {
     final String sql = "SELECT TRIM('ABCD'XBF) FROM abc";
-    final String expected = "SELECT TRIM(BOTH ' ' FROM 'ABCD' XBF)\n"
+    final String expected = "SELECT TRIM(BOTH '' XB FROM 'ABCD' XBF)\n"
         + "FROM `ABC`";
     sql(sql).ok(expected);
   }

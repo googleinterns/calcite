@@ -156,7 +156,7 @@ public class SqlTrimFunction extends SqlFunction {
   }
 
   /**
-   * Returns either an empty char literal or an empty byte literal depending
+   * Returns either a padding char literal or an empty byte literal depending
    * on the type of {@code node} passed in.
    *
    * @param node The node whose type is checked
@@ -168,7 +168,7 @@ public class SqlTrimFunction extends SqlFunction {
     if (node instanceof SqlLiteral) {
       SqlLiteral literal = (SqlLiteral) node;
       if (literal.getTypeName() == SqlTypeName.BYTE) {
-        return SqlLiteral.createByteLiteral(" ", pos);
+        return SqlLiteral.createByteLiteral("", pos);
       }
     }
     return SqlLiteral.createCharString(" ", pos);

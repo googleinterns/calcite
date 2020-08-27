@@ -20,7 +20,6 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.parser.SqlParserUtil;
 import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.util.NlsString;
-import org.apache.calcite.util.Util;
 
 import java.util.Locale;
 
@@ -34,30 +33,16 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
   final HexCharLiteralFormat format;
   final CharacterSet charSet;
 
-  public SqlHexCharStringLiteral(final String hex, final SqlParserPos pos,
-      final String charSetString, final String formatString) {
-    this(hex, pos, charSetString, formatString, SqlTypeName.CHAR);
-  }
-
   /**
    * Creates a {@code SqlHexCharStringLiteral}.
    * @param hex           String that contains the hex characters
    * @param pos           Parser position, must not be null
    * @param charSetString Character set string, can be null
    * @param formatString  Format of the hex char literal
-   * @param typeName The type, must be either CHAR or BYTE, can not be null
    */
   public SqlHexCharStringLiteral(final String hex, final SqlParserPos pos,
-      final String charSetString, final String formatString,
-      final SqlTypeName typeName) {
-    super(new NlsString(hex, null, null), typeName, pos);
-    if (typeName != SqlTypeName.CHAR && typeName != SqlTypeName.BYTE) {
-      throw Util.unexpected(typeName);
-    }
-    if (typeName == SqlTypeName.BYTE && hex.length() % 2 == 1) {
-      throw new IllegalStateException("Must have an even number of hex digits "
-          + "in a byte literal.");
-    }
+      final String charSetString, final String formatString) {
+    super(new NlsString(hex, null, null), SqlTypeName.CHAR, pos);
     if (charSetString == null) {
       this.charSet = null;
     } else {
@@ -92,12 +77,6 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
     case "XCV":
       format = HexCharLiteralFormat.XCV;
       break;
-    case "XB":
-      format = HexCharLiteralFormat.XB;
-      break;
-    case "XBF":
-      format = HexCharLiteralFormat.XBF;
-      break;
     default:
       format = HexCharLiteralFormat.XCF;
       break;
@@ -110,8 +89,8 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
       writer.print("_");
       writer.keyword(charSet.toString());
     }
-    writer.getDialect().unparseByteLiteral(writer, value.toString(),
-        format.toString(), leftPrec, rightPrec);
+    writer.literal(value.toString());
+    writer.keyword(format.toString());
   }
 
   public enum HexCharLiteralFormat {
@@ -129,15 +108,5 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
      * CHAR format.
      */
     XCF,
-
-    /**
-     * BYTE format.
-     */
-    XB,
-
-    /**
-     * Fixed BYTE format.
-     */
-    XBF,
   }
 }

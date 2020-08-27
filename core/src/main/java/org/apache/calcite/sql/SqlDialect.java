@@ -487,10 +487,10 @@ public class SqlDialect {
     SqlUtil.unparseSqlIdentifierSyntax(writer, identifier, false);
   }
 
-  public void unparseByteLiteral(SqlWriter writer, String hexString,
-      String suffix, int leftPrec, int rightPrec) {
-    writer.literal(hexString);
-    writer.keyword(suffix);
+  public void unparseByteLiteral(SqlWriter writer, SqlByteLiteral literal,
+      int leftPrec, int rightPrec) {
+    writer.literal(literal.getValue().toString());
+    writer.keyword(literal.format);
   }
 
   public void unparseSqlInsertSource(SqlWriter writer, SqlInsert insertCall,
