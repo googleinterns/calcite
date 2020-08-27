@@ -20,8 +20,6 @@ import org.apache.calcite.sql.parser.SqlParserPos;
 import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.util.NlsString;
 
-
-
 /**
  * Parse tree for a {@code SqlByteLiteral}.
  */
