@@ -54,6 +54,10 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
     if (typeName != SqlTypeName.CHAR && typeName != SqlTypeName.BYTE) {
       throw Util.unexpected(typeName);
     }
+    if (typeName == SqlTypeName.BYTE && hex.length() % 2 == 1) {
+      throw new IllegalStateException("Must have an even number of hex digits "
+          + "in a byte literal.");
+    }
     if (charSetString == null) {
       this.charSet = null;
     } else {
@@ -106,8 +110,8 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
       writer.print("_");
       writer.keyword(charSet.toString());
     }
-    writer.literal(value.toString());
-    writer.keyword(format.toString());
+    writer.getDialect().unparseByteLiteral(writer, value.toString(),
+        format.toString(), leftPrec, rightPrec);
   }
 
   public enum HexCharLiteralFormat {

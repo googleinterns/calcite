@@ -147,6 +147,17 @@ public class BigQuerySqlDialect extends SqlDialect {
     unparseFetchUsingLimit(writer, offset, fetch);
   }
 
+  @Override public void unparseByteLiteral(SqlWriter writer, String hexString,
+      String suffix, int leftPrec, int rightPrec) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("b'");
+    for (int i = 1; i < hexString.length() - 1; i += 2) {
+      sb.append("\\x").append(hexString.charAt(i)).append(hexString.charAt(i+1));
+    }
+    sb.append("'");
+    writer.literal(sb.toString());
+  }
+
   @Override public void unparseSqlInsertSource(SqlWriter writer, SqlInsert insertCall,
       int leftPrec, int rightPrec) {
     unparseCall(writer, (SqlCall) insertCall.getSource(), leftPrec, rightPrec);

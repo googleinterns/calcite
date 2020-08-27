@@ -798,7 +798,7 @@ public class Dialect1ValidatorTest extends SqlValidatorTestCase {
   }
 
   @Test public void testTrimWithByte() {
-    String sql = "SELECT TRIM('ABC'XB) from abc";
+    String sql = "SELECT TRIM('ABCD'XB) from abc";
     sql(sql).type("RecordType(VARBYTE NOT NULL EXPR$0) NOT NULL");
   }
 }

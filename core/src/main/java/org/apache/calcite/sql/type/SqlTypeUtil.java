@@ -117,7 +117,7 @@ public abstract class SqlTypeUtil {
   }
 
   /**
-   * Removes any elemtents of type ANY or NULL in {@code argTypes}.
+   * Removes any elements of type ANY or NULL in {@code argTypes}.
    *
    * @param argTypes The list to filter
    *
