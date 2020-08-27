@@ -6280,28 +6280,29 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testTrimWithByteXb() {
     final String sql = "SELECT TRIM('ABCD'XB) FROM abc";
     final String expected = "SELECT TRIM(BOTH ' ' FROM 'ABCD' XB)\n"
-     + "FROM `ABC`";
+        + "FROM `ABC`";
     sql(sql).ok(expected);
   }
 
   @Test public void testTrimWithByteXbf() {
     final String sql = "SELECT TRIM('ABCD'XBF) FROM abc";
     final String expected = "SELECT TRIM(BOTH ' ' FROM 'ABCD' XBF)\n"
-     + "FROM `ABC`";
+        + "FROM `ABC`";
     sql(sql).ok(expected);
   }
 
   @Test public void testTrimWithByteOddNumberOfDigitsFails() {
     final String sql = "SELECT TRIM('ABC'XBF) FROM abc";
     final String expected = "Must have an even number of hex digits in a byte"
-        + " literal\\.";
+        + " literal\\."
     sql(sql).fails(expected);
   }
 
-  @Test public void testByteLiteralInBigQuery() {
-    final String sql = "'ABCD'XBF";
-    final String expected = "b'\\xAB\\xCD'";
-    expr(sql)
+  @Test public void testTrimWithByteBigQuery() {
+    final String sql = "SELECT TRIM('ABCD'XBF) FROM abc";
+    final String expected = "SELECT TRIM(BOTH ' ' FROM b'\\xAB\\xCD')\n"
+        + "FROM `ABC`";
+    sql(sql)
       .withDialect(SqlDialect.DatabaseProduct.BIG_QUERY.getDialect())
       .ok(expected);
   }
