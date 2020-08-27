@@ -24,7 +24,7 @@ import org.apache.calcite.sql.type.SqlReturnTypeInference;
  * Operator for an inline CASESPECIFIC statement.
  */
 public class SqlCaseSpecificOperator extends SqlPostfixOperator {
-  final boolean includeNot;
+  public final boolean includeNot;
 
   /**
    * Create an {@code SqlCaseSpecificOperator}.

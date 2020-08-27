@@ -47,7 +47,7 @@ public class SqlTypeFactoryImpl extends RelDataTypeFactoryImpl {
     return createSqlType(typeName, new ArrayList<>());
   }
 
-  public RelDataType createSqlType(SqlTypeName typeName,
+  @Override public RelDataType createSqlType(SqlTypeName typeName,
       List<SqlColumnAttribute> attributes) {
     if (typeName.allowsPrec()) {
       return createSqlType(typeName, typeSystem.getDefaultPrecision(typeName),
@@ -64,7 +64,7 @@ public class SqlTypeFactoryImpl extends RelDataTypeFactoryImpl {
     return createSqlType(typeName, precision, new ArrayList<>());
   }
 
-  public RelDataType createSqlType(
+  @Override public RelDataType createSqlType(
       SqlTypeName typeName,
       int precision,
       List<SqlColumnAttribute> attributes) {
@@ -94,7 +94,7 @@ public class SqlTypeFactoryImpl extends RelDataTypeFactoryImpl {
     return createSqlType(typeName, precision, scale, new ArrayList<>());
   }
 
-  public RelDataType createSqlType(
+  @Override public RelDataType createSqlType(
       SqlTypeName typeName,
       int precision,
       int scale,
