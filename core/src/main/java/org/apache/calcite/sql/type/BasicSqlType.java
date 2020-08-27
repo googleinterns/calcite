@@ -18,11 +18,15 @@ package org.apache.calcite.sql.type;
 
 import org.apache.calcite.rel.type.RelDataTypeSystem;
 import org.apache.calcite.sql.SqlCollation;
+import org.apache.calcite.sql.SqlColumnAttribute;
+import org.apache.calcite.sql.pretty.SqlPrettyWriter;
 import org.apache.calcite.util.SerializableCharset;
 
 import com.google.common.base.Preconditions;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -41,6 +45,7 @@ public class BasicSqlType extends AbstractSqlType {
   public final RelDataTypeSystem typeSystem;
   private final SqlCollation collation;
   private final SerializableCharset wrappedCharset;
+  private final List<SqlColumnAttribute> attributes;
 
   //~ Constructors -----------------------------------------------------------
 
@@ -54,6 +59,20 @@ public class BasicSqlType extends AbstractSqlType {
   public BasicSqlType(RelDataTypeSystem typeSystem, SqlTypeName typeName) {
     this(typeSystem, typeName, false, PRECISION_NOT_SPECIFIED,
         SCALE_NOT_SPECIFIED, null, null);
+    checkPrecScale(typeName, false, false);
+  }
+
+  /**
+   * Constructs a type with attributes.
+   *
+   * @param typeSystem Type system
+   * @param typeName Type name
+   * @param attributes The column attributes, may not be null
+   */
+  public BasicSqlType(RelDataTypeSystem typeSystem, SqlTypeName typeName,
+      List<SqlColumnAttribute> attributes) {
+    this(typeSystem, typeName, false, PRECISION_NOT_SPECIFIED,
+        SCALE_NOT_SPECIFIED, null, null, attributes);
     checkPrecScale(typeName, false, false);
   }
 
@@ -72,6 +91,21 @@ public class BasicSqlType extends AbstractSqlType {
   }
 
   /**
+   * Constructs a type with precision/length and attributes but no scale.
+   *
+   * @param typeSystem Type system
+   * @param typeName Type name
+   * @param precision Precision (called length for some types)
+   * @param attributes The column attributes, may not be null
+   */
+  public BasicSqlType(RelDataTypeSystem typeSystem, SqlTypeName typeName,
+      int precision, List<SqlColumnAttribute> attributes) {
+    this(typeSystem, typeName, false, precision, SCALE_NOT_SPECIFIED, null,
+        null, attributes);
+    checkPrecScale(typeName, true, false);
+  }
+
+  /**
    * Constructs a type with precision/length and scale.
    *
    * @param typeSystem Type system
@@ -85,7 +119,21 @@ public class BasicSqlType extends AbstractSqlType {
     checkPrecScale(typeName, true, true);
   }
 
-  /** Internal constructor. */
+  /**
+   * Constructs a type with precision/length, scale and attributes.
+   *
+   * @param typeSystem Type system
+   * @param typeName Type name
+   * @param precision Precision (called length for some types)
+   * @param scale Scale
+   * @param attributes The column attributes
+   */
+  public BasicSqlType(RelDataTypeSystem typeSystem, SqlTypeName typeName,
+      int precision, int scale, List<SqlColumnAttribute> attributes) {
+    this(typeSystem, typeName, false, precision, scale, null, null, attributes);
+    checkPrecScale(typeName, true, true);
+  }
+
   public BasicSqlType(
       RelDataTypeSystem typeSystem,
       SqlTypeName typeName,
@@ -94,12 +142,27 @@ public class BasicSqlType extends AbstractSqlType {
       int scale,
       SqlCollation collation,
       SerializableCharset wrappedCharset) {
+    this(typeSystem, typeName, nullable, precision, scale, collation,
+        wrappedCharset, new ArrayList<>());
+  }
+
+  /** Internal constructor. */
+  public BasicSqlType(
+      RelDataTypeSystem typeSystem,
+      SqlTypeName typeName,
+      boolean nullable,
+      int precision,
+      int scale,
+      SqlCollation collation,
+      SerializableCharset wrappedCharset,
+      List<SqlColumnAttribute> attributes) {
     super(typeName, nullable, null);
     this.typeSystem = Objects.requireNonNull(typeSystem);
     this.precision = precision;
     this.scale = scale;
     this.collation = collation;
     this.wrappedCharset = wrappedCharset;
+    this.attributes = Objects.requireNonNull(attributes);
     computeDigest();
   }
 
@@ -123,7 +186,8 @@ public class BasicSqlType extends AbstractSqlType {
       return this;
     }
     return new BasicSqlType(this.typeSystem, this.typeName, nullable,
-        this.precision, this.scale, this.collation, this.wrappedCharset);
+        this.precision, this.scale, this.collation, this.wrappedCharset,
+        this.attributes);
   }
 
   /**
@@ -136,7 +200,7 @@ public class BasicSqlType extends AbstractSqlType {
     Preconditions.checkArgument(SqlTypeUtil.inCharFamily(this));
     return new BasicSqlType(this.typeSystem, this.typeName, this.isNullable,
         this.precision, this.scale, collation,
-        SerializableCharset.forCharset(charset));
+        SerializableCharset.forCharset(charset), this.attributes);
   }
 
   @Override public int getPrecision() {
@@ -170,11 +234,15 @@ public class BasicSqlType extends AbstractSqlType {
     return collation;
   }
 
+  @Override public List<SqlColumnAttribute> getAttributes() {
+    return attributes;
+  }
+
   // implement RelDataTypeImpl
   protected void generateTypeString(StringBuilder sb, boolean withDetail) {
     // Called to make the digest, which equals() compares;
     // so equivalent data types must produce identical type strings.
-
+    SqlPrettyWriter writer = new SqlPrettyWriter(SqlPrettyWriter.config());
     sb.append(typeName.name());
     boolean printPrecision = precision != PRECISION_NOT_SPECIFIED;
     boolean printScale = scale != SCALE_NOT_SPECIFIED;
@@ -190,6 +258,10 @@ public class BasicSqlType extends AbstractSqlType {
     }
     if (!withDetail) {
       return;
+    }
+    for (SqlColumnAttribute attribute : attributes) {
+      sb.append(' ').append(writer.format(attribute));
+      writer.reset();
     }
     if (wrappedCharset != null
         && !SqlCollation.IMPLICIT.getCharset().equals(wrappedCharset.getCharset())) {

@@ -17,6 +17,7 @@
 package org.apache.calcite.rel.type;
 
 import org.apache.calcite.sql.SqlCollation;
+import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.parser.SqlParserPos;
@@ -211,6 +212,10 @@ public abstract class RelDataTypeImpl
   }
 
   public SqlIntervalQualifier getIntervalQualifier() {
+    return null;
+  }
+
+  public List<SqlColumnAttribute> getAttributes() {
     return null;
   }
 

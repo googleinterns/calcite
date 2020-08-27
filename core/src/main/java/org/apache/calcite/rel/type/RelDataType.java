@@ -17,6 +17,7 @@
 package org.apache.calcite.rel.type;
 
 import org.apache.calcite.sql.SqlCollation;
+import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.sql.type.SqlTypeName;
@@ -155,6 +156,14 @@ public interface RelDataType {
    * @return interval qualifier
    */
   SqlIntervalQualifier getIntervalQualifier();
+
+  /**
+   * Gets this type's column attributes, or null if this is not a type that
+   * supports them.
+   *
+   * @return Column attributes
+   */
+  List<SqlColumnAttribute> getAttributes();
 
   /**
    * Gets the JDBC-defined precision for values of this type. Note that this

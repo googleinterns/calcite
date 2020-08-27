@@ -22,10 +22,12 @@ import org.apache.calcite.rel.type.RelDataTypeFactoryImpl;
 import org.apache.calcite.rel.type.RelDataTypeFamily;
 import org.apache.calcite.rel.type.RelDataTypeSystem;
 import org.apache.calcite.sql.SqlCollation;
+import org.apache.calcite.sql.SqlColumnAttribute;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.util.Util;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,31 +44,45 @@ public class SqlTypeFactoryImpl extends RelDataTypeFactoryImpl {
   //~ Methods ----------------------------------------------------------------
 
   public RelDataType createSqlType(SqlTypeName typeName) {
+    return createSqlType(typeName, new ArrayList<>());
+  }
+
+  public RelDataType createSqlType(SqlTypeName typeName,
+      List<SqlColumnAttribute> attributes) {
     if (typeName.allowsPrec()) {
-      return createSqlType(typeName, typeSystem.getDefaultPrecision(typeName));
+      return createSqlType(typeName, typeSystem.getDefaultPrecision(typeName),
+          attributes);
     }
     assertBasic(typeName);
-    RelDataType newType = new BasicSqlType(typeSystem, typeName);
+    RelDataType newType = new BasicSqlType(typeSystem, typeName, attributes);
     return canonize(newType);
   }
 
   public RelDataType createSqlType(
       SqlTypeName typeName,
       int precision) {
+    return createSqlType(typeName, precision, new ArrayList<>());
+  }
+
+  public RelDataType createSqlType(
+      SqlTypeName typeName,
+      int precision,
+      List<SqlColumnAttribute> attributes) {
     final int maxPrecision = typeSystem.getMaxPrecision(typeName);
     if (maxPrecision >= 0 && precision > maxPrecision) {
       precision = maxPrecision;
     }
     if (typeName.allowsScale()) {
-      return createSqlType(typeName, precision, typeName.getDefaultScale());
+      return createSqlType(typeName, precision, typeName.getDefaultScale(),
+          attributes);
     }
     assertBasic(typeName);
     assert (precision >= 0)
         || (precision == RelDataType.PRECISION_NOT_SPECIFIED);
     // Does not check precision when typeName is SqlTypeName#NULL.
     RelDataType newType = precision == RelDataType.PRECISION_NOT_SPECIFIED
-        ? new BasicSqlType(typeSystem, typeName)
-        : new BasicSqlType(typeSystem, typeName, precision);
+        ? new BasicSqlType(typeSystem, typeName, attributes)
+        : new BasicSqlType(typeSystem, typeName, precision, attributes);
     newType = SqlTypeUtil.addCharsetAndCollation(newType, this);
     return canonize(newType);
   }
@@ -75,6 +91,14 @@ public class SqlTypeFactoryImpl extends RelDataTypeFactoryImpl {
       SqlTypeName typeName,
       int precision,
       int scale) {
+    return createSqlType(typeName, precision, scale, new ArrayList<>());
+  }
+
+  public RelDataType createSqlType(
+      SqlTypeName typeName,
+      int precision,
+      int scale,
+      List<SqlColumnAttribute> attributes) {
     assertBasic(typeName);
     assert (precision >= 0)
         || (precision == RelDataType.PRECISION_NOT_SPECIFIED);
@@ -83,7 +107,7 @@ public class SqlTypeFactoryImpl extends RelDataTypeFactoryImpl {
       precision = maxPrecision;
     }
     RelDataType newType =
-        new BasicSqlType(typeSystem, typeName, precision, scale);
+        new BasicSqlType(typeSystem, typeName, precision, scale, attributes);
     newType = SqlTypeUtil.addCharsetAndCollation(newType, this);
     return canonize(newType);
   }
