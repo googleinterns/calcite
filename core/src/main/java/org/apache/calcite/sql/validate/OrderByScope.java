@@ -86,6 +86,7 @@ public class OrderByScope extends DelegatingScope {
       }
       if (field != null && !field.isDynamicStar() && aliasCount == 1) {
         // if identifier is resolved to a dynamic star, use super.fullyQualify() for such case.
+        validator.setValidatedNodeType(identifier, field.getType());
         return SqlQualified.create(this, 1, selectNs, identifier);
       }
     }
