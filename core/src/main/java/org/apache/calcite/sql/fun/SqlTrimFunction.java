@@ -165,11 +165,12 @@ public class SqlTrimFunction extends SqlFunction {
    * @return The null literal
    */
   private static SqlLiteral getNullLiteral(SqlNode node, SqlParserPos pos) {
-    if (node instanceof SqlLiteral) {
-      SqlLiteral literal = (SqlLiteral) node;
-      if (literal.getTypeName() == SqlTypeName.BYTE) {
-        return SqlLiteral.createByteLiteral("", pos);
-      }
+    if (!(node instanceof SqlLiteral)) {
+      return SqlLiteral.createCharString(" ", pos);
+    }
+    SqlLiteral literal = (SqlLiteral) node;
+    if (literal.getTypeName() == SqlTypeName.BYTE) {
+      return SqlLiteral.createByteLiteral("", pos);
     }
     return SqlLiteral.createCharString(" ", pos);
   }

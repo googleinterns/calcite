@@ -3781,17 +3781,17 @@ SqlNode Literal() :
 }
 {
     (
+        e = DateTimeLiteral()
+    |
+        e = IntervalLiteral()
+    |
         e = NumericLiteral()
+    |
+        e = SpecialLiteral()
     |
         e = SqlByteStringLiteral()
     |
         e = StringLiteral()
-    |
-        e = SpecialLiteral()
-    |
-        e = DateTimeLiteral()
-    |
-        e = IntervalLiteral()
     )
     {
         return e;

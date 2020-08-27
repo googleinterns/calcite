@@ -154,7 +154,8 @@ public class BigQuerySqlDialect extends SqlDialect {
     sb.append("b'");
     String hexString = literal.getValue().toString();
     // Start at 1 and end at length - 1 to remove surrounding single quotes.
-    // It is also assumed that there is an even number of hex digits.
+    // It is also assumed that there is an even number of hex digits containing
+    // no whitespace.
     for (int i = 1; i < hexString.length() - 1; i += 2) {
       sb.append("\\x").append(hexString.charAt(i))
         .append(hexString.charAt(i + 1));
@@ -303,7 +304,8 @@ public class BigQuerySqlDialect extends SqlDialect {
     final SqlWriter.Frame trimFrame = writer.startFunCall(operatorName);
     call.operand(2).unparse(writer, leftPrec, rightPrec);
 
-    // If the trimmed character is a non-space character, add it to the target SQL.
+    // If the trimmed character is a non-space and non-empty character,
+    // add it to the target SQL.
     // eg: TRIM(BOTH 'A' from 'ABCD'
     // Output Query: TRIM('ABC', 'A')
     if (!valueToTrim.toValue().matches("\\s*")) {

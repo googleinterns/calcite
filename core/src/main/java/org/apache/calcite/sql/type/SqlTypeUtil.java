@@ -107,9 +107,7 @@ public abstract class SqlTypeUtil {
     assert argTypes.size() >= 2;
     List<RelDataType> argTypes2 = filterAnyAndNull(argTypes);
     for (Pair<RelDataType, RelDataType> pair : Pair.adjacents(argTypes2)) {
-      RelDataType t0 = pair.left;
-      RelDataType t1 = pair.right;
-      if (!isByteType(t0) || !isByteType(t1)) {
+      if (!isByteType(pair.left) || !isByteType(pair.right)) {
         return false;
       }
     }
