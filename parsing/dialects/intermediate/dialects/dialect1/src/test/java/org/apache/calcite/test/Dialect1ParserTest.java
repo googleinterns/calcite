@@ -6294,7 +6294,7 @@ final class Dialect1ParserTest extends SqlDialectParserTest {
   @Test public void testTrimWithByteOddNumberOfDigitsFails() {
     final String sql = "SELECT TRIM('ABC'XBF) FROM abc";
     final String expected = "Must have an even number of hex digits in a byte"
-        + " literal\\."
+        + " literal\\.";
     sql(sql).fails(expected);
   }
 
