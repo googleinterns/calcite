@@ -959,7 +959,7 @@ public class SqlLiteral extends SqlNode {
   public static SqlLiteral createByteLiteral(
       String s,
       SqlParserPos pos) {
-    return new SqlLiteral(s, SqlTypeName.BYTE, pos);
+    return new SqlLiteral(new NlsString(s, null, null), SqlTypeName.BYTE, pos);
   }
   /**
    * Creates a string literal, with optional character-set.

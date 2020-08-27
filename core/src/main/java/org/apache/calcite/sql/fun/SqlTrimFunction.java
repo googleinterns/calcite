@@ -152,7 +152,7 @@ public class SqlTrimFunction extends SqlFunction {
       assert operands[0] instanceof SqlLiteral
           && ((SqlLiteral) operands[0]).getValue() instanceof Flag;
       if (operands[1] == null) {
-        if (operands[2] != null && operands[2] instanceof SqlLiteral) {
+        if (operands[2] instanceof SqlLiteral) {
           SqlLiteral literal = (SqlLiteral) operands[2];
           if (literal.getTypeName() == SqlTypeName.BYTE) {
             nullLiteral = SqlLiteral.createByteLiteral(" ", pos);
