@@ -205,7 +205,7 @@ public interface RelDataTypeFactory {
    * Creates a SQL type with no precision or scale.
    *
    * @param typeName Name of the type, for example {@link SqlTypeName#BOOLEAN},
-   *   never null
+   *                 never null
    * @return canonical type descriptor
    */
   RelDataType createSqlType(SqlTypeName typeName);
@@ -215,7 +215,7 @@ public interface RelDataTypeFactory {
    * attributes.
    *
    * @param typeName Name of the type, for example {@link SqlTypeName#BOOLEAN},
-   *   never null
+   *                 never null
    * @param attributes The column attributes
    * @return canonical type descriptor
    */
@@ -272,7 +272,7 @@ public interface RelDataTypeFactory {
    * @param precision Precision of the value.
    *                  Must be non-negative or
    *                  {@link RelDataType#PRECISION_NOT_SPECIFIED}.
-   * @param scale     scale of the values, i.e. the number of decimal places to
+   * @param scale     Scale of the values, i.e. the number of decimal places to
    *                  shift the value. For example, a NUMBER(10,3) value of
    *                  "123.45" is represented "123450" (that is, multiplied by
    *                  10^3). A negative scale <em>is</em> valid.
@@ -291,7 +291,7 @@ public interface RelDataTypeFactory {
    * @param precision Precision of the value.
    *                  Must be non-negative or
    *                  {@link RelDataType#PRECISION_NOT_SPECIFIED}.
-   * @param scale     scale of the values, i.e. the number of decimal places to
+   * @param scale     Scale of the values, i.e. the number of decimal places to
    *                  shift the value. For example, a NUMBER(10,3) value of
    *                  "123.45" is represented "123450" (that is, multiplied by
    *                  10^3). A negative scale <em>is</em> valid.

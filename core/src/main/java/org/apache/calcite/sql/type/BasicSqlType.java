@@ -142,8 +142,8 @@ public class BasicSqlType extends AbstractSqlType {
       int scale,
       SqlCollation collation,
       SerializableCharset wrappedCharset) {
-    this(typeSystem, typeName, nullable, precision, scale, collation, wrappedCharset,
-        new ArrayList<>());
+    this(typeSystem, typeName, nullable, precision, scale, collation,
+        wrappedCharset, new ArrayList<>());
   }
 
   /** Internal constructor. */
@@ -260,7 +260,7 @@ public class BasicSqlType extends AbstractSqlType {
       return;
     }
     for (SqlColumnAttribute attribute : attributes) {
-      sb.append(" ").append(writer.format(attribute));
+      sb.append(' ').append(writer.format(attribute));
       writer.reset();
     }
     if (wrappedCharset != null

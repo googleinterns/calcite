@@ -3440,7 +3440,8 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       }
       SqlBasicTypeNameSpec basicTypeNameSpec =
           (SqlBasicTypeNameSpec) typeNameSpec;
-      RelDataType type = typeFactory.createSqlType(basicTypeNameSpec.sqlTypeName,
+      RelDataType type = typeFactory.createSqlType(
+          basicTypeNameSpec.sqlTypeName,
           col.dataType.getColumnAttributes());
       builder.add(col.name.toString(), type);
     }
