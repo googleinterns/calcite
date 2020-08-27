@@ -215,7 +215,7 @@ public abstract class RelDataTypeImpl
     return null;
   }
 
-  public List<SqlColumnAttribute> getAttributes() {
+  @Override public List<SqlColumnAttribute> getAttributes() {
     return null;
   }
 
