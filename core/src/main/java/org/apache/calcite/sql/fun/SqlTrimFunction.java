@@ -30,6 +30,7 @@ import org.apache.calcite.sql.type.ReturnTypes;
 import org.apache.calcite.sql.type.SameOperandTypeChecker;
 import org.apache.calcite.sql.type.SqlSingleOperandTypeChecker;
 import org.apache.calcite.sql.type.SqlTypeFamily;
+import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.calcite.sql.type.SqlTypeTransformCascade;
 import org.apache.calcite.sql.type.SqlTypeTransforms;
 import org.apache.calcite.sql.type.SqlTypeUtil;
@@ -136,7 +137,7 @@ public class SqlTrimFunction extends SqlFunction {
       // as opposed to the sugared syntax TRIM(string FROM string).
       operands = new SqlNode[]{
         Flag.BOTH.symbol(SqlParserPos.ZERO),
-        SqlLiteral.createCharString(" ", pos),
+        getNullLiteral(operands[0], pos),
         operands[0]
       };
       break;
@@ -144,7 +145,7 @@ public class SqlTrimFunction extends SqlFunction {
       assert operands[0] instanceof SqlLiteral
           && ((SqlLiteral) operands[0]).getValue() instanceof Flag;
       if (operands[1] == null) {
-        operands[1] = SqlLiteral.createCharString(" ", pos);
+        operands[1] = getNullLiteral(operands[2], pos);
       }
       break;
     default:
@@ -152,6 +153,26 @@ public class SqlTrimFunction extends SqlFunction {
           "invalid operand count " + Arrays.toString(operands));
     }
     return super.createCall(functionQualifier, pos, operands);
+  }
+
+  /**
+   * Returns either a padding char literal or an empty byte literal depending
+   * on the type of {@code node} passed in.
+   *
+   * @param node The node whose type is checked
+   * @param pos The parser position
+   *
+   * @return The null literal
+   */
+  private static SqlLiteral getNullLiteral(SqlNode node, SqlParserPos pos) {
+    if (!(node instanceof SqlLiteral)) {
+      return SqlLiteral.createCharString(" ", pos);
+    }
+    SqlLiteral literal = (SqlLiteral) node;
+    if (literal.getTypeName() == SqlTypeName.BYTE) {
+      return SqlLiteral.createByteLiteral("", pos);
+    }
+    return SqlLiteral.createCharString(" ", pos);
   }
 
   public boolean checkOperandTypes(
@@ -162,7 +183,7 @@ public class SqlTrimFunction extends SqlFunction {
     }
     switch (kind) {
     case TRIM:
-      return SqlTypeUtil.isCharTypeComparable(callBinding,
+      return SqlTypeUtil.isCharOrByteTypeComparable(callBinding,
           ImmutableList.of(callBinding.operand(1), callBinding.operand(2)),
           throwOnFailure);
     default:

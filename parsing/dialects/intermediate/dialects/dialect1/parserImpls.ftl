@@ -2244,6 +2244,21 @@ SqlTypeNameSpec SqlJsonDataType() :
     }
 }
 
+SqlNode SqlByteStringLiteral() :
+{
+    final String hex;
+    final String formatString;
+}
+{
+    <BYTE_STRING>
+    {
+        String[] tokens = token.image.split("'");
+        hex = tokens[1];
+        formatString = tokens[2];
+        return new SqlByteLiteral(hex, getPos(), formatString);
+    }
+}
+
 SqlNode SqlHexCharStringLiteral() :
 {
     final String hex;
@@ -3755,6 +3770,34 @@ SqlDrop SqlDrop() :
 }
 
 /**
+ * Parses a literal expression, allowing continued string literals.
+ * Usually returns an SqlLiteral, but a continued string literal
+ * is an SqlCall expression, which concatenates 2 or more string
+ * literals; the validator reduces this.
+ */
+SqlNode Literal() :
+{
+    SqlNode e;
+}
+{
+    (
+        e = DateTimeLiteral()
+    |
+        e = IntervalLiteral()
+    |
+        e = NumericLiteral()
+    |
+        e = SpecialLiteral()
+    |
+        e = SqlByteStringLiteral()
+    |
+        e = StringLiteral()
+    )
+    {
+        return e;
+    }
+}
+/**
  * Parses a string literal. The literal may be continued onto several
  * lines.  For a simple literal, the result is an SqlLiteral.  For a continued
  * literal, the result is an SqlCall expression, which concatenates 2 or more
@@ -4324,6 +4367,8 @@ SqlLiteral JoinType() :
     ("_" <CHARSETNAME>| "_" <CHARSETNAME> " ") <QUOTED_HEX_STRING> >
 |
     < QUOTED_HEX_STRING : <QUOTE> (<HEXDIGIT>)+ <QUOTE> (("XC") | ("XCV") | ("XCF"))>
+|
+    < BYTE_STRING : <QUOTE> (<HEXDIGIT>)+ <QUOTE> (("XB") | ("XBF"))>
 }
 
 /**

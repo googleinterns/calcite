@@ -22,6 +22,7 @@ import org.apache.calcite.rel.type.RelDataTypeFamily;
 import org.apache.calcite.rel.type.RelDataTypeField;
 import org.apache.calcite.rel.type.RelDataTypeFieldImpl;
 import org.apache.calcite.rex.RexUtil;
+import org.apache.calcite.runtime.CalciteException;
 import org.apache.calcite.sql.SqlBasicTypeNameSpec;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlCallBinding;
@@ -68,14 +69,7 @@ public abstract class SqlTypeUtil {
     assert argTypes != null;
     assert argTypes.size() >= 2;
 
-    // Filter out ANY and NULL elements.
-    List<RelDataType> argTypes2 = new ArrayList<>();
-    for (RelDataType t : argTypes) {
-      if (!isAny(t) && !isNull(t)) {
-        argTypes2.add(t);
-      }
-    }
-
+    List<RelDataType> argTypes2 = filterAnyAndNull(argTypes);
     for (Pair<RelDataType, RelDataType> pair : Pair.adjacents(argTypes2)) {
       RelDataType t0 = pair.left;
       RelDataType t1 = pair.right;
@@ -104,6 +98,62 @@ public abstract class SqlTypeUtil {
   }
 
   /**
+   * Checks whether two types or more are byte comparable.
+   *
+   * @return Returns true if all operands are of byte type.
+   */
+  public static boolean isByteTypeComparable(List<RelDataType> argTypes) {
+    assert argTypes != null;
+    assert argTypes.size() >= 2;
+    List<RelDataType> argTypes2 = filterAnyAndNull(argTypes);
+    for (Pair<RelDataType, RelDataType> pair : Pair.adjacents(argTypes2)) {
+      if (!isByteType(pair.left) || !isByteType(pair.right)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Removes any elements of type ANY or NULL in {@code argTypes}.
+   *
+   * @param argTypes The list to filter
+   *
+   * @return The filtered list
+   */
+  private static List<RelDataType> filterAnyAndNull(List<RelDataType> argTypes) {
+    List<RelDataType> argTypes2 = new ArrayList<>();
+    for (RelDataType t : argTypes) {
+      if (!isAny(t) && !isNull(t)) {
+        argTypes2.add(t);
+      }
+    }
+    return argTypes2;
+  }
+
+  /**
+   * Returns whether the operands to a call are char or byte type-comparable.
+   *
+   * @param binding        Binding of call to operands
+   * @param operands       Operands to check for compatibility; usually the
+   *                       operands of the bound call, but not always
+   * @param throwOnFailure Whether to throw an exception on failure
+   * @return whether operands are valid
+   */
+  public static boolean isCharOrByteTypeComparable(
+      SqlCallBinding binding,
+      List<SqlNode> operands,
+      boolean throwOnFailure) {
+    boolean result = isCharTypeComparable(binding, operands,
+          /*throwOnFailure=*/ false)
+        || isByteTypeComparable(binding, operands, /*throwOnFailure=*/ false);
+    if (!result && throwOnFailure) {
+      throw getNotComparableError(binding, operands);
+    }
+    return result;
+  }
+
+  /**
    * Returns whether the operands to a call are char type-comparable.
    *
    * @param binding        Binding of call to operands
@@ -124,18 +174,56 @@ public abstract class SqlTypeUtil {
     if (!isCharTypeComparable(
         deriveAndCollectTypes(validator, scope, operands))) {
       if (throwOnFailure) {
-        String msg = "";
-        for (int i = 0; i < operands.size(); i++) {
-          if (i > 0) {
-            msg += ", ";
-          }
-          msg += operands.get(i).toString();
-        }
-        throw binding.newError(RESOURCE.operandNotComparable(msg));
+        throw getNotComparableError(binding, operands);
       }
       return false;
     }
     return true;
+  }
+
+  /**
+   * Returns whether the operands to a call are byte type-comparable.
+   *
+   * @param binding        Binding of call to operands
+   * @param operands       Operands to check for compatibility; usually the
+   *                       operands of the bound call, but not always
+   * @param throwOnFailure Whether to throw an exception on failure
+   * @return whether operands are valid
+   */
+  public static boolean isByteTypeComparable(SqlCallBinding binding,
+      List<SqlNode> operands, boolean throwOnFailure) {
+    final SqlValidator validator = binding.getValidator();
+    final SqlValidatorScope scope = binding.getScope();
+    assert operands != null;
+    assert operands.size() >= 2;
+    if (!isByteTypeComparable(
+        deriveAndCollectTypes(validator, scope, operands))) {
+      if (throwOnFailure) {
+        throw getNotComparableError(binding, operands);
+      }
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Builds an exception message for operands that are not comparable.
+   *
+   * @param binding The call binding
+   * @param operands The operands
+   *
+   * @return The exception
+   */
+  private static CalciteException getNotComparableError(SqlCallBinding binding,
+      List<SqlNode> operands) {
+    String msg = "";
+    for (int i = 0; i < operands.size(); i++) {
+      if (i > 0) {
+        msg += ", ";
+      }
+      msg += operands.get(i).toString();
+    }
+    return binding.newError(RESOURCE.operandNotComparable(msg));
   }
 
   /**
@@ -360,6 +448,13 @@ public abstract class SqlTypeUtil {
   public static boolean inCharOrBinaryFamilies(RelDataType type) {
     return (type.getFamily() == SqlTypeFamily.CHARACTER)
         || (type.getFamily() == SqlTypeFamily.BINARY);
+  }
+
+  /**
+   * @return true if type has SqlTypeName of BYTE.
+   */
+  public static boolean isByteType(RelDataType type) {
+    return type.getSqlTypeName() == SqlTypeName.BYTE;
   }
 
   /**

@@ -220,6 +220,7 @@ public class SqlLiteral extends SqlNode {
     case BINARY:
       return value instanceof BitString;
     case CHAR:
+    case BYTE:
       return value instanceof NlsString;
     case SYMBOL:
       return (value instanceof Enum)
@@ -518,6 +519,7 @@ public class SqlLiteral extends SqlNode {
     }
     switch (typeName) {
     case CHAR:
+    case BYTE:
 
       // We want 'It''s superman!', not _ISO-8859-1'It''s superman!'
       return ((NlsString) value).getValue();
@@ -735,6 +737,8 @@ public class SqlLiteral extends SqlNode {
       bitString = (BitString) value;
       int bitCount = bitString.getBitCount();
       return typeFactory.createSqlType(SqlTypeName.BINARY, bitCount / 8);
+    case BYTE:
+      return typeFactory.createSqlType(SqlTypeName.BYTE);
     case CHAR:
       NlsString string = (NlsString) value;
       Charset charset = string.getCharset();
@@ -943,6 +947,18 @@ public class SqlLiteral extends SqlNode {
       SqlParserPos pos) {
     // UnsupportedCharsetException not possible
     return createCharString(s, null, pos);
+  }
+
+  /**
+   * Creates a byte literal.
+   *
+   * @param s   a string (without the sql single quotes)
+   * @param pos Parser position
+   */
+  public static SqlLiteral createByteLiteral(
+      String s,
+      SqlParserPos pos) {
+    return new SqlByteLiteral(s, pos, "XB");
   }
 
   /**

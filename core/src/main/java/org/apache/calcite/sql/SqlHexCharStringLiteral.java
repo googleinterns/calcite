@@ -87,36 +87,10 @@ public class SqlHexCharStringLiteral extends SqlLiteral {
       final int rightPrec) {
     if (charSet != null) {
       writer.print("_");
-      switch (this.charSet) {
-      case LATIN:
-        writer.keyword("LATIN");
-        break;
-      case UNICODE:
-        writer.keyword("UNICODE");
-        break;
-      case GRAPHIC:
-        writer.keyword("GRAPHIC");
-        break;
-      case KANJISJIS:
-        writer.keyword("KANJISJIS");
-        break;
-      case KANJI1:
-        writer.keyword("KANJI1");
-        break;
-      }
+      writer.keyword(charSet.toString());
     }
     writer.literal(value.toString());
-    switch (format) {
-    case XC:
-      writer.keyword("XC");
-      break;
-    case XCF:
-      writer.keyword("XCF");
-      break;
-    case XCV:
-      writer.keyword("XCV");
-      break;
-    }
+    writer.keyword(format.toString());
   }
 
   public enum HexCharLiteralFormat {
