@@ -24,7 +24,7 @@ import org.apache.calcite.sql.parser.SqlParserPos;
  */
 public class SqlColumnAttributeCaseSpecific extends SqlColumnAttribute {
 
-  private final boolean isCaseSpecific;
+  public final boolean isCaseSpecific;
 
   /**
    * Creates a {@code SqlColumnAttributeCaseSpecific}.
