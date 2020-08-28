@@ -451,7 +451,7 @@ public abstract class SqlTypeUtil {
   }
 
   /**
-   * @return true if type has SqlTypeName of BYTE.
+   * Returns true if type has SqlTypeName of BYTE.
    */
   public static boolean isByteType(RelDataType type) {
     return type.getSqlTypeName() == SqlTypeName.BYTE;
